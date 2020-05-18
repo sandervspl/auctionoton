@@ -1,9 +1,9 @@
 {
   "name": "Wowhead Auction House Price Data",
-  "version": "1.0",
   "description": "This addon displays relevant Auction House data for items on classic.wowhead.com",
   "content_scripts": [{
       "matches": ["https://classic.wowhead.com/item=*"],
-      "js": ["./index.ts"]
-  }]
+      "js": ["index.ts"]
+  }],
+  "web_accessible_resources": ["index.ts"]
 }

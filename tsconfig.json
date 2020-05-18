@@ -7,7 +7,7 @@
       "strict": true,
       "baseUrl": ".",
       "paths": {},
-      "lib": ["esnext"]
+      "lib": ["esnext", "DOM"]
   },
   "exclude": ["node_modules"]
 }
