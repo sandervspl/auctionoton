@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+      "noEmit": true,
+      "removeComments": true,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "strict": true,
+      "baseUrl": ".",
+      "paths": {},
+      "lib": ["esnext"]
+  },
+  "exclude": ["node_modules"]
+}
