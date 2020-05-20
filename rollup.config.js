@@ -6,27 +6,29 @@ import { chromeExtension, pushReloader } from 'rollup-plugin-chrome-extension';
 import injectProcessEnv from 'rollup-plugin-inject-process-env';
 import config from './config';
 
-export default {
+const rollup = {
   input: 'src/manifest.json',
   output: {
     dir: 'dist',
     format: 'esm',
   },
-  external: [
-    'cash-dom',
-  ],
   plugins: [
     clearDist({ targets: 'dist/*' }),
     chromeExtension(),
     resolve(),
     commonjs(),
     typescript(),
-    pushReloader(),
     injectProcessEnv({
-      /* eslint-disable no-undef */
       NODE_ENV: process.env.NODE_ENV,
       API: config.api[process.env.NODE_ENV],
-      /* eslint-enable */
     }),
   ],
 };
+
+if (process.env.NODE_ENV === 'development') {
+  rollup.plugins.push(
+    pushReloader(),
+  );
+}
+
+export default rollup;

@@ -9,6 +9,9 @@
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended"
   ],
+  "env": {
+    "node": true
+  },
   "rules": {
     "max-len": [2, 120],
     "eol-last": [2, "always"],
