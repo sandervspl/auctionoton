@@ -62,6 +62,7 @@ const generateTooltip = async (parentElement: HTMLElement, itemName: string): Pr
 
   // Build the container
   const container = document.createElement('table');
+  container.style.width = '100%';
 
   container.innerHTML = tooltipTemplate(user);
   parentElement.appendChild(container);
