@@ -1,5 +1,5 @@
 import * as i from './types';
-import asyncStorage from './asyncStorage';
+import AsyncStorage from './asyncStorage';
 import fetchItemData from './fetchItemData';
 
 /**
@@ -19,12 +19,16 @@ const generateValueString = (valueObject: i.ValueObject): string => {
     .join(' ');
 };
 
-const generateTooltip = async (itemName: string): Promise<HTMLTableElement> => {
+const generateTooltip = async (itemName: string): Promise<HTMLTableElement | undefined> => {
   // Get user data
-  const { user } = await asyncStorage.get('user');
+  const user = await AsyncStorage.get('user');
 
   // Get item data
   const data = await fetchItemData(itemName);
+
+  if (!user || !data) {
+    return;
+  }
 
   // Build the container
   const container = document.createElement('table');

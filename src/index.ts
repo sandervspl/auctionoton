@@ -1,11 +1,11 @@
 // import { css } from 'otion';
 // import $ from 'cash-dom';
-import asyncStorage from './asyncStorage';
+import AsyncStorage from './asyncStorage';
 import generateTooltip from './tooltip';
 
 (async (): Promise<void> => {
   // FOR TESTING PURPOSES
-  await asyncStorage.set({
+  await AsyncStorage.set({
     user: {
       server: 'Firemaw',
       faction: 'Horde',
@@ -44,6 +44,10 @@ import generateTooltip from './tooltip';
   tooltipElement.style.width = 'auto';
 
   const tooltip = await generateTooltip(itemName);
+
+  if (!tooltip) {
+    return;
+  }
 
   tooltipElement.appendChild(tooltip);
 })();
