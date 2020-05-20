@@ -14,3 +14,8 @@ export type ValueObject = {
   silver: number;
   copper: number;
 }
+
+export type UserData = {
+  faction: string;
+  server: string;
+}

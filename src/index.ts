@@ -21,8 +21,6 @@ import generateTooltip from './tooltip';
   }
 
   const itemName = itemNameSearch[1];
-
-
   const pathname = window.location.pathname;
   const itemIdSearch = /\d+/.exec(pathname);
 
@@ -43,11 +41,5 @@ import generateTooltip from './tooltip';
   // Remove the fixed width
   tooltipElement.style.width = 'auto';
 
-  const tooltip = await generateTooltip(itemName);
-
-  if (!tooltip) {
-    return;
-  }
-
-  tooltipElement.appendChild(tooltip);
+  await generateTooltip(tooltipElement, itemName);
 })();
