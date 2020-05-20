@@ -4,6 +4,7 @@ import typescript from '@rollup/plugin-typescript';
 import clearDist from 'rollup-plugin-delete';
 import { chromeExtension, pushReloader } from 'rollup-plugin-chrome-extension';
 import injectProcessEnv from 'rollup-plugin-inject-process-env';
+import svg from 'rollup-plugin-svg';
 import config from './config';
 
 const rollup = {
@@ -15,6 +16,7 @@ const rollup = {
   plugins: [
     clearDist({ targets: 'dist/*' }),
     chromeExtension(),
+    svg(),
     resolve(),
     commonjs(),
     typescript(),

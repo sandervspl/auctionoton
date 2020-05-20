@@ -1,6 +1,7 @@
 import * as i from './types';
 import AsyncStorage from './asyncStorage';
 import API from './fetchItemData';
+import loadingSvg from './static/loading.svg';
 
 /**
  * @description Returns an HTML string for gold/silver/copper with icon
@@ -35,7 +36,10 @@ const tooltipTemplate = (user: i.UserData, lastUpdatedStr?: string, itemTemplate
                   Auction House Data for ${user.server}-${user.faction}
                 </span>
                 <div class="whtt-sellprice" style="margin-bottom: 10px">
-                  ${lastUpdatedStr ? `Last updated: ${lastUpdatedStr}` : 'Loading...'}
+                  ${lastUpdatedStr
+                    ? `Last updated: ${lastUpdatedStr}`
+                    : loadingSvg
+                  }
                 </div>
               </td>
             </tr>
