@@ -18,7 +18,7 @@ const generateValueString = (valueObject: i.ValueObject): string => {
     }, [] as string[])
     .join(' ');
 
-  return str || '<span style="color:#b9b9b9">N/A</span>';
+  return `<span>${str}</span>` || '<span style="color:#b9b9b9">N/A</span>';
 };
 
 const tooltipTemplate = (user: i.UserData, lastUpdatedStr?: string, itemTemplate?: string): string => `
@@ -81,15 +81,15 @@ const generateTooltip = async (parentElement: HTMLElement, itemName: string): Pr
   container.innerHTML = tooltipTemplate(user, data.lastUpdated, `
     <tr>
       <td>
-        <div class="whtt-sellprice">
+        <div class="whtt-sellprice" style="display:flex;justify-content:space-between">
           <div style="display:inline-block; width:112px">Market Value:</div>
           ${generateValueString(data.marketValue)}
         </div>
-        <div class="whtt-sellprice">
+        <div class="whtt-sellprice" style="display:flex;justify-content:space-between">
           <div style="display:inline-block; width:112px">Historical Value:</div>
           ${generateValueString(data.historicalValue)}
         </div>
-        <div class="whtt-sellprice">
+        <div class="whtt-sellprice" style="display:flex;justify-content:space-between">
           <div style="display:inline-block; width:112px">Minimum Buyout:</div>
           ${generateValueString(data.minimumBuyout)}
         </div>
