@@ -6,7 +6,7 @@ import API from './fetchItemData';
  * @description Returns an HTML string for gold/silver/copper with styles
  */
 const generateValueString = (valueObject: i.ValueObject): string => {
-  return (Object.keys(valueObject) as (keyof i.ValueObject)[])
+  const str = (Object.keys(valueObject) as (keyof i.ValueObject)[])
     .reduce((prev, key) => {
       if (valueObject[key] > 0) {
         prev.push(`<span class="money${key}">${valueObject[key]}</span>`);
@@ -17,6 +17,8 @@ const generateValueString = (valueObject: i.ValueObject): string => {
       return prev;
     }, [] as string[])
     .join(' ');
+
+  return str || '<span style="color:#b9b9b9">N/A</span>';
 };
 
 const tooltipTemplate = (user: i.UserData, lastUpdatedStr?: string, itemTemplate?: string): string => `
