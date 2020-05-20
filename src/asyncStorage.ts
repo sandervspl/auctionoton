@@ -14,7 +14,7 @@ abstract class AsyncStorage {
     });
   }
 
-  static async addItem(data: Storage['items']): Promise<void> {
+  static async addItem(data: Record<string, i.CachedItemData>): Promise<void> {
     const items = await AsyncStorage.get('items');
 
     const newItems = {
@@ -25,7 +25,7 @@ abstract class AsyncStorage {
     await AsyncStorage.set({ items: newItems });
   }
 
-  static async getItem(itemName: string): Promise<i.ItemData | undefined> {
+  static async getItem(itemName: string): Promise<i.CachedItemData | undefined> {
     const items = await AsyncStorage.get('items');
 
     return items?.[itemName];
@@ -39,7 +39,7 @@ type Storage = {
     server: string;
     faction: string;
   };
-  items: Record<string, i.ItemData>;
+  items: Record<string, i.CachedItemData>;
 };
 
 type StorageKeys = keyof Storage;

@@ -6,13 +6,23 @@ const fetchItemData = async (itemName: string): Promise<i.ItemData | undefined> 
   const cachedItem = await AsyncStorage.getItem(itemName);
 
   if (cachedItem) {
-    return cachedItem;
+    const now = new Date().getTime();
+    const hour = 3.6e6;
+
+    // If it's less than an hour old, return cached data
+    if (now - cachedItem.updatedAt < hour) {
+      console.log(`Retrieved ${itemName} data from cache`);
+
+      return cachedItem;
+    }
   }
 
   // Get user data
   const user = await AsyncStorage.get('user');
 
   if (!user) {
+    console.error('no user');
+
     return;
   }
 
@@ -21,9 +31,14 @@ const fetchItemData = async (itemName: string): Promise<i.ItemData | undefined> 
 
   const data = await result.json() as i.ItemData;
 
+  const cachedData = {
+    ...data,
+    updatedAt: new Date().getTime(),
+  };
+
   // Save data to storage
   await AsyncStorage.addItem({
-    [itemName]: data,
+    [itemName]: cachedData,
   });
 
   return data;
