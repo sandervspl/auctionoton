@@ -3,22 +3,24 @@ import AsyncStorage from './asyncStorage';
 import API from './fetchItemData';
 
 /**
- * @description Returns an HTML string for gold/silver/copper with styles
+ * @description Returns an HTML string for gold/silver/copper with icon
  */
 const generateValueString = (valueObject: i.ValueObject): string => {
-  const str = (Object.keys(valueObject) as (keyof i.ValueObject)[])
-    .reduce((prev, key) => {
-      if (valueObject[key] > 0) {
-        prev.push(`<span class="money${key}">${valueObject[key]}</span>`);
+  const strArr = [];
 
-        return prev;
-      }
+  if (valueObject.gold > 0) {
+    strArr.push(`<span class="moneygold">${valueObject.gold}</span>`);
+  }
+  if (valueObject.silver > 0) {
+    strArr.push(`<span class="moneysilver">${valueObject.silver}</span>`);
+  }
+  if (valueObject.copper > 0) {
+    strArr.push(`<span class="moneycopper">${valueObject.copper}</span>`);
+  }
 
-      return prev;
-    }, [] as string[])
-    .join(' ');
-
-  return `<span>${str}</span>` || '<span style="color:#b9b9b9">N/A</span>';
+  return strArr.length > 0
+    ? `<span>${strArr.join(' ')}</span>`
+    : '<span style="color:#b9b9b9">N/A</span>';
 };
 
 const tooltipTemplate = (user: i.UserData, lastUpdatedStr?: string, itemTemplate?: string): string => `
