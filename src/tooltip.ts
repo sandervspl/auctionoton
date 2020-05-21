@@ -3,6 +3,12 @@ import AsyncStorage from './asyncStorage';
 import API from './fetchItemData';
 import loadingSvg from './static/loading.svg';
 
+const PREFIX = 'WAHPD';
+const ELEMENT_ID = {
+  CONTAINER: `${PREFIX}-container`,
+  TOOLTIP: `${PREFIX}-tooltip`,
+};
+
 /**
  * @description Returns an HTML string for gold/silver/copper with icon
  */
@@ -33,7 +39,7 @@ const tooltipTemplate = (user: i.UserData, lastUpdatedStr?: string, itemTemplate
             <tr>
               <td>
                 <span class="q whtt-extra whtt-ilvl">
-                  Auction House Data for ${user.server}-${user.faction}
+                  Auction House Data for ${user.server.name}-${user.faction}
                 </span>
                 <div class="whtt-sellprice" style="margin-bottom: 10px">
                   ${lastUpdatedStr
@@ -67,11 +73,19 @@ const generateTooltip = async (parentElement: HTMLElement, itemName: string): Pr
   }
 
   // Build the container
-  const container = document.createElement('table');
-  container.style.width = '100%';
+  const container = document.createElement('div');
+  container.id = ELEMENT_ID.CONTAINER;
+  container.style.position = 'relative';
 
-  container.innerHTML = tooltipTemplate(user);
   parentElement.appendChild(container);
+
+  // Build the tooltip
+  const tooltipContainer = document.createElement('table');
+  tooltipContainer.id = ELEMENT_ID.TOOLTIP;
+  tooltipContainer.style.width = '100%';
+
+  tooltipContainer.innerHTML = tooltipTemplate(user);
+  container.appendChild(tooltipContainer);
 
   // Get item data
   const data = await API.fetchItemData(itemName);
@@ -82,9 +96,9 @@ const generateTooltip = async (parentElement: HTMLElement, itemName: string): Pr
   }
 
   // Remove loading tooltip
-  parentElement.removeChild(container);
+  container.removeChild(tooltipContainer);
 
-  container.innerHTML = tooltipTemplate(user, data.lastUpdated, `
+  tooltipContainer.innerHTML = tooltipTemplate(user, data.lastUpdated, `
     <tr>
       <td>
         <div class="whtt-sellprice" style="display:flex;justify-content:space-between">
@@ -103,9 +117,9 @@ const generateTooltip = async (parentElement: HTMLElement, itemName: string): Pr
     </tr>
   `);
 
-  parentElement.appendChild(container);
+  container.appendChild(tooltipContainer);
 
-  return container;
+  return tooltipContainer;
 };
 
 export default generateTooltip;

@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+  <head>
+    <!-- Support cyrillic characters -->
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+    <title>Auction House Price Data for Wowhead</title>
+    <style>
+
+    </style>
+    <script src="form.js"></script>
+  </head>
+  <body>
+    <form id="form">
+      <label for="region">
+        Choose your region
+        <select name="region" id="region">
+          <option value="eu">EU</option>
+          <option value="us">US</option>
+        </select>
+      </label>
+
+      <br />
+
+      <label for="server">
+        Choose your server
+        <select name="server" id="server">
+        </select>
+      </label>
+
+      <br />
+
+      <label for="faction">
+        Choose your faction
+        <select name="faction" id="faction">
+          <option value="Alliance">Alliance</option>
+          <option value="Horde">Horde</option>
+        </select>
+      </label>
+    </form>
+
+    <br />
+
+    <button type="button" id="submit">Save</button>
+  </body>
+</html>
+
+

@@ -32,7 +32,7 @@ abstract class API {
 
     // Fetch item price data
     try {
-      const result = await fetch(`${process.env.API}/item/${user.server}/${user.faction}/${itemName}`);
+      const result = await fetch(`${process.env.API}/item/${user.server.slug}/${user.faction}/${itemName}`);
       const data = await result.json() as i.ItemData | { statusCode: number; message: string };
 
       // Something went wrong

@@ -2,12 +2,13 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
 import clearDist from 'rollup-plugin-delete';
-import { chromeExtension, pushReloader } from 'rollup-plugin-chrome-extension';
+import { chromeExtension } from 'rollup-plugin-chrome-extension';
 import injectProcessEnv from 'rollup-plugin-inject-process-env';
 import svg from 'rollup-plugin-svg';
+import copy from 'rollup-plugin-copy';
 import config from './config';
 
-const rollup = {
+const rollup = [{
   input: 'src/manifest.json',
   output: {
     dir: 'dist',
@@ -25,12 +26,22 @@ const rollup = {
       API: config.api[process.env.NODE_ENV],
     }),
   ],
-};
-
-if (process.env.NODE_ENV === 'development') {
-  rollup.plugins.push(
-    pushReloader(),
-  );
-}
+}, {
+  input: 'src/form.ts',
+  output: {
+    dir: 'dist',
+    format: 'esm',
+  },
+  plugins: [
+    resolve(),
+    commonjs(),
+    typescript(),
+    copy({
+      targets: [
+        { src: 'src/index.html', dest: 'dist' },
+      ],
+    }),
+  ],
+}];
 
 export default rollup;

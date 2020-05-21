@@ -17,5 +17,8 @@ export type ValueObject = {
 
 export type UserData = {
   faction: string;
-  server: string;
+  server: {
+    name: string;
+    slug: string;
+  };
 }

@@ -4,7 +4,6 @@ abstract class AsyncStorage {
   static get <T extends StorageKeys>(key: T): Promise<Storage[T] | undefined> {
 
     return new Promise((resolve) => {
-      // @ts-ignore
       chrome.storage.sync.get(key, (items) => {
         return resolve(items[key]);
       });

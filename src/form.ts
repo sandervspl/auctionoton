@@ -1,0 +1,234 @@
+import AsyncStorage from './asyncStorage';
+
+const realms = {
+  eu: {
+    english: [
+      'Amnennar',
+      'Ashbringer',
+      'Auberdine',
+      'Bloodfang',
+      'Celebras',
+      'Dragon\'s Call',
+      'Dragonfang',
+      'Dreadmist',
+      'Earthshaker',
+      'Everlook',
+      'Finkle',
+      'Firemaw',
+      'Flamelash',
+      'Gandling',
+      'Gehennas',
+      'Golemagg',
+      'Heartstriker',
+      'Hydraxian Waterlords',
+      'Judgement',
+      'Lakeshire',
+      'Lucifron',
+      'Mandokir',
+      'Mirage Raceway',
+      'Mograine',
+      'Nethergarde Keep',
+      'Noggenfogger',
+      'Patchwerk',
+      'Pyrewood Village',
+      'Razorfen',
+      'Razorgore',
+      'Shazzrah',
+      'Skullflame',
+      'Stonespine',
+      'Sulfuron',
+      'Ten Storms',
+      'Transcendence',
+      'Venoxis',
+      'Zandalar Tribe',
+    ],
+    russian: [
+      {
+        cyrillic: 'Вестник Рока',
+        english: 'Doomsayer',
+      },
+      {
+        cyrillic: 'Змейталак',
+        english: 'Wyrmthalak',
+      },
+      {
+        cyrillic: 'Пламегор',
+        english: 'Flamegor',
+      },
+      {
+        cyrillic: 'Рок-Делар',
+        english: 'Rhokdelar',
+      },
+      {
+        cyrillic: 'Хроми',
+        english: 'Chromie',
+      },
+    ],
+  },
+  us: [
+    'Anathema',
+    'Arcanite Reaper',
+    'Arugal',
+    'Ashkandi',
+    'Atiesh',
+    'Azuresong',
+    'Benediction',
+    'Bigglesworth',
+    'Blaumeux',
+    'Bloodsail Buccaneers',
+    'Deviate Delight',
+    'Earthfury',
+    'Faerlina',
+    'Fairbanks',
+    'Felstriker',
+    'Grobbulus',
+    'Heartseeker',
+    'Herod',
+    'Incendius',
+    'Kirtonos',
+    'Kromcrush',
+    'Kurinnaxx',
+    'Loatheb',
+    'Mankrik',
+    'Myzrael',
+    'Netherwind',
+    'Old Blanchy',
+    'Pagle',
+    'Rattlegore',
+    'Remulos',
+    'Skeram',
+    'Smolderweb',
+    'Stalagg',
+    'Sul\'thraze',
+    'Sulfuras',
+    'Thalnos',
+    'Thunderfury',
+    'Westfall',
+    'Whitemane',
+    'Windseeker',
+    'Yojamba',
+  ],
+};
+
+const fillServerList = (region: 'eu' | 'us'): void => {
+  const serverSelect = document.querySelector('#server') as HTMLSelectElement | null;
+
+  if (!serverSelect) {
+    return;
+  }
+
+  // Remove all existing options
+  const amt = serverSelect.options.length;
+
+  for (let i = amt; i >= 0; i--) {
+    serverSelect.remove(i);
+  }
+
+  // Add options
+  if (region === 'eu') {
+    (Object.keys(realms.eu) as ['english', 'russian']).forEach((subregion) => {
+      (realms.eu[subregion] as EURealm[]).forEach((realm) => {
+        const option = document.createElement('option');
+
+        if (typeof realm === 'string') {
+          const slug = realm
+            .toLowerCase()
+            .replace('\'', '')
+            .replace(' ', '-');
+
+          option.value = JSON.stringify({
+            name: realm,
+            slug,
+          });
+          option.innerText = realm;
+        }
+
+        if (typeof realm === 'object') {
+          option.value = JSON.stringify({
+            name: realm.cyrillic,
+            slug: realm.english.toLowerCase(),
+          });
+          option.innerText = realm.cyrillic;
+        }
+
+        serverSelect.appendChild(option);
+      });
+    });
+  } else {
+    // US
+    realms[region].forEach((realm) => {
+      const option = document.createElement('option');
+
+      const slug = realm
+        .toLowerCase()
+        .replace('\'', '')
+        .replace(' ', '-');
+
+      option.value = JSON.stringify({
+        name: realm,
+        slug,
+      });
+      option.innerText = realm;
+
+      serverSelect.appendChild(option);
+    });
+  }
+};
+
+document.addEventListener('DOMContentLoaded', function () {
+  const regionSelect = document.querySelector('#region') as HTMLSelectElement | null;
+  const serverSelect = document.querySelector('#server') as HTMLSelectElement | null;
+  const factionSelect = document.querySelector('#server') as HTMLSelectElement | null;
+
+  if (!regionSelect || !serverSelect || !factionSelect) {
+    return;
+  }
+
+  // Initial list fill
+  fillServerList(regionSelect.value as 'eu' | 'us');
+
+  // Fill list according to selected region
+  regionSelect.addEventListener('change', (e) => {
+    // @ts-ignore
+    const { value } = e.target;
+
+    fillServerList(value);
+  });
+
+  document.querySelector('#submit')?.addEventListener('click', async () => {
+    // Remove success message
+    let resultElement = document.querySelector('#result');
+
+    if (resultElement) {
+      document.querySelector('body')?.removeChild(resultElement);
+    }
+
+    const form = document.querySelector('form');
+
+    if (!form) {
+      return;
+    }
+
+    const formValues = Object.values(form).reduce((obj,field) => {
+      obj[field.name] = field.value;
+
+      return obj;
+    }, {});
+
+    await AsyncStorage.set({
+      user: {
+        server: JSON.parse(formValues.server),
+        faction: formValues.faction,
+      },
+    });
+
+    resultElement = document.createElement('div');
+    resultElement.id = 'result';
+    resultElement.textContent = 'Saved succesfully!';
+    (resultElement as HTMLElement).style.color = 'green';
+
+    document.querySelector('body')?.appendChild(resultElement);
+  });
+});
+
+type EURealm = string | { english: string; cyrillic: string }

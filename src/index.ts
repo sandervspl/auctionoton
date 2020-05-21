@@ -1,17 +1,6 @@
-// import { css } from 'otion';
-// import $ from 'cash-dom';
-import AsyncStorage from './asyncStorage';
 import generateTooltip from './tooltip';
 
 (async (): Promise<void> => {
-  // FOR TESTING PURPOSES
-  await AsyncStorage.set({
-    user: {
-      server: 'Firemaw',
-      faction: 'Horde',
-    },
-  });
-
   // Get item name
   const itemNameSearch = window.location.pathname.match(/item=\d+\/([\w\d-]+)/);
 
