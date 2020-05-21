@@ -18,21 +18,19 @@ abstract class AsyncStorage {
     });
   }
 
-  static async addItem(data: Record<string, i.CachedItemData>): Promise<void> {
-    const items = await AsyncStorage.get('items');
+  static async addItem(data: Record<string, i.CachedItemData>, serverSlug: string, faction: string): Promise<void> {
+    const items = await AsyncStorage.get('items') || {};
 
-    const newItems = {
-      ...items,
-      ...data,
-    };
+    items[serverSlug] = items[serverSlug] || {};
+    items[serverSlug][faction] = data;
 
-    await AsyncStorage.set({ items: newItems });
+    await AsyncStorage.set({ items });
   }
 
-  static async getItem(itemName: string): Promise<i.CachedItemData | undefined> {
+  static async getItem(itemName: string, serverSlug: string, faction: string): Promise<i.CachedItemData | undefined> {
     const items = await AsyncStorage.get('items');
 
-    return items?.[itemName];
+    return items?.[serverSlug]?.[faction]?.[itemName];
   }
 }
 
@@ -40,7 +38,13 @@ export default AsyncStorage;
 
 type Storage = {
   user: i.UserData;
-  items: Record<string, i.CachedItemData>;
+  items: {
+    [serverSlug: string]: {
+      [faction: string]: {
+        [itemName: string]: i.CachedItemData;
+      };
+    };
+  };
 };
 
 type StorageKeys = keyof Storage;

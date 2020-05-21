@@ -6,9 +6,19 @@ import AsyncStorage from './asyncStorage';
 
 abstract class API {
   static async fetchItemData(itemName: string): Promise<i.ItemData | undefined> {
-    // First check if data for this item is saved in storage
-    const cachedItem = await AsyncStorage.getItem(itemName);
+    // Get user data
+    const user = await AsyncStorage.get('user');
 
+    if (!user) {
+      console.error('no user data found');
+
+      return;
+    }
+
+    // First check if data for this item is saved in storage
+    const cachedItem = await AsyncStorage.getItem(itemName, user.server.slug, user.faction);
+
+    // Return cached data if it exists
     if (cachedItem) {
       const now = new Date().getTime();
       const hour = 3.6e6;
@@ -19,15 +29,6 @@ abstract class API {
 
         return cachedItem;
       }
-    }
-
-    // Get user data
-    const user = await AsyncStorage.get('user');
-
-    if (!user) {
-      console.error('no user data found');
-
-      return;
     }
 
     // Fetch item price data
@@ -47,9 +48,11 @@ abstract class API {
       };
 
       // Save data to storage
-      await AsyncStorage.addItem({
-        [itemName]: cachedData,
-      });
+      await AsyncStorage.addItem(
+        { [itemName]: cachedData },
+        user.server.slug,
+        user.faction
+      );
 
       return data as i.ItemData;
     } catch (err) {
