@@ -1,6 +1,9 @@
 import * as i from './types';
 import AsyncStorage from './asyncStorage';
 
+// CLEAR STORAGE
+// AsyncStorage.set({ items: {} });
+
 abstract class API {
   static async fetchItemData(itemName: string): Promise<i.ItemData | undefined> {
     // First check if data for this item is saved in storage
@@ -28,20 +31,30 @@ abstract class API {
     }
 
     // Fetch item price data
-    const result = await fetch(`${process.env.API}/item/${user.server}/${user.faction}/${itemName}`);
-    const data = await result.json() as i.ItemData;
+    try {
+      const result = await fetch(`${process.env.API}/item/${user.server}/${user.faction}/${itemName}`);
+      const data = await result.json() as i.ItemData | { statusCode: number; message: string };
 
-    const cachedData = {
-      ...data,
-      updatedAt: new Date().getTime(),
-    };
+      // Something went wrong
+      if (!(data as i.ItemData).lastUpdated) {
+        // @ts-ignore
+        return console.error({ statusCode: data.statusCode, message: data.message });
+      }
 
-    // Save data to storage
-    await AsyncStorage.addItem({
-      [itemName]: cachedData,
-    });
+      const cachedData = {
+        ...data as i.ItemData,
+        updatedAt: new Date().getTime(),
+      };
 
-    return data;
+      // Save data to storage
+      await AsyncStorage.addItem({
+        [itemName]: cachedData,
+      });
+
+      return data as i.ItemData;
+    } catch (err) {
+      console.error(err);
+    }
   }
 }
 
