@@ -19,6 +19,7 @@
     "object-curly-spacing": [1, "always"],
     "@typescript-eslint/ban-ts-ignore": 0,
     "semi": 2,
-    "no-trailing-spaces": 2
+    "no-trailing-spaces": 2,
+    "quotes": [1, "single"]
   }
 }
