@@ -5,7 +5,6 @@ import clearDist from 'rollup-plugin-delete';
 import { chromeExtension } from 'rollup-plugin-chrome-extension';
 import injectProcessEnv from 'rollup-plugin-inject-process-env';
 import svg from 'rollup-plugin-svg';
-import copy from 'rollup-plugin-copy';
 import config from './config';
 
 const rollup = [{
@@ -36,11 +35,6 @@ const rollup = [{
     resolve(),
     commonjs(),
     typescript(),
-    copy({
-      targets: [
-        { src: 'src/index.html', dest: 'dist' },
-      ],
-    }),
   ],
 }];
 

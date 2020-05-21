@@ -1,3 +1,4 @@
+import * as i from './types';
 import AsyncStorage from './asyncStorage';
 
 const realms = {
@@ -110,7 +111,7 @@ const realms = {
   ],
 };
 
-const fillServerList = (region: 'eu' | 'us'): void => {
+const fillServerList = (region: i.UserData['region'], selectedServer?: string): void => {
   const serverSelect = document.querySelector('#server') as HTMLSelectElement | null;
 
   if (!serverSelect) {
@@ -141,6 +142,7 @@ const fillServerList = (region: 'eu' | 'us'): void => {
             slug,
           });
           option.innerText = realm;
+          option.selected = realm === selectedServer;
         }
 
         if (typeof realm === 'object') {
@@ -149,6 +151,7 @@ const fillServerList = (region: 'eu' | 'us'): void => {
             slug: realm.english.toLowerCase(),
           });
           option.innerText = realm.cyrillic;
+          option.selected = realm.cyrillic === selectedServer;
         }
 
         serverSelect.appendChild(option);
@@ -169,13 +172,14 @@ const fillServerList = (region: 'eu' | 'us'): void => {
         slug,
       });
       option.innerText = realm;
+      option.selected = realm === selectedServer;
 
       serverSelect.appendChild(option);
     });
   }
 };
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async () => {
   const regionSelect = document.querySelector('#region') as HTMLSelectElement | null;
   const serverSelect = document.querySelector('#server') as HTMLSelectElement | null;
   const factionSelect = document.querySelector('#server') as HTMLSelectElement | null;
@@ -184,8 +188,23 @@ document.addEventListener('DOMContentLoaded', function () {
     return;
   }
 
+  const user = await AsyncStorage.get('user');
+
+  if (!user) {
+    return;
+  }
+
   // Initial list fill
-  fillServerList(regionSelect.value as 'eu' | 'us');
+  fillServerList(user.region, user.server.name);
+
+
+  // Set faction according to user's selection
+  const factionOption = document.querySelector(`option[value="${user.faction}"]`) as HTMLOptionElement | null;
+
+  if (factionOption) {
+    factionOption.selected = true;
+  }
+
 
   // Fill list according to selected region
   regionSelect.addEventListener('change', (e) => {
@@ -195,6 +214,7 @@ document.addEventListener('DOMContentLoaded', function () {
     fillServerList(value);
   });
 
+  // Save to storage on form submit
   document.querySelector('#submit')?.addEventListener('click', async () => {
     // Remove success message
     let resultElement = document.querySelector('#result');
@@ -217,6 +237,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     await AsyncStorage.set({
       user: {
+        region: formValues.region,
         server: JSON.parse(formValues.server),
         faction: formValues.faction,
       },

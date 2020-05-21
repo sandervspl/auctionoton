@@ -16,6 +16,7 @@ export type ValueObject = {
 }
 
 export type UserData = {
+  region: 'eu' | 'us';
   faction: string;
   server: {
     name: string;

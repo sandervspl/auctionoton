@@ -5,6 +5,7 @@ chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install') {
     AsyncStorage.set({
       user: {
+        region: 'eu',
         server: {
           name: 'Amnennar',
           slug: 'amnennar',
@@ -13,6 +14,6 @@ chrome.runtime.onInstalled.addListener((details) => {
       },
     });
 
-    chrome.tabs.create({ url: './index.html' });
+    chrome.tabs.create({ url: './form.html' });
   }
 });

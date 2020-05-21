@@ -20,6 +20,7 @@
     "@typescript-eslint/ban-ts-ignore": 0,
     "semi": 2,
     "no-trailing-spaces": 2,
-    "quotes": [1, "single"]
+    "quotes": [1, "single"],
+    "@typescript-eslint/indent": ["error", 2]
   }
 }
