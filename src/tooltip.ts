@@ -42,10 +42,7 @@ const tooltipTemplate = (user: i.UserData, lastUpdatedStr?: string, itemTemplate
                   Auction House Data for ${user.server.name}-${user.faction}
                 </span>
                 <div class="whtt-sellprice" style="margin-bottom: 10px">
-                  ${lastUpdatedStr
-                    ? `Last updated: ${lastUpdatedStr}`
-                    : loadingSvg
-                  }
+                  ${lastUpdatedStr || loadingSvg}
                 </div>
               </td>
             </tr>
@@ -88,17 +85,21 @@ const generateTooltip = async (parentElement: HTMLElement, itemName: string): Pr
   container.appendChild(tooltipContainer);
 
   // Get item data
-  const data = await API.fetchItemData(itemName);
-
-  if (!user || !data) {
-    console.error('No user or item data present to create AH data');
-    return;
-  }
+  const data = await API.getItem(itemName);
 
   // Remove loading tooltip
   container.removeChild(tooltipContainer);
 
-  tooltipContainer.innerHTML = tooltipTemplate(user, data.lastUpdated, `
+  if (!data) {
+    console.error(`Error while fetching item '${itemName}'`);
+
+    tooltipContainer.innerHTML = tooltipTemplate(user, 'Unable to fetch item data. Try again later.');
+    container.appendChild(tooltipContainer);
+
+    return;
+  }
+
+  tooltipContainer.innerHTML = tooltipTemplate(user, `Last updated: ${data.lastUpdated}`, `
     <tr>
       <td>
         <div class="whtt-sellprice" style="display:flex;justify-content:space-between">

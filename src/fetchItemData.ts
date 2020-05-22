@@ -5,7 +5,7 @@ import AsyncStorage from './asyncStorage';
 // AsyncStorage.set({ items: {} });
 
 abstract class API {
-  static async fetchItemData(itemName: string): Promise<i.ItemData | undefined> {
+  static async getItem(itemName: string): Promise<i.ItemData | undefined> {
     // Get user data
     const user = await AsyncStorage.get('user');
 
@@ -33,7 +33,11 @@ abstract class API {
 
     // Fetch item price data
     try {
-      const result = await fetch(`${process.env.API}/item/${user.server.slug}/${user.faction}/${itemName}`);
+      const server = user.server.slug.toLowerCase();
+      const faction = user.faction.toLowerCase();
+      const item = itemName.toLowerCase();
+
+      const result = await fetch(`${process.env.API}/item/${server}/${faction}/${item}`);
       const data = await result.json() as i.ItemData | { statusCode: number; message: string };
 
       // Something went wrong
