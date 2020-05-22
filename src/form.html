@@ -5,42 +5,89 @@
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
     <title>Auction House Data for Wowhead</title>
     <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        font-family: 'Roboto', Helvetica, sans-serif;
+      }
 
+      h1 {
+        margin: 20px 35px;
+        color: #748194;
+        font-size: 16px;
+      }
+
+      select {
+        display: block;
+        font-weight: bold;
+        width: 230px;
+        margin: 20px 35px;
+        height: 35px;
+        padding: 6px 15px;
+        border-radius: 5px;
+        outline: none;
+        border: none;
+        background: #F6F7F9;
+        color: #748194;
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      select:hover {
+        background: #f0f1f3;
+      }
+
+      button {
+        font-weight: bold;
+        width: 230px;
+        margin: 0 35px 20px;
+        height: 45px;
+        padding: 6px 15px;
+        border-radius: 5px;
+        outline: none;
+        border: none;
+        background: #EE9BA3;
+        color: #ffffff;
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: #e4868f;
+      }
+
+      #result {
+        display: none;
+        margin: 0 35px 20px;
+        font-size: 14px;
+        color: #52b151;
+      }
     </style>
     <script src="form.ts"></script>
   </head>
   <body>
     <form id="form">
-      <label for="region">
-        Choose your region
-        <select name="region" id="region">
-          <option value="eu">EU</option>
-          <option value="us">US</option>
-        </select>
-      </label>
+      <h1>Select your server</h1>
 
-      <br />
+      <select name="region" id="region">
+        <option value="eu">EU</option>
+        <option value="us">US</option>
+      </select>
 
-      <label for="server">
-        Choose your server
-        <select name="server" id="server">
-        </select>
-      </label>
+      <select name="server" id="server">
+      </select>
 
-      <br />
-
-      <label for="faction">
-        Choose your faction
-        <select name="faction" id="faction">
-          <option value="Alliance">Alliance</option>
-          <option value="Horde">Horde</option>
-        </select>
-      </label>
+      <select name="faction" id="faction">
+        <option value="Alliance">Alliance</option>
+        <option value="Horde">Horde</option>
+      </select>
     </form>
 
-    <br />
-
     <button type="button" id="submit">Save</button>
+
+    <div id="result">Saved succesfully!</div>
   </body>
 </html>
 

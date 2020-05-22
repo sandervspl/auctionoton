@@ -216,17 +216,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Save to storage on form submit
   document.querySelector('#submit')?.addEventListener('click', async () => {
-    // Remove success message
-    let resultElement = document.querySelector('#result');
-
-    if (resultElement) {
-      document.querySelector('body')?.removeChild(resultElement);
-    }
-
     const form = document.querySelector('form');
 
     if (!form) {
       return;
+    }
+
+    // Remove success message
+    const resultElement = document.querySelector('#result') as HTMLElement | null;
+
+    if (resultElement) {
+      resultElement.style.display = 'none';
     }
 
     const formValues = Object.values(form).reduce((obj,field) => {
@@ -243,12 +243,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       },
     });
 
-    resultElement = document.createElement('div');
-    resultElement.id = 'result';
-    resultElement.textContent = 'Saved succesfully!';
-    (resultElement as HTMLElement).style.color = 'green';
-
-    document.querySelector('body')?.appendChild(resultElement);
+    if (resultElement) {
+      resultElement.style.display = 'block';
+    }
   });
 });
 
