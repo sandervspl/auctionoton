@@ -198,11 +198,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   fillServerList(user.region, user.server.name);
 
 
-  // Set faction according to user's selection
+  // Set faction/region according to user's selection
   const factionOption = document.querySelector(`option[value="${user.faction}"]`) as HTMLOptionElement | null;
+  const regionOption = document.querySelector(`option[value="${user.region}"]`) as HTMLOptionElement | null;
 
   if (factionOption) {
     factionOption.selected = true;
+  }
+
+  if (regionOption) {
+    regionOption.selected = true;
   }
 
 
