@@ -1,7 +1,7 @@
 import * as i from './types';
 
 abstract class AsyncStorage {
-  static get <T extends StorageKeys>(key: T): Promise<Storage[T] | undefined> {
+  static get <T extends i.StorageKeys>(key: T): Promise<Storage[T] | undefined> {
     return new Promise((resolve) => {
       chrome.storage.sync.get(key, (items) => {
         return resolve(items[key]);
@@ -9,7 +9,7 @@ abstract class AsyncStorage {
     });
   }
 
-  static async set <T extends StorageKeys>(data: Record<T, Storage[T]>): Promise<void> {
+  static async set <T extends i.StorageKeys>(data: Record<T, Storage[T]>): Promise<void> {
     return new Promise((resolve) => {
       chrome.storage.sync.set(data, () => {
         return resolve();
@@ -34,16 +34,3 @@ abstract class AsyncStorage {
 }
 
 export default AsyncStorage;
-
-type Storage = {
-  user: i.UserData;
-  items: {
-    [serverSlug: string]: {
-      [faction: string]: {
-        [itemName: string]: i.CachedItemData;
-      };
-    };
-  };
-};
-
-type StorageKeys = keyof Storage;

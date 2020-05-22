@@ -23,3 +23,16 @@ export type UserData = {
     slug: string;
   };
 }
+
+export type Storage = {
+  user: UserData;
+  items: {
+    [serverSlug: string]: {
+      [faction: string]: {
+        [itemName: string]: CachedItemData;
+      };
+    };
+  };
+};
+
+export type StorageKeys = keyof Storage;

@@ -47,6 +47,13 @@ abstract class Tooltip {
       return;
     }
 
+    // Remove existing tooltip
+    const curContainer = document.querySelector(`#${Tooltip.ELEMENT_ID.CONTAINER}`);
+
+    if (curContainer) {
+      tooltipElement.removeChild(curContainer);
+    }
+
     // Build the container
     const container = document.createElement('div');
     container.id = Tooltip.ELEMENT_ID.CONTAINER;
