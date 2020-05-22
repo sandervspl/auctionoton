@@ -1,5 +1,5 @@
 {
-  "name": "Wowhead Auction House Price Data",
+  "name": "Auction House Data for Wowhead",
   "description": "Display current Auction House price data for items on classic.wowhead.com",
   "content_scripts": [{
       "matches": [
@@ -21,6 +21,6 @@
   "browser_action": {
     "default_icon": "static/icon.png",
     "default_popup": "form.html",
-    "default_title": "Wowhead Auction House Price Data"
+    "default_title": "Auction House Data for Wowhead"
   }
 }

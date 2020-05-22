@@ -4,7 +4,7 @@ import API from './fetchItemData';
 import loadingSvg from './static/loading.svg';
 
 abstract class Tooltip {
-  private static PREFIX = 'WAHPD';
+  private static PREFIX = 'AHDFW';
   private static ELEMENT_ID = {
     CONTAINER: `${Tooltip.PREFIX}-container`,
     TOOLTIP: `${Tooltip.PREFIX}-tooltip`,
