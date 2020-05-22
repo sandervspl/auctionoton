@@ -3,124 +3,155 @@ import AsyncStorage from './asyncStorage';
 import API from './fetchItemData';
 import loadingSvg from './static/loading.svg';
 
-const PREFIX = 'WAHPD';
-const ELEMENT_ID = {
-  CONTAINER: `${PREFIX}-container`,
-  TOOLTIP: `${PREFIX}-tooltip`,
-};
+abstract class Tooltip {
+  private static PREFIX = 'WAHPD';
+  private static ELEMENT_ID = {
+    CONTAINER: `${Tooltip.PREFIX}-container`,
+    TOOLTIP: `${Tooltip.PREFIX}-tooltip`,
+  };
 
-/**
- * @description Returns an HTML string for gold/silver/copper with icon
- */
-const generateValueString = (valueObject: i.ValueObject): string => {
-  const strArr = [];
+  static async generatePageTooltip(): Promise<void> {
+    // Get item name
+    const itemNameSearch = window.location.pathname.match(/item=\d+\/([\w\d-]+)/);
 
-  if (valueObject.gold > 0) {
-    strArr.push(`<span class="moneygold">${valueObject.gold}</span>`);
-  }
-  if (valueObject.silver > 0) {
-    strArr.push(`<span class="moneysilver">${valueObject.silver}</span>`);
-  }
-  if (valueObject.copper > 0) {
-    strArr.push(`<span class="moneycopper">${valueObject.copper}</span>`);
-  }
+    if (!itemNameSearch) {
+      console.error('No item name found');
+      return;
+    }
 
-  return strArr.length > 0
-    ? `<span>${strArr.join(' ')}</span>`
-    : '<span style="color:#b9b9b9">N/A</span>';
-};
+    const itemName = itemNameSearch[1];
+    const pathname = window.location.pathname;
+    const itemIdSearch = /\d+/.exec(pathname);
 
-const tooltipTemplate = (user: i.UserData, lastUpdatedStr?: string, itemTemplate?: string): string => `
-  <tbody>
-    <tr>
-      <td>
-        <table style="width: 100%;">
-          <tbody>
-            <tr>
-              <td>
-                <span class="q whtt-extra whtt-ilvl">
-                  Auction House Data for ${user.server.name}-${user.faction}
-                </span>
-                <div class="whtt-sellprice" style="margin-bottom: 10px">
-                  ${lastUpdatedStr || loadingSvg}
-                </div>
-              </td>
-            </tr>
-            ${itemTemplate || ''}
-          </tbody>
-        </table>
-      </td>
-      
-      <th style="background-position: top right"></th>
-    </tr>
-    
-    <tr>
-      <th style="background-position: bottom left"></th>
-      <th style="background-position: bottom right"></th>
-    </tr>
-  </tbody>
-`;
+    if (!itemIdSearch) {
+      console.error('No item id found');
+      return;
+    }
 
-const generateTooltip = async (parentElement: HTMLElement, itemName: string): Promise<HTMLTableElement | undefined> => {
-  // Get user data
-  const user = await AsyncStorage.get('user');
+    const itemId = itemIdSearch[0];
+    const tooltipElementId = `tt${itemId}`;
+    const tooltipElement = document.querySelector(`#${tooltipElementId}`) as HTMLElement;
 
-  if (!user) {
-    return;
-  }
+    if (!tooltipElement) {
+      console.error('No tooltip element found');
+      return;
+    }
 
-  // Build the container
-  const container = document.createElement('div');
-  container.id = ELEMENT_ID.CONTAINER;
-  container.style.position = 'relative';
+    // Remove the fixed width
+    tooltipElement.style.width = 'auto';
 
-  parentElement.appendChild(container);
+    // Get user data
+    const user = await AsyncStorage.get('user');
 
-  // Build the tooltip
-  const tooltipContainer = document.createElement('table');
-  tooltipContainer.id = ELEMENT_ID.TOOLTIP;
-  tooltipContainer.style.width = '100%';
+    if (!user) {
+      return;
+    }
 
-  tooltipContainer.innerHTML = tooltipTemplate(user);
-  container.appendChild(tooltipContainer);
+    // Build the container
+    const container = document.createElement('div');
+    container.id = Tooltip.ELEMENT_ID.CONTAINER;
+    container.style.position = 'relative';
 
-  // Get item data
-  const data = await API.getItem(itemName);
+    tooltipElement.appendChild(container);
 
-  // Remove loading tooltip
-  container.removeChild(tooltipContainer);
+    // Build the tooltip
+    const tooltipContainer = document.createElement('table');
+    tooltipContainer.id = Tooltip.ELEMENT_ID.TOOLTIP;
+    tooltipContainer.style.width = '100%';
 
-  if (!data) {
-    console.error(`Error while fetching item '${itemName}'`);
-
-    tooltipContainer.innerHTML = tooltipTemplate(user, 'Unable to fetch item data. Try again later.');
+    tooltipContainer.innerHTML = Tooltip.template(user);
     container.appendChild(tooltipContainer);
 
-    return;
+    // Get item data
+    const data = await API.getItem(itemName);
+
+    // Remove loading tooltip
+    container.removeChild(tooltipContainer);
+
+    if (!data) {
+      console.error(`Error while fetching item '${itemName}'`);
+
+      tooltipContainer.innerHTML = Tooltip.template(user, 'Unable to fetch item data. Try again later.');
+      container.appendChild(tooltipContainer);
+
+      return;
+    }
+
+    tooltipContainer.innerHTML = Tooltip.template(user, `Last updated: ${data.lastUpdated}`, `
+      <tr>
+        <td>
+          <div class="whtt-sellprice" style="display:flex;justify-content:space-between">
+            <div style="display:inline-block; width:112px">Market Value:</div>
+            ${Tooltip.generateValueString(data.marketValue)}
+          </div>
+          <div class="whtt-sellprice" style="display:flex;justify-content:space-between">
+            <div style="display:inline-block; width:112px">Historical Value:</div>
+            ${Tooltip.generateValueString(data.historicalValue)}
+          </div>
+          <div class="whtt-sellprice" style="display:flex;justify-content:space-between">
+            <div style="display:inline-block; width:112px">Minimum Buyout:</div>
+            ${Tooltip.generateValueString(data.minimumBuyout)}
+          </div>
+        </td>
+      </tr>
+    `);
+
+    container.appendChild(tooltipContainer);
   }
 
-  tooltipContainer.innerHTML = tooltipTemplate(user, `Last updated: ${data.lastUpdated}`, `
-    <tr>
-      <td>
-        <div class="whtt-sellprice" style="display:flex;justify-content:space-between">
-          <div style="display:inline-block; width:112px">Market Value:</div>
-          ${generateValueString(data.marketValue)}
-        </div>
-        <div class="whtt-sellprice" style="display:flex;justify-content:space-between">
-          <div style="display:inline-block; width:112px">Historical Value:</div>
-          ${generateValueString(data.historicalValue)}
-        </div>
-        <div class="whtt-sellprice" style="display:flex;justify-content:space-between">
-          <div style="display:inline-block; width:112px">Minimum Buyout:</div>
-          ${generateValueString(data.minimumBuyout)}
-        </div>
-      </td>
-    </tr>
-  `);
+  private static template(user: i.UserData, lastUpdatedStr?: string, itemTemplate?: string): string {
+    return `
+      <tbody>
+        <tr>
+          <td>
+            <table style="width: 100%;">
+              <tbody>
+                <tr>
+                  <td>
+                    <span class="q whtt-extra whtt-ilvl">
+                      Auction House Data for ${user.server.name}-${user.faction}
+                    </span>
+                    <div class="whtt-sellprice" style="margin-bottom: 10px">
+                      ${lastUpdatedStr || loadingSvg}
+                    </div>
+                  </td>
+                </tr>
+                ${itemTemplate || ''}
+              </tbody>
+            </table>
+          </td>
+          
+          <th style="background-position: top right"></th>
+        </tr>
+        
+        <tr>
+          <th style="background-position: bottom left"></th>
+          <th style="background-position: bottom right"></th>
+        </tr>
+      </tbody>
+    `;
+  }
 
-  container.appendChild(tooltipContainer);
+  /**
+   * @description Returns an HTML string for gold/silver/copper with icon
+   */
+  private static generateValueString(valueObject: i.ValueObject): string {
+    const strArr = [];
 
-  return tooltipContainer;
-};
+    if (valueObject.gold > 0) {
+      strArr.push(`<span class="moneygold">${valueObject.gold}</span>`);
+    }
+    if (valueObject.silver > 0) {
+      strArr.push(`<span class="moneysilver">${valueObject.silver}</span>`);
+    }
+    if (valueObject.copper > 0) {
+      strArr.push(`<span class="moneycopper">${valueObject.copper}</span>`);
+    }
 
-export default generateTooltip;
+    return strArr.length > 0
+      ? `<span>${strArr.join(' ')}</span>`
+      : '<span style="color:#b9b9b9">N/A</span>';
+  }
+}
+
+export default Tooltip;
