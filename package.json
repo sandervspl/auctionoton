@@ -25,6 +25,7 @@
     "rollup-plugin-delete": "1.2.0",
     "rollup-plugin-inject-process-env": "1.2.0",
     "rollup-plugin-svg": "2.0.0",
+    "rollup-plugin-zip": "1.0.1",
     "typescript": "3.9.2"
   },
   "dependencies": {}
