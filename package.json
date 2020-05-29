@@ -6,6 +6,7 @@
   "scripts": {
     "lint": "eslint ./src --ext .ts,.tsx",
     "build": "NODE_ENV=production rollup -c",
+    "postbuild": "zip -r ahdfw-$npm_package_version.zip ./dist",
     "dev": "NODE_ENV=development rollup -c --watch"
   },
   "keywords": [],
@@ -25,7 +26,6 @@
     "rollup-plugin-delete": "1.2.0",
     "rollup-plugin-inject-process-env": "1.2.0",
     "rollup-plugin-svg": "2.0.0",
-    "rollup-plugin-zip": "1.0.1",
     "typescript": "3.9.2"
   },
   "dependencies": {}
