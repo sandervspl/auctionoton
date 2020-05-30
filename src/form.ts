@@ -147,11 +147,11 @@ const fillServerList = (region: i.UserData['region'], selectedServer?: string): 
 
         if (typeof realm === 'object') {
           option.value = JSON.stringify({
-            name: realm.cyrillic,
+            name: realm.russian,
             slug: realm.english.toLowerCase(),
           });
-          option.innerText = realm.cyrillic;
-          option.selected = realm.cyrillic === selectedServer;
+          option.innerText = realm.russian;
+          option.selected = realm.russian === selectedServer;
         }
 
         serverSelect.appendChild(option);
@@ -254,4 +254,4 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 });
 
-type EURealm = string | { english: string; cyrillic: string }
+type EURealm = string | { english: string; russian: string }
