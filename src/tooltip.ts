@@ -37,9 +37,6 @@ abstract class Tooltip {
       return;
     }
 
-    // Remove the fixed width
-    tooltipElement.style.width = 'auto';
-
     // Get user data
     const user = await AsyncStorage.get('user');
 
@@ -62,9 +59,15 @@ abstract class Tooltip {
     tooltipElement.appendChild(container);
 
     // Build the tooltip
+    const tooltipWidth = tooltipElement.getBoundingClientRect().width;
+    const minContainerWidth = 256;
+
     const tooltipContainer = document.createElement('table');
     tooltipContainer.id = Tooltip.ELEMENT_ID.TOOLTIP;
-    tooltipContainer.style.width = '100%';
+    tooltipContainer.style.width = 'auto';
+    tooltipContainer.style.minWidth = tooltipWidth > minContainerWidth
+      ? `${tooltipWidth}px`
+      : `${minContainerWidth}px`;
 
     tooltipContainer.innerHTML = Tooltip.template(user);
     container.appendChild(tooltipContainer);
