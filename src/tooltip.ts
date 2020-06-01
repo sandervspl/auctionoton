@@ -1,6 +1,6 @@
 import * as i from './types';
 import AsyncStorage from './asyncStorage';
-import API from './fetchItemData';
+import API from './api';
 import loadingSvg from './static/loading.svg';
 
 abstract class Tooltip {
