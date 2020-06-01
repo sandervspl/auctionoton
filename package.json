@@ -1,12 +1,12 @@
 {
-  "name": "wowhead-price-info",
+  "name": "auctionoton",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "lint": "eslint ./src --ext .ts,.tsx",
     "build": "NODE_ENV=production rollup -c",
-    "postbuild": "zip -r ahdfw-$npm_package_version.zip ./dist",
+    "postbuild": "zip -r auctionoton-$npm_package_version.zip ./dist",
     "dev": "NODE_ENV=development rollup -c --watch"
   },
   "keywords": [],
