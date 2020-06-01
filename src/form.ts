@@ -1,7 +1,7 @@
 import * as i from './types';
 import AsyncStorage from './asyncStorage';
 
-const realms = {
+const realms: Realms = {
   eu: {
     english: [
       'Amnennar',
@@ -45,23 +45,23 @@ const realms = {
     ],
     russian: [
       {
-        cyrillic: 'Вестник Рока',
+        russian: 'Вестник Рока',
         english: 'Doomsayer',
       },
       {
-        cyrillic: 'Змейталак',
+        russian: 'Змейталак',
         english: 'Wyrmthalak',
       },
       {
-        cyrillic: 'Пламегор',
+        russian: 'Пламегор',
         english: 'Flamegor',
       },
       {
-        cyrillic: 'Рок-Делар',
+        russian: 'Рок-Делар',
         english: 'Rhokdelar',
       },
       {
-        cyrillic: 'Хроми',
+        russian: 'Хроми',
         english: 'Chromie',
       },
     ],
@@ -128,7 +128,7 @@ const fillServerList = (region: i.UserData['region'], selectedServer?: string): 
   // Add options
   if (region === 'eu') {
     for (const subregion of Object.keys(realms.eu) as ['english', 'russian']) {
-      for (const realm of realms.eu[subregion] as EURealm[]) {
+      for (const realm of realms.eu[subregion] as Realm[]) {
         const option = document.createElement('option');
 
         if (typeof realm === 'string') {
@@ -254,4 +254,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 });
 
-type EURealm = string | { english: string; russian: string }
+type Realm = string | { english: string; russian: string }
+
+type Realms = {
+  eu: {
+    english: Realm[];
+    russian: Realm[];
+  };
+  us: string[];
+}
