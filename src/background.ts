@@ -5,7 +5,7 @@ chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install') {
     AsyncStorage.set({
       user: {
-        region: 'eu',
+        region: 'us',
         server: {
           name: 'Amnennar',
           slug: 'amnennar',
