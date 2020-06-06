@@ -7,7 +7,8 @@
     "lint": "eslint ./src --ext .ts,.tsx",
     "build": "NODE_ENV=production rollup -c",
     "postbuild": "zip -r auctionoton-$npm_package_version.zip ./dist",
-    "dev": "NODE_ENV=development rollup -c --watch"
+    "dev": "NODE_ENV=development rollup -c --watch",
+    "preinstall": "npx npm-force-resolutions"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +21,7 @@
     "@typescript-eslint/eslint-plugin": "2.33.0",
     "@typescript-eslint/parser": "2.33.0",
     "eslint": "7.0.0",
+    "minimist": "1.2.5",
     "rollup": "2.10.2",
     "rollup-plugin-chrome-extension": "2.2.0",
     "rollup-plugin-copy": "3.3.0",
@@ -28,5 +30,8 @@
     "rollup-plugin-svg": "2.0.0",
     "typescript": "3.9.2"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "resolutions": {
+    "minimist": "^1.2.5"
+  }
 }
