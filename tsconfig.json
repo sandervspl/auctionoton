@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
-      "noEmit": true,
+      "outDir": "./dist",
+      "module": "es6",
+      "target": "es5",
       "removeComments": true,
       "esModuleInterop": true,
       "skipLibCheck": true,

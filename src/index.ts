@@ -1,11 +1,16 @@
 import Tooltip from './tooltip';
 
+/**
+ * Rename browser namespaces to 'browser' for cross-browser support
+ */
+window.browser = window.browser || window.chrome || window.msBrowser;
+
 // Update tooltip on user changes
-chrome.storage.onChanged.addListener((changes) => {
+browser.storage.onChanged.addListener((changes) => {
   if (changes.user) {
     Tooltip.generatePageTooltip();
   }
 });
 
 // Generate initial page tooltip
-Tooltip.generatePageTooltip();
+onload = Tooltip.generatePageTooltip;

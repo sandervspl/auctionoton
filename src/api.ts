@@ -37,13 +37,13 @@ abstract class API {
       const faction = user.faction.toLowerCase();
       const item = itemName.toLowerCase();
 
-      const result = await fetch(`${process.env.API}/item/${server}/${faction}/${item}`);
+      const result = await fetch(`${__API__}/item/${server}/${faction}/${item}`);
       const data = await result.json() as i.ItemData | { statusCode: number; message: string };
 
       // Something went wrong
       if (!(data as i.ItemData).lastUpdated) {
-        // @ts-ignore
-        return console.error({ statusCode: data.statusCode, message: data.message });
+        console.error(data);
+        return;
       }
 
       const cachedData = {

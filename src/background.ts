@@ -1,6 +1,6 @@
 import AsyncStorage from './asyncStorage';
 
-chrome.runtime.onInstalled.addListener((details) => {
+browser.runtime.onInstalled.addListener((details) => {
   // Open page for user's server/faction information after installation
   if (details.reason === 'install') {
     AsyncStorage.set({
@@ -14,6 +14,6 @@ chrome.runtime.onInstalled.addListener((details) => {
       },
     });
 
-    chrome.tabs.create({ url: './form.html' });
+    browser.tabs.create({ url: './form.html' });
   }
 });

@@ -1,20 +1,22 @@
 {
+  "manifest_version": 2,
   "name": "Auctionoton",
+  "version": "1.0.3",
   "description": "Display current Auction House price data for items on classic.wowhead.com",
   "content_scripts": [{
       "matches": [
         "https://classic.wowhead.com/item=*"
       ],
       "js": [
-        "index.ts"
+        "index.js"
       ]
   }],
   "web_accessible_resources": [
-    "index.ts"
+    "index.js"
   ],
   "background": {
     "scripts": [
-      "background.ts"
+      "background.js"
     ],
     "persistent": false
   },
@@ -23,10 +25,20 @@
     "default_popup": "form.html",
     "default_title": "Auctionoton — Auction House Data for Wowhead"
   },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "auctiono@ton.com",
+      "strict_min_version": "42.0"
+    }
+  },
   "icons": {
     "16": "static/icon-16.png",
     "32": "static/icon-32.png",
     "48": "static/icon-48.png",
     "128": "static/icon-128.png"
-  }
+  },
+  "permissions": [
+    "storage",
+    "<all_urls>"
+  ]
 }
