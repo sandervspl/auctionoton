@@ -1,16 +1,18 @@
 {
   "manifest_version": 2,
   "name": "Auctionoton",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Display current Auction House price data for items on classic.wowhead.com",
-  "content_scripts": [{
+  "content_scripts": [
+    {
       "matches": [
         "https://classic.wowhead.com/item=*"
       ],
       "js": [
         "index.js"
       ]
-  }],
+    }
+  ],
   "web_accessible_resources": [
     "index.js"
   ],

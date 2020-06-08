@@ -7,7 +7,8 @@
     "lint": "eslint ./src --ext .ts,.tsx",
     "build": "NODE_ENV=production webpack -c webpack.config.js",
     "postbuild": "zip -r auctionoton-$npm_package_version.zip ./dist",
-    "preinstall": "npx npm-force-resolutions"
+    "preinstall": "npx npm-force-resolutions",
+    "postversion": "npx json -I -f src/manifest.json -e \"this.version='$npm_package_version'\""
   },
   "keywords": [],
   "author": "",
