@@ -15,9 +15,9 @@ rimraf.sync('./dist');
 const webpackConfig = {
   mode: isProduction ? 'production' : 'development',
   entry: {
-    index: './src/index.ts',
-    form: './src/form.ts',
-    background: './src/background.ts',
+    index: ['./src/polyfill.ts', './src/index.ts'],
+    form: ['./src/polyfill.ts', './src/form.ts'],
+    background: ['./src/polyfill.ts', './src/background.ts'],
   },
   output: {
     path: path.resolve('dist'),
