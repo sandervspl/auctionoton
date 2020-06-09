@@ -52,42 +52,39 @@ abstract class Tooltip {
     }
 
     // Build the container
+    const tooltipWidth = tooltipElement.getBoundingClientRect().width;
+    const minContainerWidth = 256;
+
     const container = document.createElement('div');
     container.id = Tooltip.ELEMENT_ID.CONTAINER;
     container.style.position = 'relative';
+    container.style.width = 'auto';
+    container.style.minWidth = tooltipWidth > minContainerWidth
+      ? `${tooltipWidth}px`
+      : `${minContainerWidth}px`;
 
     tooltipElement.appendChild(container);
 
     // Build the tooltip
-    const tooltipWidth = tooltipElement.getBoundingClientRect().width;
-    const minContainerWidth = 256;
-
-    const tooltipContainer = document.createElement('table');
-    tooltipContainer.id = Tooltip.ELEMENT_ID.TOOLTIP;
-    tooltipContainer.style.width = 'auto';
-    tooltipContainer.style.minWidth = tooltipWidth > minContainerWidth
-      ? `${tooltipWidth}px`
-      : `${minContainerWidth}px`;
-
-    tooltipContainer.innerHTML = Tooltip.template(user);
-    container.appendChild(tooltipContainer);
+    Tooltip.template(container);
 
     // Get item data
     const data = await API.getItem(itemName);
 
     // Remove loading tooltip
-    container.removeChild(tooltipContainer);
+    const tooltipContainer = document.getElementById(Tooltip.ELEMENT_ID.TOOLTIP);
+
+    if (tooltipContainer) {
+      container.removeChild(tooltipContainer);
+    }
 
     if (!data) {
       console.error(`Error while fetching item '${itemName}'`);
 
-      tooltipContainer.innerHTML = Tooltip.template(user, 'Unable to fetch item data. Try again later.');
-      container.appendChild(tooltipContainer);
-
-      return;
+      return Tooltip.template(container, 'Unable to fetch item data. Try again later.');
     }
 
-    tooltipContainer.innerHTML = Tooltip.template(user, `Last updated: ${data.lastUpdated}`, `
+    Tooltip.template(container, `Last updated: ${data.lastUpdated}`, `
       <tr>
         <td>
           <div class="whtt-sellprice" style="display:flex;justify-content:space-between">
@@ -105,41 +102,52 @@ abstract class Tooltip {
         </td>
       </tr>
     `);
-
-    container.appendChild(tooltipContainer);
   }
 
-  private static template(user: i.UserData, lastUpdatedStr?: string, itemTemplate?: string): string {
-    return `
-      <tbody>
-        <tr>
-          <td>
-            <table style="width: 100%;">
-              <tbody>
-                <tr>
-                  <td>
-                    <span class="q whtt-extra whtt-ilvl">
-                      Auction House Data for ${user.server.name}-${user.faction}
-                    </span>
-                    <div class="whtt-sellprice" style="margin-bottom: 10px">
-                      ${lastUpdatedStr || loadingSvg}
-                    </div>
-                  </td>
-                </tr>
-                ${itemTemplate || ''}
-              </tbody>
-            </table>
-          </td>
+  private static async template(target: HTMLElement, lastUpdatedStr?: string, itemTemplate?: string): Promise<void> {
+    // Get user data
+    const user = await AsyncStorage.get('user');
+
+    const html = `
+      <table id="${Tooltip.ELEMENT_ID.TOOLTIP}">
+        <tbody>
+          <tr>
+            <td>
+              <table style="width: 100%;">
+                <tbody>
+                  <tr>
+                    <td>
+                      <span class="q whtt-extra whtt-ilvl">
+                        Auction House Data for ${user?.server.name}-${user?.faction}
+                      </span>
+                      <div class="whtt-sellprice" style="margin-bottom: 10px">
+                        ${lastUpdatedStr || loadingSvg}
+                      </div>
+                    </td>
+                  </tr>
+                  ${itemTemplate || ''}
+                </tbody>
+              </table>
+            </td>
+            
+            <th style="background-position: top right"></th>
+          </tr>
           
-          <th style="background-position: top right"></th>
-        </tr>
-        
-        <tr>
-          <th style="background-position: bottom left"></th>
-          <th style="background-position: bottom right"></th>
-        </tr>
-      </tbody>
+          <tr>
+            <th style="background-position: bottom left"></th>
+            <th style="background-position: bottom right"></th>
+          </tr>
+        </tbody>
+      </body>
     `;
+
+    const parser = new DOMParser();
+    const parsed = parser.parseFromString(html, 'text/html');
+    const tooltip = parsed.getElementById(Tooltip.ELEMENT_ID.TOOLTIP);
+
+    if (tooltip) {
+      target.appendChild(tooltip);
+    }
   }
 
   /**
