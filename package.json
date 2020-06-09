@@ -9,8 +9,8 @@
     "postbuild": "cd dist; zip -D -r ../auctionoton-$npm_package_version.zip ./*; zip -d ../auctionoton-$npm_package_version.zip *.DS_Store",
     "preinstall": "npx npm-force-resolutions",
     "preversion": "npm run lint",
-    "version": "npx json -I -f src/manifest.json -e \"this.version='$npm_package_version'\"",
-    "postversion": "git push && git push --tags"
+    "version": "npx json -I -f src/manifest.json -e \"this.version='$npm_package_version'\"; git add .;",
+    "postversion": "git push; git push --tags"
   },
   "author": "",
   "license": "ISC",
