@@ -138,11 +138,14 @@ abstract class Tooltip {
             <th style="background-position: bottom right"></th>
           </tr>
         </tbody>
-      </body>
+      </table>
     `;
 
+    // Validate and sanitize HTML
     const parser = new DOMParser();
     const parsed = parser.parseFromString(html, 'text/html');
+
+    // Select table from document body
     const tooltip = parsed.getElementById(Tooltip.ELEMENT_ID.TOOLTIP);
 
     if (tooltip) {
