@@ -40,6 +40,6 @@
   },
   "permissions": [
     "storage",
-    "<all_urls>"
+    "https://api.ahdfw.nl/*"
   ]
 }
