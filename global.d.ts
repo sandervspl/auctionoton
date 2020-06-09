@@ -1,8 +1,11 @@
 export declare global {
   interface Window {
-    browser: typeof chrome;
-    msBrowser: typeof chrome;
+    msBrowser: typeof browser;
   }
 
-  const browser: typeof chrome;
+  /**
+   * Global variable that is assigned to the browser's web extension API namespace.
+   * See Webpack config .tsx module rule
+   */
+  const addon: typeof chrome;
 }

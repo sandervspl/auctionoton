@@ -14,10 +14,11 @@ rimraf.sync('./dist');
 // Remove config
 const webpackConfig = {
   mode: isProduction ? 'production' : 'development',
+  ...!isProduction && { devtool: 'inline-source-maps' },
   entry: {
-    index: ['./src/polyfill.ts', './src/index.ts'],
-    form: ['./src/polyfill.ts', './src/form.ts'],
-    background: ['./src/polyfill.ts', './src/background.ts'],
+    index: './src/index.ts',
+    form: './src/form.ts',
+    background: './src/background.ts',
   },
   output: {
     path: path.resolve('dist'),
@@ -27,12 +28,16 @@ const webpackConfig = {
     rules: [
       {
         test: /\.tsx?$/,
-        use: 'ts-loader',
+        use: [
+          'ts-loader',
+          // Add a global variable 'addon' to all TS files that is assigned to the browser's web extension API namespace
+          'imports-loader?addon=>(chrome||browser)',
+        ],
         exclude: /node_modules/,
       },
       {
         test: /\.svg$/,
-        loader: 'svg-inline-loader',
+        use: 'svg-inline-loader',
       },
     ],
   },

@@ -1,7 +1,7 @@
 import Tooltip from './tooltip';
 
 // Update tooltip on user changes
-window.browser.storage.onChanged.addListener((changes) => {
+addon.storage.onChanged.addListener((changes) => {
   if (changes.user) {
     Tooltip.generatePageTooltip();
   }
