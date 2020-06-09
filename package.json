@@ -8,7 +8,8 @@
     "build": "NODE_ENV=production webpack -c webpack.config.js",
     "postbuild": "cd dist; zip -D -r ../auctionoton-$npm_package_version.zip ./*; zip -d ../auctionoton-$npm_package_version.zip *.DS_Store",
     "preinstall": "npx npm-force-resolutions",
-    "postversion": "npx json -I -f src/manifest.json -e \"this.version='$npm_package_version'\""
+    "preversion": "npm run lint",
+    "version": "npx json -I -f src/manifest.json -e \"this.version='$npm_package_version'\""
   },
   "author": "",
   "license": "ISC",
