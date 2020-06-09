@@ -5,3 +5,19 @@ This extension adds a second tooltip to items on classic.wowhead.com containing 
 
 # Download
 https://chrome.google.com/webstore/detail/auctionoton/ffflgkmjodhdladikaglbeofemhbojio
+
+# Build instructions
+A step by step guide for building the compiled code
+
+## Requirements
+These are the programs used to compile the current version
+
+- MacOS Catalina v10.15.4
+- Node v10.16.0
+- NPM v6.14.5
+
+## Building
+Run the following commands in order
+
+1. `$ npm install`
+2. `$ npm run build`
