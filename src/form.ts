@@ -127,8 +127,10 @@ const fillServerList = (region: i.UserData['region'], selectedServer?: string): 
 
   // Add options
   if (region === 'eu') {
-    for (const subregion of Object.keys(realms.eu) as ['english', 'russian']) {
-      for (const realm of realms.eu[subregion] as Realm[]) {
+    let subregion: keyof typeof realms.eu;
+
+    for (subregion in realms[region]) {
+      for (const realm of realms[region][subregion]) {
         const option = document.createElement('option');
 
         if (typeof realm === 'string') {
@@ -157,8 +159,7 @@ const fillServerList = (region: i.UserData['region'], selectedServer?: string): 
         serverSelect.appendChild(option);
       }
     }
-  } else {
-    // US
+  } else if (region === 'us') {
     for (const realm of realms[region]) {
       const option = document.createElement('option');
 
