@@ -1,4 +1,5 @@
 export type ItemData = {
+  url: string;
   lastUpdated: string;
   marketValue: ValueObject;
   historicalValue: ValueObject;

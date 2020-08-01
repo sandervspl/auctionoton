@@ -2,6 +2,7 @@ import * as i from './types';
 import AsyncStorage from './asyncStorage';
 import API from './api';
 import loadingSvg from './static/loading.svg';
+import externalLinkSvg from './static/external-link.svg';
 
 abstract class Tooltip {
   private static PREFIX = 'auctionoton';
@@ -98,6 +99,12 @@ abstract class Tooltip {
           <div class="whtt-sellprice" style="display:flex;justify-content:space-between">
             <div style="display:inline-block; width:112px">Minimum Buyout:</div>
             ${Tooltip.generateValueString(data.minimumBuyout)}
+          </div>
+          <br />
+          <div>
+            <a href="${data.url}" target="_blank" rel="noopener noreferrer">
+              More information on Nexushub.co ${externalLinkSvg}
+            </a>
           </div>
         </td>
       </tr>
