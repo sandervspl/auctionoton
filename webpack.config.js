@@ -16,7 +16,7 @@ const webpackConfig = {
   mode: isProduction ? 'production' : 'development',
   ...!isProduction && { devtool: 'inline-source-maps' },
   entry: {
-    index: './src/index.ts',
+    index: './src/index.tsx',
     form: './src/form.ts',
     background: './src/background.ts',
   },
@@ -37,12 +37,12 @@ const webpackConfig = {
       },
       {
         test: /\.svg$/,
-        use: 'svg-inline-loader',
+        use: '@svgr/webpack',
       },
     ],
   },
   resolve: {
-    extensions: ['.ts'],
+    extensions: ['*', '.js', '.jsx', '.ts', '.tsx'],
   },
   plugins: [
     new CopyPlugin({
