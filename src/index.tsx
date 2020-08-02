@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import Tooltip from './tooltip';
+
 // Update tooltip on user changes
 // addon.storage.onChanged.addListener((changes) => {
 //   if (changes.user) {
@@ -10,14 +12,14 @@ import ReactDOM from 'react-dom';
 
 onload = function (): void {
   // Get item name
-  // const itemNameSearch = window.location.pathname.match(/item=\d+\/([\w\d-]+)/);
+  const itemNameSearch = window.location.pathname.match(/item=\d+\/([\w\d-]+)/);
 
-  // if (!itemNameSearch) {
-  //   console.error('No item name found');
-  //   return;
-  // }
+  if (!itemNameSearch) {
+    console.error('No item name found');
+    return;
+  }
 
-  // const itemName = itemNameSearch[1];
+  const itemName = itemNameSearch[1];
   const pathname = window.location.pathname;
   const itemIdSearch = /\d+/.exec(pathname);
 
@@ -43,5 +45,5 @@ onload = function (): void {
 
   tooltipElement.appendChild(container);
 
-  ReactDOM.render(<div>hello</div>, container);
+  ReactDOM.render(<Tooltip itemName={itemName} />, container);
 };

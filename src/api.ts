@@ -4,8 +4,8 @@ import AsyncStorage from './asyncStorage';
 // CLEAR STORAGE
 // AsyncStorage.set({ items: {} });
 
-abstract class API {
-  static async getItem(itemName: string): Promise<i.ItemData | undefined> {
+class API {
+  async getItem(itemName: string): Promise<i.ItemData | undefined> {
     // Get user data
     const user = await AsyncStorage.get('user');
 
@@ -65,4 +65,6 @@ abstract class API {
   }
 }
 
-export default API;
+const api = new API();
+
+export default api;
