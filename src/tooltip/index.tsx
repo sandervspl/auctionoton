@@ -1,0 +1,80 @@
+import React from 'react';
+import * as i from '../types';
+
+import asyncStorage from '../asyncStorage';
+import api from '../api';
+import LoadingSvg from '../static/loading.svg';
+import ExternalLinkSvg from '../static/external-link.svg';
+
+import { SellPrice } from './SellPrice';
+
+const PREFIX = 'auctionoton';
+const ELEMENT_ID = {
+  CONTAINER: `${PREFIX}-container`,
+  TOOLTIP: `${PREFIX}-tooltip`,
+};
+
+const Tooltip: React.FC<Props> = (props) => {
+  const [item, setItem] = React.useState<i.ItemData>();
+  const [user, setUser] = React.useState<i.UserData>();
+
+  React.useEffect(() => {
+    api.getItem(props.itemName).then(setItem);
+    asyncStorage.get('user').then(setUser);
+  }, []);
+
+  return (
+    <table id={ELEMENT_ID.TOOLTIP}>
+      <tbody>
+        <tr>
+          <td>
+            <table style={{ width: '100%' }}>
+              <tbody>
+                <tr>
+                  <td>
+                    <span className="q whtt-extra whtt-ilvl">
+                        Auction House Data for {user?.server.name}-{user?.faction}
+                    </span>
+                    <div className="whtt-sellprice" style={{ marginBottom: '10px' }}>
+                      {item ? `Last updated: ${item.lastUpdated}` : <LoadingSvg />}
+                    </div>
+                  </td>
+                </tr>
+                {item && (
+                  <tr>
+                    <td>
+                      <SellPrice heading="Market Value" value={item.marketValue} />
+                      <SellPrice heading="Historical Value" value={item.historicalValue} />
+                      <SellPrice heading="Minimum Buyout" value={item.minimumBuyout} />
+
+                      <br />
+
+                      <div>
+                        <a href={item.url} target="_blank" rel="noopener noreferrer">
+                          More information on Nexushub.co <ExternalLinkSvg />
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </td>
+
+          <th style={{ backgroundPosition: 'top right' }} />
+        </tr>
+
+        <tr>
+          <th style={{ backgroundPosition: 'bottom left' }} />
+          <th style={{ backgroundPosition: 'bottom right' }} />
+        </tr>
+      </tbody>
+    </table>
+  );
+};
+
+type Props = {
+  itemName: string;
+}
+
+export default Tooltip;

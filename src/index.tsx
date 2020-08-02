@@ -10,7 +10,7 @@ import Tooltip from './tooltip';
 //   }
 // });
 
-onload = function (): void {
+window.onload = function (): void {
   // Get item name
   const itemNameSearch = window.location.pathname.match(/item=\d+\/([\w\d-]+)/);
 
