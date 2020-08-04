@@ -2,34 +2,28 @@ import React from 'react';
 import * as i from '../types';
 
 export const Value: React.FC<Props> = (props) => {
-  const [values, setValues] = React.useState<JSX.Element[]>([]);
+  const getValueStrings = (): JSX.Element[] => {
+    const values: JSX.Element[] = [];
+    let coin: keyof i.ValueObject;
 
-  React.useEffect(() => {
-    const arr: JSX.Element[] = [];
-    const style: React.CSSProperties = {};
+    for (coin in props.value) {
+      const style: React.CSSProperties = {};
+      const coinIndex = ['gold', 'silver', 'copper'].indexOf(coin);
 
-    if (props.value.gold > 0) {
-      if (props.value.silver > 0 || props.value.copper > 0) {
+      if (coin !== 'copper' && (props.value.silver > 0 || props.value.copper > 0)) {
         style.marginRight = 5;
       }
 
-      arr.push(<span key="gold" className="moneygold" style={style}>{props.value.gold}</span>);
+      values[coinIndex] =
+        <span key={coin} className={`money${coin}`} style={style}>
+          {props.value[coin]}
+        </span>;
     }
 
-    if (props.value.silver > 0) {
-      if (props.value.copper > 0) {
-        style.marginRight = 5;
-      }
+    return values.filter(Boolean);
+  };
 
-      arr.push(<span key="silver" className="moneysilver" style={style}>{props.value.silver}</span>);
-    }
-
-    if (props.value.copper > 0) {
-      arr.push(<span key="copper" className="moneycopper">{props.value.copper}</span>);
-    }
-
-    setValues(arr);
-  }, []);
+  const values = getValueStrings();
 
   return values.length > 0
     ? <span>{values}</span>
