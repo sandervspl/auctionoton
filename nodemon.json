@@ -1,5 +1,5 @@
 {
-  "watch": ["src"],
+  "watch": ["src", "defines.d.ts", "global.d.ts"],
   "ignore": [],
   "ext": "ts,tsx",
   "exec": "webpack -c webpack.config.js"

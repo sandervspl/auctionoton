@@ -60,6 +60,7 @@ const webpackConfig = {
       'process.env': {
         NODE_ENV: JSON.stringify(env),
       },
+      __DEV__: !isProduction,
       __API__: JSON.stringify(config.api[env]),
     }),
   ],

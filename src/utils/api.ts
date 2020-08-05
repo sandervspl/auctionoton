@@ -24,8 +24,10 @@ class Api {
 
       // If it's less than an hour old, return cached data
       if (now - cachedItem.updatedAt < hour) {
-        // eslint-disable-next-line no-console
-        console.log(`Retrieved ${itemName} data from cache`);
+        if (__DEV__) {
+          // eslint-disable-next-line no-console
+          console.log(`Retrieved ${itemName} data from cache`);
+        }
 
         return cachedItem;
       }
