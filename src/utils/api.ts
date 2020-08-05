@@ -1,12 +1,12 @@
 import * as i from 'types';
 
-import AsyncStorage from './asyncStorage';
+import asyncStorage from './asyncStorage';
 
 
 class Api {
   async getItem(itemName: string): Promise<i.ItemData | undefined> {
     // Get user data
-    const user = await AsyncStorage.get('user');
+    const user = await asyncStorage.get('user');
 
     if (!user) {
       console.error('no user data found');
@@ -15,7 +15,7 @@ class Api {
     }
 
     // First check if data for this item is saved in storage
-    const cachedItem = await AsyncStorage.getItem(itemName, user.server.slug, user.faction);
+    const cachedItem = await asyncStorage.getItem(itemName, user.server.slug, user.faction);
 
     // Return cached data if it exists
     if (cachedItem) {
@@ -52,7 +52,7 @@ class Api {
       };
 
       // Save data to storage
-      await AsyncStorage.addItem(
+      await asyncStorage.addItem(
         { [itemName]: cachedData },
         user.server.slug,
         user.faction,
