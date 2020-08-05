@@ -52,7 +52,7 @@ const webpackConfig = {
     new CopyPlugin({
       patterns: [
         { from: 'src/static', to: 'static' },
-        { from: 'src/form.html', to: '.' },
+        { from: 'src/modules/browserAction/form.html', to: '.' },
         { from: 'src/manifest.json', to: '.' },
       ],
     }),
