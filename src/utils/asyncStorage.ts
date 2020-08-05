@@ -5,7 +5,6 @@ class AsyncStorage {
   async get <T extends i.StorageKeys>(key: T): Promise<i.Storage[T] | undefined> {
     return new Promise((resolve) => {
       addon.storage.sync.get(key, (items) => {
-        console.log('storage get', key, items[key]);
         return resolve(items[key]);
       });
     });
@@ -27,8 +26,6 @@ class AsyncStorage {
     items[serverSlug][faction] = data;
 
     await this.set({ items });
-
-    console.log('new cached items', await this.get('items'));
   }
 
   async getItem(itemName: string, serverSlug: string, faction: string): Promise<i.CachedItemData | undefined> {
