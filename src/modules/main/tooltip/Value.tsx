@@ -7,16 +7,18 @@ export const Value: React.FC<Props> = (props) => {
     let coin: keyof i.ValueObject;
 
     for (coin in props.value) {
+      const coinValue = props.value[coin];
+
       const style: React.CSSProperties = {};
       const coinIndex = ['gold', 'silver', 'copper'].indexOf(coin);
 
-      if (coin !== 'copper' && (props.value.silver > 0 || props.value.copper > 0)) {
+      if (coin !== 'copper') {
         style.marginRight = 5;
       }
 
       values[coinIndex] =
         <span key={coin} className={`money${coin}`} style={style}>
-          {props.value[coin]}
+          {coinValue}
         </span>;
     }
 

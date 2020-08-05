@@ -1,8 +1,6 @@
 import * as i from '../types';
 import AsyncStorage from './asyncStorage';
 
-// CLEAR STORAGE
-// AsyncStorage.set({ items: {} });
 
 class API {
   async getItem(itemName: string): Promise<i.ItemData | undefined> {
