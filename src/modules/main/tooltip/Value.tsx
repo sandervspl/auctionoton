@@ -1,5 +1,6 @@
+import * as i from 'types';
 import React from 'react';
-import * as i from '../../../types';
+
 
 export const Value: React.FC<Props> = (props) => {
   const getValueStrings = (): JSX.Element[] => {

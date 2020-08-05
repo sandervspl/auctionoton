@@ -1,7 +1,8 @@
+import * as i from 'types';
 import React from 'react';
-import * as i from '../../../types';
 
 import { Value } from './Value';
+
 
 export const SellPrice: React.FC<Props> = (props) => {
   return (

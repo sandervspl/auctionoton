@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 
 import Tooltip from './tooltip';
 
+
 window.onload = function (): void {
   // Get item name
   const itemNameSearch = window.location.pathname.match(/item=\d+\/([\w\d-]+)/);

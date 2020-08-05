@@ -1,6 +1,7 @@
 import React from 'react';
 
-import realms from '../modules/browserAction/realms';
+import realms from 'src/constants/realms';
+
 
 function useServerList(region: string): JSX.Element[] {
   const [servers, setServers] = React.useState<JSX.Element[]>([]);

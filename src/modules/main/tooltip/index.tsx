@@ -1,17 +1,20 @@
+import * as i from 'types';
 import React from 'react';
-import * as i from '../../../types';
 
-import api from '../../../utils/api';
-import LoadingSvg from '../../../static/loading.svg';
-import ExternalLinkSvg from '../../../static/external-link.svg';
-import useAsyncStorage from '../../../hooks/useAsyncStorage';
+import api from 'utils/api';
+import useAsyncStorage from 'hooks/useAsyncStorage';
+import LoadingSvg from 'static/loading.svg';
+import ExternalLinkSvg from 'static/external-link.svg';
+
 import { SellPrice } from './SellPrice';
+
 
 const PREFIX = 'auctionoton';
 const ELEMENT_ID = {
   CONTAINER: `${PREFIX}-container`,
   TOOLTIP: `${PREFIX}-tooltip`,
 };
+
 
 const Tooltip: React.FC<Props> = (props) => {
   const [user] = useAsyncStorage('user');

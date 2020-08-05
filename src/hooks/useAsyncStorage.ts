@@ -1,6 +1,7 @@
+import * as i from 'types';
 import React from 'react';
-import * as i from '../types';
-import asyncStorage from '../utils/asyncStorage';
+
+import asyncStorage from 'utils/asyncStorage';
 
 
 type UseAsyncStorage<T extends i.StorageKeys> =

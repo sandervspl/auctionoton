@@ -1,8 +1,9 @@
-import * as i from '../types';
+import * as i from 'types';
+
 import AsyncStorage from './asyncStorage';
 
 
-class API {
+class Api {
   async getItem(itemName: string): Promise<i.ItemData | undefined> {
     // Get user data
     const user = await AsyncStorage.get('user');
@@ -64,6 +65,6 @@ class API {
   }
 }
 
-const api = new API();
+const api = new Api();
 
 export default api;

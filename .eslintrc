@@ -78,6 +78,9 @@
         "pattern": "types",
         "group": "builtin",
         "position": "before"
+      }, {
+        "pattern": "constants/**",
+        "group": "internal"
       }]
     }],
 

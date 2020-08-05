@@ -3,6 +3,7 @@ const path = require('path');
 const rimraf = require('rimraf');
 const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const config = require('./config');
 
 const env = process.env.NODE_ENV || 'development';
@@ -43,6 +44,9 @@ const webpackConfig = {
   },
   resolve: {
     extensions: ['*', '.js', '.jsx', '.ts', '.tsx'],
+    plugins: [
+      new TsconfigPathsPlugin(),
+    ],
   },
   plugins: [
     new CopyPlugin({
