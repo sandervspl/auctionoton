@@ -3,13 +3,6 @@ import ReactDOM from 'react-dom';
 
 import Tooltip from './tooltip';
 
-// Update tooltip on user changes
-// addon.storage.onChanged.addListener((changes) => {
-//   if (changes.user) {
-//     Tooltip.generatePageTooltip();
-//   }
-// });
-
 window.onload = function (): void {
   // Get item name
   const itemNameSearch = window.location.pathname.match(/item=\d+\/([\w\d-]+)/);

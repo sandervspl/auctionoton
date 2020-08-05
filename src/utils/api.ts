@@ -1,4 +1,4 @@
-import * as i from './types';
+import * as i from '../types';
 import AsyncStorage from './asyncStorage';
 
 // CLEAR STORAGE
@@ -25,6 +25,7 @@ class API {
 
       // If it's less than an hour old, return cached data
       if (now - cachedItem.updatedAt < hour) {
+        // eslint-disable-next-line no-console
         console.log(`Retrieved ${itemName} data from cache`);
 
         return cachedItem;
@@ -55,7 +56,7 @@ class API {
       await AsyncStorage.addItem(
         { [itemName]: cachedData },
         user.server.slug,
-        user.faction
+        user.faction,
       );
 
       return data as i.ItemData;

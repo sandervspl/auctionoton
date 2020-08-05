@@ -1,6 +1,6 @@
 import React from 'react';
 
-import realms from './realms';
+import realms from '../form/realms';
 
 function useServerList(region: string): JSX.Element[] {
   const [servers, setServers] = React.useState<JSX.Element[]>([]);

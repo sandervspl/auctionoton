@@ -1,4 +1,4 @@
-import AsyncStorage from './asyncStorage';
+import AsyncStorage from './utils/asyncStorage';
 
 addon.runtime.onInstalled.addListener((details) => {
   // Open page for user's server/faction information after installation

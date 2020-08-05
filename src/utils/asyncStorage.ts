@@ -1,4 +1,4 @@
-import * as i from './types';
+import * as i from '../types';
 
 class AsyncStorage {
   async get <T extends i.StorageKeys>(key: T): Promise<i.Storage[T] | undefined> {
