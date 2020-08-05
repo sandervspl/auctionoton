@@ -1,11 +1,10 @@
 import React from 'react';
 import * as i from '../types';
 
-import asyncStorage from '../asyncStorage';
 import api from '../api';
 import LoadingSvg from '../static/loading.svg';
 import ExternalLinkSvg from '../static/external-link.svg';
-
+import useAsyncStorage from '../useAsyncStorage';
 import { SellPrice } from './SellPrice';
 
 const PREFIX = 'auctionoton';
@@ -15,13 +14,16 @@ const ELEMENT_ID = {
 };
 
 const Tooltip: React.FC<Props> = (props) => {
+  const [user] = useAsyncStorage('user');
   const [item, setItem] = React.useState<i.ItemData>();
-  const [user, setUser] = React.useState<i.UserData>();
 
   React.useEffect(() => {
     api.getItem(props.itemName).then(setItem);
-    asyncStorage.get('user').then(setUser);
   }, []);
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <table id={ELEMENT_ID.TOOLTIP}>
