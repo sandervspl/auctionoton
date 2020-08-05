@@ -1,14 +1,22 @@
 {
   "compilerOptions": {
       "outDir": "./dist",
-      "module": "es6",
+      "module": "commonjs",
       "target": "es5",
+      "jsx": "react",
       "removeComments": true,
       "esModuleInterop": true,
       "skipLibCheck": true,
       "strict": true,
       "baseUrl": ".",
-      "paths": {},
+      "paths": {
+        "constants/*": ["src/constants/*"],
+        "hooks/*": ["src/hooks/*"],
+        "utils/*": ["src/utils/*"],
+        "static/*": ["src/static/*"],
+        "modules/*": ["src/modules/*"],
+        "types": ["src/types"]
+      },
       "lib": ["esnext", "DOM"]
   },
   "exclude": ["node_modules"]
