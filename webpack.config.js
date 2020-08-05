@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const rimraf = require('rimraf');
 const path = require('path');
+const rimraf = require('rimraf');
 const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
 const config = require('./config');
@@ -17,7 +17,7 @@ const webpackConfig = {
   ...!isProduction && { devtool: 'inline-source-maps' },
   entry: {
     index: './src/index.tsx',
-    form: './src/form.ts',
+    form: './src/form/index.tsx',
     background: './src/background.ts',
   },
   output: {

@@ -33,6 +33,6 @@ class AsyncStorage {
   }
 }
 
-const storage = new AsyncStorage();
+const asyncStorage = new AsyncStorage();
 
-export default storage;
+export default asyncStorage;

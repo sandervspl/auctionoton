@@ -16,9 +16,13 @@ export type ValueObject = {
   copper: number;
 }
 
+export type Regions = 'eu' | 'us';
+
+export type Factions = 'Alliance' | 'Horde';
+
 export type UserData = {
-  region: 'eu' | 'us';
-  faction: string;
+  region: Regions;
+  faction: Factions;
   server: {
     name: string;
     slug: string;
@@ -37,3 +41,13 @@ export type Storage = {
 };
 
 export type StorageKeys = keyof Storage;
+
+export type Realm = string | { english: string; russian: string }
+
+export type Realms = {
+  eu: {
+    english: Realm[];
+    russian: Realm[];
+  };
+  us: string[];
+}

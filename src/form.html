@@ -59,35 +59,15 @@
       }
 
       #result {
-        display: none;
         margin: 0 35px 20px;
         font-size: 14px;
         color: #52b151;
       }
     </style>
-    <script src="form.js"></script>
   </head>
   <body>
-    <form id="form">
-      <h1>Select your server</h1>
-
-      <select name="region" id="region">
-        <option value="us">Americas & Oceania</option>
-        <option value="eu">Europe</option>
-      </select>
-
-      <select name="server" id="server">
-      </select>
-
-      <select name="faction" id="faction">
-        <option value="Alliance">Alliance</option>
-        <option value="Horde">Horde</option>
-      </select>
-    </form>
-
-    <button type="button" id="submit">Save</button>
-
-    <div id="result">Saved succesfully!</div>
+    <div id="root"></div>
+    <script src="form.js"></script>
   </body>
 </html>
 
