@@ -1,10 +1,10 @@
 import React from 'react';
-import * as i from '../types';
+import * as i from '../../../types';
 
-import api from '../utils/api';
-import LoadingSvg from '../static/loading.svg';
-import ExternalLinkSvg from '../static/external-link.svg';
-import useAsyncStorage from '../hooks/useAsyncStorage';
+import api from '../../../utils/api';
+import LoadingSvg from '../../../static/loading.svg';
+import ExternalLinkSvg from '../../../static/external-link.svg';
+import useAsyncStorage from '../../../hooks/useAsyncStorage';
 import { SellPrice } from './SellPrice';
 
 const PREFIX = 'auctionoton';

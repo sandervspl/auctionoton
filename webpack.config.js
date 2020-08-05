@@ -16,9 +16,9 @@ const webpackConfig = {
   mode: isProduction ? 'production' : 'development',
   ...!isProduction && { devtool: 'inline-source-maps' },
   entry: {
-    index: './src/index.tsx',
-    form: './src/form/index.tsx',
-    background: './src/background.ts',
+    index: './src/modules/main/index.tsx',
+    form: './src/modules/browserAction/form.tsx',
+    background: './src/modules/background.ts',
   },
   output: {
     path: path.resolve('dist'),

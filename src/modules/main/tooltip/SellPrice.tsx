@@ -1,5 +1,5 @@
 import React from 'react';
-import * as i from '../types';
+import * as i from '../../../types';
 
 import { Value } from './Value';
 

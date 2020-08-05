@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import * as i from '../types';
-import useAsyncStorage from '../hooks/useAsyncStorage';
-import useServerList from '../hooks/useServerList';
+import * as i from '../../types';
+import useAsyncStorage from '../../hooks/useAsyncStorage';
+import useServerList from '../../hooks/useServerList';
 
 
 export const Form: React.FC = () => {
