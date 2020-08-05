@@ -6,6 +6,20 @@ import realms from 'src/constants/realms';
 function useServerList(region: string): JSX.Element[] {
   const [servers, setServers] = React.useState<JSX.Element[]>([]);
 
+  function createSlug(name: string): string {
+    return name
+      .toLowerCase()
+      .replace('\'', '')
+      .replace(' ', '-');
+  }
+
+  function createValue(name: string, slug?: string): string {
+    return JSON.stringify({
+      name,
+      slug: createSlug(slug || name),
+    });
+  }
+
   React.useEffect(() => {
     const serverList: JSX.Element[] = [];
 
@@ -16,43 +30,30 @@ function useServerList(region: string): JSX.Element[] {
         for (subregion in realms[region]) {
           for (const realm of realms[region][subregion]) {
             if (typeof realm === 'string') {
-              const slug = realm
-                .toLowerCase()
-                .replace('\'', '')
-                .replace(' ', '-');
+              const value = createValue(realm);
 
-              const value = JSON.stringify({
-                name: realm,
-                slug,
-              });
-
-              serverList.push(<option key={realm} value={value}>{realm}</option>);
+              serverList.push(
+                <option key={realm} value={value}>{realm}</option>,
+              );
             }
 
             if (typeof realm === 'object') {
-              const value = JSON.stringify({
-                name: realm.russian,
-                slug: realm.english.toLowerCase(),
-              });
+              const value = createValue(realm.russian, realm.english);
 
-              serverList.push(<option key={realm.russian} value={value}>{realm.russian}</option>);
+              serverList.push(
+                <option key={realm.russian} value={value}>{realm.russian}</option>,
+              );
             }
           }
         }
         break;
       case 'us':
         for (const realm of realms[region]) {
-          const slug = realm
-            .toLowerCase()
-            .replace('\'', '')
-            .replace(' ', '-');
+          const value = createValue(realm);
 
-          const value = JSON.stringify({
-            name: realm,
-            slug,
-          });
-
-          serverList.push(<option key={realm} value={value}>{realm}</option>);
+          serverList.push(
+            <option key={realm} value={value}>{realm}</option>,
+          );
         }
         break;
     }
