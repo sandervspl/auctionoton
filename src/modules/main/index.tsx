@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import pageTooltip from './pageTooltip';
+import Root from './Root';
 
 
 function main(): void {
@@ -12,13 +12,6 @@ function main(): void {
   rootElement.style.display = 'none';
 
   bodyElement.appendChild(rootElement);
-
-  // List of rendered elements
-  const elements = [
-    pageTooltip(),
-  ];
-
-  const Root = () => <>{elements}</>;
 
   ReactDOM.render(<Root />, rootElement);
 };

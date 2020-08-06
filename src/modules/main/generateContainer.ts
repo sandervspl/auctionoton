@@ -1,4 +1,4 @@
-function generateContainer(parent: HTMLElement): HTMLElement {
+function generateContainer(parent: Element): HTMLElement {
   const tooltipWidth = parent.getBoundingClientRect().width;
   const minContainerWidth = 256;
 

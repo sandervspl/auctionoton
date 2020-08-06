@@ -51,3 +51,8 @@ export type Realms = {
   };
   us: string[];
 }
+
+export type PageItem = {
+  name: string;
+  id: string;
+}

@@ -16,7 +16,7 @@ const ELEMENT_ID = {
 };
 
 
-const Tooltip: React.FC<Props> = (props) => {
+const Tooltip = (props: Props): JSX.Element | null => {
   const [user] = useAsyncStorage('user');
   const [item, setItem] = React.useState<i.ItemData>();
 
@@ -27,10 +27,14 @@ const Tooltip: React.FC<Props> = (props) => {
 
     // Remove item to hide current data and show loading animation
     setItem(undefined);
-
-    // Get new item data
-    api.getItem(props.itemName).then(setItem);
   }, [user]);
+
+  // Get item data
+  React.useEffect(() => {
+    setItem(undefined);
+
+    api.getItem(props.itemName).then(setItem);
+  }, [props.itemName]);
 
   if (!user) {
     return null;
