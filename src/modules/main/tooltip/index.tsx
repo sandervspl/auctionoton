@@ -4,7 +4,6 @@ import React from 'react';
 import api from 'utils/api';
 import useAsyncStorage from 'hooks/useAsyncStorage';
 import LoadingSvg from 'static/loading.svg';
-import ExternalLinkSvg from 'static/external-link.svg';
 
 import { SellPrice } from './SellPrice';
 
@@ -64,13 +63,9 @@ const Tooltip = (props: Props): JSX.Element | null => {
                       <SellPrice heading="Historical Value" value={item.historicalValue} />
                       <SellPrice heading="Minimum Buyout" value={item.minimumBuyout} />
 
-                      <br />
-
-                      <div>
-                        <a href={item.url} target="_blank" rel="noopener noreferrer">
-                          More information on Nexushub.co <ExternalLinkSvg />
-                        </a>
-                      </div>
+                      {typeof props.children === 'function'
+                        ? props.children(item)
+                        : props.children}
                     </td>
                   </tr>
                 )}
@@ -92,6 +87,7 @@ const Tooltip = (props: Props): JSX.Element | null => {
 
 type Props = {
   itemName: string;
+  children?: JSX.Element | ((item: i.ItemData) => JSX.Element);
 }
 
 export default Tooltip;
