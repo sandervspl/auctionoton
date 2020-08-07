@@ -5,6 +5,11 @@ import asyncStorage from './asyncStorage';
 
 class Api {
   async getItem(itemName: string): Promise<i.ItemData | undefined> {
+    const validName = decodeURI(itemName)
+      .replace(' ', '-')
+      .replace(/[^-a-zA-Z0-6]/g, '')
+      .trim();
+
     // Get user data
     const user = await asyncStorage.get('user');
 
@@ -15,7 +20,7 @@ class Api {
     }
 
     // First check if data for this item is saved in storage
-    const cachedItem = await asyncStorage.getItem(itemName);
+    const cachedItem = await asyncStorage.getItem(validName);
 
     // Return cached data if it exists
     if (cachedItem) {
@@ -26,7 +31,7 @@ class Api {
       if (now - cachedItem.updatedAt < hour) {
         if (__DEV__) {
           // eslint-disable-next-line no-console
-          console.log(`Retrieved ${itemName} data from cache`);
+          console.log(`Retrieved ${validName} data from cache`);
         }
 
         return cachedItem;
@@ -37,7 +42,7 @@ class Api {
     try {
       const server = user.server.slug.toLowerCase();
       const faction = user.faction.toLowerCase();
-      const item = itemName.toLowerCase();
+      const item = validName.toLowerCase();
 
       const result = await fetch(`${__API__}/item/${server}/${faction}/${item}`);
       const data = await result.json() as i.ItemData | { statusCode: number; message: string };
@@ -54,7 +59,7 @@ class Api {
       };
 
       // Save data to storage
-      await asyncStorage.addItem(itemName, cachedData);
+      await asyncStorage.addItem(validName, cachedData);
 
       return data as i.ItemData;
     } catch (err) {
