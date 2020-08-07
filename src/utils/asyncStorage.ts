@@ -18,20 +18,27 @@ class AsyncStorage {
     });
   }
 
-  async addItem(data: Record<string, i.CachedItemData>, serverSlug: string, faction: string): Promise<void> {
+  async addItem(name: string, data: i.CachedItemData): Promise<void> {
+    const user = await this.get('user') as i.UserData;
     const cachedItems = await this.get('items') || {};
     const items = { ...cachedItems };
 
-    items[serverSlug] = items[serverSlug] || {};
-    items[serverSlug][faction] = data;
+    items[user.server.slug] = items[user.server.slug] || {};
+    items[user.server.slug][user.faction][name] = data;
 
     await this.set({ items });
   }
 
-  async getItem(itemName: string, serverSlug: string, faction: string): Promise<i.CachedItemData | undefined> {
+  async getItem(itemName: string): Promise<i.CachedItemData | undefined> {
+    const user = await this.get('user') as i.UserData;
     const items = await this.get('items');
 
-    return items?.[serverSlug]?.[faction]?.[itemName];
+    if (__DEV__) {
+      // eslint-disable-next-line no-console
+      console.log(items);
+    }
+
+    return items?.[user.server.slug]?.[user.faction]?.[itemName];
   }
 }
 

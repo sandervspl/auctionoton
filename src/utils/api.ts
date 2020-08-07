@@ -15,7 +15,7 @@ class Api {
     }
 
     // First check if data for this item is saved in storage
-    const cachedItem = await asyncStorage.getItem(itemName, user.server.slug, user.faction);
+    const cachedItem = await asyncStorage.getItem(itemName);
 
     // Return cached data if it exists
     if (cachedItem) {
@@ -54,11 +54,7 @@ class Api {
       };
 
       // Save data to storage
-      await asyncStorage.addItem(
-        { [itemName]: cachedData },
-        user.server.slug,
-        user.faction,
-      );
+      await asyncStorage.addItem(itemName, cachedData);
 
       return data as i.ItemData;
     } catch (err) {
