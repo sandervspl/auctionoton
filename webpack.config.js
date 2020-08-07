@@ -4,6 +4,7 @@ const rimraf = require('rimraf');
 const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const WebpackNotifierPlugin = require('webpack-notifier');
 const config = require('./config');
 
 const env = process.env.NODE_ENV || 'development';
@@ -63,6 +64,7 @@ const webpackConfig = {
       __DEV__: !isProduction,
       __API__: JSON.stringify(config.api[env]),
     }),
+    new WebpackNotifierPlugin({ title: 'Auctionoton Extension' }),
   ],
 };
 
