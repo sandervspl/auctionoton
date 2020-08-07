@@ -2,9 +2,5 @@
   "watch": ["src", "defines.d.ts", "global.d.ts"],
   "ignore": [],
   "ext": "ts,tsx",
-  "exec": "webpack -c webpack.config.js",
-  "events": {
-    "restart": "osascript -e 'display notification \"Compiling...\" with title \"Auctionoton Extension\"'",
-    "exit": "osascript -e 'display notification \"Finished compiling\" with title \"Auctionoton Extension\"'"
-  }
+  "exec": "webpack -c webpack.config.js"
 }
