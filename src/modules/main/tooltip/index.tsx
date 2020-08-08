@@ -1,41 +1,34 @@
 import * as i from 'types';
 import React from 'react';
 
-import api from 'utils/api';
-import useAsyncStorage from 'hooks/useAsyncStorage';
 import LoadingSvg from 'static/loading.svg';
+import useStorage from 'hooks/useStorage';
+import { ELEMENT_ID } from 'src/constants';
 
 import { SellPrice } from './SellPrice';
 
 
-const PREFIX = 'auctionoton';
-const ELEMENT_ID = {
-  CONTAINER: `${PREFIX}-container`,
-  TOOLTIP: `${PREFIX}-tooltip`,
-};
-
-
 const Tooltip = (props: Props): JSX.Element | null => {
-  const [user] = useAsyncStorage('user');
+  const [storage, { getItem }] = useStorage();
   const [item, setItem] = React.useState<i.ItemData>();
 
   React.useMemo(() => {
-    if (!user) {
-      return;
-    }
-
     // Remove item to hide current data and show loading animation
     setItem(undefined);
-  }, [user]);
+
+    // Get new item data
+    getItem(props.itemName).then(setItem);
+  }, [storage.user]);
 
   // Get item data
   React.useEffect(() => {
     setItem(undefined);
 
-    api.getItem(props.itemName).then(setItem);
+    getItem(props.itemName).then(setItem);
   }, [props.itemName]);
 
-  if (!user) {
+  // Wait for user data before we show the tooltip
+  if (!storage.user.server.name) {
     return null;
   }
 
@@ -49,7 +42,7 @@ const Tooltip = (props: Props): JSX.Element | null => {
                 <tr>
                   <td>
                     <span className="q whtt-extra whtt-ilvl">
-                        Auction House Data for {user.server.name}-{user.faction}
+                      Auction House Data for {storage.user.server.name}-{storage.user.faction}
                     </span>
                     <div className="whtt-sellprice" style={{ marginBottom: '10px' }}>
                       {!item ? <LoadingSvg /> : `Last updated: ${item.lastUpdated}`}

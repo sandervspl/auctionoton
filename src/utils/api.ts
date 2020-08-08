@@ -1,10 +1,11 @@
 import * as i from 'types';
 
 import asyncStorage from './asyncStorage';
+import validateCache from './validateCache';
 
 
 class Api {
-  async getItem(itemName: string): Promise<i.ItemData | undefined> {
+  async getItem(itemName: string): Promise<i.CachedItemData | undefined> {
     const validName = decodeURI(itemName)
       .replace(' ', '-')
       .replace(/[^-a-zA-Z0-6]/g, '')
@@ -23,19 +24,13 @@ class Api {
     const cachedItem = await asyncStorage.getItem(validName);
 
     // Return cached data if it exists
-    if (cachedItem) {
-      const now = new Date().getTime();
-      const hour = 3.6e6;
-
-      // If it's less than an hour old, return cached data
-      if (now - cachedItem.updatedAt < hour) {
-        if (__DEV__) {
-          // eslint-disable-next-line no-console
-          console.log(`Retrieved ${validName} data from cache`);
-        }
-
-        return cachedItem;
+    if (cachedItem && validateCache(cachedItem)) {
+      if (__DEV__) {
+        // eslint-disable-next-line no-console
+        console.log(`Retrieved ${validName} data from cache`);
       }
+
+      return cachedItem;
     }
 
     // Fetch item price data
@@ -61,7 +56,7 @@ class Api {
       // Save data to storage
       await asyncStorage.addItem(validName, cachedData);
 
-      return data as i.ItemData;
+      return cachedData;
     } catch (err) {
       console.error(err);
     }

@@ -1,7 +1,18 @@
 import React from 'react';
+import { RecoilRoot } from 'recoil';
 
 import PageTooltip from './PageTooltip';
 import HoverTooltip from './HoverTooltip';
+
+class App extends React.Component {
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error(error, errorInfo);
+  }
+
+  render() {
+    return this.props.children;
+  }
+}
 
 
 const Root = (): JSX.Element => {
@@ -38,10 +49,12 @@ const Root = (): JSX.Element => {
   const isItemPage = window.location.pathname.includes('item=');
 
   return (
-    <>
-      {isItemPage && <PageTooltip />}
-      {hoverParent && <HoverTooltip parent={hoverParent} />}
-    </>
+    <RecoilRoot>
+      <App>
+        {isItemPage && <PageTooltip />}
+        {hoverParent && <HoverTooltip parent={hoverParent} />}
+      </App>
+    </RecoilRoot>
   );
 };
 

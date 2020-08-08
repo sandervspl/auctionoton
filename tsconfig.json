@@ -10,6 +10,9 @@
       "strict": true,
       "baseUrl": ".",
       "paths": {
+        "atoms": ["src/atoms/index"],
+        "atoms/*": ["src/atoms/*"],
+        "constants": ["src/constants/index"],
         "constants/*": ["src/constants/*"],
         "hooks/*": ["src/hooks/*"],
         "utils/*": ["src/utils/*"],

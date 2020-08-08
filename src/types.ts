@@ -6,9 +6,11 @@ export type ItemData = {
   minimumBuyout: ValueObject;
 }
 
-export type CachedItemData = ItemData & {
+export type Cache = {
   updatedAt: number;
 }
+
+export type CachedItemData = ItemData & Cache;
 
 export type ValueObject = {
   gold: number;
