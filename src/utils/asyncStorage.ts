@@ -4,7 +4,7 @@ import * as i from 'types';
 class AsyncStorage {
   async get <T extends i.StorageKeys>(key: T): Promise<i.Storage[T] | undefined> {
     return new Promise((resolve) => {
-      addon.storage.sync.get(key, (items) => {
+      addon.storage.local.get(key, (items) => {
         return resolve(items[key]);
       });
     });
@@ -12,7 +12,7 @@ class AsyncStorage {
 
   async set <T extends i.StorageKeys>(data: Record<T, i.Storage[T]>): Promise<void> {
     return new Promise((resolve) => {
-      addon.storage.sync.set(data, () => {
+      addon.storage.local.set(data, () => {
         return resolve();
       });
     });
@@ -24,6 +24,7 @@ class AsyncStorage {
     const items = { ...cachedItems };
 
     items[user.server.slug] = items[user.server.slug] || {};
+    items[user.server.slug][user.faction] = items[user.server.slug][user.faction] || {};
     items[user.server.slug][user.faction][name] = data;
 
     await this.set({ items });
