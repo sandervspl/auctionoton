@@ -8,7 +8,7 @@ import getItemData from './getPageItem';
 import generateContainer from './generateContainer';
 
 
-const PageTooltip = (): JSX.Element => {
+const PageTooltip = (): JSX.Element | null => {
   const pageItem = React.useRef(getItemData());
 
   const tooltipElementId = `tt${pageItem.current.id}`;

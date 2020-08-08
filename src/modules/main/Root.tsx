@@ -6,14 +6,14 @@ import HoverTooltip from './HoverTooltip';
 
 const Root = (): JSX.Element => {
   // List of rendered elements
-  const [hoverParent, setHoverParent] = React.useState<Element>();
+  const [hoverParent, setHoverParent] = React.useState<HTMLElement>();
 
   // Wait for wowhead-tooltip element to be added to the DOM
   // Then save that node for the hover tooltip to append to
   React.useMemo(() => {
     const onMutation: MutationCallback = function (mutations, observer) {
       for (const mutation of mutations) {
-        const nodes = Array.from(mutation.addedNodes) as Element[];
+        const nodes = Array.from(mutation.addedNodes) as HTMLElement[];
 
         for (const node of nodes) {
           if (node.classList.contains('wowhead-tooltip')) {
@@ -35,9 +35,11 @@ const Root = (): JSX.Element => {
     observer.observe(bodyElement, { childList: true });
   }, []);
 
+  const isItemPage = window.location.pathname.includes('item=');
+
   return (
     <>
-      <PageTooltip />
+      {isItemPage && <PageTooltip />}
       {hoverParent && <HoverTooltip parent={hoverParent} />}
     </>
   );
