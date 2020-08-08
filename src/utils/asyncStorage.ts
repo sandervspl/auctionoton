@@ -2,6 +2,23 @@ import * as i from 'types';
 
 
 class AsyncStorage {
+  async getAll(): Promise<i.Storage> {
+    return new Promise((resolve) => {
+      addon.storage.local.get(null, (data) => {
+        const _data = data as i.Storage;
+
+        if ('user' in _data) {
+          return resolve(_data);
+        }
+
+        return {
+          user: { server: {} },
+          items: {},
+        };
+      });
+    });
+  }
+
   async get <T extends i.StorageKeys>(key: T): Promise<i.Storage[T] | undefined> {
     return new Promise((resolve) => {
       addon.storage.local.get(key, (items) => {
@@ -12,9 +29,7 @@ class AsyncStorage {
 
   async set <T extends i.StorageKeys>(data: Record<T, i.Storage[T]>): Promise<void> {
     return new Promise((resolve) => {
-      addon.storage.local.set(data, () => {
-        return resolve();
-      });
+      addon.storage.local.set(data, resolve);
     });
   }
 

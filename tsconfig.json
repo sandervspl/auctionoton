@@ -12,13 +12,12 @@
       "paths": {
         "atoms": ["src/atoms/index"],
         "atoms/*": ["src/atoms/*"],
-        "constants": ["src/constants/index"],
-        "constants/*": ["src/constants/*"],
         "hooks/*": ["src/hooks/*"],
         "utils/*": ["src/utils/*"],
         "static/*": ["src/static/*"],
         "modules/*": ["src/modules/*"],
-        "types": ["src/types"]
+        "types": ["src/types"],
+        "src/*": ["src/*"],
       },
       "lib": ["esnext", "DOM"]
   },
