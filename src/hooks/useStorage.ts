@@ -39,7 +39,10 @@ function useStorage() {
 
         let key: i.StorageKeys;
         for (key in storageChanges) {
-          modStorage[key] = { ...modStorage[key], ...storageChanges[key].newValue };
+          modStorage[key] = {
+            ...modStorage[key],
+            ...storageChanges[key].newValue,
+          };
         }
 
         return modStorage;
