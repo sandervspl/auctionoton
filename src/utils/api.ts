@@ -45,7 +45,7 @@ class Api {
 
       // Something went wrong
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if (!(data as any).statusCode) {
+      if ((data as any).statusCode) {
         console.error(data);
         return;
       }
