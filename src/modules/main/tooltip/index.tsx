@@ -19,11 +19,6 @@ const Tooltip = (props: Props): JSX.Element | null => {
     storage.getItem(props.itemName).then(setItem);
   }, [storage.user, props.itemName]);
 
-  // Wait for user data before we show the tooltip
-  if (!storage.user.server.name) {
-    return null;
-  }
-
   return (
     <table id={ELEMENT_ID.TOOLTIP}>
       <tbody>

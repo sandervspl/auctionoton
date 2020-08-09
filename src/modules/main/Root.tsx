@@ -3,6 +3,7 @@ import React from 'react';
 import PageTooltip from './PageTooltip';
 import HoverTooltip from './HoverTooltip';
 
+
 class App extends React.Component {
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error(error, errorInfo);
