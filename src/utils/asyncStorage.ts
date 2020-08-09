@@ -1,5 +1,6 @@
 import * as i from 'types';
 import produce from 'immer';
+import _set from 'lodash/set';
 
 
 class AsyncStorage {
@@ -39,7 +40,7 @@ class AsyncStorage {
     const storageItems = await this.get('items') || {};
 
     const items = produce(storageItems, (draftState) => {
-      draftState[user.server.slug][user.faction][name] = data;
+      _set(draftState, `${user.server.slug}.${user.faction}.${name}`, data);
     });
 
     await this.set({ items });
