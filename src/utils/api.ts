@@ -1,4 +1,5 @@
 import * as i from 'types';
+import produce from 'immer';
 
 import asyncStorage from './asyncStorage';
 import validateCache from './validateCache';
@@ -40,18 +41,18 @@ class Api {
       const item = validName.toLowerCase();
 
       const result = await fetch(`${__API__}/item/${server}/${faction}/${item}`);
-      const data = await result.json() as i.ItemData | { statusCode: number; message: string };
+      const data = await result.json() as i.CachedItemData;
 
       // Something went wrong
-      if (!(data as i.ItemData).lastUpdated) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (!(data as any).statusCode) {
         console.error(data);
         return;
       }
 
-      const cachedData = {
-        ...data as i.ItemData,
-        updatedAt: new Date().getTime(),
-      };
+      const cachedData = produce(data, (draftState) => {
+        draftState.updatedAt = new Date().getTime();
+      });
 
       // Save data to storage
       await asyncStorage.addItem(validName, cachedData);
