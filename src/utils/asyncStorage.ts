@@ -1,4 +1,5 @@
 import * as i from 'types';
+import produce from 'immer';
 
 
 class AsyncStorage {
@@ -35,12 +36,11 @@ class AsyncStorage {
 
   async addItem(name: string, data: i.CachedItemData): Promise<void> {
     const user = await this.get('user') as i.UserData;
-    const cachedItems = await this.get('items') || {};
-    const items = { ...cachedItems };
+    const storageItems = await this.get('items') || {};
 
-    items[user.server.slug] = items[user.server.slug] || {};
-    items[user.server.slug][user.faction] = items[user.server.slug][user.faction] || {};
-    items[user.server.slug][user.faction][name] = data;
+    const items = produce(storageItems, (draftState) => {
+      draftState[user.server.slug][user.faction][name] = data;
+    });
 
     await this.set({ items });
   }
