@@ -21,7 +21,7 @@
     "lodash": "4.17.19",
     "react": "16.13.1",
     "react-dom": "16.13.1",
-    "recoil": "0.0.10"
+    "zustand": "2.2.4"
   },
   "devDependencies": {
     "@svgr/webpack": "5.4.0",

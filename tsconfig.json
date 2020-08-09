@@ -10,8 +10,8 @@
       "strict": true,
       "baseUrl": ".",
       "paths": {
-        "atoms": ["src/atoms/index"],
-        "atoms/*": ["src/atoms/*"],
+        "state": ["src/state/index"],
+        "state/*": ["src/state/*"],
         "hooks/*": ["src/hooks/*"],
         "utils/*": ["src/utils/*"],
         "static/*": ["src/static/*"],

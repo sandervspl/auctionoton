@@ -1,25 +1,19 @@
 import * as i from 'types';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { RecoilRoot } from 'recoil';
 
+import { storageStoreApi } from 'state/storage';
 import useServerList from 'hooks/useServerList';
 import useStorage from 'hooks/useStorage';
 
 
 export const Form: React.FC = () => {
   const [storage, { saveToStorage }] = useStorage();
-  const [region, setRegion] = React.useState<i.Regions>('us');
-  const [server, setServer] = React.useState('{}');
-  const [faction, setFaction] = React.useState<i.Factions>('Alliance');
+  const [region, setRegion] = React.useState<i.Regions>(storage.user.region);
+  const [server, setServer] = React.useState(JSON.stringify(storage.user.server));
+  const [faction, setFaction] = React.useState<i.Factions>(storage.user.faction);
   const [saved, setSaved] = React.useState(false);
   const serverList = useServerList(region);
-
-  React.useEffect(() => {
-    setRegion(storage.user.region);
-    setServer(JSON.stringify(storage.user.server));
-    setFaction(storage.user.faction);
-  }, [storage.user]);
 
   React.useEffect(() => {
     const serverSlugs = serverList.map((elem) => JSON.parse(elem.props.value).slug);
@@ -92,9 +86,13 @@ export const Form: React.FC = () => {
   );
 };
 
-ReactDOM.render(
-  <RecoilRoot>
-    <Form />
-  </RecoilRoot>,
-  document.getElementById('root'),
-);
+async function main() {
+  await storageStoreApi.getState().init();
+
+  ReactDOM.render(
+    <Form />,
+    document.getElementById('root'),
+  );
+}
+
+main();

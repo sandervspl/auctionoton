@@ -1,8 +1,7 @@
 import * as i from 'types';
 import React from 'react';
-import { useRecoilState } from 'recoil';
 
-import { storageAtom } from 'atoms';
+import { useStorageState } from 'state/storage';
 import asyncStorage from 'utils/asyncStorage';
 import api from 'utils/api';
 import validateCache from 'utils/validateCache';
@@ -10,42 +9,18 @@ import validateCache from 'utils/validateCache';
 
 // eslint-disable-next-line
 function useStorage() {
-  const [storage, setStorage] = useRecoilState(storageAtom);
+  const storage = useStorageState();
 
   React.useEffect(() => {
-    /**
-     * Initial load of user data from browser storage
-     * Done here because of a bug
-     * https://github.com/facebookexperimental/Recoil/issues/12
-     */
-    asyncStorage.get('user').then((user) => {
-      if (!user) {
-        return;
-      }
-
-      setStorage((curStorage) => ({
-        ...curStorage,
-        user,
-      }));
-    });
-
-
-    // When browser storage changes we update the storage atom
+    // When browser storage changes we update the storage state
     addon.storage.onChanged.addListener((changes) => {
       const storageChanges = changes as Record<i.StorageKeys, chrome.storage.StorageChange>;
 
-      setStorage((curStorage) => {
-        const modStorage = { ...curStorage };
-
+      storage.set((curStorage) => {
         let key: i.StorageKeys;
         for (key in storageChanges) {
-          modStorage[key] = {
-            ...modStorage[key],
-            ...storageChanges[key].newValue,
-          };
+          curStorage[key] = storageChanges[key].newValue;
         }
-
-        return modStorage;
       });
     });
   }, []);
@@ -80,7 +55,10 @@ function useStorage() {
     });
   }
 
-  return [storage, {
+  return [{
+    user: storage.user,
+    items: storage.items,
+  }, {
     get,
     getItem,
     saveToStorage: asyncStorage.set,

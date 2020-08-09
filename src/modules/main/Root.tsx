@@ -1,5 +1,4 @@
 import React from 'react';
-import { RecoilRoot } from 'recoil';
 
 import PageTooltip from './PageTooltip';
 import HoverTooltip from './HoverTooltip';
@@ -49,12 +48,10 @@ const Root = (): JSX.Element => {
   const isItemPage = window.location.pathname.includes('item=');
 
   return (
-    <RecoilRoot>
-      <App>
-        {isItemPage && <PageTooltip />}
-        {hoverParent && <HoverTooltip parent={hoverParent} />}
-      </App>
-    </RecoilRoot>
+    <App>
+      {isItemPage && <PageTooltip />}
+      {hoverParent && <HoverTooltip parent={hoverParent} />}
+    </App>
   );
 };
 

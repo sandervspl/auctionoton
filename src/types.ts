@@ -31,15 +31,17 @@ export type UserData = {
   };
 }
 
-export type Storage = {
-  user: UserData;
-  items: {
-    [serverSlug: string]: {
-      [faction: string]: {
-        [itemName: string]: CachedItemData;
-      };
+export type ItemsData = {
+  [serverSlug: string]: {
+    [faction: string]: {
+      [itemName: string]: CachedItemData;
     };
   };
+};
+
+export type Storage = {
+  user: UserData;
+  items: ItemsData;
 };
 
 export type StorageKeys = keyof Storage;
