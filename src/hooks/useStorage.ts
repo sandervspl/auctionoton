@@ -68,7 +68,7 @@ function useStorage() {
       const { user } = storage;
       const cachedItem = storage.items[user.server.slug]?.[user.faction]?.[itemName];
 
-      if (cachedItem && validateCache(cachedItem)) {
+      if (validateCache(cachedItem)) {
         return resolve(cachedItem);
       }
 

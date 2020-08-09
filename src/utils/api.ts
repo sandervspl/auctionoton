@@ -24,7 +24,7 @@ class Api {
     const cachedItem = await asyncStorage.getItem(validName);
 
     // Return cached data if it exists
-    if (cachedItem && validateCache(cachedItem)) {
+    if (validateCache(cachedItem)) {
       if (__DEV__) {
         // eslint-disable-next-line no-console
         console.log(`Retrieved ${validName} data from cache`);

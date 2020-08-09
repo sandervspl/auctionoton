@@ -1,6 +1,10 @@
 import * as i from 'types';
 
-function validateCache(data: i.Cache): boolean {
+function validateCache(data: i.Cache | undefined): boolean {
+  if (!data) {
+    return false;
+  }
+
   const now = new Date().getTime();
   const hour = 3.6e6;
 
