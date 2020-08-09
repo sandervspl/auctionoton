@@ -12,20 +12,12 @@ const Tooltip = (props: Props): JSX.Element | null => {
   const storage = useStorage();
   const [item, setItem] = React.useState<i.ItemData>();
 
-  React.useMemo(() => {
-    // Remove item to hide current data and show loading animation
-    setItem(undefined);
-
-    // Get new item data
-    storage.getItem(props.itemName).then(setItem);
-  }, [storage.user]);
-
   // Get item data
   React.useEffect(() => {
     setItem(undefined);
 
     storage.getItem(props.itemName).then(setItem);
-  }, [props.itemName]);
+  }, [storage.user, props.itemName]);
 
   // Wait for user data before we show the tooltip
   if (!storage.user.server.name) {
