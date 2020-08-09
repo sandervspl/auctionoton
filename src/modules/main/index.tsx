@@ -18,4 +18,4 @@ function main(): void {
   ReactDOM.render(<Root />, rootElement);
 };
 
-window.onload = main;
+main();
