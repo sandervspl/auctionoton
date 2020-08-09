@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { storageStoreApi } from 'state/storage';
+import { useStorageApi } from 'state/storage';
 import { ELEMENT_ID } from 'src/constants';
 
 import Root from './Root';
@@ -9,7 +9,7 @@ import Root from './Root';
 
 async function main(): Promise<void> {
   // Initialize short term cache
-  await storageStoreApi.getState().init();
+  await useStorageApi.getState().init();
 
   // Generate a root element for React to render on
   const bodyElement = document.getElementsByTagName('body')[0];

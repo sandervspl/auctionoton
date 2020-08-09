@@ -2,14 +2,14 @@ import * as i from 'types';
 import React from 'react';
 
 import LoadingSvg from 'static/loading.svg';
-import useStorage from 'hooks/useStorage';
+import { useStorage } from 'state/storage';
 import { ELEMENT_ID } from 'src/constants';
 
 import { SellPrice } from './SellPrice';
 
 
 const Tooltip = (props: Props): JSX.Element | null => {
-  const [storage, { getItem }] = useStorage();
+  const storage = useStorage();
   const [item, setItem] = React.useState<i.ItemData>();
 
   React.useMemo(() => {
@@ -17,14 +17,14 @@ const Tooltip = (props: Props): JSX.Element | null => {
     setItem(undefined);
 
     // Get new item data
-    getItem(props.itemName).then(setItem);
+    storage.getItem(props.itemName).then(setItem);
   }, [storage.user]);
 
   // Get item data
   React.useEffect(() => {
     setItem(undefined);
 
-    getItem(props.itemName).then(setItem);
+    storage.getItem(props.itemName).then(setItem);
   }, [props.itemName]);
 
   // Wait for user data before we show the tooltip
