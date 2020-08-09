@@ -12,7 +12,7 @@ export const storageAtom = atom<i.Storage>({
   default: {
     user: {
       server: {},
-    } as any,
+    } as any, // eslint-disable-line @typescript-eslint/no-explicit-any
     items: {},
   },
 });
