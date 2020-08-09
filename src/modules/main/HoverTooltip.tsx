@@ -29,12 +29,14 @@ const HoverTooltip = (props: Props): JSX.Element | null => {
       if (itemNameFromUrl) {
         setItemName(itemNameFromUrl);
       } else {
-        const selector = document.querySelectorAll('.wowhead-tooltip table tr td > b')[1] as HTMLElement | undefined;
-        const itemNameFromPage = selector?.innerText;
+        setTimeout(() => {
+          const selector = document.querySelectorAll('.wowhead-tooltip table tr td > b')[1] as HTMLElement | undefined;
+          const itemNameFromPage = selector?.innerText;
 
-        if (itemNameFromPage) {
-          setItemName(itemNameFromPage);
-        }
+          if (itemNameFromPage) {
+            setItemName(itemNameFromPage);
+          }
+        });
       }
     }
 
