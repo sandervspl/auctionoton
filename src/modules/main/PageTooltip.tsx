@@ -13,7 +13,7 @@ const PageTooltip = (): JSX.Element | null => {
 
   const tooltipElementId = `tt${pageItem.current.id}`;
   const tooltipElement = document.querySelector(`#${tooltipElementId}`) as HTMLElement;
-  const container = React.useRef(generateContainer(tooltipElement));
+  const container = React.useRef(generateContainer(tooltipElement, 'page'));
 
   return ReactDOM.createPortal(
     <Tooltip itemName={pageItem.current.name}>

@@ -7,7 +7,7 @@ import Tooltip from './tooltip';
 
 
 const HoverTooltip = (props: Props): JSX.Element | null => {
-  const container = React.useRef(generateContainer(props.parent));
+  const container = React.useRef(generateContainer(props.parent, 'hover'));
   const [itemName, setItemName] = React.useState<string | undefined>();
   let timeoutId: number;
 
