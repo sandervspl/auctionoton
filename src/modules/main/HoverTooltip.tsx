@@ -6,55 +6,97 @@ import { getItemNameFromUrl } from './getPageItem';
 import Tooltip from './tooltip';
 
 
-const HoverTooltip = (props: Props): JSX.Element | null => {
-  const container = React.useRef(generateContainer(props.parent, 'hover'));
-  const [itemName, setItemName] = React.useState<string | undefined>();
+const HoverTooltip = (): JSX.Element | null => {
+  const [containerEl, setContainerEl] = React.useState<HTMLElement>();
+  const [wowheadTooltipEl, setWowheadTooltipEl] = React.useState<HTMLElement>();
+  const [itemName, setItemName] = React.useState<string>();
+  const [visible, setVisible] = React.useState(false);
   let timeoutId: number;
 
-  function isVisible(): boolean {
-    return container.current.style.display !== 'none';
-  }
 
-  function hide(): void {
-    container.current.style.display = 'none';
-  }
+  function observeWowheadTooltipCreate(): MutationObserver {
+    const bodyElement = document.querySelector('body') as HTMLBodyElement;
 
-  React.useEffect(() => {
-    // Helper functions
-    function onMouseEnter(node: HTMLAnchorElement) {
-      container.current.style.display = 'block';
+    const observer = new MutationObserver((mutations, observer) => {
+      for (const mutation of mutations) {
+        const nodes = Array.from(mutation.addedNodes) as HTMLElement[];
 
-      const itemNameFromUrl = getItemNameFromUrl(node.href);
+        for (const node of nodes) {
+          if (node.classList.contains('wowhead-tooltip')) {
+            // Save node for HoverTooltip
+            setWowheadTooltipEl(node);
 
-      if (itemNameFromUrl) {
-        setItemName(itemNameFromUrl);
-      } else {
-        setTimeout(() => {
-          const selector = document.querySelectorAll('.wowhead-tooltip table tr td > b')[1] as HTMLElement | undefined;
-          const itemNameFromPage = selector?.innerText;
+            const container = generateContainer(node, 'hover');
+            setContainerEl(container);
 
-          if (itemNameFromPage) {
-            setItemName(itemNameFromPage);
+            // Stop observing DOM changes
+            observer.disconnect();
           }
-        });
+        }
       }
-    }
+    });
 
-    // Look for all anchors that link to items
+    // Observe added/removed nodes to body and its children
+    observer.observe(bodyElement, { childList: true });
+
+    return observer;
+  }
+
+  function observeWowheadTooltipVisibility(): MutationObserver {
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        const wowheadTooltip = mutation.target as HTMLElement;
+
+        // Using timeout fixes an issue where the visible data value for the wowhead tooltip changes between no and yes rapidly
+        if (wowheadTooltip.dataset.visible === 'yes' && mutation.oldValue === 'no') {
+          clearTimeout(timeoutId);
+        }
+
+        if (wowheadTooltip.dataset.visible === 'no') {
+          timeoutId = setTimeout(() => setVisible(false));
+        }
+      }
+    });
+
+    observer.observe(wowheadTooltipEl!, {
+      attributeFilter: ['data-visible'],
+      attributeOldValue: true,
+    });
+
+    return observer;
+  }
+
+  function observeItemLinksCreate(): MutationObserver {
     function addHoverToLinks() {
+      // Look for all anchors that link to items
       const itemLinks = document.querySelectorAll('a[href*="item="]');
       const itemLinksArr = Array.from(itemLinks) as HTMLAnchorElement[];
 
-      const onMouseEnterCb = (node: HTMLAnchorElement) => () => onMouseEnter(node);
+      function onMouseEnter(node: HTMLAnchorElement) {
+        return function () {
+          setVisible(true);
+
+          const itemNameFromUrl = getItemNameFromUrl(node.href);
+
+          if (itemNameFromUrl) {
+            setItemName(itemNameFromUrl);
+          } else {
+            setTimeout(() => {
+              const selector = document.querySelectorAll('.wowhead-tooltip table tr td > b')[1] as HTMLElement | undefined;
+              const itemNameFromPage = selector?.innerText;
+
+              if (itemNameFromPage) {
+                setItemName(itemNameFromPage);
+              }
+            });
+          }
+        };
+      };
 
       for (const link of itemLinksArr) {
-        link.addEventListener('mouseenter', onMouseEnterCb(link));
+        link.addEventListener('mouseenter', onMouseEnter(link));
       }
     }
-
-
-    // Hide tooltip container on first render
-    hide();
 
 
     // Add event listener for tooltip to item links
@@ -73,48 +115,40 @@ const HoverTooltip = (props: Props): JSX.Element | null => {
       subtree: true,
     });
 
+    return observer;
+  }
 
-    // Observe floating wowhead tooltip for changes to its visibility
-    const wowheadTooltipObserver = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        const wowheadTooltip = mutation.target as HTMLElement;
+  React.useEffect(() => {
+    const observer1 = observeWowheadTooltipCreate();
+    const observer2 = observeItemLinksCreate();
 
-        // Using timeout fixes an issue where the visible data value for the wowhead tooltip changes between no and yes rapidly
-        if (wowheadTooltip.dataset.visible === 'yes' && mutation.oldValue === 'no') {
-          clearTimeout(timeoutId);
-        }
-
-        if (isVisible() && wowheadTooltip.dataset.visible === 'no') {
-          timeoutId = setTimeout(hide);
-        }
-      }
-    });
-
-    wowheadTooltipObserver.observe(props.parent, {
-      attributeFilter: ['data-visible'],
-      attributeOldValue: true,
-    });
-
-
-    // Unmount
     return function cleanup() {
-      observer.disconnect();
-      wowheadTooltipObserver.disconnect();
+      observer1.disconnect();
+      observer2.disconnect();
     };
   }, []);
 
-  if (!itemName) {
+  React.useEffect(() => {
+    if (!wowheadTooltipEl) {
+      return;
+    }
+
+    const observer = observeWowheadTooltipVisibility();
+
+    return function cleanup() {
+      observer.disconnect();
+    };
+  }, [wowheadTooltipEl]);
+
+
+  if (!itemName || !containerEl || !visible) {
     return null;
   }
 
   return ReactDOM.createPortal(
     <Tooltip itemName={itemName} />,
-    container.current,
+    containerEl,
   );
 };
-
-type Props = {
-  parent: HTMLElement;
-}
 
 export default HoverTooltip;
