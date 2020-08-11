@@ -71,7 +71,9 @@ class Api {
 
       return cachedData;
     } catch (err) {
-      console.error(err);
+      if (__DEV__) {
+        console.error(err);
+      }
     }
   }
 }

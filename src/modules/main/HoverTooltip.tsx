@@ -72,22 +72,25 @@ const HoverTooltip = (): JSX.Element | null => {
 
   // Set tooltip to visible and set item name
   function triggerTooltip(node: HTMLAnchorElement) {
-    setVisible(true);
-
     const itemNameFromUrl = getItemNameFromUrl(node.href);
 
     if (itemNameFromUrl) {
-      setItemName(itemNameFromUrl);
-    } else {
-      setTimeout(() => {
-        const selector = document.querySelectorAll('.wowhead-tooltip table tr td > b')[1] as HTMLElement | undefined;
-        const itemNameFromPage = selector?.innerText;
-
-        if (itemNameFromPage) {
-          setItemName(itemNameFromPage);
-        }
-      });
+      setVisible(true);
+      return setItemName(itemNameFromUrl);
     }
+
+    // If URL does not contain the item name, check the wowhead tooltip body
+    setTimeout(() => {
+      const selector = document.querySelectorAll('.wowhead-tooltip table tr td b')[1] as HTMLElement | undefined;
+      const itemNameFromPage = selector?.innerText;
+
+      if (itemNameFromPage) {
+        setVisible(true);
+        return setItemName(itemNameFromPage);
+      }
+
+      return setItemName(undefined);
+    });
   };
 
   // Listen to bubbled events and check if we are targeting a link to an item
