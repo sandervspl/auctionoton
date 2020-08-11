@@ -6,6 +6,7 @@ import ExternalLinkSvg from 'static/external-link.svg';
 import Tooltip from './tooltip';
 import getItemData from './getPageItem';
 import generateContainer from './generateContainer';
+import isValidItem from './isValidItem';
 
 
 const PageTooltip = (): JSX.Element | null => {
@@ -14,6 +15,10 @@ const PageTooltip = (): JSX.Element | null => {
   const tooltipElementId = `tt${pageItem.current.id}`;
   const tooltipElement = document.querySelector(`#${tooltipElementId}`) as HTMLElement;
   const container = React.useRef(generateContainer(tooltipElement, 'page'));
+
+  if (!isValidItem(tooltipElement.innerHTML)) {
+    return null;
+  }
 
   return ReactDOM.createPortal(
     <Tooltip itemName={pageItem.current.name}>
