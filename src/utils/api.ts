@@ -6,6 +6,15 @@ import validateCache from './validateCache';
 
 
 class Api {
+  private requestController!: AbortController;
+
+  /** Cancel the latest API request */
+  public cancelRequest() {
+    if (this.requestController) {
+      this.requestController.abort();
+    }
+  }
+
   async getItem(itemName: string): Promise<i.CachedItemData | undefined> {
     const validName = decodeURI(itemName)
       .replace(' ', '-')
@@ -40,7 +49,10 @@ class Api {
       const faction = user.faction.toLowerCase();
       const item = validName.toLowerCase();
 
-      const result = await fetch(`${__API__}/item/${server}/${faction}/${item}`);
+      this.requestController = new AbortController();
+      const result = await fetch(`${__API__}/item/${server}/${faction}/${item}`, {
+        signal: this.requestController.signal,
+      });
       const data = await result.json() as i.CachedItemData;
 
       // Something went wrong
