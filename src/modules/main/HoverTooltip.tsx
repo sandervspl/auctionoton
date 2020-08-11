@@ -22,7 +22,7 @@ const HoverTooltip = (): JSX.Element | null => {
         const nodes = Array.from(mutation.addedNodes) as HTMLElement[];
 
         for (const node of nodes) {
-          if (node.classList.contains('wowhead-tooltip')) {
+          if (node.classList.contains('wowhead-tooltip') && 'visible' in node.dataset) {
             // Save node for HoverTooltip
             setWowheadTooltipEl(node);
 
@@ -47,12 +47,13 @@ const HoverTooltip = (): JSX.Element | null => {
       for (const mutation of mutations) {
         const wowheadTooltip = mutation.target as HTMLElement;
 
+
         // Using timeout fixes an issue where the visible data value for the wowhead tooltip changes between no and yes rapidly
         if (wowheadTooltip.dataset.visible === 'yes' && mutation.oldValue === 'no') {
           clearTimeout(timeoutId);
         }
 
-        if (wowheadTooltip.dataset.visible === 'no') {
+        if (wowheadTooltip.dataset.visible === 'no' && mutation.oldValue === 'yes') {
           timeoutId = setTimeout(() => setVisible(false));
         }
       }
