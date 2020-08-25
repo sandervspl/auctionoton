@@ -24,6 +24,12 @@ const Tooltip = (props: Props): JSX.Element | null => {
     };
   }, [storage.user, props.itemName]);
 
+  const lastUpdated = item
+    ? item.lastUpdated === 'Unknown'
+      ? ['Last updated: ', <span style={{ color: '#b9b9b9' }}>{item?.lastUpdated}</span>]
+      : `Last updated: ${item.lastUpdated}`
+    : <LoadingSvg />;
+
   return (
     <table id={ELEMENT_ID.TOOLTIP}>
       <tbody>
@@ -37,7 +43,7 @@ const Tooltip = (props: Props): JSX.Element | null => {
                       Auction House Data for {storage.user.server.name}-{storage.user.faction}
                     </span>
                     <div className="whtt-sellprice" style={{ marginBottom: '10px' }}>
-                      {!item ? <LoadingSvg /> : `Last updated: ${item.lastUpdated}`}
+                      {lastUpdated}
                     </div>
                   </td>
                 </tr>
