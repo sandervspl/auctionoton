@@ -5,6 +5,7 @@ import produce from 'immer';
 import asyncStorage from 'utils/asyncStorage';
 import validateCache from 'utils/validateCache';
 import api from 'utils/api';
+import sanitizeItemName from 'utils/sanitizeItemName';
 
 
 function store(set: SetState<i.Storage>, get: GetState<i.Storage>) {
@@ -29,9 +30,11 @@ function store(set: SetState<i.Storage>, get: GetState<i.Storage>) {
     /** For long term caching */
     save: asyncStorage.set,
 
-    getItem: async (itemName: string): Promise<i.CachedItemData | undefined> => {
+    getItem: async (name: string): Promise<i.CachedItemData | undefined> => {
       return new Promise(async (resolve) => {
         const { user, items } = get();
+        const itemName = sanitizeItemName(name);
+
         const cachedItem = items[user.server.slug]?.[user.faction]?.[itemName];
 
         if (validateCache(cachedItem)) {

@@ -1,8 +1,8 @@
 import * as i from 'types';
 
 
-export function getItemNameFromUrl(url: string): string | undefined {
-  const match = url.match(/item=\d+\/([\w\d-]+)/);
+export function getItemNameFromUrl(url?: string): string | undefined {
+  const match = url?.match(/item=\d+\/([\w\d-]+)/);
 
   if (match) {
     return match[1];
@@ -11,7 +11,7 @@ export function getItemNameFromUrl(url: string): string | undefined {
   return;
 }
 
-function getPageItem(): i.PageItem {
+export function getItemFromPage(): i.PageItem {
   const item = {} as i.PageItem;
   const pathname = window.location.pathname;
 
@@ -31,4 +31,12 @@ function getPageItem(): i.PageItem {
   return item;
 }
 
-export default getPageItem;
+export function isAuctionableItem(str: string | undefined): boolean {
+  if (!str) {
+    return false;
+  }
+
+  str = str.toLowerCase();
+
+  return !str.includes('picked up') && !str.includes('quest');
+}

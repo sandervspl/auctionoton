@@ -5,16 +5,19 @@ import getBodyElement from 'utils/getBodyElement';
 
 import Tooltip from './tooltip';
 import generateContainer from './generateContainer';
-import { getItemNameFromUrl } from './getPageItem';
+import { getItemNameFromUrl, isAuctionableItem } from './utils';
 
 
 const HoverTooltip = (): JSX.Element | null => {
   const [containerEl, setContainerEl] = React.useState<HTMLElement>();
-  const [wowheadTooltipEl, setWowheadTooltipEl] = React.useState<HTMLElement>();
   const [itemName, setItemName] = React.useState<string>();
   const [visible, setVisible] = React.useState(false);
-  let timeoutId: number;
 
+
+  function hide() {
+    setVisible(false);
+    setItemName(undefined);
+  }
 
   // Observe the creation of the wowhead tooltip container
   function observeWowheadTooltipCreate(): MutationObserver {
@@ -24,12 +27,10 @@ const HoverTooltip = (): JSX.Element | null => {
 
         for (const node of nodes) {
           if (node.classList.contains('wowhead-tooltip') && 'visible' in node.dataset) {
-            // Save wowhead tooltip node
-            setWowheadTooltipEl(node);
-
             // Generate and save a container for the tooltip
             const container = generateContainer(node, 'hover');
             setContainerEl(container);
+            triggerTooltip();
 
             // Stop observing DOM changes
             observer.disconnect();
@@ -44,53 +45,40 @@ const HoverTooltip = (): JSX.Element | null => {
     return observer;
   }
 
-  // Align our tooltips' visibility with wowhead tooltips' visibility
-  function observeWowheadTooltipVisibility(): MutationObserver {
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        const wowheadTooltip = mutation.target as HTMLElement;
-
-        if (wowheadTooltip.dataset.visible === 'yes' && mutation.oldValue === 'no') {
-          clearTimeout(timeoutId);
-        }
-
-        // Using timeout fixes an issue where the visible data value for the wowhead tooltip changes between no and yes rapidly
-        if (wowheadTooltip.dataset.visible === 'no' && mutation.oldValue === 'yes') {
-          timeoutId = setTimeout(() => setVisible(false));
-        }
-      }
-    });
-
-    // Observe changes to data-visible value
-    observer.observe(wowheadTooltipEl!, {
-      attributeFilter: ['data-visible'],
-      attributeOldValue: true,
-    });
-
-    return observer;
-  }
-
   // Set tooltip to visible and set item name
-  function triggerTooltip(node: HTMLAnchorElement) {
-    const itemNameFromUrl = getItemNameFromUrl(node.href);
-
-    if (itemNameFromUrl) {
-      setVisible(true);
-      return setItemName(itemNameFromUrl);
-    }
-
-    // If URL does not contain the item name, check the wowhead tooltip body
+  function triggerTooltip(node?: HTMLAnchorElement) {
     setTimeout(() => {
-      const selector = document.querySelectorAll('.wowhead-tooltip table tr td b')[1] as HTMLElement | undefined;
-      const itemNameFromPage = selector?.innerText;
+      let itemName: string | undefined;
 
-      if (itemNameFromPage) {
-        setVisible(true);
-        return setItemName(itemNameFromPage);
+      // Look for item name in the URL
+      if (node) {
+        itemName = getItemNameFromUrl(node.href);
       }
 
-      return setItemName(undefined);
-    });
+      const whtt = document.querySelectorAll('.wowhead-tooltip')[1];
+
+      // Check if item can be put on the AH
+      if (!isAuctionableItem(whtt?.innerHTML)) {
+        hide();
+
+        return;
+      }
+
+      // Look for item name in tooltip body
+      if (!itemName) {
+        const selector = whtt?.querySelector('b') as HTMLElement | undefined;
+        itemName = selector?.innerText;
+      }
+
+      if (itemName) {
+        setVisible(true);
+        setItemName(itemName);
+
+        return;
+      }
+
+      hide();
+    }, 50);
   };
 
   // Listen to bubbled events and check if we are targeting a link to an item
@@ -98,10 +86,17 @@ const HoverTooltip = (): JSX.Element | null => {
   function listenToItemLinkHover() {
     function onMouseOver(e: MouseEvent) {
       const target = e.target as HTMLAnchorElement;
+      const parent = target.parentNode as HTMLAnchorElement;
+      const selector = 'a[href*="item="]';
 
-      if (target && target.matches('a[href*="item="]')) {
-        triggerTooltip(target);
+      if (target) {
+        if (target.matches(selector) || parent.matches(selector)) {
+          return triggerTooltip(target);
+        }
       }
+
+      setVisible(false);
+      setItemName(undefined);
     }
 
     getBodyElement().addEventListener('mouseover', onMouseOver);
@@ -122,18 +117,6 @@ const HoverTooltip = (): JSX.Element | null => {
       getBodyElement().removeEventListener('mouseover', cb);
     };
   }, []);
-
-  React.useEffect(() => {
-    if (!wowheadTooltipEl) {
-      return;
-    }
-
-    const observer = observeWowheadTooltipVisibility();
-
-    return function cleanup() {
-      observer.disconnect();
-    };
-  }, [wowheadTooltipEl]);
 
 
   if (!itemName || !containerEl || !visible) {

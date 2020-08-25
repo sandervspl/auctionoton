@@ -4,19 +4,20 @@ import ReactDOM from 'react-dom';
 import ExternalLinkSvg from 'static/external-link.svg';
 
 import Tooltip from './tooltip';
-import getItemData from './getPageItem';
+import { getItemFromPage, isAuctionableItem } from './utils';
 import generateContainer from './generateContainer';
-import isValidItem from './isValidItem';
 
 
 const PageTooltip = (): JSX.Element | null => {
-  const pageItem = React.useRef(getItemData());
+  const pageItem = React.useRef(getItemFromPage());
 
   const tooltipElementId = `tt${pageItem.current.id}`;
   const tooltipElement = document.querySelector(`#${tooltipElementId}`) as HTMLElement;
   const container = React.useRef(generateContainer(tooltipElement, 'page'));
 
-  if (!isValidItem(tooltipElement.innerHTML)) {
+  const itemName = tooltipElement.innerHTML;
+
+  if (!isAuctionableItem(itemName)) {
     return null;
   }
 
