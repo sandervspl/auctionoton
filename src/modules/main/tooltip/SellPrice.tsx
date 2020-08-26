@@ -10,8 +10,8 @@ export const SellPrice: React.FC<Props> = (props) => {
       className="whtt-sellprice"
       style={{ display: 'flex', justifyContent: 'space-between' }}
     >
-      <div style={{ display: 'inline-block', width: '112px' }}>
-        {props.heading}:
+      <div style={{ display: 'inline-block', width: '170px' }}>
+        {props.heading}{props.amount && props.amount > 1 && ` (${props.amount}x)`}:
       </div>
       <Value value={props.value} />
     </div>
@@ -20,5 +20,6 @@ export const SellPrice: React.FC<Props> = (props) => {
 
 export type Props = {
   heading: string;
+  amount?: number;
   value: i.ValueObject;
 };

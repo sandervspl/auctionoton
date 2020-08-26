@@ -2,12 +2,12 @@ import * as i from 'types';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { useStorage, useStorageApi } from 'state/storage';
+import { useState, useStateApi } from 'state/store';
 import useServerList from 'hooks/useServerList';
 
 
 export const Form: React.FC = () => {
-  const storage = useStorage();
+  const storage = useState((state) => state.storage);
   const [region, setRegion] = React.useState<i.Regions>(storage.user.region);
   const [server, setServer] = React.useState(JSON.stringify(storage.user.server));
   const [faction, setFaction] = React.useState<i.Factions>(storage.user.faction);
@@ -31,7 +31,7 @@ export const Form: React.FC = () => {
   const onSubmit = async () => {
     setSaved(false);
 
-    await storage.save({
+    await storage.actions.save({
       user: {
         region,
         server: JSON.parse(server),
@@ -86,7 +86,7 @@ export const Form: React.FC = () => {
 };
 
 async function main() {
-  await useStorageApi.getState().init();
+  await useStateApi.getState().storage.actions.init();
 
   ReactDOM.render(
     <Form />,

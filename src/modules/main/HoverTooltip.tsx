@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import getBodyElement from 'utils/getBodyElement';
+import useKeyboardEvent from 'hooks/useKeyboardEvent';
 
 import Tooltip from './tooltip';
 import generateContainer from './generateContainer';
@@ -10,13 +11,17 @@ import { getItemNameFromUrl, isAuctionableItem } from './utils';
 
 const HoverTooltip = (): JSX.Element | null => {
   const [containerEl, setContainerEl] = React.useState<HTMLElement>();
+  const [hoverEl, setHoverEl] = React.useState<HTMLElement>();
   const [itemName, setItemName] = React.useState<string>();
   const [visible, setVisible] = React.useState(false);
+  const [amount, setAmount] = React.useState(1);
+  const shiftKeyPressed = useKeyboardEvent((key) => key.Shift);
 
 
   function hide() {
     setVisible(false);
     setItemName(undefined);
+    setHoverEl(undefined);
   }
 
   // Observe the creation of the wowhead tooltip container
@@ -91,17 +96,37 @@ const HoverTooltip = (): JSX.Element | null => {
 
       if (target) {
         if (target.matches(selector) || parent.matches(selector)) {
-          return triggerTooltip(target);
+          setHoverEl(target);
+          triggerTooltip(target);
+
+          return;
         }
       }
 
-      setVisible(false);
-      setItemName(undefined);
+      hide();
     }
 
     getBodyElement().addEventListener('mouseover', onMouseOver);
 
     return onMouseOver;
+  }
+
+  function multiplyValue() {
+    if (!hoverEl) {
+      return;
+    }
+
+    const parentEl = hoverEl.parentNode as HTMLElement;
+
+    if (parentEl.className === 'iconmedium') {
+      if (shiftKeyPressed) {
+        const amt = parentEl.querySelector('span.glow div:first-child')?.innerHTML || 1;
+        setAmount(Number(amt));
+      }
+      else {
+        setAmount(1);
+      }
+    }
   }
 
 
@@ -118,13 +143,15 @@ const HoverTooltip = (): JSX.Element | null => {
     };
   }, []);
 
+  React.useEffect(multiplyValue, [shiftKeyPressed]);
+
 
   if (!itemName || !containerEl || !visible) {
     return null;
   }
 
   return ReactDOM.createPortal(
-    <Tooltip itemName={itemName} />,
+    <Tooltip itemName={itemName} amount={amount} />,
     containerEl,
   );
 };

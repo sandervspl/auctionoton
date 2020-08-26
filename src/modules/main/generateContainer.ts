@@ -10,7 +10,7 @@ function generateContainer(parent: Element, uniqueKey: string): HTMLElement {
   }
 
   const tooltipWidth = parent.getBoundingClientRect().width;
-  const minContainerWidth = 256;
+  const minContainerWidth = 350;
 
   const container = document.createElement('div');
   container.id = id;

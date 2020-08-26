@@ -1,5 +1,5 @@
 function getBodyElement(): HTMLBodyElement {
-  return document.querySelector('body') as HTMLBodyElement;
+  return document.body as HTMLBodyElement;
 };
 
 export default getBodyElement;

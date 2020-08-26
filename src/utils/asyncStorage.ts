@@ -4,10 +4,10 @@ import _set from 'lodash/set';
 
 
 class AsyncStorage {
-  async getAll(): Promise<i.Storage> {
+  async getAll(): Promise<i.BrowserStorage> {
     return new Promise((resolve) => {
       addon.storage.local.get(null, (data) => {
-        const _data = data as i.Storage;
+        const _data = data as i.BrowserStorage;
 
         if ('user' in _data) {
           return resolve(_data);
@@ -21,7 +21,7 @@ class AsyncStorage {
     });
   }
 
-  async get <T extends i.StorageKeys>(key: T): Promise<i.Storage[T] | undefined> {
+  async get <T extends i.StorageKeys>(key: T): Promise<i.BrowserStorage[T] | undefined> {
     return new Promise((resolve) => {
       addon.storage.local.get(key, (items) => {
         return resolve(items[key]);
@@ -29,7 +29,7 @@ class AsyncStorage {
     });
   }
 
-  async set <T extends i.StorageKeys>(data: Record<T, i.Storage[T]>): Promise<void> {
+  async set <T extends i.StorageKeys>(data: Record<T, i.BrowserStorage[T]>): Promise<void> {
     return new Promise((resolve) => {
       addon.storage.local.set(data, resolve);
     });
