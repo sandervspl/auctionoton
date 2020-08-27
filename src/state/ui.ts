@@ -3,7 +3,7 @@ import * as i from 'types';
 
 function uiState(set: i.Set, get: i.Get): i.UiState {
   return {
-    keys: [],
+    keys: {},
     shownTip: {
       shiftKey: false,
     },

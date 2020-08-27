@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import getBodyElement from 'utils/getBodyElement';
-import useKeyboardEvent from 'hooks/useKeyboardEvent';
+import useKeybind from 'hooks/useKeybind';
 
 import Tooltip from './tooltip';
 import generateContainer from './generateContainer';
@@ -15,7 +15,7 @@ const HoverTooltip = (): JSX.Element | null => {
   const [itemName, setItemName] = React.useState<string>();
   const [visible, setVisible] = React.useState(false);
   const [amount, setAmount] = React.useState(1);
-  const shiftKeyPressed = useKeyboardEvent((key) => key.Shift);
+  const shiftKeyPressed = useKeybind((key) => key.Shift);
 
 
   function hide() {

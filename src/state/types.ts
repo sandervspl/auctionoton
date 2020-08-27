@@ -1,6 +1,8 @@
 import * as i from 'types';
-import asyncStorage from 'utils/asyncStorage';
 import { GetState, SetState } from 'zustand';
+
+import asyncStorage from 'utils/asyncStorage';
+
 
 export type State = Stores & {
   set: (fn: (state: i.State) => void) => void;
@@ -75,7 +77,7 @@ export type StorageState = BrowserStorage & {
 export type StorageKeys = keyof Omit<StorageState, 'actions'>;
 
 export type UiState = {
-  keys: string[];
+  keys: Record<string, boolean>;
   shownTip: Record<string, boolean>;
 }
 

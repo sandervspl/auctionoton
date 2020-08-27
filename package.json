@@ -21,7 +21,6 @@
     "lodash": "4.17.19",
     "react": "17.0.0-rc.0",
     "react-dom": "17.0.0-rc.0",
-    "tinykeys": "1.0.6",
     "w3c-keys": "1.0.2",
     "zustand": "2.2.4"
   },
