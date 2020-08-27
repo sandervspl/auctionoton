@@ -112,19 +112,16 @@ const HoverTooltip = (): JSX.Element | null => {
   }
 
   function multiplyValue() {
-    if (!hoverEl) {
-      return;
+    if (!shiftKeyPressed) {
+      setAmount(1);
     }
 
-    const parentEl = hoverEl.parentNode as HTMLElement;
+    const parentEl = hoverEl?.parentNode as HTMLElement | undefined;
 
-    if (parentEl.className === 'iconmedium') {
+    if (parentEl?.className === 'iconmedium') {
       if (shiftKeyPressed) {
         const amt = parentEl.querySelector('span.glow div:first-child')?.innerHTML || 1;
         setAmount(Number(amt));
-      }
-      else {
-        setAmount(1);
       }
     }
   }
