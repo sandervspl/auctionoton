@@ -16,7 +16,7 @@ function generateStore(set: i.ZustandSet, get: i.Get): i.Store {
   // Initialize the individual stores with getter/setter functions
   for (const key in tempStore) {
     // @ts-ignore idk how to fix this error. It infers as & instead of |.
-    initStore[key] = tempStore[key](tempStore.set, get);
+    initStore[key] = tempStore[key](initStore.set, get);
   }
 
   return initStore;
