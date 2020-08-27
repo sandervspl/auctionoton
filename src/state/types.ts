@@ -1,11 +1,12 @@
 import * as i from 'types';
 import { GetState, SetState } from 'zustand';
 
-import asyncStorage from 'utils/asyncStorage';
+export * from './stores/storage/types';
+export * from './stores/ui/types';
 
 
 export type Store = Stores & {
-  set: (fn: (state: i.Store) => void) => void;
+  set: i.Set;
 }
 
 export type Stores = {
@@ -22,16 +23,16 @@ export type GenStore = {
 export type ItemData = {
   url: string;
   lastUpdated: string;
-  marketValue: ValueObject;
-  historicalValue: ValueObject;
-  minimumBuyout: ValueObject;
+  marketValue: i.ValueObject;
+  historicalValue: i.ValueObject;
+  minimumBuyout: i.ValueObject;
 }
 
 export type Cache = {
   updatedAt: number;
 }
 
-export type CachedItemData = ItemData & Cache;
+export type CachedItemData = i.ItemData & i.Cache;
 
 export type ValueObject = {
   gold: number;
@@ -44,8 +45,8 @@ export type Regions = 'eu' | 'us';
 export type Factions = 'Alliance' | 'Horde';
 
 export type UserData = {
-  region: Regions;
-  faction: Factions;
+  region: i.Regions;
+  faction: i.Factions;
   server: {
     name: string;
     slug: string;
@@ -55,30 +56,19 @@ export type UserData = {
 export type ItemsData = {
   [serverSlug: string]: {
     [faction: string]: {
-      [itemName: string]: CachedItemData;
+      [itemName: string]: i.CachedItemData;
     };
   };
 };
 
 export type BrowserStorage = {
-  user: UserData;
-  items: ItemsData;
+  user: i.UserData;
+  items: i.ItemsData;
 }
 
-export type StorageStore = BrowserStorage & {
-  actions: {
-    init: () => Promise<void>;
-    save: typeof asyncStorage.set;
-    getItem: (name: string) => Promise<i.CachedItemData | undefined>;
-  };
-};
+export type StorageKeys = keyof Omit<i.BrowserStorage, 'actions'>;
 
-export type StorageKeys = keyof Omit<StorageStore, 'actions'>;
-
-export type UiStore = {
-  keys: Record<string, boolean>;
-  shownTip: Record<string, boolean>;
-}
-
-export type Set = SetState<Store>;
-export type Get = GetState<Store>;
+export type ZustandSet = SetState<i.Store>;
+// This is the Zustand set function augmented with Immer's produce
+export type Set = ((fn: (state: i.Store) => void) => void);
+export type Get = GetState<i.Store>;

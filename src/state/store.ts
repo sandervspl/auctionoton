@@ -3,15 +3,16 @@ import create from 'zustand';
 import produce from 'immer';
 
 import generateStore from './generateState';
-import storageStore from './storage';
-import uiStore from './ui';
+import storageStore from './stores/storage';
+import uiStore from './stores/ui';
 
 
-export function store(set: i.Set, get: i.Get): i.GenStore {
+export function store(set: i.ZustandSet, get: i.Get): i.GenStore {
   return {
     /** For short term caching */
     set: (fn) => set(produce(fn)), // eslint-disable-line @typescript-eslint/explicit-module-boundary-types
 
+    // Stores
     storage: storageStore,
     ui: uiStore,
   };
