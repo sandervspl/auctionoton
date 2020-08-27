@@ -4,20 +4,19 @@ import { GetState, SetState } from 'zustand';
 import asyncStorage from 'utils/asyncStorage';
 
 
-export type State = Stores & {
-  set: (fn: (state: i.State) => void) => void;
+export type Store = Stores & {
+  set: (fn: (state: i.Store) => void) => void;
 }
 
 export type Stores = {
-  storage: i.StorageState;
-  ui: i.UiState;
+  storage: i.StorageStore;
+  ui: i.UiStore;
 }
 
-export type ModularState = {
-  set: (fn: (state: i.State) => void) => void;
-  modules: {
-    [key in keyof Stores]: (set: i.Set, get: i.Get) => Stores[key];
-  };
+export type GenStore = {
+  [key in keyof Stores]: (set: i.Set, get: i.Get) => Stores[key];
+} & {
+  set?: (fn: (state: i.Store) => void) => void;
 }
 
 export type ItemData = {
@@ -66,7 +65,7 @@ export type BrowserStorage = {
   items: ItemsData;
 }
 
-export type StorageState = BrowserStorage & {
+export type StorageStore = BrowserStorage & {
   actions: {
     init: () => Promise<void>;
     save: typeof asyncStorage.set;
@@ -74,12 +73,12 @@ export type StorageState = BrowserStorage & {
   };
 };
 
-export type StorageKeys = keyof Omit<StorageState, 'actions'>;
+export type StorageKeys = keyof Omit<StorageStore, 'actions'>;
 
-export type UiState = {
+export type UiStore = {
   keys: Record<string, boolean>;
   shownTip: Record<string, boolean>;
 }
 
-export type Set = SetState<State>;
-export type Get = GetState<State>;
+export type Set = SetState<Store>;
+export type Get = GetState<Store>;

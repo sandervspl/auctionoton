@@ -3,18 +3,20 @@ import * as i from 'types';
 import { store } from './store';
 
 
-function generateState(set: i.Set, get: i.Get): i.State {
-  const modState = store(set, get);
-  const state = {
-    set: modState.set,
-  } as i.State;
+function generateStore(set: i.Set, get: i.Get): i.Store {
+  const tempStore = store(set, get);
+  const initStore = {
+    set: tempStore.set,
+  } as i.Store;
 
-  for (const key in modState.modules) {
+  delete tempStore.set;
+
+  for (const key in tempStore) {
     // @ts-ignore idk how to fix this error. It infers as & instead of |.
-    state[key] = modState.modules[key](set, get);
+    initStore[key] = tempStore[key](set, get);
   }
 
-  return state;
+  return initStore;
 }
 
-export default generateState;
+export default generateStore;

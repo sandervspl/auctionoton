@@ -1,7 +1,7 @@
 import * as i from 'types';
 
 
-function uiState(set: i.Set, get: i.Get): i.UiState {
+function uiStore(set: i.Set, get: i.Get): i.UiStore {
   return {
     keys: {},
     shownTip: {
@@ -10,4 +10,4 @@ function uiState(set: i.Set, get: i.Get): i.UiState {
   };
 }
 
-export default uiState;
+export default uiStore;

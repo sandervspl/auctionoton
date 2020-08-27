@@ -2,20 +2,18 @@ import * as i from 'types';
 import create from 'zustand';
 import produce from 'immer';
 
-import generateState from './generateState';
-import storageState from './storage';
-import uiState from './ui';
+import generateStore from './generateState';
+import storageStore from './storage';
+import uiStore from './ui';
 
 
-export function store(set: i.Set, get: i.Get): i.ModularState {
+export function store(set: i.Set, get: i.Get): i.GenStore {
   return {
     /** For short term caching */
     set: (fn) => set(produce(fn)), // eslint-disable-line @typescript-eslint/explicit-module-boundary-types
 
-    modules: {
-      storage: storageState,
-      ui: uiState,
-    },
+    storage: storageStore,
+    ui: uiStore,
   };
 }
 
@@ -23,12 +21,12 @@ export function store(set: i.Set, get: i.Get): i.ModularState {
 addon.storage.onChanged.addListener((changes) => {
   const storageChanges = changes as Record<i.StorageKeys, chrome.storage.StorageChange>;
 
-  useStore.getState().set((curStore) => {
+  useStore.getState().set((store) => {
     let key: i.StorageKeys;
     for (key in storageChanges) {
-      curStore.storage[key] = storageChanges[key].newValue;
+      store.storage[key] = storageChanges[key].newValue;
     }
   });
 });
 
-export const useStore = create(generateState);
+export const useStore = create(generateStore);

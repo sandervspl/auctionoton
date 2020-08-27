@@ -11,7 +11,7 @@ import { SellPrice } from './SellPrice';
 
 
 const Tooltip: React.FC<Props> = (props) => {
-  const storage = useStore((state) => state.storage);
+  const storage = useStore((store) => store.storage);
   const item = React.useRef<i.ItemData>();
   const [modItem, setModItem] = React.useState<i.ItemData>();
 

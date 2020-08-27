@@ -7,7 +7,7 @@ import useServerList from 'hooks/useServerList';
 
 
 export const Form: React.FC = () => {
-  const storage = useStore((state) => state.storage);
+  const storage = useStore((store) => store.storage);
   const [region, setRegion] = React.useState<i.Regions>(storage.user.region);
   const [server, setServer] = React.useState(JSON.stringify(storage.user.server));
   const [faction, setFaction] = React.useState<i.Factions>(storage.user.faction);

@@ -15,16 +15,16 @@ function keybinds() {
   // Ugly for now until I need more keybinds
   window.addEventListener('keydown', (e) => {
     if (e.key === Key.Shift) {
-      set((state) => {
-        state.ui.keys[Key.Shift] = true;
+      set((store) => {
+        store.ui.keys[Key.Shift] = true;
       });
     }
   });
 
   window.addEventListener('keyup', (e) => {
     if (e.key === Key.Shift) {
-      set((state) => {
-        state.ui.keys[Key.Shift] = false;
+      set((store) => {
+        store.ui.keys[Key.Shift] = false;
       });
     }
   });

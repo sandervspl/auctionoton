@@ -6,7 +6,7 @@ import api from 'utils/api';
 import sanitizeItemName from 'utils/sanitizeItemName';
 
 
-function storageState(set: i.Set, get: i.Get): i.StorageState {
+function storageStore(set: i.Set, get: i.Get): i.StorageStore {
   return {
     user: { server: {} } as i.UserData,
     items: {} as i.ItemsData,
@@ -19,10 +19,10 @@ function storageState(set: i.Set, get: i.Get): i.StorageState {
         }
 
         const browserStorage = await asyncStorage.getAll();
-        get().set((state) => {
+        get().set((store) => {
           for (const key in browserStorage) {
             // @ts-ignore
-            state.storage[key] = browserStorage[key];
+            store.storage[key] = browserStorage[key];
           }
         });
       },
@@ -52,4 +52,4 @@ function storageState(set: i.Set, get: i.Get): i.StorageState {
   };
 }
 
-export default storageState;
+export default storageStore;
