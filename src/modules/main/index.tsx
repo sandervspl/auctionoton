@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Key } from 'w3c-keys';
 
-import { useStateApi } from 'state/store';
+import { useStore } from 'state/store';
 import { ELEMENT_ID } from 'src/constants';
 import getBodyElement from 'utils/getBodyElement';
 
@@ -10,7 +10,7 @@ import Root from './Root';
 
 
 function keybinds() {
-  const { set } = useStateApi.getState();
+  const { set } = useStore.getState();
 
   // Ugly for now until I need more keybinds
   window.addEventListener('keydown', (e) => {
@@ -34,7 +34,7 @@ async function main(): Promise<void> {
   keybinds();
 
   // Initialize short term cache
-  await useStateApi.getState().storage.actions.init();
+  await useStore.getState().storage.actions.init();
 
   // Generate a root element for React to render on
   const rootElement = document.createElement('span');

@@ -2,6 +2,7 @@ import * as i from 'types';
 
 import { store } from './store';
 
+
 function generateState(set: i.Set, get: i.Get): i.State {
   const modState = store(set, get);
   const state = {

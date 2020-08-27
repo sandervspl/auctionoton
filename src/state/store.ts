@@ -23,7 +23,7 @@ export function store(set: i.Set, get: i.Get): i.ModularState {
 addon.storage.onChanged.addListener((changes) => {
   const storageChanges = changes as Record<i.StorageKeys, chrome.storage.StorageChange>;
 
-  useStateApi.getState().set((curStore) => {
+  useStore.getState().set((curStore) => {
     let key: i.StorageKeys;
     for (key in storageChanges) {
       curStore.storage[key] = storageChanges[key].newValue;
@@ -31,4 +31,4 @@ addon.storage.onChanged.addListener((changes) => {
   });
 });
 
-export const [useState, useStateApi] = create(generateState);
+export const useStore = create(generateState);

@@ -1,12 +1,12 @@
 import React from 'react';
 import { Key } from 'w3c-keys';
 
-import { useState } from 'state/store';
+import { useStore } from 'state/store';
 
 
 function useKeybind(keyFn: (key: typeof Key) => Key): boolean {
   const key = React.useRef(keyFn(Key));
-  const keys = useState((state) => state.ui.keys);
+  const keys = useStore((state) => state.ui.keys);
   const [pressed, setPressed] = React.useState(keys[key.current] || false);
 
   React.useEffect(() => {

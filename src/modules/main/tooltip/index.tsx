@@ -3,7 +3,7 @@ import React from 'react';
 import produce from 'immer';
 
 import LoadingSvg from 'static/loading.svg';
-import { useState } from 'state/store';
+import { useStore } from 'state/store';
 import { ELEMENT_ID } from 'src/constants';
 import api from 'utils/api';
 
@@ -11,7 +11,7 @@ import { SellPrice } from './SellPrice';
 
 
 const Tooltip: React.FC<Props> = (props) => {
-  const storage = useState((state) => state.storage);
+  const storage = useStore((state) => state.storage);
   const item = React.useRef<i.ItemData>();
   const [modItem, setModItem] = React.useState<i.ItemData>();
 
