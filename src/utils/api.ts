@@ -1,6 +1,8 @@
 import * as i from 'types';
 import produce from 'immer';
 
+import { useStore } from 'state/store';
+
 import asyncStorage from './asyncStorage';
 import validateCache from './validateCache';
 
@@ -17,13 +19,7 @@ class Api {
 
   async getItem(itemName: string): Promise<i.CachedItemData | undefined> {
     // Get user data
-    const user = await asyncStorage.get('user');
-
-    if (!user) {
-      console.error('no user data found');
-
-      return;
-    }
+    const user = useStore.getState().storage.user;
 
     // First check if data for this item is saved in storage
     const cachedItem = await asyncStorage.getItem(itemName);
