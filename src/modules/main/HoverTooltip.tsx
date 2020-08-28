@@ -84,7 +84,7 @@ const HoverTooltip = (): JSX.Element | null => {
 
       hide();
     }, 50);
-  };
+  }
 
   // Listen to bubbled events and check if we are targeting a link to an item
   // Event Delegation: https://davidwalsh.name/event-delegate
@@ -113,16 +113,14 @@ const HoverTooltip = (): JSX.Element | null => {
 
   function multiplyValue() {
     if (!shiftKeyPressed) {
-      setAmount(1);
+      return setAmount(1);
     }
 
     const parentEl = hoverEl?.parentNode as HTMLElement | undefined;
 
     if (parentEl?.className === 'iconmedium') {
-      if (shiftKeyPressed) {
-        const amt = parentEl.querySelector('span.glow div:first-child')?.innerHTML || 1;
-        setAmount(Number(amt));
-      }
+      const amt = parentEl.querySelector('span.glow div:first-child')?.innerHTML || 1;
+      setAmount(Number(amt));
     }
   }
 
@@ -140,7 +138,7 @@ const HoverTooltip = (): JSX.Element | null => {
     };
   }, []);
 
-  React.useEffect(multiplyValue, [shiftKeyPressed]);
+  React.useEffect(multiplyValue, [shiftKeyPressed, hoverEl]);
 
 
   if (!itemName || !containerEl || !visible) {

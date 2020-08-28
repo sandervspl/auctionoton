@@ -15,19 +15,22 @@ const Tooltip: React.FC<Props> = (props) => {
   const item = React.useRef<i.ItemData>();
   const [modItem, setModItem] = React.useState<i.ItemData>();
 
-  function getItem() {
+
+  async function getItem() {
     item.current = undefined;
     setModItem(undefined);
 
-    storage.actions.getItem(props.itemName).then((result) => {
-      item.current = result;
-      setModItem(result);
-    });
+    const result = await storage.actions.getItem(props.itemName);
+
+    item.current = result;
+    setModItem(result);
+
+    setItemValuesForAmount();
   }
 
-  function setItemValues() {
+  function setItemValuesForAmount() {
     if (!modItem) {
-      return;
+      setModItem(item.current);
     }
 
     setModItem((modItem) => produce(modItem, (draftState) => {
@@ -83,7 +86,7 @@ const Tooltip: React.FC<Props> = (props) => {
     };
   }, [storage.user, props.itemName]);
 
-  React.useEffect(setItemValues, [props.amount]);
+  React.useEffect(setItemValuesForAmount, [props.amount]);
 
 
   const lastUpdated = modItem
