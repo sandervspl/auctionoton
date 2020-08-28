@@ -44,6 +44,6 @@ async function main(): Promise<void> {
   getBodyElement().appendChild(rootElement);
 
   ReactDOM.render(<Root />, rootElement);
-};
+}
 
 main();

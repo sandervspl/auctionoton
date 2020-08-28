@@ -62,6 +62,6 @@ function useServerList(region: string): JSX.Element[] {
   }, [region]);
 
   return servers;
-};
+}
 
 export default useServerList;
