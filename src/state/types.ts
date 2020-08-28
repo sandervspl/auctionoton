@@ -65,7 +65,7 @@ export type ItemsData = {
 export type BrowserStorage = {
   user: i.UserData;
   items: i.ItemsData;
-  shownTip: {
+  showTip: {
     shiftKey: boolean;
   };
 }

@@ -9,7 +9,7 @@ import sanitizeItemName from 'utils/sanitizeItemName';
 const initialState: i.StorageState = {
   user: { server: {} } as i.UserData,
   items: {} as i.ItemsData,
-  shownTip: {
+  showTip: {
     shiftKey: true,
   },
 };

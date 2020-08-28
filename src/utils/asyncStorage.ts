@@ -4,8 +4,18 @@ import _set from 'lodash/set';
 
 import { useStore } from 'state/store';
 
+// addon.storage.local.clear();
 
 class AsyncStorage {
+  readonly initUserState: i.UserData = {
+    region: 'us',
+    server: {
+      name: 'Amnennar',
+      slug: 'amnennar',
+    },
+    faction: 'Alliance',
+  };
+
   async getAll(): Promise<i.BrowserStorage> {
     return new Promise((resolve) => {
       addon.storage.local.get(null, (data) => {
@@ -16,9 +26,9 @@ class AsyncStorage {
         }
 
         return resolve({
-          user: { server: {} } as i.UserData,
+          user: this.initUserState,
           items: {},
-          shownTip: {
+          showTip: {
             shiftKey: true,
           },
         });
