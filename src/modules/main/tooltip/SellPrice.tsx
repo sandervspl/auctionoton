@@ -14,7 +14,7 @@ export const SellPrice: React.FC<Props> = (props) => {
       style={{ display: 'flex', justifyContent: 'space-between' }}
     >
       <div style={{ display: 'inline-block', width: '170px' }}>
-        {props.heading}{isMultiple && ` (${props.amount}x)`}:
+        {props.heading}{isMultiple && ` (${props.amount}x)`}
       </div>
       <Value value={props.value} />
     </div>
