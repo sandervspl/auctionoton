@@ -5,6 +5,7 @@ import validateCache from 'utils/validateCache';
 import api from 'utils/api';
 import sanitizeItemName from 'utils/sanitizeItemName';
 
+
 const initialState: i.StorageState = {
   user: { server: {} } as i.UserData,
   items: {} as i.ItemsData,

@@ -2,21 +2,23 @@ import * as i from 'types';
 import produce from 'immer';
 import _set from 'lodash/set';
 
+import { useStore } from 'state/store';
+
 
 class AsyncStorage {
   async getAll(): Promise<i.BrowserStorage> {
     return new Promise((resolve) => {
       addon.storage.local.get(null, (data) => {
-        const _data = data as i.BrowserStorage;
+        const browserStorage = data as i.BrowserStorage;
 
-        if ('user' in _data) {
-          return resolve(_data);
+        if ('user' in browserStorage) {
+          return resolve(browserStorage);
         }
 
-        return {
-          user: { server: {} },
+        return resolve({
+          user: { server: {} } as i.UserData,
           items: {},
-        };
+        });
       });
     });
   }
@@ -36,7 +38,7 @@ class AsyncStorage {
   }
 
   async addItem(name: string, data: i.CachedItemData): Promise<void> {
-    const user = await this.get('user') as i.UserData;
+    const user = useStore.getState().storage.user;
     const storageItems = await this.get('items') || {};
 
     const items = produce(storageItems, (draftState) => {
@@ -47,13 +49,8 @@ class AsyncStorage {
   }
 
   async getItem(itemName: string): Promise<i.CachedItemData | undefined> {
-    const user = await this.get('user') as i.UserData;
+    const user = useStore.getState().storage.user;
     const items = await this.get('items');
-
-    if (__DEV__) {
-      // eslint-disable-next-line no-console
-      console.log(items);
-    }
 
     return items?.[user.server.slug]?.[user.faction]?.[itemName];
   }
