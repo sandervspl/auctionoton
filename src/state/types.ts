@@ -26,6 +26,7 @@ export type ItemData = {
   marketValue: i.ValueObject;
   historicalValue: i.ValueObject;
   minimumBuyout: i.ValueObject;
+  quantity: number;
 }
 
 export type Cache = {

@@ -5,13 +5,16 @@ import { Value } from './Value';
 
 
 export const SellPrice: React.FC<Props> = (props) => {
+  const isValueObject = typeof props.value !== 'string';
+  const isMultiple = isValueObject && props.amount && props.amount > 1;
+
   return (
     <div
       className="whtt-sellprice"
       style={{ display: 'flex', justifyContent: 'space-between' }}
     >
       <div style={{ display: 'inline-block', width: '170px' }}>
-        {props.heading}{props.amount && props.amount > 1 && ` (${props.amount}x)`}:
+        {props.heading}{isMultiple && ` (${props.amount}x)`}:
       </div>
       <Value value={props.value} />
     </div>
@@ -21,5 +24,5 @@ export const SellPrice: React.FC<Props> = (props) => {
 export type Props = {
   heading: string;
   amount?: number;
-  value: i.ValueObject;
+  value: string | i.ValueObject;
 };

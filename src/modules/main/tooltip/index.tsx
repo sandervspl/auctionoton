@@ -118,6 +118,7 @@ const Tooltip: React.FC<Props> = (props) => {
                       <SellPrice heading="Market Value" amount={props.amount} value={modItem.marketValue} />
                       <SellPrice heading="Historical Value" amount={props.amount} value={modItem.historicalValue} />
                       <SellPrice heading="Minimum Buyout" amount={props.amount} value={modItem.minimumBuyout} />
+                      <SellPrice heading="Quantity" amount={props.amount} value={`${modItem.quantity} auction${modItem.quantity === 1 ? '' : 's'}`} />
 
                       {typeof props.children === 'function'
                         ? props.children(modItem)

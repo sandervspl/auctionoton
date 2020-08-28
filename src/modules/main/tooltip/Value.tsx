@@ -3,7 +3,11 @@ import React from 'react';
 
 
 export const Value: React.FC<Props> = (props) => {
-  const getValueStrings = (): JSX.Element[] => {
+  const getValueStrings = (): string | JSX.Element[] => {
+    if (typeof props.value === 'string') {
+      return props.value;
+    }
+
     const values: JSX.Element[] = [];
     let coin: keyof i.ValueObject;
 
@@ -26,13 +30,13 @@ export const Value: React.FC<Props> = (props) => {
     return values.filter(Boolean);
   };
 
-  const values = getValueStrings();
+  const value = getValueStrings();
 
-  return values.length > 0
-    ? <span>{values}</span>
+  return typeof value === 'string' || (value as JSX.Element[]).length > 0
+    ? <span>{value}</span>
     : <span style={{ color: '#b9b9b9' }}>N/A</span>;
 };
 
 export type Props = {
-  value: i.ValueObject;
+  value: string | i.ValueObject;
 };
