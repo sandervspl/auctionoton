@@ -18,7 +18,7 @@ const HoverTooltip = (): JSX.Element | null => {
   const [visible, setVisible] = React.useState(false);
   const [amount, setAmount] = React.useState(1);
   const shiftKeyPressed = useKeybind((key) => key.Shift);
-  const showShiftKeyTip = useStore((store) => store.storage.shownTip.shiftKey);
+  const showShiftKeyTip = useStore((store) => store.storage.showTip.shiftKey);
 
 
   function hide() {
@@ -114,17 +114,23 @@ const HoverTooltip = (): JSX.Element | null => {
     return onMouseOver;
   }
 
+  function getAmount(): number {
+    const parentEl = hoverEl?.parentNode as HTMLElement | undefined;
+
+    if (parentEl?.className === 'iconmedium') {
+      const amt = parentEl.querySelector('span.glow div:first-child')?.innerHTML || 1;
+      return Number(amt);
+    }
+
+    return 1;
+  }
+
   function multiplyValue() {
     if (!shiftKeyPressed) {
       return setAmount(1);
     }
 
-    const parentEl = hoverEl?.parentNode as HTMLElement | undefined;
-
-    if (parentEl?.className === 'iconmedium') {
-      const amt = parentEl.querySelector('span.glow div:first-child')?.innerHTML || 1;
-      setAmount(Number(amt));
-    }
+    setAmount(getAmount());
   }
 
 
@@ -142,9 +148,9 @@ const HoverTooltip = (): JSX.Element | null => {
   }, []);
 
   React.useEffect(() => {
-    // Remove shift key tip if user has never pressed shift, has pressed shift and we hover an item
-    if (showShiftKeyTip && shiftKeyPressed && hoverEl) {
-      asyncStorage.set('shownTip', (draftState) => {
+    // Remove shift key tip if user has never pressed shift, has pressed shift and we hover an item with an amount shown
+    if (showShiftKeyTip && shiftKeyPressed && hoverEl && getAmount() > 1) {
+      asyncStorage.set('showTip', (draftState) => {
         draftState.shiftKey = false;
       });
     }
@@ -159,7 +165,7 @@ const HoverTooltip = (): JSX.Element | null => {
 
   return ReactDOM.createPortal(
     <Tooltip itemName={itemName} amount={amount}>
-      {(() => showShiftKeyTip ? (
+      {(() => showShiftKeyTip && getAmount() > 1 ? (
         <div className="blizzard-blue" style={{ marginTop: '10px' }}>
           Tip: press shift to see the price for the stack!
         </div>
