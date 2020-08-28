@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom';
 
 import getBodyElement from 'utils/getBodyElement';
 import useKeybind from 'hooks/useKeybind';
+import { useStore } from 'state/store';
+import asyncStorage from 'utils/asyncStorage';
 
 import Tooltip from './tooltip';
 import generateContainer from './generateContainer';
@@ -16,6 +18,7 @@ const HoverTooltip = (): JSX.Element | null => {
   const [visible, setVisible] = React.useState(false);
   const [amount, setAmount] = React.useState(1);
   const shiftKeyPressed = useKeybind((key) => key.Shift);
+  const showShiftKeyTip = useStore((store) => store.storage.shownTip.shiftKey);
 
 
   function hide() {
@@ -138,6 +141,15 @@ const HoverTooltip = (): JSX.Element | null => {
     };
   }, []);
 
+  React.useEffect(() => {
+    // Remove shift key tip if user has never pressed shift, has pressed shift and we hover an item
+    if (showShiftKeyTip && shiftKeyPressed && hoverEl) {
+      asyncStorage.set('shownTip', (draftState) => {
+        draftState.shiftKey = false;
+      });
+    }
+  }, [shiftKeyPressed]);
+
   React.useEffect(multiplyValue, [shiftKeyPressed, hoverEl]);
 
 
@@ -146,7 +158,13 @@ const HoverTooltip = (): JSX.Element | null => {
   }
 
   return ReactDOM.createPortal(
-    <Tooltip itemName={itemName} amount={amount} />,
+    <Tooltip itemName={itemName} amount={amount}>
+      {(() => showShiftKeyTip ? (
+        <div className="blizzard-blue" style={{ marginTop: '10px' }}>
+          Tip: press shift to see the price for the stack!
+        </div>
+      ) : null)}
+    </Tooltip>,
     containerEl,
   );
 };

@@ -31,12 +31,12 @@ export const Form: React.FC = () => {
   const onSubmit = async () => {
     setSaved(false);
 
-    await storage.actions.save({
-      user: {
+    await storage.actions.save('user', (draftState) => {
+      draftState = {
         region,
         server: JSON.parse(server),
         faction,
-      },
+      };
     });
 
     setSaved(true);

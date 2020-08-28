@@ -65,9 +65,12 @@ export type ItemsData = {
 export type BrowserStorage = {
   user: i.UserData;
   items: i.ItemsData;
+  shownTip: {
+    shiftKey: boolean;
+  };
 }
 
-export type StorageKeys = keyof Omit<i.BrowserStorage, 'actions'>;
+export type StorageKeys = keyof BrowserStorage;
 
 export type ZustandSet = SetState<i.Store>;
 // This is the Zustand set function augmented with Immer's produce

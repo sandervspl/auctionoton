@@ -9,6 +9,9 @@ import sanitizeItemName from 'utils/sanitizeItemName';
 const initialState: i.StorageState = {
   user: { server: {} } as i.UserData,
   items: {} as i.ItemsData,
+  shownTip: {
+    shiftKey: true,
+  },
 };
 
 function storageStore(set: i.Set, get: i.Get): i.StorageStore {

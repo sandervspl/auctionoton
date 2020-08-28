@@ -149,7 +149,7 @@ Tooltip.defaultProps = {
 type Props = {
   itemName: string;
   amount?: number;
-  children?: JSX.Element | ((item: i.ItemData) => JSX.Element);
+  children?: JSX.Element | ((item: i.ItemData) => JSX.Element | null);
 }
 
 export default Tooltip;
