@@ -21,6 +21,31 @@ const HoverTooltip = (): JSX.Element | null => {
   const saveToStorage = useStore((store) => store.storage.actions.save);
 
 
+  React.useEffect(() => {
+    const cb = listenToItemLinkHover();
+
+    // Wait for wowhead tooltip to be created
+    const observer = observeWowheadTooltipCreate();
+
+
+    return function cleanup() {
+      observer.disconnect();
+      getBodyElement().removeEventListener('mouseover', cb);
+    };
+  }, []);
+
+  React.useEffect(() => {
+    // Remove shift key tip if user has never pressed shift, has pressed shift and we hover an item with an amount shown
+    if (showShiftKeyTip && shiftKeyPressed && hoverEl && getAmount() > 1) {
+      saveToStorage('showTip', (draftState) => {
+        draftState.shiftKey = false;
+      });
+    }
+  }, [shiftKeyPressed]);
+
+  React.useEffect(multiplyValue, [shiftKeyPressed, hoverEl]);
+
+
   function hide() {
     setVisible(false);
     setItemName(undefined);
@@ -132,31 +157,6 @@ const HoverTooltip = (): JSX.Element | null => {
 
     setAmount(getAmount());
   }
-
-
-  React.useEffect(() => {
-    const cb = listenToItemLinkHover();
-
-    // Wait for wowhead tooltip to be created
-    const observer = observeWowheadTooltipCreate();
-
-
-    return function cleanup() {
-      observer.disconnect();
-      getBodyElement().removeEventListener('mouseover', cb);
-    };
-  }, []);
-
-  React.useEffect(() => {
-    // Remove shift key tip if user has never pressed shift, has pressed shift and we hover an item with an amount shown
-    if (showShiftKeyTip && shiftKeyPressed && hoverEl && getAmount() > 1) {
-      saveToStorage('showTip', (draftState) => {
-        draftState.shiftKey = false;
-      });
-    }
-  }, [shiftKeyPressed]);
-
-  React.useEffect(multiplyValue, [shiftKeyPressed, hoverEl]);
 
 
   if (!itemName || !containerEl || !visible) {

@@ -14,7 +14,11 @@ export const Form: React.FC = () => {
   const [saved, setSaved] = React.useState(false);
   const serverList = useServerList(region);
 
-  React.useEffect(() => {
+
+  React.useEffect(updateSelectedServer, [serverList]);
+
+
+  function updateSelectedServer() {
     const serverSlugs = serverList.map((elem) => JSON.parse(elem.props.value).slug);
 
     if (serverSlugs.includes(JSON.parse(server).slug)) {
@@ -26,9 +30,9 @@ export const Form: React.FC = () => {
     }
 
     setServer(serverList[0].props.value);
-  }, [serverList]);
+  }
 
-  const onSubmit = async () => {
+  async function onSubmit() {
     setSaved(false);
 
     await storage.actions.save('user', (draftState) => {
@@ -38,19 +42,19 @@ export const Form: React.FC = () => {
     });
 
     setSaved(true);
-  };
+  }
 
-  const onRegionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  function onRegionChange(e: React.ChangeEvent<HTMLSelectElement>) {
     setRegion(e.target.value as i.Regions);
-  };
+  }
 
-  const onServerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  function onServerChange(e: React.ChangeEvent<HTMLSelectElement>) {
     setServer(e.target.value);
-  };
+  }
 
-  const onFactionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  function onFactionChange(e: React.ChangeEvent<HTMLSelectElement>) {
     setFaction(e.target.value as i.Factions);
-  };
+  }
 
   if (!storage.user) {
     return null;
