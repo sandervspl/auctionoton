@@ -22,10 +22,10 @@ export function store(set: i.ZustandSet, get: i.Get): i.GenStore {
 addon.storage.onChanged.addListener((changes) => {
   const storageChanges = changes as Record<i.StorageKeys, chrome.storage.StorageChange>;
 
-  useStore.getState().set((store) => {
+  useStore.getState().set((draftState) => {
     let key: i.StorageKeys;
     for (key in storageChanges) {
-      store.storage[key] = storageChanges[key].newValue;
+      draftState.storage[key] = storageChanges[key].newValue;
     }
   });
 });

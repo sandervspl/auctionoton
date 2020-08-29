@@ -4,7 +4,6 @@ import ReactDOM from 'react-dom';
 import getBodyElement from 'utils/getBodyElement';
 import useKeybind from 'hooks/useKeybind';
 import { useStore } from 'state/store';
-import asyncStorage from 'utils/asyncStorage';
 
 import Tooltip from './tooltip';
 import generateContainer from './generateContainer';
@@ -19,6 +18,7 @@ const HoverTooltip = (): JSX.Element | null => {
   const [amount, setAmount] = React.useState(1);
   const shiftKeyPressed = useKeybind((key) => key.Shift);
   const showShiftKeyTip = useStore((store) => store.storage.showTip.shiftKey);
+  const saveToStorage = useStore((store) => store.storage.actions.save);
 
 
   function hide() {
@@ -150,7 +150,7 @@ const HoverTooltip = (): JSX.Element | null => {
   React.useEffect(() => {
     // Remove shift key tip if user has never pressed shift, has pressed shift and we hover an item with an amount shown
     if (showShiftKeyTip && shiftKeyPressed && hoverEl && getAmount() > 1) {
-      asyncStorage.set('showTip', (draftState) => {
+      saveToStorage('showTip', (draftState) => {
         draftState.shiftKey = false;
       });
     }

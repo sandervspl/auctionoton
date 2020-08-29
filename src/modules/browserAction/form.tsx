@@ -32,11 +32,9 @@ export const Form: React.FC = () => {
     setSaved(false);
 
     await storage.actions.save('user', (draftState) => {
-      draftState = {
-        region,
-        server: JSON.parse(server),
-        faction,
-      };
+      draftState.region = region;
+      draftState.server = JSON.parse(server);
+      draftState.faction = faction;
     });
 
     setSaved(true);

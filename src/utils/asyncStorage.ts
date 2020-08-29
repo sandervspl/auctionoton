@@ -36,7 +36,7 @@ class AsyncStorage {
     });
   }
 
-  async get <T extends i.StorageKeys>(key: T): Promise<i.BrowserStorage[T] | undefined> {
+  get = async <T extends i.StorageKeys>(key: T): Promise<i.BrowserStorage[T] | undefined> => {
     return new Promise((resolve) => {
       addon.storage.local.get(key, (items) => {
         return resolve(items[key]);
@@ -44,7 +44,7 @@ class AsyncStorage {
     });
   }
 
-  async set <T extends i.StorageKeys>(key: T, update: (draft: i.BrowserStorage[T]) => void): Promise<void> {
+  set = async <T extends i.StorageKeys>(key: T, update: (draft: i.BrowserStorage[T]) => void): Promise<void> => {
     const cur = await this.get(key);
     const next = produce(cur || {}, update);
 
@@ -53,7 +53,7 @@ class AsyncStorage {
     });
   }
 
-  async addItem(name: string, data: i.CachedItemData): Promise<void> {
+  addItem = async (name: string, data: i.CachedItemData): Promise<void> => {
     const user = useStore.getState().storage.user;
 
     await this.set('items', (draftState) => {
@@ -61,7 +61,7 @@ class AsyncStorage {
     });
   }
 
-  async getItem(itemName: string): Promise<i.CachedItemData | undefined> {
+  getItem = async (itemName: string): Promise<i.CachedItemData | undefined> => {
     const user = useStore.getState().storage.user;
     const items = await this.get('items');
 

@@ -6,7 +6,11 @@ import asyncStorage from 'utils/asyncStorage';
 addon.runtime.onInstalled.addListener(async (details) => {
   if (details.reason === 'install') {
     await asyncStorage.set('user', (draftState) => {
-      draftState = asyncStorage.initUserState;
+      const { faction, region, server } = asyncStorage.initUserState;
+
+      draftState.region = region;
+      draftState.server = server;
+      draftState.faction = faction;
     });
 
     addon.tabs.create({ url: './form.html' });
