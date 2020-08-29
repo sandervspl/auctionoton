@@ -47,25 +47,26 @@ function actions(set: i.Set, get: i.Get) {
     save: asyncStorage.set,
 
     // Get single item from state, storage or fetch from API
-    getItem: async (name: string): Promise<i.CachedItemData | undefined> => {
-      return new Promise(async (resolve) => {
-        const { user, items } = get().storage;
-        const itemName = sanitizeItemName(name);
+    getItem: (name: string, cb: (latestItem: i.ItemData | undefined) => void): i.CachedItemData | undefined => {
+      const { user, items } = get().storage;
+      const itemName = sanitizeItemName(name);
 
-        // Check if item is stored in state
-        const cachedItem = items[user.server.slug]?.[user.faction]?.[itemName];
+      // Check if item is stored in state and data is not too old
+      const cachedItem = items[user.server.slug]?.[user.faction]?.[itemName];
 
-        if (validateCache(cachedItem)) {
-          return resolve(cachedItem);
-        }
+      if (validateCache(cachedItem)) {
+        cb(cachedItem);
 
-        // If not, check for browser storage, or fetch from API
-        const item = await api.getItem(itemName);
+        return cachedItem;
+      }
 
-        if (item) {
-          return resolve(item);
-        }
-      });
+      // If not, check for browser storage, or fetch from API
+      api.getItem(itemName).then(cb);
+
+      // Return cached item in the mean time
+      if (cachedItem) {
+        return cachedItem;
+      }
     },
   };
 }

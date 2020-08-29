@@ -7,7 +7,7 @@ export type StorageStore = i.BrowserStorage & {
   actions: {
     init: () => Promise<void>;
     save: typeof asyncStorage.set;
-    getItem: (name: string) => Promise<i.CachedItemData | undefined>;
+    getItem: (name: string, cb: (latestItem: i.ItemData | undefined) => void) => i.CachedItemData | undefined;
   };
 };
 

@@ -14,18 +14,27 @@ const Tooltip: React.FC<Props> = (props) => {
   const storage = useStore((store) => store.storage);
   const item = React.useRef<i.ItemData>();
   const [modItem, setModItem] = React.useState<i.ItemData>();
+  const [loading, setLoading] = React.useState(false);
 
+
+  function setItem(newItem?: i.ItemData) {
+    item.current = newItem;
+    setModItem(newItem);
+    setItemValuesForAmount();
+  }
 
   async function getItem() {
-    item.current = undefined;
-    setModItem(undefined);
+    setItem(undefined);
+    setLoading(true);
 
-    const result = await storage.actions.getItem(props.itemName);
+    // Get item from cache and check if we need to fetch a new item
+    const cacheItem = storage.actions.getItem(props.itemName, (fetchedItem) => {
+      setItem(fetchedItem);
+      setLoading(false);
+    });
 
-    item.current = result;
-    setModItem(result);
-
-    setItemValuesForAmount();
+    // Set item from cache
+    setItem(cacheItem);
   }
 
   function setItemValuesForAmount() {
@@ -104,6 +113,14 @@ const Tooltip: React.FC<Props> = (props) => {
               <tbody>
                 <tr>
                   <td>
+                    {/* Only show this loading indicator if we can show a cached item */}
+                    {item.current && loading && (
+                      <div style={{ display: 'flex', marginBottom: '10px' }}>
+                        <LoadingSvg style={{ display: 'inline-block', marginRight: '5px', width: '15px' }} />
+                        Fetching latest price info
+                      </div>
+                    )}
+
                     <span className="q whtt-extra whtt-ilvl">
                       Auction House Data for {storage.user.server.name}-{storage.user.faction}
                     </span>
