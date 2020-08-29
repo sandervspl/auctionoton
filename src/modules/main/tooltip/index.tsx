@@ -113,14 +113,6 @@ const Tooltip: React.FC<Props> = (props) => {
               <tbody>
                 <tr>
                   <td>
-                    {/* Only show this loading indicator if we can show a cached item */}
-                    {item.current && loading && (
-                      <div style={{ display: 'flex', marginBottom: '10px' }}>
-                        <LoadingSvg style={{ display: 'inline-block', marginRight: '5px', width: '15px' }} />
-                        Fetching latest price info
-                      </div>
-                    )}
-
                     <span className="q whtt-extra whtt-ilvl">
                       Auction House Data for {storage.user.server.name}-{storage.user.faction}
                     </span>
@@ -136,6 +128,14 @@ const Tooltip: React.FC<Props> = (props) => {
                       <SellPrice heading="Historical Value" amount={props.amount} value={modItem.historicalValue} />
                       <SellPrice heading="Minimum Buyout" amount={props.amount} value={modItem.minimumBuyout} />
                       <SellPrice heading="Quantity" amount={props.amount} value={`${modItem.quantity} auction${modItem.quantity === 1 ? '' : 's'}`} />
+
+                      {/* Only show this loading indicator if we can show a cached item */}
+                      {item.current && loading && (
+                        <div style={{ display: 'flex', marginTop: '10px' }}>
+                          <LoadingSvg style={{ display: 'inline-block', marginRight: '5px', width: '15px' }} />
+                          Fetching latest price info...
+                        </div>
+                      )}
 
                       {typeof props.children === 'function'
                         ? props.children(modItem)
