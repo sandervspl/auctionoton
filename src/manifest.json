@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "Auctionoton",
+  "name": "Auctionoton — Auction House Prices for Wowhead",
   "version": "2.2.3",
   "description": "Display current Auction House price data for items on classic.wowhead.com",
   "content_scripts": [
@@ -25,7 +25,7 @@
   "browser_action": {
     "default_icon": "static/icon.png",
     "default_popup": "form.html",
-    "default_title": "Auctionoton — Auction House Data for Wowhead"
+    "default_title": "Auctionoton — Auction House Prices for Wowhead"
   },
   "browser_specific_settings": {
     "gecko": {
