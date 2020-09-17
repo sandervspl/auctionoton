@@ -22,7 +22,7 @@ addon.runtime.onInstalled.addListener(async (details) => {
 
     // Update to how "lastUpdated" is shown
     if (prevVersion !== '2.3.0' && curVersion === '2.3.0') {
-      addon.storage.local.clear();
+      asyncStorage.clear('items');
     }
   }
 });

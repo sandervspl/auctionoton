@@ -53,6 +53,12 @@ class AsyncStorage {
     });
   }
 
+  clear = async <T extends i.StorageKeys>(key: T): Promise<void> => {
+    return new Promise((resolve) => {
+      addon.storage.local.set({ [key]: {} }, resolve);
+    });
+  }
+
   addItem = async (name: string, data: i.CachedItemData): Promise<void> => {
     const user = useStore.getState().storage.user;
 
