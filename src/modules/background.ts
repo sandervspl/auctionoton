@@ -15,6 +15,16 @@ addon.runtime.onInstalled.addListener(async (details) => {
 
     addon.tabs.create({ url: './form.html' });
   }
+
+  if (details.reason === 'update') {
+    const prevVersion = details.previousVersion;
+    const curVersion = addon.runtime.getManifest().version;
+
+    // Update to how "lastUpdated" is shown
+    if (prevVersion !== '2.3.0' && curVersion === '2.3.0') {
+      addon.storage.local.clear();
+    }
+  }
 });
 
 

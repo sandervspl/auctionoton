@@ -1,6 +1,8 @@
 import * as i from 'types';
 import React from 'react';
 import produce from 'immer';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 
 import LoadingSvg from 'static/loading.svg';
 import { useStore } from 'state/store';
@@ -8,6 +10,8 @@ import { ELEMENT_ID } from 'src/constants';
 import api from 'utils/api';
 
 import { SellPrice } from './SellPrice';
+
+dayjs.extend(relativeTime);
 
 
 const Tooltip: React.FC<Props> = (props) => {
@@ -98,10 +102,19 @@ const Tooltip: React.FC<Props> = (props) => {
   React.useEffect(setItemValuesForAmount, [props.amount]);
 
 
+  function getRelativeTime() {
+    if (modItem?.lastUpdated) {
+      return dayjs(modItem?.lastUpdated).fromNow();
+    }
+
+    return '';
+  }
+
+
   const lastUpdated = modItem
     ? modItem.lastUpdated === 'Unknown'
-      ? ['Last updated: ', <span style={{ color: '#b9b9b9' }}>{modItem?.lastUpdated}</span>]
-      : `Last updated: ${modItem.lastUpdated}`
+      ? ['Last updated: ', <span style={{ color: '#b9b9b9' }}>{getRelativeTime()}</span>]
+      : `Last updated: ${getRelativeTime()}`
     : <LoadingSvg />;
 
   return (
