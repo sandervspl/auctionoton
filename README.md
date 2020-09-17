@@ -9,7 +9,7 @@ All Chromium based browsers are supported. This includes: Chrome, Firefox, Brave
 There are currently no plans to support Safari.
 
 # Download
-- Chrome/Brave/Edge/Opera: https://chrome.google.com/webstore/detail/auctionoton/ffflgkmjodhdladikaglbeofemhbojio
+- Chrome/Brave/Edge/Opera: https://chrome.google.com/webstore/detail/auctionoton-auction-house/ffflgkmjodhdladikaglbeofemhbojio?hl=en&authuser=0
 - Firefox: https://addons.mozilla.org/en-US/firefox/addon/auctionoton/
 
 # Build instructions
