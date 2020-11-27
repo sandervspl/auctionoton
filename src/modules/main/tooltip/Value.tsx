@@ -14,6 +14,10 @@ export const Value: React.FC<Props> = (props) => {
     for (coin in props.value) {
       const coinValue = props.value[coin];
 
+      if (coinValue === 0) {
+        continue;
+      }
+
       const style: React.CSSProperties = {};
       const coinIndex = ['gold', 'silver', 'copper'].indexOf(coin);
 
