@@ -142,13 +142,20 @@ const HoverTooltip = (): JSX.Element | null => {
 
   function getAmount(): number {
     const parentEl = hoverEl?.parentNode as HTMLElement | undefined;
+    const amtSelector = 'span.glow div:first-child';
+    let amt = 1;
 
-    if (parentEl?.className === 'iconmedium') {
-      const amt = parentEl.querySelector('span.glow div:first-child')?.innerHTML || 1;
-      return Number(amt);
+    if (parentEl?.className.includes('icon')) {
+      amt = Number(parentEl.querySelector(amtSelector)?.innerHTML);
+    } else {
+      amt = Number(parentEl?.parentNode?.querySelector(amtSelector)?.innerHTML);
     }
 
-    return 1;
+    if (isNaN(amt)) {
+      amt = 1;
+    }
+
+    return amt;
   }
 
   function multiplyValue() {
