@@ -118,7 +118,7 @@ const Tooltip: React.FC<Props> = (props) => {
   const errorStr = `Error: ${ui.error || 'Something went wrong. Try again later.'}`;
   const lastUpdated = modItem
     ? modItem.lastUpdated === 'Unknown'
-      ? ['Last updated: ', <span style={{ color: '#b9b9b9' }}>{modItem.lastUpdated}</span>]
+      ? ['Last updated: ', <span key="unknown-tag" style={{ color: '#b9b9b9' }}>{modItem.lastUpdated}</span>]
       : `Last updated: ${getRelativeTime()}`
     : ui.error
       ? errorStr
