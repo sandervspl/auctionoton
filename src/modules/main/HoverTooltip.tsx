@@ -88,29 +88,30 @@ const HoverTooltip = (): JSX.Element | null => {
         itemName = getItemNameFromUrl(node.href);
       }
 
-      const whtt = document.querySelectorAll('.wowhead-tooltip')[1];
-
-      // Check if item can be put on the AH
-      if (!isAuctionableItem(whtt?.innerHTML)) {
-        hide();
-
-        return;
-      }
 
       // Look for item name in tooltip body
-      if (!itemName) {
-        const selector = whtt?.querySelector('b') as HTMLElement | undefined;
+      const whttList = Array.from(document.querySelectorAll('.wowhead-tooltip'));
+      for (const whtt of whttList) {
+        if (itemName) {
+          continue;
+        }
+
+        // Check if item can be put on the AH
+        if (!isAuctionableItem(whtt.innerHTML)) {
+          hide();
+          return;
+        }
+
+        const selector = whtt.querySelector('b') as HTMLElement | undefined;
         itemName = selector?.innerText;
       }
 
       if (itemName) {
         setVisible(true);
         setItemName(itemName);
-
-        return;
+      } else {
+        hide();
       }
-
-      hide();
     }, 50);
   }
 
@@ -157,7 +158,6 @@ const HoverTooltip = (): JSX.Element | null => {
 
     setAmount(getAmount());
   }
-
 
   if (!itemName || !containerEl || !visible) {
     return null;
