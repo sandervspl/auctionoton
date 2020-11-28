@@ -16,6 +16,7 @@ dayjs.extend(relativeTime);
 
 const Tooltip: React.FC<Props> = (props) => {
   const storage = useStore((store) => store.storage);
+  const ui = useStore((store) => store.ui);
   const item = React.useRef<i.ItemData>();
   const [modItem, setModItem] = React.useState<i.ItemData>();
   const [loading, setLoading] = React.useState(false);
@@ -33,7 +34,10 @@ const Tooltip: React.FC<Props> = (props) => {
 
     // Get item from cache and check if we need to fetch a new item
     const cacheItem = storage.actions.getItem(props.itemName, (fetchedItem) => {
-      setItem(fetchedItem);
+      if (fetchedItem) {
+        setItem(fetchedItem);
+      }
+
       setLoading(false);
     });
 
@@ -111,11 +115,14 @@ const Tooltip: React.FC<Props> = (props) => {
   }
 
 
+  const errorStr = `Error: ${ui.error || 'Something went wrong. Try again later.'}`;
   const lastUpdated = modItem
     ? modItem.lastUpdated === 'Unknown'
       ? ['Last updated: ', <span style={{ color: '#b9b9b9' }}>{getRelativeTime()}</span>]
       : `Last updated: ${getRelativeTime()}`
-    : <LoadingSvg />;
+    : ui.error
+      ? errorStr
+      : <LoadingSvg />;
 
   return (
     <table id={ELEMENT_ID.TOOLTIP}>
@@ -147,6 +154,12 @@ const Tooltip: React.FC<Props> = (props) => {
                         <div style={{ display: 'flex', marginTop: '10px' }}>
                           <LoadingSvg style={{ display: 'inline-block', marginRight: '5px', width: '15px' }} />
                           Fetching latest price info...
+                        </div>
+                      )}
+
+                      {ui.error && (
+                        <div style={{ display: 'flex', marginTop: '10px', color: '#a71a19' }}>
+                          {errorStr}
                         </div>
                       )}
 

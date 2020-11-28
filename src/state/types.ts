@@ -35,6 +35,11 @@ export type Cache = {
 
 export type CachedItemData = i.ItemData & i.Cache;
 
+export type ItemError = {
+  error: boolean;
+  reason: string;
+}
+
 export type ValueObject = {
   gold: number;
   silver: number;

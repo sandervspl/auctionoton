@@ -43,14 +43,21 @@ class Api {
       const result = await fetch(`${__API__}/item/${server}/${faction}/${itemName}`, {
         signal: this.requestController.signal,
       });
-      const data = await result.json() as i.CachedItemData;
+      const data = await result.json() as i.CachedItemData | i.ItemError;
+
 
       // Something went wrong
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if ((data as any).statusCode) {
+      if ('error' in data) {
+        useStore.getState().set((draftState) => {
+          draftState.ui.error = data.reason;
+        });
+
         console.error(data);
+
         return;
       }
+
 
       const cachedData = produce(data, (draftState) => {
         draftState.updatedAt = new Date().getTime();
