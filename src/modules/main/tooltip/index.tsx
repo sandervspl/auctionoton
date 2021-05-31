@@ -166,7 +166,7 @@ const Tooltip: React.FC<Props> = (props) => {
                   </tr>
                 )}
                 {typeof props.children === 'function'
-                  ? props.children(!!ui.error, modItem)
+                  ? props.children({ error: !!ui.error, item: modItem, loading, getItem })
                   : props.children}
               </tbody>
             </table>
@@ -188,10 +188,17 @@ Tooltip.defaultProps = {
   amount: 1,
 };
 
+interface ChildrenFuncArgs {
+  error: boolean;
+  loading: boolean;
+  item: i.ItemData | undefined;
+  getItem: () => Promise<void>;
+}
+
 type Props = {
   itemName: string;
   amount?: number;
-  children?: JSX.Element | ((error: boolean, item?: i.ItemData) => JSX.Element | null);
+  children?: JSX.Element | ((args: ChildrenFuncArgs) => JSX.Element | null);
 }
 
 export default Tooltip;
