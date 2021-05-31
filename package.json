@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint ./src --ext .ts,.tsx",
-    "build": "NODE_ENV=production webpack -c webpack.config.js",
-    "dev": "nodemon",
+    "build": "NODE_ENV=production node esbuild.config.js",
+    "dev": "node esbuild.config.js",
     "postbuild": "cd dist; zip -D -r ../auctionoton-$npm_package_version.zip ./*; zip -d ../auctionoton-$npm_package_version.zip *.DS_Store",
     "preversion": "tsc --noEmit && npm run lint",
     "version": "npx json -I -f src/manifest.json -e \"this.version='$npm_package_version'\"; git add .",
@@ -26,7 +26,6 @@
     "zustand": "3.5.1"
   },
   "devDependencies": {
-    "@svgr/webpack": "5.5.0",
     "@types/chrome": "0.0.143",
     "@types/firefox-webext-browser": "82.0.0",
     "@types/lodash": "4.14.170",
@@ -34,7 +33,8 @@
     "@types/react-dom": "17.0.5",
     "@typescript-eslint/eslint-plugin": "4.25.0",
     "@typescript-eslint/parser": "4.25.0",
-    "copy-webpack-plugin": "9.0.0",
+    "esbuild": "0.12.5",
+    "esbuild-plugin-svgr": "0.0.1",
     "eslint": "7.27.0",
     "eslint-config-react-app": "6.0.0",
     "eslint-plugin-flowtype": "5.7.2",
@@ -42,14 +42,10 @@
     "eslint-plugin-jsx-a11y": "6.4.1",
     "eslint-plugin-react": "7.24.0",
     "eslint-plugin-react-hooks": "4.2.0",
+    "fs-extra": "10.0.0",
+    "node-notifier": "10.0.0",
     "nodemon": "2.0.7",
     "rimraf": "3.0.2",
-    "svg-inline-loader": "0.8.2",
-    "ts-loader": "9.2.2",
-    "tsconfig-paths-webpack-plugin": "3.5.1",
-    "typescript": "4.3.2",
-    "webpack": "5.38.1",
-    "webpack-cli": "4.7.0",
-    "webpack-notifier": "1.13.0"
+    "typescript": "4.3.2"
   }
 }

@@ -1,6 +1,7 @@
 const config = {
   api: {
-    development: 'http://localhost:8080',
+    // development: 'http://localhost:8080',
+    development: 'https://api.ahdfw.nl',
     production: 'https://api.ahdfw.nl',
   },
 };
