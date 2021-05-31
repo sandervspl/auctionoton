@@ -37,6 +37,10 @@ class ItemMgr {
 
 
     // Return item from state (if exists) instantly while we wait for other options to resolve (if necessary)
+    if (item) {
+      cb(item);
+    }
+
     return item;
   }
 }
