@@ -30,11 +30,7 @@ const webpackConfig = {
     rules: [
       {
         test: /\.tsx?$/,
-        use: [
-          'ts-loader',
-          // Add a global variable 'addon' to all TS files that is assigned to the browser's web extension API namespace
-          'imports-loader?addon=>(chrome||browser)',
-        ],
+        use: 'ts-loader',
         exclude: /node_modules/,
       },
       {
@@ -65,6 +61,10 @@ const webpackConfig = {
       __API__: JSON.stringify(config.api[env]),
     }),
     new WebpackNotifierPlugin({ title: 'Auctionoton Extension' }),
+    new webpack.BannerPlugin({
+      banner: 'var addon = (chrome || browser);',
+      raw: true,
+    }),
   ],
 };
 
