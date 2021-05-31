@@ -67,11 +67,12 @@ class AsyncStorage {
     });
   }
 
-  getItem = async (itemName: string): Promise<i.CachedItemData | undefined> => {
+  getItem = async (itemName: string, cb: (item: i.CachedItemData | undefined) => void): Promise<void> => {
     const user = useStore.getState().storage.user;
     const items = await this.get('items');
+    const item = items?.[user.server.slug]?.[user.faction]?.[itemName];
 
-    return items?.[user.server.slug]?.[user.faction]?.[itemName];
+    cb(item);
   }
 }
 

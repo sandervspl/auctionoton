@@ -3,9 +3,6 @@ import produce from 'immer';
 
 import { useStore } from 'state/store';
 
-import asyncStorage from './asyncStorage';
-import validateCache from './validateCache';
-
 
 class Api {
   private requestController!: AbortController;
@@ -17,24 +14,11 @@ class Api {
     }
   }
 
-  async getItem(itemName: string): Promise<i.CachedItemData | undefined> {
+  async getItem(itemName: string, cb: (item: i.CachedItemData | undefined) => void): Promise<void> {
     // Get user data
     const user = useStore.getState().storage.user;
 
-    // First check if data for this item is saved in storage
-    const cachedItem = await asyncStorage.getItem(itemName);
-
-    // Return cached data if it exists
-    if (validateCache(cachedItem)) {
-      if (__DEV__) {
-        // eslint-disable-next-line no-console
-        console.log(`Retrieved ${itemName} data from cache`);
-      }
-
-      return cachedItem;
-    }
-
-    // Fetch item price data
+    // Fetch latest data from server
     try {
       const server = user.server.slug.toLowerCase();
       const faction = user.faction.toLowerCase();
@@ -47,26 +31,27 @@ class Api {
 
 
       // Something went wrong
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if ('error' in data) {
         useStore.getState().set((draftState) => {
           draftState.ui.error = data.reason;
         });
 
-        console.error(data);
+        if (__DEV__) {
+          console.error(data);
+        }
 
-        return;
+        // Return empty to requester
+        return cb(undefined);
       }
 
 
+      // Set new last updated time
       const cachedData = produce(data, (draftState) => {
         draftState.updatedAt = new Date().getTime();
       });
 
-      // Save data to storage
-      await asyncStorage.addItem(itemName, cachedData);
-
-      return cachedData;
+      // Return data to requester
+      cb(cachedData);
     } catch (err) {
       if (__DEV__) {
         console.error(err);

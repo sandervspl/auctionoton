@@ -7,6 +7,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import LoadingSvg from 'static/loading.svg';
 import { useStore } from 'state/store';
 import { ELEMENT_ID } from 'src/constants';
+import itemMgr from 'src/ItemMgr';
 import api from 'utils/api';
 
 import { SellPrice } from './SellPrice';
@@ -32,8 +33,7 @@ const Tooltip: React.FC<Props> = (props) => {
     setItem(undefined);
     setLoading(true);
 
-    // Get item from cache and check if we need to fetch a new item
-    const cacheItem = storage.actions.getItem(props.itemName, (fetchedItem) => {
+    const cacheItem = itemMgr.get(props.itemName, (fetchedItem) => {
       if (fetchedItem) {
         setItem(fetchedItem);
       }
