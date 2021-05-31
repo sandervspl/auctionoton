@@ -8,6 +8,10 @@ import validateCache from 'utils/validateCache';
 
 class ItemMgr {
   get(itemName: string, cb: (item: i.CachedItemData | undefined) => void): i.CachedItemData | undefined {
+    useStore.getState().set((draftState) => {
+      draftState.ui.error = undefined;
+    });
+
     // Prepare item name for request
     itemName = sanitizeItemName(itemName);
 

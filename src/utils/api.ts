@@ -24,38 +24,37 @@ class Api {
       const faction = user.faction.toLowerCase();
 
       this.requestController = new AbortController();
-      const result = await fetch(`${__API__}/item/${server}/${faction}/${itemName}`, {
+
+      const url = `${__API__}/item/${server}/${faction}/${itemName}`;
+      const options = {
         signal: this.requestController.signal,
-      });
-      const data = await result.json() as i.CachedItemData | i.ItemError;
+      };
+      const result = await Promise.race<i.CachedItemData | i.ItemError>([
+        fetch(url, options).then((res) => res.json()),
+        new Promise((_, fail) => setTimeout(() => fail('Nexushub is not responding.'), 10_000)),
+      ]);
 
 
-      // Something went wrong
-      if ('error' in data) {
-        useStore.getState().set((draftState) => {
-          draftState.ui.error = data.reason;
+      // Success
+      if ('url' in result) {
+        // Set new last updated time
+        const cachedData = produce(result, (draftState) => {
+          draftState.updatedAt = new Date().getTime();
         });
 
-        if (__DEV__) {
-          console.error(data);
-        }
-
-        // Return empty to requester
-        return cb(undefined);
+        // Return data to requester
+        cb(cachedData);
       }
-
-
-      // Set new last updated time
-      const cachedData = produce(data, (draftState) => {
-        draftState.updatedAt = new Date().getTime();
-      });
-
-      // Return data to requester
-      cb(cachedData);
     } catch (err) {
       if (__DEV__) {
         console.error(err);
       }
+
+      useStore.getState().set((draftState) => {
+        draftState.ui.error = err;
+      });
+
+      cb(undefined);
     }
   }
 }
