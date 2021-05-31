@@ -14,7 +14,8 @@
     }
   ],
   "web_accessible_resources": [
-    "index.js"
+    "index.js",
+    "form.html"
   ],
   "background": {
     "scripts": [
@@ -26,6 +27,12 @@
     "default_icon": "static/icon.png",
     "default_popup": "form.html",
     "default_title": "Auctionoton: Auction House Prices for Wowhead"
+  },
+  "options_ui": {
+    "page": "form.html",
+    "open_in_tab": true,
+    "browser_style": false,
+    "chrome_style": false
   },
   "browser_specific_settings": {
     "gecko": {

@@ -7,6 +7,7 @@ import useServerList from 'hooks/useServerList';
 
 
 export const Form: React.FC = () => {
+  const queries = new URLSearchParams(window.location.search);
   const storage = useStore((store) => store.storage);
   const [region, setRegion] = React.useState<i.Regions>(storage.user.region);
   const [server, setServer] = React.useState(JSON.stringify(storage.user.server));
@@ -60,10 +61,18 @@ export const Form: React.FC = () => {
     return null;
   }
 
+  const isLarge = queries.has('large');
+
   return (
     <>
+      <img src={`static/icon${isLarge ? '' : '-48'}.png`} alt="logo" />
+      <h1>
+        Auctionoton
+        {isLarge ? ' - Auction House Prices for Wowhead' : ''}
+      </h1>
+
       <form>
-        <h1>Select your server</h1>
+        <h2>Select your server</h2>
 
         <select name="region" value={region} onChange={onRegionChange}>
           <option value="us">Americas and Oceania</option>
