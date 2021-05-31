@@ -4,6 +4,7 @@ import * as i from 'types';
 const initialState: i.UiState = {
   keys: {},
   error: undefined,
+  warning: undefined,
 };
 
 function uiStore(set: i.Set, get: i.Get): i.UiStore {

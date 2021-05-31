@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
 import LoadingSvg from 'static/loading.svg';
+import WarningSvg from 'static/exclamation-circle-regular.svg';
 import { useStore } from 'state/store';
 import { ELEMENT_ID } from 'src/constants';
 import itemMgr from 'src/ItemMgr';
@@ -116,7 +117,7 @@ const Tooltip: React.FC<Props> = (props) => {
 
 
   const errorStr = `Error: ${ui.error || 'Something went wrong. Try again later.'}`;
-  const lastUpdated = modItem
+  const lastUpdatedOrLoader = modItem
     ? modItem.lastUpdated === 'Unknown'
       ? ['Last updated: ', <span key="unknown-tag" style={{ color: '#b9b9b9' }}>{modItem.lastUpdated}</span>]
       : `Last updated: ${getRelativeTime()}`
@@ -137,7 +138,13 @@ const Tooltip: React.FC<Props> = (props) => {
                       Auction House Data for {storage.user.server.name}-{storage.user.faction}
                     </span>
                     <div className="whtt-sellprice" style={{ marginBottom: '10px' }}>
-                      {lastUpdated}
+                      {lastUpdatedOrLoader}
+
+                      {ui.warning && (
+                        <div style={{ marginTop: '5px' }}>
+                          <WarningSvg style={{ height: '12px' }} /> {ui.warning}
+                        </div>
+                      )}
                     </div>
                   </td>
                 </tr>

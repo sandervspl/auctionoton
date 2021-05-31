@@ -23,14 +23,26 @@ class Api {
       const server = user.server.slug.toLowerCase();
       const faction = user.faction.toLowerCase();
 
-      this.requestController = new AbortController();
 
+      // Show warning of slow response time after x seconds
+      const timeoutId = setTimeout(() => {
+        useStore.getState().set((draftState) => {
+          draftState.ui.warning = 'Nexushub is responding slowly. I will keep trying for a bit longer.';
+        });
+      }, 5_000);
+
+
+      // Fetch item from API
+      this.requestController = new AbortController();
       const url = `${__API__}/item/${server}/${faction}/${itemName}`;
       const options = {
         signal: this.requestController.signal,
       };
       const result = await Promise.race<i.CachedItemData | i.ItemError>([
-        fetch(url, options).then((res) => res.json()),
+        fetch(url, options).then((res) => {
+          clearTimeout(timeoutId);
+          return res.json();
+        }),
         new Promise((_, fail) => setTimeout(() => fail('Nexushub is not responding.'), 10_000)),
       ]);
 
@@ -40,6 +52,12 @@ class Api {
         // Set new last updated time
         const cachedData = produce(result, (draftState) => {
           draftState.updatedAt = new Date().getTime();
+        });
+
+        // Update UI
+        useStore.getState().set((draftState) => {
+          draftState.ui.warning = undefined;
+          draftState.ui.error = undefined;
         });
 
         // Return data to requester
@@ -52,6 +70,7 @@ class Api {
 
       useStore.getState().set((draftState) => {
         draftState.ui.error = err;
+        draftState.ui.warning = undefined;
       });
 
       cb(undefined);
