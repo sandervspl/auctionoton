@@ -1,3 +1,4 @@
+import { useStore } from 'state/store';
 import * as i from 'types';
 
 
@@ -39,4 +40,10 @@ export function isAuctionableItem(str: string | undefined): boolean {
   str = str.toLowerCase();
 
   return !str.includes('picked up') && !str.includes('quest');
+}
+
+export function generateUrl(item: string): string {
+  const user = useStore.getState().storage.user;
+
+  return `https://nexushub.co/wow-classic/items/${user.server.slug}-${user.faction}/${item}`;
 }

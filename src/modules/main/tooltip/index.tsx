@@ -162,13 +162,12 @@ const Tooltip: React.FC<Props> = (props) => {
                           {errorStr}
                         </div>
                       )}
-
-                      {typeof props.children === 'function'
-                        ? props.children(modItem)
-                        : props.children}
                     </td>
                   </tr>
                 )}
+                {typeof props.children === 'function'
+                  ? props.children(!!ui.error, modItem)
+                  : props.children}
               </tbody>
             </table>
           </td>
@@ -192,7 +191,7 @@ Tooltip.defaultProps = {
 type Props = {
   itemName: string;
   amount?: number;
-  children?: JSX.Element | ((item: i.ItemData) => JSX.Element | null);
+  children?: JSX.Element | ((error: boolean, item?: i.ItemData) => JSX.Element | null);
 }
 
 export default Tooltip;

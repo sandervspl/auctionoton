@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import ExternalLinkSvg from 'static/external-link.svg';
 
 import Tooltip from './tooltip';
-import { getItemFromPage, isAuctionableItem } from './utils';
+import { generateUrl, getItemFromPage, isAuctionableItem } from './utils';
 import generateContainer from './generateContainer';
 
 
@@ -23,9 +23,9 @@ const PageTooltip = (): JSX.Element | null => {
 
   return ReactDOM.createPortal(
     <Tooltip itemName={pageItem.current.name}>
-      {(item) => (
+      {() => (
         <div style={{ marginTop: '10px' }}>
-          <a href={item.url} target="_blank" rel="noopener noreferrer">
+          <a href={generateUrl(pageItem.current.name)} target="_blank" rel="noopener noreferrer">
             More information on Nexushub.co <ExternalLinkSvg />
           </a>
         </div>
