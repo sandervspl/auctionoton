@@ -14,7 +14,7 @@ class Api {
     }
   }
 
-  async getItem(itemName: string, cb: (item: i.CachedItemData | undefined) => void): Promise<void> {
+  async getItem(itemName: string, onSuccess: SuccessCb, onWarning: WarningCb, onError: ErrorCb): Promise<void> {
     // Get user data
     const user = useStore.getState().storage.user;
 
@@ -26,18 +26,18 @@ class Api {
 
       // Show warning of slow response time after x seconds
       const timeoutId = setTimeout(() => {
-        useStore.getState().set((draftState) => {
-          draftState.ui.warning = 'Nexushub is responding slowly. I will keep trying for a bit longer.';
-        });
+        onWarning('Nexushub is responding slowly. I will keep trying for a bit longer.');
       }, 5_000);
 
 
       // Fetch item from API
-      this.requestController = new AbortController();
       const url = `${__API__}/item/${server}/${faction}/${itemName}`;
+      this.requestController = new AbortController();
       const options = {
         signal: this.requestController.signal,
       };
+
+      // Start request and fail timer parallel
       const result = await Promise.race<i.CachedItemData | i.ItemError>([
         fetch(url, options).then((res) => {
           clearTimeout(timeoutId);
@@ -55,28 +55,30 @@ class Api {
         });
 
         // Update UI
-        useStore.getState().set((draftState) => {
-          draftState.ui.warning = undefined;
-          draftState.ui.error = undefined;
-        });
+        onWarning('');
+        onError('');
 
         // Return data to requester
-        cb(cachedData);
+        onSuccess(cachedData);
       }
     } catch (err) {
       if (__DEV__) {
         console.error(err);
       }
 
-      useStore.getState().set((draftState) => {
-        draftState.ui.error = err;
-        draftState.ui.warning = undefined;
-      });
+      // Update UI
+      onWarning('');
+      onError(err);
 
-      cb(undefined);
+      // Return no item
+      onSuccess(undefined);
     }
   }
 }
+
+type SuccessCb = (item: i.CachedItemData | undefined) => void;
+type WarningCb = (text: string) => void;
+type ErrorCb = (text: string) => void;
 
 const api = new Api();
 

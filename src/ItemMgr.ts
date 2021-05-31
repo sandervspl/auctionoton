@@ -7,11 +7,7 @@ import validateCache from 'utils/validateCache';
 
 
 class ItemMgr {
-  get(itemName: string, cb: (item: i.CachedItemData | undefined) => void): i.CachedItemData | undefined {
-    useStore.getState().set((draftState) => {
-      draftState.ui.error = undefined;
-    });
-
+  get(itemName: string, onSuccess: SuccessCb, onWarning: WarningCb, onError: ErrorCb): i.CachedItemData | undefined {
     // Prepare item name for request
     itemName = sanitizeItemName(itemName);
 
@@ -24,30 +20,41 @@ class ItemMgr {
       asyncStorage.getItem(itemName, (item) => {
         // Return if we found a valid item from storage
         if (validateCache(item)) {
-          cb(item);
-        // No item found in any cache, so fetch it from the API
+          onSuccess(item);
+          // No item found in any cache, so fetch it from the API
         } else {
-          api.getItem(itemName, (item) => {
-            // Save requested data to storage
-            if (item) {
-              asyncStorage.addItem(itemName, item);
-            }
-
-            cb(item);
-          });
+          api.getItem(
+            itemName,
+            (item) => {
+              // Save requested data to storage
+              if (item) {
+                asyncStorage.addItem(itemName, item);
+                onSuccess(item);
+              } else {
+                onError('Something went wrong fetching this item.');
+              }
+            },
+            onWarning,
+            onError,
+          );
         }
-      });
+      },
+      );
     }
 
 
     // Return item from state (if exists) instantly while we wait for other options to resolve (if necessary)
     if (item) {
-      cb(item);
+      onSuccess(item);
     }
 
     return item;
   }
 }
+
+type SuccessCb = (item: i.CachedItemData) => void;
+type WarningCb = (text: string) => void;
+type ErrorCb = (text: string) => void;
 
 const itemMgr = new ItemMgr();
 

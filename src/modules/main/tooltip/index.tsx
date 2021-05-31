@@ -1,6 +1,5 @@
 import * as i from 'types';
 import React from 'react';
-import produce from 'immer';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -8,8 +7,7 @@ import LoadingSvg from 'static/loading.svg';
 import WarningSvg from 'static/exclamation-circle-regular.svg';
 import { useStore } from 'state/store';
 import { ELEMENT_ID } from 'src/constants';
-import itemMgr from 'src/ItemMgr';
-import api from 'utils/api';
+import useGetItem from 'hooks/useGetItem';
 
 import { SellPrice } from './SellPrice';
 
@@ -18,112 +16,27 @@ dayjs.extend(relativeTime);
 
 const Tooltip: React.FC<Props> = (props) => {
   const storage = useStore((store) => store.storage);
-  const ui = useStore((store) => store.ui);
-  const item = React.useRef<i.ItemData>();
-  const [modItem, setModItem] = React.useState<i.ItemData>();
-  const [loading, setLoading] = React.useState(false);
-
-
-  function setItem(newItem?: i.ItemData) {
-    item.current = newItem;
-    setModItem(newItem);
-    setItemValuesForAmount();
-  }
-
-  async function getItem() {
-    setItem(undefined);
-    setLoading(true);
-
-    const cacheItem = itemMgr.get(props.itemName, (fetchedItem) => {
-      if (fetchedItem) {
-        setItem(fetchedItem);
-      }
-
-      setLoading(false);
-    });
-
-    // Set item from cache
-    setItem(cacheItem);
-  }
-
-  function setItemValuesForAmount() {
-    if (!modItem) {
-      setModItem(item.current);
-    }
-
-    setModItem((modItem) => produce(modItem, (draftState) => {
-      if (!draftState || !item.current) {
-        return draftState;
-      }
-
-      const prices = {
-        historicalValue: { ...item.current.historicalValue },
-        marketValue: { ...item.current.marketValue },
-        minimumBuyout: { ...item.current.minimumBuyout },
-      };
-
-      let type: keyof typeof prices;
-      for (type in prices) {
-        // Can be "Unavailable"
-        if (typeof prices[type] === 'string') {
-          continue;
-        }
-
-        let coin: keyof typeof prices[typeof type];
-        for (coin in prices[type]) {
-          prices[type][coin] *= props.amount!;
-        }
-
-        // Overflow from copper to silver
-        if (prices[type].copper >= 100) {
-          prices[type].silver ||= 0;
-          // Add all but the remainder from copper to silver
-          prices[type].silver += (prices[type].copper - prices[type].copper % 100) / 100;
-          // Keep the remainder in copper
-          prices[type].copper %= 100;
-        }
-
-        // Overflow from silver to gold
-        if (prices[type].silver >= 100) {
-          prices[type].gold ||= 0;
-          prices[type].gold += (prices[type].silver - prices[type].silver % 100) / 100;
-          prices[type].silver %= 100;
-        }
-
-        draftState[type] = prices[type];
-      }
-    }));
-  }
-
-  // Get item data
-  React.useEffect(() => {
-    getItem();
-
-    return function cleanup() {
-      api.cancelRequest();
-    };
-  }, [storage.user, props.itemName]);
-
-  React.useEffect(setItemValuesForAmount, [props.amount]);
+  const { loading, error, warning, item, mutableItem, getItem } = useGetItem(props.itemName, props.amount);
 
 
   function getRelativeTime() {
-    if (modItem?.lastUpdated) {
-      return dayjs(modItem?.lastUpdated).fromNow();
+    if (item?.lastUpdated) {
+      return dayjs(item?.lastUpdated).fromNow();
     }
 
     return '';
   }
 
 
-  const errorStr = `Error: ${ui.error || 'Something went wrong. Try again later.'}`;
-  const lastUpdatedOrLoader = modItem
-    ? modItem.lastUpdated === 'Unknown'
-      ? ['Last updated: ', <span key="unknown-tag" style={{ color: '#b9b9b9' }}>{modItem.lastUpdated}</span>]
+  const errorStr = `Error: ${error || 'Something went wrong. Try again later.'}`;
+  const lastUpdatedOrLoader = item
+    ? item.lastUpdated === 'Unknown'
+      ? ['Last updated: ', <span key="unknown-tag" style={{ color: '#b9b9b9' }}>{item.lastUpdated}</span>]
       : `Last updated: ${getRelativeTime()}`
-    : ui.error
+    : error
       ? errorStr
       : <LoadingSvg />;
+
 
   return (
     <table id={ELEMENT_ID.TOOLTIP}>
@@ -140,31 +53,31 @@ const Tooltip: React.FC<Props> = (props) => {
                     <div className="whtt-sellprice" style={{ marginBottom: '10px' }}>
                       {lastUpdatedOrLoader}
 
-                      {ui.warning && (
+                      {warning && (
                         <div style={{ marginTop: '5px' }}>
-                          <WarningSvg style={{ height: '12px' }} /> {ui.warning}
+                          <WarningSvg style={{ height: '12px' }} /> {warning}
                         </div>
                       )}
                     </div>
                   </td>
                 </tr>
-                {modItem && (
+                {mutableItem && (
                   <tr>
                     <td>
-                      <SellPrice heading="Market Value" amount={props.amount} value={modItem.marketValue} />
-                      <SellPrice heading="Historical Value" amount={props.amount} value={modItem.historicalValue} />
-                      <SellPrice heading="Minimum Buyout" amount={props.amount} value={modItem.minimumBuyout} />
-                      <SellPrice heading="Quantity" amount={props.amount} value={`${modItem.quantity} auction${modItem.quantity === 1 ? '' : 's'}`} />
+                      <SellPrice heading="Market Value" amount={props.amount} value={mutableItem.marketValue} />
+                      <SellPrice heading="Historical Value" amount={props.amount} value={mutableItem.historicalValue} />
+                      <SellPrice heading="Minimum Buyout" amount={props.amount} value={mutableItem.minimumBuyout} />
+                      <SellPrice heading="Quantity" amount={props.amount} value={`${mutableItem.quantity} auction${mutableItem.quantity === 1 ? '' : 's'}`} />
 
                       {/* Only show this loading indicator if we can show a cached item */}
-                      {item.current && loading && (
+                      {item && loading && (
                         <div style={{ display: 'flex', marginTop: '10px' }}>
                           <LoadingSvg style={{ display: 'inline-block', marginRight: '5px', width: '15px' }} />
                           Fetching latest price info...
                         </div>
                       )}
 
-                      {ui.error && (
+                      {error && (
                         <div style={{ display: 'flex', marginTop: '10px', color: '#a71a19' }}>
                           {errorStr}
                         </div>
@@ -173,7 +86,7 @@ const Tooltip: React.FC<Props> = (props) => {
                   </tr>
                 )}
                 {typeof props.children === 'function'
-                  ? props.children({ error: !!ui.error, item: modItem, loading, getItem })
+                  ? props.children({ error: !!error, item, loading, getItem })
                   : props.children}
               </tbody>
             </table>

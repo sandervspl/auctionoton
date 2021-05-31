@@ -1,6 +1,6 @@
 import * as i from 'types';
 
-function validateCache(data: i.Cache | undefined): boolean {
+function validateCache(data: i.CachedItemData | undefined): data is i.CachedItemData {
   if (!data) {
     return false;
   }
