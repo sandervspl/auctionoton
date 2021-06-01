@@ -2,6 +2,7 @@ import * as i from 'types';
 import React from 'react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { css } from '@emotion/css';
 
 import LoadingSvg from 'static/loading.svg';
 import WarningSvg from 'static/exclamation-circle-regular.svg';
@@ -29,13 +30,33 @@ const Tooltip: React.FC<Props> = (props) => {
 
 
   const errorStr = `Error: ${error || 'Something went wrong. Try again later.'}`;
-  const lastUpdatedOrLoader = item
-    ? item.lastUpdated === 'Unknown'
-      ? ['Last updated: ', <span key="unknown-tag" style={{ color: '#b9b9b9' }}>{item.lastUpdated}</span>]
-      : `Last updated: ${getRelativeTime()}`
-    : error
-      ? errorStr
-      : <LoadingSvg />;
+  const lastUpdatedOrLoader = (() => {
+    if (item) {
+      if (item.lastUpdated === 'Unknown') {
+        return (
+          <>
+            Last Updated:&nbsp;
+            <span
+              key="unknown-tag"
+              className={css`
+                color: #b9b9b9
+              `}
+            >
+              {item.lastUpdated}
+            </span>
+          </>
+        );
+      }
+
+      return `Last updated: ${getRelativeTime()}`;
+    }
+
+    if (error) {
+      return errorStr;
+    }
+
+    return <LoadingSvg />;
+  })();
 
 
   return (
@@ -43,19 +64,28 @@ const Tooltip: React.FC<Props> = (props) => {
       <tbody>
         <tr>
           <td>
-            <table style={{ width: '100%' }}>
+            <table className={css`
+              width: 100%;
+            `}>
               <tbody>
                 <tr>
                   <td>
                     <span className="q whtt-extra whtt-ilvl">
                       Auction House Data for {storage.user.server.name}-{storage.user.faction}
                     </span>
-                    <div className="whtt-sellprice" style={{ marginBottom: '10px' }}>
+                    <div className={'whtt-sellprice ' + css`
+                      margin-bottom: 10px;
+                    `}>
                       {lastUpdatedOrLoader}
 
                       {warning && (
-                        <div style={{ marginTop: '5px' }}>
-                          <WarningSvg style={{ height: '12px' }} /> {warning}
+                        <div className={css`
+                          margin-top: 5px;
+                        `}>
+                          <WarningSvg className={css`
+                            height: 12px;
+                          `} />
+                          {warning}
                         </div>
                       )}
                     </div>
@@ -64,40 +94,77 @@ const Tooltip: React.FC<Props> = (props) => {
                 {mutableItem && (
                   <tr>
                     <td>
-                      <SellPrice heading="Market Value" amount={props.amount} value={mutableItem.marketValue} />
-                      <SellPrice heading="Historical Value" amount={props.amount} value={mutableItem.historicalValue} />
-                      <SellPrice heading="Minimum Buyout" amount={props.amount} value={mutableItem.minimumBuyout} />
-                      <SellPrice heading="Quantity" amount={props.amount} value={`${mutableItem.quantity} auction${mutableItem.quantity === 1 ? '' : 's'}`} />
+                      <SellPrice
+                        heading="Market Value"
+                        amount={props.amount}
+                        value={mutableItem.marketValue}
+                      />
+                      <SellPrice
+                        heading="Historical Value"
+                        amount={props.amount}
+                        value={mutableItem.historicalValue}
+                      />
+                      <SellPrice
+                        heading="Minimum Buyout"
+                        amount={props.amount}
+                        value={mutableItem.minimumBuyout}
+                      />
+                      <SellPrice
+                        heading="Quantity"
+                        amount={props.amount}
+                        value={`${mutableItem.quantity} auction${mutableItem.quantity === 1 ? '' : 's'}`}
+                      />
 
                       {/* Only show this loading indicator if we can show a cached item */}
                       {item && loading && (
-                        <div style={{ display: 'flex', marginTop: '10px' }}>
-                          <LoadingSvg style={{ display: 'inline-block', marginRight: '5px', width: '15px' }} />
+                        <div className={css`
+                          display: flex;
+                          margin-top: 10px;
+                        `}>
+                          <LoadingSvg className={css`
+                            display: inline-block;
+                            margin-right: 5px;
+                            width: 15px;
+                          `} />
                           Fetching latest price info...
                         </div>
                       )}
 
                       {error && (
-                        <div style={{ display: 'flex', marginTop: '10px', color: '#a71a19' }}>
+                        <div className={css`
+                          display: flex;
+                          margin-top: 10px;
+                          color: #a71a19;
+                        `}>
                           {errorStr}
                         </div>
                       )}
                     </td>
                   </tr>
                 )}
-                {typeof props.children === 'function'
-                  ? props.children({ error: !!error, item, loading, getItem })
-                  : props.children}
+                <tr>
+                  <td>
+                    {typeof props.children === 'function'
+                      ? props.children({ error: !!error, item, loading, getItem })
+                      : props.children}
+                  </td>
+                </tr>
               </tbody>
             </table>
           </td>
 
-          <th style={{ backgroundPosition: 'top right' }} />
+          <th className={css`
+            background-position: top right !important;
+          `} />
         </tr>
 
         <tr>
-          <th style={{ backgroundPosition: 'bottom left' }} />
-          <th style={{ backgroundPosition: 'bottom right' }} />
+          <th className={css`
+            background-position: bottom left !important;
+          `} />
+          <th className={css`
+            background-position: bottom right !important;
+          `} />
         </tr>
       </tbody>
     </table>

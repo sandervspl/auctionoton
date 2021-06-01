@@ -1,5 +1,6 @@
 import * as i from 'types';
 import React from 'react';
+import { css } from '@emotion/css';
 
 
 export const Value: React.FC<Props> = (props) => {
@@ -36,9 +37,17 @@ export const Value: React.FC<Props> = (props) => {
 
   const value = getValueStrings();
 
-  return typeof value === 'string' || (value as JSX.Element[]).length > 0
-    ? <span>{value}</span>
-    : <span style={{ color: '#b9b9b9' }}>N/A</span>;
+  if (typeof value === 'string' || value.length > 0) {
+    return <span>{value}</span>;
+  }
+
+  return (
+    <span className={css`
+      color: #b9b9b9;
+    `}>
+      N/A
+    </span>
+  );
 };
 
 export type Props = {

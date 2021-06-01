@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { css } from '@emotion/css';
 
 import getBodyElement from 'utils/getBodyElement';
 import useKeybind from 'hooks/useKeybind';
@@ -173,7 +174,11 @@ const HoverTooltip = (): JSX.Element | null => {
   return ReactDOM.createPortal(
     <Tooltip itemName={itemName} amount={amount}>
       {(() => showShiftKeyTip && getAmount() > 1 ? (
-        <div className="blizzard-blue" style={{ marginTop: '10px' }}>
+        <div
+          className={'blizzard-blue ' + css`
+            margin-top: 10px;
+          `}
+        >
           Tip: press shift to see the price for the stack!
         </div>
       ) : null)}

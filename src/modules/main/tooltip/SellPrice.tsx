@@ -1,5 +1,6 @@
 import * as i from 'types';
 import React from 'react';
+import { css } from '@emotion/css';
 
 import { Value } from './Value';
 
@@ -9,15 +10,17 @@ export const SellPrice: React.FC<Props> = (props) => {
   const isMultiple = isValueObject && props.amount && props.amount > 1;
 
   return (
-    <div
-      className="whtt-sellprice"
-      style={{ display: 'flex', justifyContent: 'space-between' }}
-    >
-      <div style={{ display: 'inline-block', width: '170px' }}>
+    <span className={'whtt-sellprice ' + css`
+      display: flex;
+      justify-content: space-between;
+    `}>
+      <span className={css`
+        width: 170px;
+      `}>
         {props.heading}{isMultiple && ` (x${props.amount})`}
-      </div>
+      </span>
       <Value value={props.value} />
-    </div>
+    </span>
   );
 };
 
