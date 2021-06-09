@@ -50,12 +50,6 @@ const Tooltip: React.FC<Props> = (props) => {
 
       return `Last updated: ${getRelativeTime()}`;
     }
-
-    if (error) {
-      return null;
-    }
-
-    return <LoadingSvg />;
   })();
 
 
@@ -134,13 +128,22 @@ const Tooltip: React.FC<Props> = (props) => {
                 )}
                 {error && (
                   <tr>
-                    <div className={css`
-                    display: flex;
-                    margin-top: 10px;
-                    color: #a71a19;
-                  `}>
-                      {errorStr}
-                    </div>
+                    <td>
+                      <div className={css`
+                        display: flex;
+                        margin-top: 10px;
+                        color: #a71a19;
+                      `}>
+                        {errorStr}
+                      </div>
+                    </td>
+                  </tr>
+                )}
+                {!item && loading && (
+                  <tr>
+                    <td>
+                      <LoadingSvg />
+                    </td>
                   </tr>
                 )}
                 <tr>

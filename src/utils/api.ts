@@ -56,8 +56,11 @@ class Api {
       // Success
       if ('url' in result) {
         // Set new last updated time
+
         const cachedData = produce(result, (draftState) => {
-          draftState.updatedAt = new Date().getTime();
+          if (result.lastUpdated !== 'Unknown') {
+            draftState.updatedAt = new Date().getTime();
+          }
         });
 
         // Update UI

@@ -21,12 +21,14 @@ function useGetItem(itemName: string, amount = 1): UseGetItem {
     setWarning('');
     setLoading(true);
 
-    function onSuccess(item: i.CachedItemData | undefined) {
+    function onSuccess(item: i.CachedItemData | undefined, stopLoading = true) {
       if (item) {
         setItem(item);
       }
 
-      setLoading(false);
+      if (stopLoading) {
+        setLoading(false);
+      }
     }
 
     function onError(err: string) {

@@ -1,6 +1,8 @@
 import asyncStorage from 'utils/asyncStorage';
 // import validateCache from 'utils/validateCache';
 
+// Reset storage
+// asyncStorage.clear('items');
 
 // Open page for user's server/faction information after installation
 addon.runtime.onInstalled.addListener(async (details) => {
