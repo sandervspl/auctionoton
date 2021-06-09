@@ -70,17 +70,6 @@ const Tooltip: React.FC<Props> = (props) => {
                       margin-bottom: 10px;
                     `}>
                       {lastUpdatedOrLoader}
-
-                      {warning && (
-                        <div className={css`
-                          margin-top: 5px;
-                        `}>
-                          <WarningSvg className={css`
-                            height: 12px;
-                          `} />
-                          {warning}
-                        </div>
-                      )}
                     </div>
                   </td>
                 </tr>
@@ -125,6 +114,13 @@ const Tooltip: React.FC<Props> = (props) => {
                     </td>
                   </tr>
                 )}
+                {!item && loading && (
+                  <tr>
+                    <td>
+                      <LoadingSvg />
+                    </td>
+                  </tr>
+                )}
                 {error && (
                   <tr>
                     <td>
@@ -138,10 +134,17 @@ const Tooltip: React.FC<Props> = (props) => {
                     </td>
                   </tr>
                 )}
-                {!item && loading && (
+                {warning && (
                   <tr>
                     <td>
-                      <LoadingSvg />
+                      <div className={css`
+                        margin-top: 5px;
+                      `}>
+                        <WarningSvg className={css`
+                          height: 12px;
+                        `} />
+                        {warning}
+                      </div>
                     </td>
                   </tr>
                 )}
