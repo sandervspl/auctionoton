@@ -17,6 +17,7 @@ class Api {
   async getItem(itemName: string, onSuccess: SuccessCb, onWarning: WarningCb, onError: ErrorCb): Promise<void> {
     // Get user data
     const user = useStore.getState().storage.user;
+    let timeoutId: NodeJS.Timeout | undefined;
 
     // Fetch latest data from server
     try {
@@ -25,7 +26,7 @@ class Api {
 
 
       // Show warning of slow response time after x seconds
-      const timeoutId = setTimeout(() => {
+      timeoutId = setTimeout(() => {
         onWarning('Nexushub is responding slowly. I will keep trying for a bit longer.');
       }, 5_000);
 
@@ -40,7 +41,7 @@ class Api {
       // Start request and fail timer parallel
       const result = await Promise.race<i.CachedItemData | i.ItemError>([
         fetch(url, options).then((res) => {
-          clearTimeout(timeoutId);
+          clearTimeout(timeoutId!);
           return res.json();
         }),
         new Promise((_, fail) => setTimeout(() => fail('Nexushub is not responding.'), 10_000)),
@@ -73,6 +74,10 @@ class Api {
     } catch (err) {
       if (__DEV__) {
         console.error(err);
+      }
+
+      if (timeoutId) {
+        clearTimeout(timeoutId);
       }
 
       // Update UI
