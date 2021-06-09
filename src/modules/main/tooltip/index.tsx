@@ -52,7 +52,7 @@ const Tooltip: React.FC<Props> = (props) => {
     }
 
     if (error) {
-      return errorStr;
+      return null;
     }
 
     return <LoadingSvg />;
@@ -129,17 +129,18 @@ const Tooltip: React.FC<Props> = (props) => {
                           Fetching latest price info...
                         </div>
                       )}
-
-                      {error && (
-                        <div className={css`
-                          display: flex;
-                          margin-top: 10px;
-                          color: #a71a19;
-                        `}>
-                          {errorStr}
-                        </div>
-                      )}
                     </td>
+                  </tr>
+                )}
+                {error && (
+                  <tr>
+                    <div className={css`
+                    display: flex;
+                    margin-top: 10px;
+                    color: #a71a19;
+                  `}>
+                      {errorStr}
+                    </div>
                   </tr>
                 )}
                 <tr>

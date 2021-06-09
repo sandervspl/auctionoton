@@ -174,11 +174,9 @@ const HoverTooltip = (): JSX.Element | null => {
   return ReactDOM.createPortal(
     <Tooltip itemName={itemName} amount={amount}>
       {(() => showShiftKeyTip && getAmount() > 1 ? (
-        <div
-          className={'blizzard-blue ' + css`
-            margin-top: 10px;
-          `}
-        >
+        <div className={'blizzard-blue ' + css`
+          margin-top: 10px;
+        `}>
           Tip: press shift to see the price for the stack!
         </div>
       ) : null)}

@@ -23,20 +23,17 @@ class ItemMgr {
           onSuccess(item);
           // No item found in any cache, so fetch it from the API
         } else {
-          api.getItem(
-            itemName,
-            (item) => {
-              // Save requested data to storage
-              if (item) {
-                asyncStorage.addItem(itemName, item);
-                onSuccess(item);
-              } else {
-                onError('Something went wrong fetching this item.');
-              }
-            },
-            onWarning,
-            onError,
-          );
+          function onSuccess(item: i.CachedItemData | undefined) {
+            // Save requested data to storage
+            if (item) {
+              asyncStorage.addItem(itemName, item);
+              onSuccess(item);
+            } else {
+              onError('Something went wrong fetching this item.');
+            }
+          }
+
+          api.getItem(itemName, onSuccess, onWarning, onError);
         }
       },
       );

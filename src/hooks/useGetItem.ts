@@ -21,21 +21,20 @@ function useGetItem(itemName: string, amount = 1): UseGetItem {
     setWarning('');
     setLoading(true);
 
-    const cacheItem = itemMgr.get(
-      itemName,
-      (fetchedItem) => {
-        if (fetchedItem) {
-          setItem(fetchedItem);
-        }
+    function onSuccess(item: i.CachedItemData | undefined) {
+      if (item) {
+        setItem(item);
+      }
 
-        setLoading(false);
-      },
-      setWarning,
-      (err) => {
-        setLoading(false);
-        setError(err);
-      },
-    );
+      setLoading(false);
+    }
+
+    function onError(err: string) {
+      setLoading(false);
+      setError(err);
+    }
+
+    const cacheItem = itemMgr.get(itemName, onSuccess, setWarning, onError);
 
     // Set item from cache
     setItem(cacheItem);

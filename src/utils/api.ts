@@ -47,6 +47,12 @@ class Api {
       ]);
 
 
+      // Error
+      if ('error' in result) {
+        onWarning('');
+        onError(result.reason);
+      }
+
       // Success
       if ('url' in result) {
         // Set new last updated time
