@@ -16,7 +16,6 @@ function useGetItem(itemName: string, amount = 1): UseGetItem {
   const item = React.useRef<i.CachedItemData>();
 
   async function getItem() {
-    setItem(undefined);
     setError('');
     setWarning('');
     setLoading(true);
@@ -39,7 +38,9 @@ function useGetItem(itemName: string, amount = 1): UseGetItem {
     const cacheItem = itemMgr.get(itemName, onSuccess, setWarning, onError);
 
     // Set item from cache
-    setItem(cacheItem);
+    if (cacheItem) {
+      setItem(cacheItem);
+    }
   }
 
   function setItem(newItem?: i.CachedItemData) {

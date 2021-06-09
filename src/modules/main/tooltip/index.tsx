@@ -19,7 +19,6 @@ const Tooltip: React.FC<Props> = (props) => {
   const storage = useStore((store) => store.storage);
   const { loading, error, warning, item, mutableItem, getItem } = useGetItem(props.itemName, props.amount);
 
-
   function getRelativeTime() {
     if (item?.lastUpdated) {
       return dayjs(item?.lastUpdated).fromNow();
