@@ -29,7 +29,7 @@ const Tooltip: React.FC<Props> = (props) => {
 
 
   const errorStr = `Error: ${error || 'Something went wrong. Try again later.'}`;
-  const lastUpdatedOrLoader = (() => {
+  const lastUpdatedStr = (() => {
     if (item) {
       if (item.lastUpdated === 'Unknown') {
         return (
@@ -69,7 +69,7 @@ const Tooltip: React.FC<Props> = (props) => {
                     <div className={'whtt-sellprice ' + css`
                       margin-bottom: 10px;
                     `}>
-                      {lastUpdatedOrLoader}
+                      {lastUpdatedStr}
                     </div>
                   </td>
                 </tr>
