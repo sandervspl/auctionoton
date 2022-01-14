@@ -53,7 +53,7 @@ class AsyncStorage {
         return resolve(items[key]);
       });
     });
-  }
+  };
 
   set = async <T extends i.StorageKeys>(key: T, update: (draft: i.BrowserStorage[T]) => void): Promise<void> => {
     const cur = await this.get(key);
@@ -62,13 +62,13 @@ class AsyncStorage {
     return new Promise((resolve) => {
       addon.storage.local.set({ [key]: next }, resolve);
     });
-  }
+  };
 
   clear = async <T extends i.StorageKeys>(key: T): Promise<void> => {
     return new Promise((resolve) => {
       addon.storage.local.set({ [key]: {} }, resolve);
     });
-  }
+  };
 
   getKeyFromQueryKey = (itemQueryKey: i.ItemQueryKeyCtx) => {
     const [, itemObj] = itemQueryKey.queryKey;
@@ -78,9 +78,11 @@ class AsyncStorage {
 
   addItem = async (itemQueryKey: i.ItemQueryKeyCtx, data: i.MaybeAnyItem): Promise<void> => {
     await this.set('items', (draftState) => {
-      _set(draftState, this.getKeyFromQueryKey(itemQueryKey), data);
+      if (draftState != null) {
+        _set(draftState, this.getKeyFromQueryKey(itemQueryKey), data);
+      }
     });
-  }
+  };
 
   getItem = async (itemQueryKey: i.ItemQueryKeyCtx, cb?: (item: i.MaybeAnyItem | undefined) => void): Promise<i.MaybeAnyItem> => {
     const items = await this.get('items');
@@ -92,7 +94,7 @@ class AsyncStorage {
     }
 
     return item;
-  }
+  };
 }
 
 const asyncStorage = new AsyncStorage();

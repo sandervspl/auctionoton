@@ -32,7 +32,7 @@ require('esbuild').build({
   define: {
     __DEV__: dev,
     __PROD__: prod,
-    __API__: JSON.stringify(config.api[env]),
+    /** @TODO make endpoint */
     __CUR_CLASSIC_VERSION__: JSON.stringify(config.currentClassicVersion),
   },
   banner: {

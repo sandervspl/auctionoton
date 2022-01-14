@@ -1,5 +1,3 @@
-export type Regions = 'eu' | 'us' | 'kr' | 'tw';
-
 interface Key {
   href: string;
 }

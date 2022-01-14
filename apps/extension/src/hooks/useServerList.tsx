@@ -14,11 +14,13 @@ interface UseServerList {
 }
 
 
-function useServerList(region: i.Regions, version: i.Versions): UseServerList {
+function useServerList(region?: i.Regions | 'default', version?: i.Versions | 'default'): UseServerList {
   const [servers, setServers] = React.useState<string[][]>([]);
   const { data: retailServers, isLoading } = useQuery(
     ['servers', { region }],
-    () => api.getRetailRealms(region),
+    region !== 'default'
+      ? () => api.getRetailRealms(region)
+      : () => void {},
     {
       refetchOnWindowFocus: false, // Generally just annoying, especially when fetch is failing
       staleTime: time.hours(24),

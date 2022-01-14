@@ -1,12 +1,14 @@
 import * as i from 'types';
+import { API } from '@project/constants';
+import type { ItemBody, ItemsBody } from '@project/validation';
 import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
 
 import ItemsService from 'services/v2/Items';
-import * as v from './validation';
+import { ItemParams } from './validation';
 
 
-@Controller('items')
+@Controller(API.ItemsRoot)
 export default class ItemsController {
   constructor(
     private readonly itemsService: ItemsService,
@@ -14,25 +16,25 @@ export default class ItemsController {
 
   @Get('/')
   @UseGuards(ThrottlerGuard)
-  async itemsGet(@Body() body: v.ItemsBody, @Query() query?: i.ItemRequestQuery) {
+  async itemsGet(@Body() body: ItemsBody, @Query() query?: i.ItemRequestQuery) {
     return this.itemsService.items(body, query);
   }
 
   @Post('/')
   @UseGuards(ThrottlerGuard)
-  async itemsPost(@Body() body: v.ItemsBody, @Query() query?: i.ItemRequestQuery) {
+  async itemsPost(@Body() body: ItemsBody, @Query() query?: i.ItemRequestQuery) {
     return this.itemsService.items(body, query);
   }
 
   @Get('/:id')
   @UseGuards(ThrottlerGuard)
-  async itemGet(@Param() params: v.ItemParams, @Body() body: v.ItemBody, @Query() query?: i.ItemRequestQuery) {
+  async itemGet(@Param() params: ItemParams, @Body() body: ItemBody, @Query() query?: i.ItemRequestQuery) {
     return this.itemsService.item(params, body, query);
   }
 
   @Post('/:id')
   @UseGuards(ThrottlerGuard)
-  async itemPost(@Param() params: v.ItemParams, @Body() body: v.ItemBody, @Query() query?: i.ItemRequestQuery) {
+  async itemPost(@Param() params: ItemParams, @Body() body: ItemBody, @Query() query?: i.ItemRequestQuery) {
     return this.itemsService.item(params, body, query);
   }
 }

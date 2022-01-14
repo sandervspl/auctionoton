@@ -19,7 +19,9 @@
   },
   "dependencies": {
     "@emotion/css": "11.7.1",
+    "@project/constants": "*",
     "@project/types": "*",
+    "@project/validation": "*",
     "dayjs": "1.10.7",
     "immer": "9.0.7",
     "lodash": "4.17.21",
@@ -27,6 +29,7 @@
     "react-dom": "17.0.2",
     "react-hook-form": "7.22.5",
     "react-query": "3.34.7",
+    "tsafe": "0.9.0",
     "typed-query-selector": "2.6.1",
     "w3c-keys": "1.0.3",
     "zustand": "3.6.8"

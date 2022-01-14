@@ -23,7 +23,7 @@ function actions(set: i.Set, get: i.Get) {
     // Initialize store with data from local browser storage
     init: async (): Promise<void> => {
       // Check if it was already initialized
-      if (get().storage.user.faction) {
+      if ('user' in get().storage && Object.keys(get().storage.user?.server || {}).length > 0) {
         return;
       }
 

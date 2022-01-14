@@ -1,6 +1,7 @@
 import * as i from 'types';
 import create from 'zustand';
 import produce from 'immer';
+import { assert, is } from 'tsafe';
 
 import generateStore from './generateState';
 import storageStore from './stores/storage';
@@ -24,9 +25,8 @@ addon.storage.onChanged.addListener((changes) => {
 
   useStore.getState().set((draftState) => {
     for (const key in storageChanges) {
-      // it doesnt cast to union string properly outside of the loop
-      const k = key as keyof i.StorageState;
-      draftState.storage[k] = storageChanges[k].newValue;
+      assert(is<keyof i.StorageState>(key));
+      draftState.storage[key] = storageChanges[key].newValue;
     }
   });
 });

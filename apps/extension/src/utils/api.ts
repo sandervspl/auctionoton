@@ -1,4 +1,6 @@
 import * as i from 'types';
+import type { ItemBody } from '@project/validation';
+import { API } from '@project/constants';
 import produce, { Draft } from 'immer';
 
 import { useStore } from 'state/store';
@@ -18,11 +20,11 @@ class Api {
   async getItem<V extends i.Versions, R = V extends 'classic' ? i.CachedItemDataClassic : i.CachedItemDataRetail>(
     version: V, itemId: number, onWarning: WarningCb, onError: ErrorCb,
   ): Promise<R | undefined> {
-    type ItemData = V extends 'classic' ? i.ItemDataClassic : i.ItemDataRetail;
+    type ItemData = V extends 'classic' ? i.ItemResponseV2 : i.ItemDataRetail;
 
     // Get user data
     const user = useStore.getState().storage.user;
-    let timeoutId: number | undefined;
+    let timeoutId: NodeJS.Timeout | undefined;
     let url = '';
 
     this.requestController = new AbortController();
@@ -38,15 +40,15 @@ class Api {
           onWarning('The Auction House service is responding slowly. I will keep trying for a bit longer.');
         }, time.seconds(5));
 
-        if (!user.server.classic) {
+        if (!user?.server?.classic || !user?.faction) {
           return;
         }
 
         const server = user.server.classic.slug.toLowerCase();
         const faction = user.faction[server].toLowerCase() as i.Factions;
 
-        url = `${__API__}/items/${itemId}`;
-        const body: i.ItemRequestBody = {
+        url = `${API.ItemsUrl}/${itemId}`;
+        const body: ItemBody = {
           server_name: server,
           faction,
           amount: 1,
@@ -66,14 +68,14 @@ class Api {
           onWarning('Blizzard servers are responding slowly. I will keep trying for a bit longer.');
         }, time.seconds(5));
 
-        if (!user.server.retail) {
+        if (!user?.server?.retail || !user?.region) {
           return;
         }
 
         const server = user.server.retail.name.toLowerCase();
         const region = user.region.toLowerCase();
 
-        url = `${__API__}/item/retail/${region}/${server}/${itemId}`;
+        url = `${API.Url}/item/retail/${region}/${server}/${itemId}`;
       }
 
       const req = fetch(url, options).then((res) => {
@@ -136,8 +138,12 @@ class Api {
     }
   }
 
-  async getRetailRealms(region: i.Regions): Promise<i.RetailRealmResult | undefined> {
-    const url = `${__API__}/retail/realms/${region}`;
+  async getRetailRealms(region?: i.Regions): Promise<i.RetailRealmResult | undefined> {
+    if (!region) {
+      return;
+    }
+
+    const url = `${API.Url}/retail/realms/${region}`;
 
     const result = await fetch(url);
     const data = await result.json();

@@ -16,8 +16,8 @@ interface FlatRetailRealm {
 }
 
 interface FormInput {
-  version: i.Versions;
-  region: i.Regions;
+  version: i.Versions | 'default';
+  region: i.Regions | 'default';
   server: string;
   faction: i.Factions;
 }
@@ -42,7 +42,11 @@ export const Form: React.FC = () => {
       return setValue('server', 'loading');
     }
 
-    const storedServer = storage.user.server[watchVersion]?.name;
+    if (watchVersion === 'default') {
+      return;
+    }
+
+    const storedServer = storage.user?.server?.[watchVersion]?.name;
     const firstServerInlist = serverList[0]?.[0];
 
     if (storedServer && serverList.find((arr) => arr[0] === storedServer)) {
@@ -57,7 +61,7 @@ export const Form: React.FC = () => {
       return;
     }
 
-    const faction = storage.user.faction[createSlug(watchServer)];
+    const faction = storage.user?.faction?.[createSlug(watchServer)];
     setValue('faction', faction || 'Alliance');
   }, [watchServer]);
 
@@ -68,13 +72,25 @@ export const Form: React.FC = () => {
     const serverData = serverOption?.dataset.realm;
 
     await storage.actions.save('user', (draftState) => {
-      draftState.version = data.version;
-      draftState.region = data.region;
+      draftState = draftState || {};
+
+      if (data.version !== 'default') {
+        draftState.version = data.version;
+      }
+
+      if (data.region !== 'default') {
+        draftState.region = data.region;
+      }
 
       if (serverData) {
-        draftState.server[data.version] = JSON.parse(serverData);
+        draftState.server = draftState.server || {};
+
+        if (data.version !== 'default') {
+          draftState.server[data.version] = JSON.parse(serverData);
+        }
+
         draftState.faction = {
-          ...storage.user.faction,
+          ...storage.user?.faction,
           [createSlug(data.server)]: data.faction,
         };
       } else {
@@ -124,12 +140,14 @@ export const Form: React.FC = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <h2>Select your server</h2>
 
-        <select defaultValue={storage.user.version} {...register('version')}>
+        <select defaultValue={storage.user?.version || 'default'} {...register('version')}>
+          <option disabled value="default">WoW Version</option>
           <option value="classic">Classic</option>
           <option value="retail">Retail</option>
         </select>
 
-        <select defaultValue={storage.user.region} {...register('region')}>
+        <select defaultValue={storage.user?.region || 'default'} {...register('region')}>
+          <option disabled value="default">Region</option>
           <option value="us">Americas and Oceania</option>
           <option value="eu">Europe</option>
           {watchVersion === 'retail' && (
@@ -137,42 +155,45 @@ export const Form: React.FC = () => {
           )}
         </select>
 
-        <select
-          defaultValue={storage.user.server[watchVersion]?.name}
-          {...register('server')}
-        >
-          {serverList.map((server) => {
-            const [english, localized] = server;
-            const data = (() => {
-              if (watchVersion === 'classic') {
-                return createValue(localized || english, english);
-              }
+        {watchVersion !== 'default' && watchRegion !== 'default' && (
+          <select
+            defaultValue={storage.user?.server?.[watchVersion]?.name || 'default'}
+            {...register('server')}
+          >
+            <option disabled value="default">Server</option>
+            {serverList.map((server) => {
+              const [english, localized] = server;
+              const data = (() => {
+                if (watchVersion === 'classic') {
+                  return createValue(localized || english, english);
+                }
 
-              if (retailServerData) {
-                return JSON.stringify({
-                  ...retailServerData[english],
-                  name: english,
-                });
-              }
-            })();
+                if (retailServerData) {
+                  return JSON.stringify({
+                    ...retailServerData[english],
+                    name: english,
+                  });
+                }
+              })();
 
-            return (
-              <option
-                key={english}
-                value={localized || english}
-                data-realm={data}
-              >
-                {localized || english}
-              </option>
-            );
-          })}
-        </select>
+              return (
+                <option
+                  key={english}
+                  value={localized || english}
+                  data-realm={data}
+                >
+                  {localized || english}
+                </option>
+              );
+            })}
+          </select>
+        )}
 
         {watchVersion === 'classic' && (
           <select
-            defaultValue={
-              storage.user.server.classic && storage.user.faction[storage.user.server.classic?.slug]
-            }
+            defaultValue={storage.user?.server?.classic
+              ? storage.user?.faction?.[storage.user?.server?.classic?.slug]
+              : 'Alliance'}
             {...register('faction')}
           >
             <option value="Alliance">Alliance</option>

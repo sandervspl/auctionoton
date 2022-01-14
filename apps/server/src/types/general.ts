@@ -29,8 +29,6 @@ export type ItemScrapeResponse = Omit<ItemResponse, 'amount' | 'marketValue' | '
   minimumBuyout: number;
 }
 
-export type Factions = 'alliance' | 'horde';
-
 export type FetchError = {
   error: boolean;
   reason: string;

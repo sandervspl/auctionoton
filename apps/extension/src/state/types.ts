@@ -1,4 +1,5 @@
 import * as i from 'types';
+import { ItemResponseV2 } from '@project/types';
 import { GetState, SetState } from 'zustand';
 
 export * from './stores/storage/types';
@@ -27,23 +28,6 @@ export type ItemDataClassicPrices = {
   raw: number;
 }
 
-export type ItemDataClassic = Omit<i.NH.ItemsResponse, 'stats'> & {
-  uri: string;
-  amount: number;
-  stats: {
-    current: {
-      marketValue: i.ItemDataClassicPrices;
-      historicalValue: i.ItemDataClassicPrices;
-      minimumBuyout: i.ItemDataClassicPrices;
-    };
-    previous: {
-      marketValue: i.ItemDataClassicPrices;
-      historicalValue: i.ItemDataClassicPrices;
-      minimumBuyout: i.ItemDataClassicPrices;
-    };
-  };
-}
-
 export type Cache<V = i.Versions> = {
   __version: V;
   updatedAt: number;
@@ -60,7 +44,7 @@ export type ItemDataRetail = i.ItemDataRetailPrices & {
 }
 
 export type AnyCachedItem = i.CachedItemDataClassic | i.CachedItemDataRetail;
-export type CachedItemDataClassic = i.ItemDataClassic & i.Cache<'classic'>;
+export type CachedItemDataClassic = ItemResponseV2 & i.Cache<'classic'>;
 export type MaybeCachedItemDataClassic = CachedItemDataClassic | undefined;
 export type CachedItemDataRetail = i.ItemDataRetail & i.Cache<'retail'>;
 export type MaybeCachedItemDataRetail = i.CachedItemDataRetail | undefined;
@@ -76,12 +60,6 @@ export type ValueObject = {
   silver: number;
   copper: number;
 }
-
-export type Versions = 'classic' | 'retail';
-
-export type Regions = 'eu' | 'us';
-
-export type Factions = 'Alliance' | 'Horde';
 
 export interface UserData {
   version: i.Versions;
@@ -104,13 +82,14 @@ export type ItemsData = {
   [ItemQueryKeyString: string]: i.AnyCachedItem;
 }
 
-export type BrowserStorage = {
-  user: i.UserData;
-  items: i.ItemsData;
+// Everything can be nullable -- protect the extension from crashing at all cost
+export type BrowserStorage = Partial<{
+  user: Partial<i.UserData>;
+  items: Partial<i.ItemsData>;
   showTip: {
     shiftKey: boolean;
   };
-}
+}>;
 
 export type StorageKeys = keyof BrowserStorage;
 

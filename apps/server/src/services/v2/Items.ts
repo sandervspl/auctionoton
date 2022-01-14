@@ -1,4 +1,5 @@
 import * as i from 'types';
+import type { ItemBody, ItemsBody } from '@project/validation';
 import {
   CACHE_MANAGER, Inject, Injectable, InternalServerErrorException, NotFoundException, RequestTimeoutException,
 } from '@nestjs/common';
@@ -32,7 +33,7 @@ export default class ItemsService {
     return `${serverSlug}_${factionSlug}_${id}`;
   }
 
-  private nexushubToItemResponse(data: i.NexusHub.ItemsResponse, body: v.ItemBody): i.ItemResponseV2 {
+  private nexushubToItemResponse(data: i.NexusHub.ItemsResponse, body: ItemBody): i.ItemResponseV2 {
     const datav2 = immer(data, (draft: Draft<i.ItemResponseV2>) => {
       draft.uri = '/items/' + draft.itemId;
       draft.stats.current = {
@@ -53,7 +54,7 @@ export default class ItemsService {
 
   item = async (
     params: v.ItemParams,
-    body: v.ItemBody,
+    body: ItemBody,
     query?: i.ItemRequestQuery,
   ): Promise<i.FetchError | (Partial<i.ItemResponseV2> | i.ItemResponseV2 | undefined)> => {
     // Transform to slugs for request
@@ -112,7 +113,7 @@ export default class ItemsService {
   };
 
   items = async (
-    body: v.ItemsBody,
+    body: ItemsBody,
     query?: i.ItemRequestQuery,
   ): Promise<(i.FetchError | Partial<i.ItemResponseV2> | i.ItemResponseV2 | undefined)[]> => {
     try {
