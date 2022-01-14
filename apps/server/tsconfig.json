@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "module": "CommonJS",
+    "target": "ES6",
+    "lib": ["esnext", "DOM"],
+    "moduleResolution": "node",
+    "removeComments": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "resolveJsonModule": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
+    "strictPropertyInitialization": false,
+    "baseUrl": "src",
+    "paths": {
+      "config/*": ["config/*"],
+      "controllers/*": ["controllers/*"],
+      "helpers/*": ["helpers/*"],
+      "services/*": ["services/*"],
+      "modules/*": ["modules/*"],
+      "types/*": ["types/*"],
+      "utils/*": ["utils/*"]
+    }
+  },
+  "exclude": ["node_modules"]
+}
