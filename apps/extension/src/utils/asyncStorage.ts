@@ -8,41 +8,10 @@ if (__DEV__) {
 }
 
 class AsyncStorage {
-  readonly initUserState: i.UserData = {
-    version: 'classic',
-    region: 'us',
-    server: {
-      classic: {
-        name: 'Amnennar',
-        slug: 'amnennar',
-      },
-      retail: {
-        name: 'Killrog',
-        realmId: 4,
-        connectedRealmId: 4,
-      },
-    },
-    faction: {
-      amnennar: 'Alliance',
-    },
-  };
-
   async getAll(): Promise<i.BrowserStorage> {
     return new Promise((resolve) => {
       addon.storage.local.get(null, (data) => {
-        const browserStorage = data as i.BrowserStorage;
-
-        if ('user' in browserStorage) {
-          return resolve(browserStorage);
-        }
-
-        return resolve({
-          user: this.initUserState,
-          items: {},
-          showTip: {
-            shiftKey: true,
-          },
-        });
+        return resolve(data as i.BrowserStorage);
       });
     });
   }

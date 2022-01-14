@@ -18,8 +18,11 @@ require('esbuild').build({
     onRebuild(err) {
       if (err) console.error('watch build failed:', err);
 
+      const fse = require('fs-extra');
       const notifier = require('node-notifier');
-      // Object
+
+      fse.copySync('./src/modules/browserAction/form.html', './dist/form.html');
+
       notifier.notify({
         title: 'Auctionoton-extension',
         message: 'Rebuild complete',

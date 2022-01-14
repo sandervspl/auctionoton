@@ -14,11 +14,11 @@ interface UseServerList {
 }
 
 
-function useServerList(region?: i.Regions | 'default', version?: i.Versions | 'default'): UseServerList {
+function useServerList(region?: i.Regions, version?: i.Versions): UseServerList {
   const [servers, setServers] = React.useState<string[][]>([]);
   const { data: retailServers, isLoading } = useQuery(
     ['servers', { region }],
-    region !== 'default'
+    region != null
       ? () => api.getRetailRealms(region)
       : () => void {},
     {
@@ -54,10 +54,6 @@ function useServerList(region?: i.Regions | 'default', version?: i.Versions | 'd
           break;
       }
     } else {
-      if (isLoading) {
-        serverList.push(['loading']);
-      }
-
       if (retailServers) {
         const serverNames: string[] = Object.keys(retailServers)
           .map((key) => key)

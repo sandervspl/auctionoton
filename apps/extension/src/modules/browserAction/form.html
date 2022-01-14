@@ -5,7 +5,7 @@
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
     <title>Auctionoton — Auction House Data for Wowhead</title>
     <style>
-      body {
+      body > * {
         font-family: 'Roboto', Helvetica, sans-serif;
       }
 
@@ -21,15 +21,19 @@
       }
 
 			h2 {
-				margin: 20px 35px;
+				margin: 20px auto;
 				font-size: 16px;
+			}
+
+			label {
+				font-size: 14px;
 			}
 
       select {
         display: block;
         font-weight: bold;
         width: 230px;
-        margin: 20px 35px;
+        margin: 5px auto 20px;
         height: 35px;
         padding: 6px 15px;
         border-radius: 5px;
@@ -48,7 +52,7 @@
       button {
         font-weight: bold;
         width: 230px;
-        margin: 0 35px 20px;
+        margin: 0 auto 20px;
         height: 45px;
         padding: 6px 15px;
         border-radius: 5px;
@@ -60,15 +64,19 @@
         cursor: pointer;
       }
 
-      button:hover {
+			button:not(:disabled):hover {
         background: #e4868f;
       }
 
       #result {
-        margin: 0 35px 20px;
+        margin: 0 auto 20px;
         font-size: 14px;
         color: #52b151;
       }
+
+			.form-container {
+				padding: 0 35px;
+			}
     </style>
   </head>
   <body>
