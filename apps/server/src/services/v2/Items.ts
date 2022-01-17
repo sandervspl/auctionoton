@@ -37,11 +37,15 @@ export default class ItemsService {
     const datav2 = immer(data, (draft: Draft<i.ItemResponseV2>) => {
       draft.uri = '/items/' + draft.itemId;
       draft.stats.current = {
+        numAuctions: data.stats.current.numAuctions,
+        quantity: data.stats.current.quantity,
         minimumBuyout: convertToGSCv2(data.stats.current.minBuyout, body.amount),
         historicalValue: convertToGSCv2(data.stats.current.historicalValue, body.amount),
         marketValue: convertToGSCv2(data.stats.current.marketValue, body.amount),
       };
       draft.stats.previous = {
+        numAuctions: data.stats.previous.numAuctions,
+        quantity: data.stats.previous.quantity,
         minimumBuyout: convertToGSCv2(data.stats.current.minBuyout, body.amount),
         historicalValue: convertToGSCv2(data.stats.current.historicalValue, body.amount),
         marketValue: convertToGSCv2(data.stats.current.marketValue, body.amount),
