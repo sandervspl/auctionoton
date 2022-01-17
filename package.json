@@ -17,7 +17,7 @@
     "nu:s": "npm uninstall -w auctionoton-server"
   },
   "devDependencies": {
-    "prettier": "^2.5.1",
+    "@changesets/cli": "2.19.0",
     "turbo": "latest"
   },
   "turbo": {
