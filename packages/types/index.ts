@@ -1,3 +1,3 @@
-export { NexusHub } from './nexushub';
+export type { NexusHub } from './nexushub';
 export * from './api';
 export * from './general';
