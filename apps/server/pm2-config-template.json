@@ -1,14 +1,13 @@
 {
   "apps": [{
-    "name": "NAME",
-    "script": "/var/api/PROJECT/dist/Server.js",
-    "node_args": "-r ./tsconfig-paths-bootstrap.js",
-    "cwd": "/var/api/PROJECT",
-    "instances": INSTANCES,
+    "name": "#NAME",
+    "script": "/var/api/#PROJECT/#TEMP/apps/server/dist/bundle.js",
+    "cwd": "/var/api/#PROJECT/#TEMP",
+    "instances": #INSTANCES,
     "env": {
       "NODE_ENV": "production",
-      "APP_ENV": "app_env",
-      "PORT": port
+      "APP_ENV": "#APP_ENV",
+      "PORT": #PORT
     }
   }]
 }

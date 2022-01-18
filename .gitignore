@@ -34,3 +34,5 @@ yarn-error.log*
 
 # project
 dist/
+deploy.secrets.sh
+auctionoton-server/
