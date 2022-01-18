@@ -1,13 +1,12 @@
 import 'reflect-metadata';
-import path from 'path';
 import { Application, Request, Response } from 'express';
 import cors from 'cors';
 import color from 'kleur';
 import compression from 'compression';
-
 import { NestFactory } from '@nestjs/core';
 import { HttpServer, ValidationPipe } from '@nestjs/common';
-import ApplicationModule from 'modules/Api';
+
+import ApplicationModule from './modules/Api';
 
 async function bootstrap() {
   const app = await NestFactory.create(ApplicationModule);
@@ -27,14 +26,6 @@ async function bootstrap() {
 
   // Start server
   await app.listen(process.env.PORT!, () => {
-    if (process.env.NODE_ENV !== 'production') {
-      require('node-notifier').notify({
-        title: 'Auctionoton Server',
-        message: 'Build complete!',
-        icon: path.resolve(__dirname, 'icon-128.png'),
-      });
-    }
-
     console.info(
       `[${process.env.NODE_ENV} / ${process.env.APP_ENV}]`,
       `Server started at ${color.cyan(`https://localhost:${process.env.PORT}`)}`,

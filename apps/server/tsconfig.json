@@ -17,12 +17,10 @@
     "strictPropertyInitialization": false,
     "baseUrl": "src",
     "paths": {
-      "config/*": ["config/*"],
       "controllers/*": ["controllers/*"],
-      "helpers/*": ["helpers/*"],
       "services/*": ["services/*"],
       "modules/*": ["modules/*"],
-      "types/*": ["types/*"],
+      "types": ["types/index"],
       "utils/*": ["utils/*"]
     }
   },

@@ -7,9 +7,9 @@
   "author": "Sander Vispoel <sandervspl@github>",
   "license": "ISC",
   "scripts": {
-    "dev": "NODE_ENV=development APP_ENV=development ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/Server.ts",
-    "build": "npm run clean && tsc",
-    "start": "NODE_ENV=production APP_ENV=production node -r ./tsconfig-paths-bootstrap.js dist/Server.js",
+    "dev": "NODE_ENV=development APP_ENV=development node esbuild.config.js",
+    "build": "NODE_ENV=production APP_ENV=production node esbuild.config.js",
+    "start": "NODE_ENV=production APP_ENV=production node dist/bundle.js",
     "clean": "rimraf dist/",
     "lint": "eslint --ext .ts src/",
     "typecheck": "tsc --noEmit",
@@ -44,6 +44,7 @@
     "tsconfig-paths": "3.12.0"
   },
   "devDependencies": {
+    "@anatine/esbuild-decorators": "0.2.18",
     "@types/cache-manager": "3.4.2",
     "@types/compression": "1.7.2",
     "@types/cors": "^2.8.12",
@@ -53,6 +54,7 @@
     "@types/node-fetch": "^2.5.12",
     "@typescript-eslint/eslint-plugin": "5.8.1",
     "@typescript-eslint/parser": "5.8.1",
+    "esbuild": "0.14.11",
     "eslint": "8.6.0",
     "eslint-plugin-flowtype": "8.0.3",
     "eslint-plugin-import": "2.25.3",
