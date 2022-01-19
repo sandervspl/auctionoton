@@ -8,13 +8,16 @@
   ],
   "scripts": {
     "build": "turbo run build",
+    "prebuild": "npm run cs:add",
     "dev": "turbo run dev --parallel",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "ni:e": "npm install -w auctionoton-extension",
     "ni:s": "npm install -w auctionoton-server",
     "nu:e": "npm uninstall -w auctionoton-extension",
-    "nu:s": "npm uninstall -w auctionoton-server"
+    "nu:s": "npm uninstall -w auctionoton-server",
+    "cs:add": "npx changeset",
+    "cs:ver": "npx changeset version"
   },
   "devDependencies": {
     "@changesets/cli": "2.19.0",
