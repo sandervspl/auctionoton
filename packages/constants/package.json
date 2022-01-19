@@ -5,10 +5,11 @@
   "types": "./dist/index.d.ts",
   "license": "MIT",
   "scripts": {
-    "build": "tsup index.ts --dts"
+    "build": "npx tsup index.ts --dts"
   },
   "devDependencies": {
     "@project/types": "*",
-    "tsup": "5.11.11"
+    "tsup": "5.11.11",
+    "typescript": "*"
   }
 }

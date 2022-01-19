@@ -18,7 +18,7 @@ function onBuildComplete() {
     nodeFork?.kill();
     nodeFork = fork(path.resolve(__dirname, 'dist/bundle.js'));
   } else {
-    process.exit(1);
+    process.exit();
   }
 }
 
