@@ -8,12 +8,12 @@ const DEV = process.env.NODE_ENV !== 'production';
 let nodeFork;
 
 function onBuildComplete() {
-  require('node-notifier').notify({
-    title: 'Auctionoton Server',
-    message: 'Build complete!',
-  });
-
   if (DEV) {
+    require('node-notifier').notify({
+      title: 'Auctionoton Server',
+      message: 'Build complete!',
+    });
+
     // Run app with node
     nodeFork?.kill();
     nodeFork = fork(path.resolve(__dirname, 'dist/bundle.js'));
@@ -24,12 +24,11 @@ function onBuildComplete() {
 
 function build() {
   require('esbuild').build({
-    entryPoints: [path.resolve(__dirname, 'src/Server.ts')],
-    outfile: path.resolve(__dirname, 'dist/bundle.js'),
+    entryPoints: ['src/Server.ts'],
+    outfile: 'dist/bundle.js',
     platform: 'node',
     target: 'node14',
     bundle: true,
-    sourcemap: 'external',
     plugins: [
       esbuildDecorators(),
     ],
