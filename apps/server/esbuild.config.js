@@ -17,8 +17,6 @@ function onBuildComplete() {
     // Run app with node
     nodeFork?.kill();
     nodeFork = fork(path.resolve(__dirname, 'dist/bundle.js'));
-  } else {
-    process.exit();
   }
 }
 
@@ -26,9 +24,9 @@ function build() {
   require('esbuild').build({
     entryPoints: ['src/Server.ts'],
     outfile: 'dist/bundle.js',
-    platform: 'node',
-    target: 'node14',
     bundle: true,
+    platform: 'node',
+    target: ['node14'],
     plugins: [
       esbuildDecorators(),
     ],
