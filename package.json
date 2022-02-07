@@ -8,6 +8,8 @@
   ],
   "scripts": {
     "build": "turbo run build",
+    "heroku-postbuild": "npx turbo run build --scope=auctionoton-server --include-dependencies --no-deps",
+    "start": "node ./apps/server/dist/bundle.js",
     "dev": "turbo run dev --parallel",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
