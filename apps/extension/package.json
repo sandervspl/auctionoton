@@ -18,7 +18,6 @@
     "tc": "tsc --noEmit"
   },
   "dependencies": {
-    "@emotion/css": "11.7.1",
     "@project/constants": "*",
     "@project/types": "*",
     "@project/validation": "*",
@@ -53,6 +52,7 @@
     "eslint-plugin-react-hooks": "4.3.0",
     "fs-extra": "10.0.0",
     "node-notifier": "10.0.1",
+    "postcss-import": "14.0.2",
     "rimraf": "3.0.2",
     "tailwindcss": "3.0.19",
     "typescript": "4.5.5"

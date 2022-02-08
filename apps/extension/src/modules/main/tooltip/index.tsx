@@ -2,7 +2,6 @@ import * as i from 'types';
 import React from 'react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { css } from '@emotion/css';
 
 import LoadingSvg from 'static/loading.svg';
 import WarningSvg from 'static/exclamation-circle-regular.svg';
@@ -75,23 +74,17 @@ const Tooltip: React.FC<Props> = (props) => {
       <tbody>
         <tr>
           <td>
-            <table className={css`
-              width: 100%;
-            `}>
+            <table className="w-full">
               <tbody>
                 <tr>
                   <td>
                     <span className="q whtt-extra whtt-ilvl">
                       Auction House Data for
-                      <span className={css`
-                        text-transform: capitalize;
-                      `}>
+                      <span className="capitalize">
                         &nbsp;{getServerName()}
                       </span>
                     </span>
-                    <div className={'whtt-sellprice ' + css`
-                      margin-bottom: 10px;
-                    `}>
+                    <div className="whtt-sellprice mb-2">
                       Last updated: {getRelativeTime()}
                     </div>
                   </td>
@@ -145,15 +138,8 @@ const Tooltip: React.FC<Props> = (props) => {
 
                       {/* Only show this loading indicator if we can show a cached item */}
                       {item && loading && (
-                        <div className={css`
-                          display: flex;
-                          margin-top: 10px;
-                        `}>
-                          <LoadingSvg className={css`
-                            display: inline-block;
-                            margin-right: 5px;
-                            width: 15px;
-                          `} />
+                        <div className="flex mt-2">
+                          <LoadingSvg className="inline-block mr-1 w-4" />
                           Fetching latest price info...
                         </div>
                       )}
@@ -170,11 +156,7 @@ const Tooltip: React.FC<Props> = (props) => {
                 {error && (
                   <tr>
                     <td>
-                      <div className={css`
-                        display: flex;
-                        margin-top: 10px;
-                        color: #a71a19;
-                      `}>
+                      <div className="flex mt-2 text-red-500">
                         {errorStr}
                       </div>
                     </td>
@@ -183,12 +165,8 @@ const Tooltip: React.FC<Props> = (props) => {
                 {warning && (
                   <tr>
                     <td>
-                      <div className={css`
-                        margin-top: 5px;
-                      `}>
-                        <WarningSvg className={css`
-                          height: 12px;
-                        `} />
+                      <div className="mt-1">
+                        <WarningSvg className="h-3" />
                         {warning}
                       </div>
                     </td>
@@ -205,18 +183,12 @@ const Tooltip: React.FC<Props> = (props) => {
             </table>
           </td>
 
-          <th className={css`
-            background-position: top right !important;
-          `} />
+          <th className="!bg-right-top" />
         </tr>
 
         <tr>
-          <th className={css`
-            background-position: bottom left !important;
-          `} />
-          <th className={css`
-            background-position: bottom right !important;
-          `} />
+          <th className="!bg-left-bottom" />
+          <th className="!bg-right-bottom" />
         </tr>
       </tbody>
     </table>

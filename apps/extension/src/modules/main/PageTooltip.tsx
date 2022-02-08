@@ -1,7 +1,6 @@
 import 'typed-query-selector';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { css } from '@emotion/css';
 
 import ExternalLinkSvg from 'static/external-link.svg';
 import RedoSvg from 'static/redo-solid.svg';
@@ -38,23 +37,16 @@ const PageTooltip = (): React.ReactPortal | null => {
     <>
       <Tooltip itemId={pageItem.id}>
         {({ error, loading, item, getItem }) => (
-          <div className={css`
-            margin-top: 10px;
-          `}>
+          <div className="mt-2">
             {((error && !loading) || (!item)) && (
-              <div className={css`
-                margin-bottom: 10px;
-              `}>
+              <div className="mb-2">
                 <button
                   className="btn btn-small"
                   onClick={() => getItem()}
                   title="Try loading item data again for Auctionoton"
                 >
-                  <RedoSvg className={css`
-                    padding-right: 5px;
-                    height: 10px;
-                  `} />
-                  Try again
+                  <RedoSvg className="pr-1 h-2" />
+                  <span>Try again</span>
                 </button>
               </div>
             )}
@@ -63,6 +55,7 @@ const PageTooltip = (): React.ReactPortal | null => {
                 href={nexushubUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="flex gap-1 place-items-center"
               >
                 More information on Nexushub.co <ExternalLinkSvg />
               </a>
@@ -71,19 +64,12 @@ const PageTooltip = (): React.ReactPortal | null => {
         )}
       </Tooltip>
       <button
-        className={'btn btn-small ' + css`
-          display: flex;
-          align-items: center;
-          margin-top: 5px;
-        `}
+        className="btn btn-small"
         onClick={() => window.open(`${addon.extension.getURL('form.html')}?large=true`)}
         title="Change server for Auctionoton"
       >
-        <GlobeSvg className={css`
-          padding-right: 5px;
-          height: 12px;
-        `} />
-        Change realm
+        <GlobeSvg className="pr-1 h-3" />
+        <span>Change realm</span>
       </button>
     </>,
     container,

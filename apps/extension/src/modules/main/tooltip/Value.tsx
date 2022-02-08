@@ -1,6 +1,5 @@
 import * as i from 'types';
 import React from 'react';
-import { css } from '@emotion/css';
 
 
 export const Value: React.FC<Props> = (props) => {
@@ -22,10 +21,6 @@ export const Value: React.FC<Props> = (props) => {
       const style: React.CSSProperties = {};
       const coinIndex = ['gold', 'silver', 'copper'].indexOf(coin);
 
-      if (coin !== 'copper') {
-        style.marginRight = 5;
-      }
-
       values[coinIndex] =
         <span key={coin} className={`money${coin}`} style={style}>
           {coinValue}
@@ -38,13 +33,11 @@ export const Value: React.FC<Props> = (props) => {
   const value = getValueStrings();
 
   if (typeof value === 'string' || value.length > 0) {
-    return <span>{value}</span>;
+    return <span className="flex gap-1">{value}</span>;
   }
 
   return (
-    <span className={css`
-      color: #b9b9b9;
-    `}>
+    <span className="text-gray-300">
       N/A
     </span>
   );
