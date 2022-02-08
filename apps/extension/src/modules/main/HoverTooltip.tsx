@@ -18,7 +18,7 @@ const HoverTooltip = (): React.ReactPortal | null => {
   const [visible, setVisible] = React.useState(false);
   const [amount, setAmount] = React.useState(1);
   const shiftKeyPressed = useKeybind((key) => key.Shift);
-  const showShiftKeyTip = useStore((store) => store.storage.showTip.shiftKey);
+  const showShiftKeyTip = useStore((store) => store?.storage?.showTip?.shiftKey);
   const saveToStorage = useStore((store) => store.storage.actions.save);
   const { getItemIdFromUrl, isAuctionableItem } = useGetItemFromPage();
 
@@ -40,7 +40,9 @@ const HoverTooltip = (): React.ReactPortal | null => {
     // Remove shift key tip if user has never pressed shift, has pressed shift and we hover an item with an amount shown
     if (showShiftKeyTip && shiftKeyPressed && hoverEl && getAmount() > 1) {
       saveToStorage('showTip', (draftState) => {
-        draftState.shiftKey = false;
+        if (draftState) {
+          draftState.shiftKey = false;
+        }
       });
     }
   }, [shiftKeyPressed]);

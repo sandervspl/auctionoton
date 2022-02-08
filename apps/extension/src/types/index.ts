@@ -2,9 +2,11 @@ export * from '@project/types';
 
 export * from '../state/types';
 export * from './reactQuery';
-export * from './api';
 
-export type Realm = string | { english: string; russian: string }
+export type Realm = string | {
+  english: string;
+  russian: string;
+}
 
 export type Realms = {
   eu: {

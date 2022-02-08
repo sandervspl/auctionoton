@@ -11,4 +11,5 @@ export type ItemQueryKey = [string, ({
 
 export type ItemQueryKeyCtx = QueryFunctionContext<ItemQueryKey, unknown>;
 
-export type ItemRefetchFn = (options?: RefetchOptions | undefined) => Promise<QueryObserverResult<i.MaybeAnyItem, unknown>>;
+export type ItemRefetchFn =
+  (options?: RefetchOptions | undefined) => Promise<QueryObserverResult<i.MaybeAnyItem, unknown>>;

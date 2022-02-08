@@ -1,5 +1,4 @@
 import * as i from 'types';
-import { ItemResponseV2 } from '@project/types';
 import { GetState, SetState } from 'zustand';
 
 export * from './stores/storage/types';
@@ -30,7 +29,7 @@ export type ItemDataClassicPrices = {
 
 export type Cache<V = i.Versions> = {
   __version: V;
-  updatedAt: number;
+  updatedAt: i.Date_ISO_8601;
 }
 
 export type ItemDataRetailPrices = {
@@ -44,7 +43,7 @@ export type ItemDataRetail = i.ItemDataRetailPrices & {
 }
 
 export type AnyCachedItem = i.CachedItemDataClassic | i.CachedItemDataRetail;
-export type CachedItemDataClassic = ItemResponseV2 & i.Cache<'classic'>;
+export type CachedItemDataClassic = i.ItemResponseV2 & i.Cache<'classic'>;
 export type MaybeCachedItemDataClassic = CachedItemDataClassic | undefined;
 export type CachedItemDataRetail = i.ItemDataRetail & i.Cache<'retail'>;
 export type MaybeCachedItemDataRetail = i.CachedItemDataRetail | undefined;
