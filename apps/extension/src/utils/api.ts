@@ -1,6 +1,7 @@
 import * as i from 'types';
 import type { ItemBody } from '@project/validation';
 import { API } from '@project/constants';
+import axios, { AxiosRequestConfig } from 'axios';
 import produce, { Draft } from 'immer';
 
 import { useStore } from 'state/store';
@@ -17,7 +18,10 @@ class Api {
     }
   }
 
-  async getItem<V extends i.Versions, R = V extends 'classic' ? i.CachedItemDataClassic : i.CachedItemDataRetail>(
+  async getItem<
+    V extends i.Versions,
+    R = V extends 'classic' ? i.CachedItemDataClassic : i.CachedItemDataRetail,
+  >(
     version: V, itemId: number, onWarning: WarningCb, onError: ErrorCb,
   ): Promise<R | undefined> {
     type ItemData = V extends 'classic' ? i.ItemResponseV2 : i.ItemDataRetail;
@@ -25,11 +29,14 @@ class Api {
     // Get user data
     const user = useStore.getState().storage.user;
     let timeoutId: NodeJS.Timeout | undefined;
-    let url = '';
+    let req: () => Promise<unknown>;
 
     this.requestController = new AbortController();
-    const options: RequestInit = {
+    const options: AxiosRequestConfig<ItemBody> = {
       signal: this.requestController.signal,
+      headers: {
+        'Accept-Encoding': 'gzip, deflate, br',
+      },
     };
 
     // Fetch latest data from server
@@ -47,19 +54,14 @@ class Api {
         const server = user.server.classic.slug.toLowerCase();
         const faction = user.faction[server].toLowerCase() as i.Factions;
 
-        url = `${API.ItemsUrl}/${itemId}`;
         const body: ItemBody = {
           server_name: server,
           faction,
           amount: 1,
         };
 
-        options.body = JSON.stringify(body);
-        options.method = 'POST';
-        options.headers = {
-          'Content-Type': 'application/json',
-          'Accept-Encoding': 'gzip, deflate, br',
-        };
+        req = () => axios.post(`${API.ItemsUrl}/${itemId}`, body, options)
+          .then(() => clearTimeout(timeoutId!));
       }
 
       if (version === 'retail') {
@@ -75,13 +77,9 @@ class Api {
         const server = user.server.retail.name.toLowerCase();
         const region = user.region.toLowerCase();
 
-        url = `${API.Url}/item/retail/${region}/${server}/${itemId}`;
+        req = () => axios.get(`${API.Url}/item/retail/${region}/${server}/${itemId}`, options)
+          .then(() => clearTimeout(timeoutId!));
       }
-
-      const req = fetch(url, options).then((res) => {
-        clearTimeout(timeoutId!);
-        return res.json();
-      });
 
       const timeout = new Promise((_, fail) => setTimeout(() => {
         if (version === 'classic') {
@@ -92,7 +90,7 @@ class Api {
       }, time.seconds(10)));
 
       // Start request and fail timer parallel
-      const data = await Promise.race([req, timeout]) as ItemData | i.ItemError;
+      const data = await Promise.race([req!(), timeout]) as ItemData | i.ItemError;
 
       // Error
       if ('error' in data) {
