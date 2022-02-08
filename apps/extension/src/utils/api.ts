@@ -53,14 +53,18 @@ class Api {
 
         const server = user.server.classic.slug.toLowerCase();
         const faction = user.faction[server].toLowerCase() as i.Factions;
-
         const body: ItemBody = {
           server_name: server,
           faction,
           amount: 1,
         };
 
-        req = () => axios.post(`${API.ItemsUrl}/${itemId}`, body, options)
+        req = () => axios.post(`${API.ItemsUrl}/${itemId}`, body, {
+          ...options,
+          params: {
+            fields: 'amount,stats',
+          },
+        })
           .then(() => clearTimeout(timeoutId!));
       }
 
