@@ -47,6 +47,7 @@
   },
   "permissions": [
     "storage",
-    "https://api.ahdfw.nl/*"
+    "https://api.ahdfw.nl/*",
+    "https://auctionoton-server.herokuapp.com/*"
   ]
 }
