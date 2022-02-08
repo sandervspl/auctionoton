@@ -10,8 +10,8 @@ export function convertToGSC(singlePrice: number, amount = 1): Exclude<i.PriceOb
   return { gold, silver, copper };
 }
 
-export function convertToGSCv2(singlePrice: number, amount = 1): i.PriceObjectV2 {
-  const values = convertToGSC(singlePrice, amount);
+export function convertToGSCv2(singlePrice: number | undefined = 0, amount = 1): i.PriceObjectV2 {
+  const values = convertToGSC(singlePrice ?? 0, amount);
 
   return {
     ...values,

@@ -22,8 +22,8 @@ export namespace NexusHub {
 
   export interface Stats {
     lastUpdated: Date;
-    current: Current;
-    previous: Previous;
+    current: Current | null;
+    previous: Previous | null;
   }
 
   export interface ItemsResponse {
@@ -36,7 +36,7 @@ export namespace NexusHub {
     requiredLevel: number;
     itemLevel: number;
     sellPrice: number;
-    vendorPrice?: number;
+    vendorPrice: number | null;
     tooltip: Tooltip[];
     itemLink: string;
     stats: Stats;
