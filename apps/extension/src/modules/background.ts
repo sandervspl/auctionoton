@@ -6,10 +6,6 @@ import asyncStorage from 'utils/asyncStorage';
 // Open page for user's server/faction information after installation
 addon.runtime.onInstalled.addListener(async (details) => {
   if (details.reason === 'install') {
-    await asyncStorage.set('user', (draftState) => {
-      draftState = asyncStorage.initUserState;
-    });
-
     addon.tabs.create({ url: './form.html' });
   }
 
@@ -20,15 +16,6 @@ addon.runtime.onInstalled.addListener(async (details) => {
     // Update to how "lastUpdated" is shown
     if (prevVersion !== '2.3.0' && curVersion === '2.3.0') {
       asyncStorage.clear('items');
-    }
-
-    // Update to support retail
-    const user = await asyncStorage.get('user');
-
-    if (user && !user.version) {
-      await asyncStorage.set('user', (draftState) => {
-        draftState = asyncStorage.initUserState;
-      });
     }
   }
 });

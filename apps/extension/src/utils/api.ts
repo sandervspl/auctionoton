@@ -101,11 +101,11 @@ class Api {
       }
 
       // Success
-      if ('buyoutPrice' in data || 'marketValue' in data) {
+      if ('amount' in data) {
         const cachedData = produce(data as R, (draftState: Draft<i.AnyCachedItem>) => {
           // Set new last updated time
-          if (data.lastUpdated !== 'Unknown') {
-            draftState.updatedAt = new Date().getTime();
+          if (data.stats.lastUpdated !== 'Unknown') {
+            draftState.updatedAt = new Date().getTime().toString();
           }
 
           // Set discrimination key

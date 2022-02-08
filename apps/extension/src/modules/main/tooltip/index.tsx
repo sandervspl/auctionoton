@@ -15,6 +15,11 @@ import { SellPrice } from './SellPrice';
 
 dayjs.extend(relativeTime);
 
+/** @TODO */
+/**
+ * x fix new item format
+ * - add tooltip with text to add your server with a link to the form
+ */
 
 const Tooltip: React.FC<Props> = (props) => {
   const storage = useStore((store) => store.storage);
@@ -22,7 +27,9 @@ const Tooltip: React.FC<Props> = (props) => {
   const isClassicWowhead = useIsClassicWowhead();
 
   function getRelativeTime() {
-    if (item?.lastUpdated) {
+    if (item?.__version === 'classic') {
+      return dayjs(item?.stats.lastUpdated).fromNow();
+    } else if (item?.__version === 'retail') {
       return dayjs(item?.lastUpdated).fromNow();
     }
 
@@ -31,51 +38,31 @@ const Tooltip: React.FC<Props> = (props) => {
 
 
   const errorStr = `Error: ${error || 'Something went wrong. Try again later.'}`;
-  const lastUpdatedStr = (() => {
-    if (item) {
-      if (item.lastUpdated === 'Unknown') {
-        return (
-          <>
-            Last Updated:&nbsp;
-            <span
-              key="unknown-tag"
-              className={css`
-                color: #b9b9b9
-              `}
-            >
-              {item.lastUpdated}
-            </span>
-          </>
-        );
-      }
 
-      return `Last updated: ${getRelativeTime()}`;
-    }
-  })();
-
-  if (!storage.user.version) {
+  if (!storage?.user?.version) {
     return null;
   }
 
-  if (isClassicWowhead && !storage.user.server.classic) {
+  /** @TODO Show link to change realm, let user know to set realm */
+  if (isClassicWowhead && !storage?.user?.server?.classic) {
     return null;
   }
 
-  if (!isClassicWowhead && !storage.user.server.retail) {
+  if (!isClassicWowhead && !storage?.user?.server?.retail) {
     return null;
   }
 
   function getServerName(): string {
     const version: i.Versions = isClassicWowhead ? 'classic' : 'retail';
-    const serverName = storage.user.server[version];
-    const region = storage.user.region.toUpperCase();
+    const serverName = storage?.user?.server?.[version];
+    const region = storage?.user?.region?.toUpperCase();
 
     if (!serverName) {
       return 'Unknown';
     }
 
     if ('slug' in serverName) {
-      const faction = storage.user.faction[serverName.slug];
+      const faction = storage?.user?.faction?.[serverName.slug];
 
       return `${serverName.name} ${region}-${faction}`;
     }
@@ -105,7 +92,7 @@ const Tooltip: React.FC<Props> = (props) => {
                     <div className={'whtt-sellprice ' + css`
                       margin-bottom: 10px;
                     `}>
-                      {lastUpdatedStr}
+                      Last updated: {getRelativeTime()}
                     </div>
                   </td>
                 </tr>
@@ -118,17 +105,17 @@ const Tooltip: React.FC<Props> = (props) => {
                           <SellPrice
                             heading="Market Value"
                             amount={props.amount}
-                            value={mutableItem.marketValue}
+                            value={mutableItem.stats.current.marketValue}
                           />
                           <SellPrice
                             heading="Historical Value"
                             amount={props.amount}
-                            value={mutableItem.historicalValue}
+                            value={mutableItem.stats.current.historicalValue}
                           />
                           <SellPrice
                             heading="Minimum Buyout"
                             amount={props.amount}
-                            value={mutableItem.minimumBuyout}
+                            value={mutableItem.stats.current.minimumBuyout}
                           />
                         </>
                       )}
@@ -149,7 +136,11 @@ const Tooltip: React.FC<Props> = (props) => {
                       <SellPrice
                         heading="Quantity"
                         amount={props.amount}
-                        value={`${mutableItem.quantity} auction${mutableItem.quantity === 1 ? '' : 's'}`}
+                        value={
+                          mutableItem.__version === 'classic'
+                            ? `${mutableItem.stats.current.quantity} auction${mutableItem.stats.current.quantity === 1 ? '' : 's'}`
+                            : `${mutableItem.quantity} auction${mutableItem.quantity === 1 ? '' : 's'}`
+                        }
                       />
 
                       {/* Only show this loading indicator if we can show a cached item */}

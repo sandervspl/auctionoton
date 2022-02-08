@@ -19,9 +19,9 @@ function useItemMgr(itemId: number): UseItemMgr {
 
   const ITEM_IDENTIFIER = ['item', {
     itemId,
-    server: user.server[user.version]?.name,
-    faction: isClassicWowhead && user.faction[user.server.classic!.slug],
-    version: user.version,
+    server: user?.version && user.server?.[user.version]?.name,
+    faction: isClassicWowhead && user?.server?.classic && user?.faction?.[user.server.classic.slug],
+    version: user?.version,
   }] as i.ItemQueryKey;
   const { data, isLoading, isFetching, isError, refetch } = useQuery(
     ITEM_IDENTIFIER,

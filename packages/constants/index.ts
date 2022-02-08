@@ -1,8 +1,7 @@
 export class API {
   static Url = {
-    // CORS issues with browser extensions
-    // development: 'http://localhost:8080',
-    development: 'https://develop--auctionoton-server.herokuapp.com',
+    development: 'http://e4f8-82-168-31-31.ngrok.io',
+    // development: 'https://develop--auctionoton-server.herokuapp.com',
     production: 'https://auctionoton-server.herokuapp.com',
   }[process.env.NODE_ENV];
 

@@ -47,10 +47,10 @@ function useGetItemFromPage(): UseGetItemFromPage {
   }
 
   function generateNexushubUrl(): string | void {
-    const server = user.server.classic?.slug;
+    const server = user?.server?.classic?.slug;
 
     if (server) {
-      const faction = user.faction[server]?.toLowerCase();
+      const faction = user?.faction?.[server]?.toLowerCase();
 
       return `https://nexushub.co/wow-classic/items/${server}-${faction}/${getItemNameFromUrl()}`;
     }

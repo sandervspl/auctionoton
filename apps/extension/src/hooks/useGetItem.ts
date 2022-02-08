@@ -35,11 +35,17 @@ function useGetItem(itemId: number, amount = 1): UseGetItem {
         let obj: Prices = {};
 
         if (itemMgr.item.__version === 'classic') {
-          obj = {
-            historicalValue: { ...itemMgr.item.historicalValue },
-            marketValue: { ...itemMgr.item.marketValue },
-            minimumBuyout: { ...itemMgr.item.minimumBuyout },
-          };
+          const { historicalValue, marketValue, minimumBuyout } = itemMgr.item.stats.current;
+
+          if (typeof historicalValue !== 'string') {
+            obj.historicalValue = { ...historicalValue };
+          }
+          if (typeof marketValue !== 'string') {
+            obj.marketValue = { ...marketValue };
+          }
+          if (typeof minimumBuyout !== 'string') {
+            obj.minimumBuyout = { ...minimumBuyout };
+          }
         }
 
         if (itemMgr.item.__version === 'retail') {
