@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const svgrPlugin = require('esbuild-plugin-svgr');
-const config = require('./config');
 
 const env = process.env.NODE_ENV || 'development';
 const dev = env !== 'production';
@@ -36,7 +35,7 @@ require('esbuild').build({
     __DEV__: dev,
     __PROD__: prod,
     /** @TODO make endpoint */
-    __CUR_CLASSIC_VERSION__: JSON.stringify(config.currentClassicVersion),
+    __CUR_CLASSIC_VERSION__: 'tbc',
   },
   banner: {
     js: 'var addon = (chrome || browser);',
