@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const svgrPlugin = require('esbuild-plugin-svgr');
 
+
 const env = process.env.NODE_ENV || 'development';
 const dev = env !== 'production';
 const prod = !dev;
@@ -24,7 +25,7 @@ require('esbuild').build({
 
       notifier.notify({
         title: 'Auctionoton-extension',
-        message: 'Rebuild complete',
+        message: '📦 Rebuild complete',
       });
     },
   },
