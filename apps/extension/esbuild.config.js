@@ -35,7 +35,7 @@ require('esbuild').build({
     __DEV__: dev,
     __PROD__: prod,
     /** @TODO make endpoint */
-    __CUR_CLASSIC_VERSION__: 'tbc',
+    __CUR_CLASSIC_VERSION__: JSON.stringify('tbc'),
   },
   banner: {
     js: 'var addon = (chrome || browser);',

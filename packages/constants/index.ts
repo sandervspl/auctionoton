@@ -2,9 +2,8 @@ export class API {
   static Url = {
     // CORS issues with browser extensions
     // development: 'http://localhost:8080',
-    /** @TODO Add dev URL on host */
-    development: 'https://api.ahdfw.nl',
-    production: 'https://api.ahdfw.nl',
+    development: 'https://develop--auctionoton-server.herokuapp.com',
+    production: 'https://auctionoton-server.herokuapp.com',
   }[process.env.NODE_ENV];
 
   static ItemsRoot = 'items';

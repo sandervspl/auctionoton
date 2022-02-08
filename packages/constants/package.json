@@ -5,8 +5,8 @@
   "types": "./dist/index.d.ts",
   "license": "MIT",
   "scripts": {
-    "build": "npx tsup index.ts --dts",
-    "dev": "npx tsup index.ts --dts --watch"
+    "build": "NODE_ENV=production npx tsup index.ts --dts",
+    "dev": "NODE_ENV=development npx tsup index.ts --dts --watch"
   },
   "devDependencies": {
     "@project/types": "*",
