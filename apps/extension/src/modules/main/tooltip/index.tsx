@@ -153,7 +153,7 @@ const Tooltip: React.FC<Props> = (props) => {
                     </td>
                   </tr>
                 )}
-                {error && (
+                {error ? (
                   <tr>
                     <td>
                       <div className="flex mt-2 text-red-500">
@@ -161,8 +161,8 @@ const Tooltip: React.FC<Props> = (props) => {
                       </div>
                     </td>
                   </tr>
-                )}
-                {warning && (
+                ) : null}
+                {warning ? (
                   <tr>
                     <td>
                       <div className="mt-1">
@@ -171,7 +171,7 @@ const Tooltip: React.FC<Props> = (props) => {
                       </div>
                     </td>
                   </tr>
-                )}
+                ) : null}
                 <tr>
                   <td>
                     {typeof props.children === 'function'
