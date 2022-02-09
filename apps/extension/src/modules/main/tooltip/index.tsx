@@ -89,11 +89,11 @@ const Tooltip: React.FC<Props> = (props) => {
                     </div>
                   </td>
                 </tr>
-                {mutableItem && (
+                {mutableItem ? (
                   <tr>
                     <td>
                       {/* Support for older versions */}
-                      {(!('__version' in mutableItem) || mutableItem.__version === 'classic') && (
+                      {(!('__version' in mutableItem) || mutableItem.__version === 'classic') ? (
                         <>
                           <SellPrice
                             heading="Market Value"
@@ -111,8 +111,8 @@ const Tooltip: React.FC<Props> = (props) => {
                             value={mutableItem.stats.current.minimumBuyout}
                           />
                         </>
-                      )}
-                      {mutableItem.__version === 'retail' && (
+                      ) : null}
+                      {mutableItem.__version === 'retail' ? (
                         <>
                           <SellPrice
                             heading="Buyout Price"
@@ -125,7 +125,7 @@ const Tooltip: React.FC<Props> = (props) => {
                             value={mutableItem.unitPrice}
                           />
                         </>
-                      )}
+                      ) : null}
                       <SellPrice
                         heading="Quantity"
                         amount={props.amount}
@@ -137,22 +137,22 @@ const Tooltip: React.FC<Props> = (props) => {
                       />
 
                       {/* Only show this loading indicator if we can show a cached item */}
-                      {item && loading && (
+                      {item && loading ? (
                         <div className="flex mt-2">
                           <LoadingSvg className="inline-block mr-1 w-4" />
                           Fetching latest price info...
                         </div>
-                      )}
+                      ) : null}
                     </td>
                   </tr>
-                )}
-                {!item && loading && (
+                ) : null}
+                {!item && loading ? (
                   <tr>
                     <td>
                       <LoadingSvg />
                     </td>
                   </tr>
-                )}
+                ) : null}
                 {error ? (
                   <tr>
                     <td>
