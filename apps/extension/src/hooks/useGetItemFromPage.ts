@@ -1,13 +1,10 @@
 import * as i from 'types';
 import React from 'react';
 
-import { useStore } from 'state/store';
-
 
 function useGetItemFromPage(): UseGetItemFromPage {
   const [item, setItem] = React.useState<i.PageItem>();
   const pathname = React.useRef(window.location.pathname);
-  const user = useStore((store) => store.storage.user);
 
   React.useEffect(() => {
     // Get item name
@@ -46,19 +43,8 @@ function useGetItemFromPage(): UseGetItemFromPage {
     }
   }
 
-  function generateNexushubUrl(): string | void {
-    const server = user?.server?.classic?.slug;
-
-    if (server) {
-      const faction = user?.faction?.[server]?.toLowerCase();
-
-      return `https://nexushub.co/wow-classic/items/${server}-${faction}/${getItemNameFromUrl()}`;
-    }
-  }
-
   return {
     item: item,
-    nexushubUrl: generateNexushubUrl(),
     isAuctionableItem,
     getItemIdFromUrl,
   };
@@ -66,7 +52,6 @@ function useGetItemFromPage(): UseGetItemFromPage {
 
 interface UseGetItemFromPage {
   item?: i.PageItem;
-  nexushubUrl: string | void;
   isAuctionableItem(str: string | undefined): boolean;
   getItemIdFromUrl(url?: string): number | undefined;
 }

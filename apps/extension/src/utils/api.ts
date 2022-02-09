@@ -34,9 +34,6 @@ class Api {
     this.requestController = new AbortController();
     const options: AxiosRequestConfig<ItemBody> = {
       signal: this.requestController.signal,
-      headers: {
-        'Accept-Encoding': 'gzip, deflate, br',
-      },
     };
 
     // Fetch latest data from server
@@ -62,7 +59,7 @@ class Api {
         req = () => axios.post(`${API.ItemsUrl}/${itemId}`, body, {
           ...options,
           params: {
-            fields: 'amount,stats',
+            fields: 'amount,uniqueName,stats',
           },
         })
           .then(() => clearTimeout(timeoutId!));

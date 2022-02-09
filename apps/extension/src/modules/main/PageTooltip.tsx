@@ -1,3 +1,4 @@
+import type * as i from '@project/types';
 import 'typed-query-selector';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -7,6 +8,7 @@ import RedoSvg from 'static/redo-solid.svg';
 import GlobeSvg from 'static/globe-americas-regular.svg';
 import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
 import useGetItemFromPage from 'hooks/useGetItemFromPage';
+import { useStore } from 'state/store';
 
 import Tooltip from './tooltip';
 import generateContainer from './generateContainer';
@@ -14,10 +16,20 @@ import generateContainer from './generateContainer';
 
 const PageTooltip = (): React.ReactPortal | null => {
   const isClassicWowhead = useIsClassicWowhead();
-  const { item: pageItem, isAuctionableItem, nexushubUrl } = useGetItemFromPage();
+  const { item: pageItem, isAuctionableItem } = useGetItemFromPage();
+  const user = useStore((store) => store.storage.user);
 
   const tooltipElementId = `tt${pageItem?.id}`;
   const tooltipElement = document.querySelector(`div#${tooltipElementId}`);
+
+  function createNexushubLink(item: i.ItemResponseV2): string | void {
+    const server = user?.server?.classic?.slug;
+
+    if (server) {
+      const faction = user?.faction?.[server]?.toLowerCase();
+      return `https://nexushub.co/wow-classic/items/${server}-${faction}/${item.uniqueName}`;
+    }
+  }
 
   if (!tooltipElement) {
     return null;
@@ -50,9 +62,9 @@ const PageTooltip = (): React.ReactPortal | null => {
                 </button>
               </div>
             )}
-            {isClassicWowhead && nexushubUrl && (
+            {isClassicWowhead && user && item && 'stats' in item && (
               <a
-                href={nexushubUrl}
+                href={createNexushubLink(item)!}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex gap-1 place-items-center"
