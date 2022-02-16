@@ -1,41 +1,49 @@
 import * as i from 'types';
 import React from 'react';
 import produce from 'immer';
+import { useQuery } from 'react-query';
+import axios from 'axios';
+import dayjs from 'dayjs';
+import { API } from '@project/constants';
+import type { ItemBody } from '@project/validation';
 
-import api from 'utils/api';
+// import api from 'utils/api';
 import { useStore } from 'state/store';
-import useItemMgr from 'hooks/useItemMgr';
+// import useItemMgr from 'hooks/useItemMgr';
 
 
 function useGetItem(itemId: number, amount = 1): UseGetItem {
   const storage = useStore((store) => store.storage);
-  const [mutableItem, setMutableItem] = React.useState<i.AnyCachedItem>();
-  const itemMgr = useItemMgr(itemId);
+  const [mutableItem, setMutableItem] = React.useState<i.MaybeAnyItem>();
+  // const itemMgr = useItemMgr(itemId);
 
-  function setItem(newItem?: i.AnyCachedItem) {
-    setMutableItem(newItem);
-    setItemValuesForAmount();
-  }
+  // const { data: item, isLoading, isFetching, error, refetch } = useQuery([
+  //   itemId,
+  //   memoUser.server,
+  //   memoUser.faction,
+  // ], async () => {
+  //   if (!memoUser.server || !memoUser.faction) {
+  //     return;
+  //   }
+
+
+  // });
+
+  React.useEffect(() => {
+    setMutableItem(item);
+  }, [item]);
 
   function setItemValuesForAmount() {
-    if (!mutableItem) {
-      setMutableItem(itemMgr.item);
-    }
-
     setMutableItem((modItem) => produce(modItem, (draftState) => {
-      if (!draftState || !itemMgr.item) {
-        return draftState;
-      }
-
       type Prices = {
         [k: string]: i.ValueObject;
       }
 
       const prices: Prices = (() => {
-        let obj: Prices = {};
+        const obj: Prices = {};
 
-        if (itemMgr.item.__version === 'classic') {
-          const { historicalValue, marketValue, minimumBuyout } = itemMgr.item.stats.current;
+        if (item?.__version === 'classic') {
+          const { historicalValue, marketValue, minimumBuyout } = item.stats.current;
 
           if (typeof historicalValue !== 'string') {
             obj.historicalValue = { ...historicalValue };
@@ -48,12 +56,12 @@ function useGetItem(itemId: number, amount = 1): UseGetItem {
           }
         }
 
-        if (itemMgr.item.__version === 'retail') {
-          obj = {
-            buyoutPrice: { ...itemMgr.item.buyoutPrice },
-            unitPrice: { ...itemMgr.item.unitPrice },
-          };
-        }
+        // if (itemMgr.item.__version === 'retail') {
+        //   obj = {
+        //     buyoutPrice: { ...itemMgr.item.buyoutPrice },
+        //     unitPrice: { ...itemMgr.item.unitPrice },
+        //   };
+        // }
 
         return obj;
       })();
@@ -95,29 +103,24 @@ function useGetItem(itemId: number, amount = 1): UseGetItem {
     }));
   }
 
-  // Set new item values after fetch
-  React.useEffect(() => {
-    setItem(itemMgr.item);
-  }, [itemMgr.item]);
-
   // Get item data
-  React.useEffect(() => {
-    itemMgr.refetch();
+  // React.useEffect(() => {
+  //   itemMgr.refetch();
 
-    return function cleanup() {
-      api.cancelRequest();
-    };
-  }, [storage.user, itemId]);
+  //   return function cleanup() {
+  //     api.cancelRequest();
+  //   };
+  // }, [storage.user, itemId]);
 
   React.useEffect(setItemValuesForAmount, [amount]);
 
   return {
-    loading: itemMgr.isLoading || itemMgr.isFetching,
-    warning: itemMgr.warning,
-    error: itemMgr.error,
-    item: itemMgr.item,
+    loading: isLoading || isFetching,
+    // warning: itemMgr.warning,
+    error,
+    item,
     mutableItem,
-    getItem: itemMgr.refetch,
+    getItem: refetch,
   };
 }
 
@@ -126,7 +129,7 @@ interface UseGetItem {
   loading: boolean;
   getItem: i.ItemRefetchFn;
   warning?: string;
-  error?: string;
+  error?: unknown;
   item?: i.AnyCachedItem;
   mutableItem?: i.AnyCachedItem;
 }

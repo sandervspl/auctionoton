@@ -42,8 +42,10 @@ export type ItemDataRetail = i.ItemDataRetailPrices & {
   quantity: number;
 }
 
+export type ItemDataClassicResponse = Pick<i.ItemResponseV2, | 'amount' | 'uniqueName' | 'stats'>;
+
 export type AnyCachedItem = i.CachedItemDataClassic | i.CachedItemDataRetail;
-export type CachedItemDataClassic = i.ItemResponseV2 & i.Cache<'classic'>;
+export type CachedItemDataClassic = ItemDataClassicResponse & i.Cache<'classic'>;
 export type MaybeCachedItemDataClassic = CachedItemDataClassic | undefined;
 export type CachedItemDataRetail = i.ItemDataRetail & i.Cache<'retail'>;
 export type MaybeCachedItemDataRetail = i.CachedItemDataRetail | undefined;
@@ -60,10 +62,11 @@ export type ValueObject = {
   copper: number;
 }
 
+type ServerSlug = string;
 export interface UserData {
   version: i.Versions;
   region: i.Regions;
-  faction: Record<string, i.Factions>; // server tied with faction
+  faction: Record<ServerSlug, i.Factions>; // server tied with faction
   server: {
     classic?: {
       name: string;

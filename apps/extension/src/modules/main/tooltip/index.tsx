@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
 import LoadingSvg from 'static/loading.svg';
-import WarningSvg from 'static/exclamation-circle-regular.svg';
+// import WarningSvg from 'static/exclamation-circle-regular.svg';
 import { useStore } from 'state/store';
 import { ELEMENT_ID } from 'src/constants';
 import useGetItem from 'hooks/useGetItem';
@@ -22,17 +22,17 @@ dayjs.extend(relativeTime);
 
 const Tooltip: React.FC<Props> = (props) => {
   const storage = useStore((store) => store.storage);
-  const { loading, error, warning, item, mutableItem, getItem } = useGetItem(props.itemId, props.amount);
+  const { loading, error, item, mutableItem, getItem } = useGetItem(props.itemId, props.amount);
   const isClassicWowhead = useIsClassicWowhead();
 
   function getRelativeTime() {
-    if (item?.__version === 'classic') {
-      return dayjs(item?.stats.lastUpdated).fromNow();
-    } else if (item?.__version === 'retail') {
-      return dayjs(item?.lastUpdated).fromNow();
+    if (mutableItem?.__version === 'classic') {
+      return dayjs(mutableItem?.stats.lastUpdated).fromNow();
+    } else if (mutableItem?.__version === 'retail') {
+      // return dayjs(item?.lastUpdated).fromNow();
     }
 
-    return '';
+    return 'N/A';
   }
 
 
@@ -146,7 +146,7 @@ const Tooltip: React.FC<Props> = (props) => {
                     </td>
                   </tr>
                 ) : null}
-                {!item && loading ? (
+                {(!item || !mutableItem) && loading ? (
                   <tr>
                     <td>
                       <LoadingSvg />
@@ -162,7 +162,7 @@ const Tooltip: React.FC<Props> = (props) => {
                     </td>
                   </tr>
                 ) : null}
-                {warning ? (
+                {/* {warning ? (
                   <tr>
                     <td>
                       <div className="mt-1">
@@ -171,7 +171,7 @@ const Tooltip: React.FC<Props> = (props) => {
                       </div>
                     </td>
                   </tr>
-                ) : null}
+                ) : null} */}
                 <tr>
                   <td>
                     {typeof props.children === 'function'

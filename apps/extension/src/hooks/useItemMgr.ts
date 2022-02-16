@@ -1,11 +1,14 @@
 import * as i from 'types';
 import React from 'react';
 import { useQuery } from 'react-query';
+import axios from 'axios';
+import dayjs from 'dayjs';
+import { ItemBody } from '@project/validation';
+import { API } from '@project/constants';
 
 import { useStore } from 'state/store';
 import time from 'utils/time';
 import asyncStorage from 'utils/asyncStorage';
-import api from 'utils/api';
 import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
 import validateCache from 'utils/validateCache';
 
@@ -17,10 +20,33 @@ function useItemMgr(itemId: number): UseItemMgr {
   const [item, setItem] = React.useState<i.MaybeAnyItem>();
   const isClassicWowhead = useIsClassicWowhead();
 
+  const memoUser = React.useMemo(() => {
+    let server = '';
+    let faction = '';
+
+    if (user?.version === 'classic') {
+      server = user.server?.classic?.slug ?? '';
+    } else if (user?.version === 'retail') {
+      server = user.server?.retail?.name ?? '';
+    }
+
+    faction = user?.faction?.[server.toLowerCase()]?.toLowerCase() || '';
+
+    return {
+      server,
+      faction,
+    };
+  }, [
+    user?.server?.classic?.name,
+    user?.server?.retail?.name,
+    user?.faction?.[user?.server?.classic?.slug.toLowerCase() || ''],
+    user?.faction?.[user?.server?.retail?.name.toLowerCase() || ''],
+  ]);
+
   const ITEM_IDENTIFIER = ['item', {
     itemId,
-    server: user?.version && user.server?.[user.version]?.name,
-    faction: isClassicWowhead && user?.server?.classic && user?.faction?.[user.server.classic.slug],
+    server: memoUser.server,
+    faction: memoUser.faction,
     version: user?.version,
   }] as i.ItemQueryKey;
   const { data, isLoading, isFetching, isError, refetch } = useQuery(
@@ -55,19 +81,39 @@ function useItemMgr(itemId: number): UseItemMgr {
 
     // If item from storage is stale, fetch item
     const version: i.Versions = isClassicWowhead ? 'classic' : 'retail';
-    const itemFromFetch = await api.getItem(version, itemId, setWarning, setError);
 
-    if (itemFromFetch) {
-      asyncStorage.addItem(queryKey, itemFromFetch);
-    } else {
-      if (isClassicWowhead) {
-        setError('Something went wrong fetching this item. This might be because Auction House service is down.');
-      } else {
-        setError('Something went wrong fetching this item. Please try again.');
-      }
+    if (version === 'classic') {
+      const body: ItemBody = {
+        server_name: memoUser.server,
+        faction: memoUser.faction as i.Factions,
+        amount: 1,
+      };
+
+      const { data } = await axios.post<i.ItemDataClassicResponse>(`${API.ItemsUrl}/${itemId}`, body, {
+        params: {
+          fields: 'amount,uniqueName,stats',
+        },
+      });
+
+      const localData: i.CachedItemDataClassic = {
+        ...data,
+        __version: 'classic',
+        updatedAt: dayjs().toISOString(),
+      };
+
+      return localData;
     }
 
-    return itemFromFetch;
+    /** @TODO */
+    if (version === 'retail') {
+      return;
+    }
+
+    if (isClassicWowhead) {
+      setError('Something went wrong fetching this item. This might be because Auction House service is down.');
+    } else {
+      setError('Something went wrong fetching this item. Please try again.');
+    }
   }
 
   return {

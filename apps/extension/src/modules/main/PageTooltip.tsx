@@ -1,4 +1,4 @@
-import type * as i from '@project/types';
+import type * as i from 'types';
 import 'typed-query-selector';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -22,7 +22,7 @@ const PageTooltip = (): React.ReactPortal | null => {
   const tooltipElementId = `tt${pageItem?.id}`;
   const tooltipElement = document.querySelector(`div#${tooltipElementId}`);
 
-  function createNexushubLink(item: i.ItemResponseV2): string | void {
+  function createNexushubLink(item: i.CachedItemDataClassic): string | void {
     const server = user?.server?.classic?.slug;
 
     if (server) {
@@ -64,7 +64,7 @@ const PageTooltip = (): React.ReactPortal | null => {
             )}
             {isClassicWowhead && user && item && 'stats' in item && (
               <a
-                href={createNexushubLink(item)!}
+                href={createNexushubLink(item as i.CachedItemDataClassic)!}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex gap-1 place-items-center"

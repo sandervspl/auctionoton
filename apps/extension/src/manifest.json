@@ -10,6 +10,11 @@
       ],
       "js": [
         "index.js"
+      ]
+    },
+    {
+      "matches": [
+        "https://*.wowhead.com/*"
       ],
       "css": [
         "style.css"
@@ -51,6 +56,7 @@
   "permissions": [
     "storage",
     "https://api.ahdfw.nl/*",
+    "https://*.ngrok.io/*",
     "https://auctionoton-server.herokuapp.com/*",
     "https://develop--auctionoton-server.herokuapp.com/*"
   ]
