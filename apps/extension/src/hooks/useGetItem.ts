@@ -1,33 +1,13 @@
 import * as i from 'types';
 import React from 'react';
 import produce from 'immer';
-import { useQuery } from 'react-query';
-import axios from 'axios';
-import dayjs from 'dayjs';
-import { API } from '@project/constants';
-import type { ItemBody } from '@project/validation';
 
-// import api from 'utils/api';
-import { useStore } from 'state/store';
 import useItemFetcher from 'hooks/useItemFetcher';
 
 
 function useGetItem(itemId: number, amount = 1): UseGetItem {
-  const storage = useStore((store) => store.storage);
   const [mutableItem, setMutableItem] = React.useState<i.MaybeAnyItem>();
   const { error, isFetching, isLoading, item, refetch } = useItemFetcher(itemId);
-
-  // const { data: item, isLoading, isFetching, error, refetch } = useQuery([
-  //   itemId,
-  //   memoUser.server,
-  //   memoUser.faction,
-  // ], async () => {
-  //   if (!memoUser.server || !memoUser.faction) {
-  //     return;
-  //   }
-
-
-  // });
 
   React.useEffect(() => {
     setMutableItem(item);
@@ -102,15 +82,6 @@ function useGetItem(itemId: number, amount = 1): UseGetItem {
       }
     }));
   }
-
-  // Get item data
-  // React.useEffect(() => {
-  //   itemMgr.refetch();
-
-  //   return function cleanup() {
-  //     api.cancelRequest();
-  //   };
-  // }, [storage.user, itemId]);
 
   React.useEffect(setItemValuesForAmount, [amount]);
 

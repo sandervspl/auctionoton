@@ -7,13 +7,12 @@ import { ItemBody } from '@project/validation';
 import { API } from '@project/constants';
 
 import { useStore } from 'state/store';
-import time from 'utils/time';
 import asyncStorage from 'utils/asyncStorage';
 import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
 import validateCache from 'utils/validateCache';
 
 
-function useItemFetcher(itemId: number): UseItemMgr {
+function useItemFetcher(itemId: number): UseItemFetcher {
   const { user } = useStore((store) => store.storage);
   const [error, setError] = React.useState('');
   const [warning, setWarning] = React.useState('');
@@ -130,7 +129,7 @@ function useItemFetcher(itemId: number): UseItemMgr {
   };
 }
 
-interface UseItemMgr {
+interface UseItemFetcher {
   item: i.MaybeAnyItem;
   isLoading: boolean;
   isFetching: boolean;
