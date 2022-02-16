@@ -25,19 +25,6 @@ const Tooltip: React.FC<Props> = (props) => {
   const { loading, error, item, mutableItem, getItem } = useGetItem(props.itemId, props.amount);
   const isClassicWowhead = useIsClassicWowhead();
 
-  function getRelativeTime() {
-    if (mutableItem?.__version === 'classic') {
-      return dayjs(mutableItem?.stats.lastUpdated).fromNow();
-    } else if (mutableItem?.__version === 'retail') {
-      // return dayjs(item?.lastUpdated).fromNow();
-    }
-
-    return 'N/A';
-  }
-
-
-  const errorStr = `Error: ${error || 'Something went wrong. Try again later.'}`;
-
   if (!storage?.user?.version) {
     return null;
   }
@@ -49,6 +36,16 @@ const Tooltip: React.FC<Props> = (props) => {
 
   if (!isClassicWowhead && !storage?.user?.server?.retail) {
     return null;
+  }
+
+  function getRelativeTime() {
+    if (mutableItem?.__version === 'classic') {
+      return dayjs(mutableItem?.stats.lastUpdated).fromNow();
+    } else if (mutableItem?.__version === 'retail') {
+      // return dayjs(item?.lastUpdated).fromNow();
+    }
+
+    return 'N/A';
   }
 
   function getServerName(): string {
@@ -69,6 +66,8 @@ const Tooltip: React.FC<Props> = (props) => {
     return `${serverName.name}-${region}`;
   }
 
+  const errorStr = `Error: ${error || 'Something went wrong. Try again later.'}`;
+
   return (
     <table id={ELEMENT_ID.TOOLTIP}>
       <tbody>
@@ -79,9 +78,8 @@ const Tooltip: React.FC<Props> = (props) => {
                 <tr>
                   <td>
                     <span className="q whtt-extra whtt-ilvl">
-                      Auction House Data for
                       <span className="capitalize">
-                        &nbsp;{getServerName()}
+                        {getServerName()}
                       </span>
                     </span>
                     <div className="whtt-sellprice mb-2">

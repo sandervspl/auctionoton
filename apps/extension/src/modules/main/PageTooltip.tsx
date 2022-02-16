@@ -47,41 +47,51 @@ const PageTooltip = (): React.ReactPortal | null => {
 
   return ReactDOM.createPortal(
     <>
+      <div className="h-2" />
+      <p className="!relative !w-auto !h-auto text-[10px] !left-0">
+        Auction House Prices for Wowhead
+      </p>
+
       <Tooltip itemId={pageItem.id}>
-        {({ error, loading, item, getItem }) => (
-          <div className="mt-2">
-            {((error && !loading) || (!item)) && (
-              <div className="mb-2">
-                <button
-                  className="btn btn-small"
-                  onClick={() => getItem()}
-                  title="Try loading item data again for Auctionoton"
+        {({ error, loading, item, getItem }) => {
+          return (
+            <div className="mt-2">
+              {((error && !loading) || (!item)) && (
+                <div className="mb-2">
+                  <button
+                    className="btn btn-small"
+                    onClick={() => getItem()}
+                    title="Try loading item data again for Auctionoton"
+                  >
+                    <RedoSvg className="pr-1 h-2" />
+                    <span>Try again</span>
+                  </button>
+                </div>
+              )}
+              {isClassicWowhead && user && item && 'stats' in item && (
+                <a
+                  href={createNexushubLink(item as i.CachedItemDataClassic)!}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex gap-1 place-items-center q"
                 >
-                  <RedoSvg className="pr-1 h-2" />
-                  <span>Try again</span>
-                </button>
-              </div>
-            )}
-            {isClassicWowhead && user && item && 'stats' in item && (
-              <a
-                href={createNexushubLink(item as i.CachedItemDataClassic)!}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex gap-1 place-items-center"
-              >
                 More information on Nexushub.co <ExternalLinkSvg />
-              </a>
-            )}
-          </div>
-        )}
+                </a>
+              )}
+            </div>
+          );
+        }}
       </Tooltip>
+
+      <div className="h-1" />
+
       <button
         className="btn btn-small"
         onClick={() => window.open(`${addon.extension.getURL('form.html')}?large=true`)}
         title="Change server for Auctionoton"
       >
         <GlobeSvg className="pr-1 h-3" />
-        <span>Change realm</span>
+        <span>{!user?.version ? 'Add your realm!' : 'Change realm'}</span>
       </button>
     </>,
     container,

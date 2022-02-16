@@ -1,5 +1,6 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { ReactQueryDevtools } from 'react-query/devtools';
 
 import time from 'utils/time';
 
@@ -27,7 +28,7 @@ class App extends React.Component {
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: time.minutes(1),
+      staleTime: time.minutes(5),
       cacheTime: time.minutes(10),
       notifyOnChangeProps: 'tracked',
     },
@@ -38,6 +39,7 @@ const Root = (): JSX.Element => {
   return (
     <QueryClientProvider client={queryClient}>
       <App />
+      <ReactQueryDevtools />
     </QueryClientProvider>
   );
 };

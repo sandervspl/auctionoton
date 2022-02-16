@@ -9,13 +9,13 @@ import type { ItemBody } from '@project/validation';
 
 // import api from 'utils/api';
 import { useStore } from 'state/store';
-// import useItemMgr from 'hooks/useItemMgr';
+import useItemFetcher from 'hooks/useItemFetcher';
 
 
 function useGetItem(itemId: number, amount = 1): UseGetItem {
   const storage = useStore((store) => store.storage);
   const [mutableItem, setMutableItem] = React.useState<i.MaybeAnyItem>();
-  // const itemMgr = useItemMgr(itemId);
+  const { error, isFetching, isLoading, item, refetch } = useItemFetcher(itemId);
 
   // const { data: item, isLoading, isFetching, error, refetch } = useQuery([
   //   itemId,

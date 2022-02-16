@@ -39,7 +39,7 @@ async function main(): Promise<void> {
   // Generate a root element for React to render on
   const rootElement = document.createElement('span');
   rootElement.id = ELEMENT_ID.ROOT;
-  rootElement.style.display = 'none';
+  // rootElement.style.display = 'none';
 
   getBodyElement().appendChild(rootElement);
 

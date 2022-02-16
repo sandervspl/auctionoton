@@ -13,7 +13,7 @@ import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
 import validateCache from 'utils/validateCache';
 
 
-function useItemMgr(itemId: number): UseItemMgr {
+function useItemFetcher(itemId: number): UseItemMgr {
   const { user } = useStore((store) => store.storage);
   const [error, setError] = React.useState('');
   const [warning, setWarning] = React.useState('');
@@ -55,7 +55,6 @@ function useItemMgr(itemId: number): UseItemMgr {
     {
       refetchOnWindowFocus: false, // Generally just annoying, especially when fetch is failing
       retry: false, // Let user retry on demand with button
-      staleTime: __DEV__ ? time.seconds(5) : time.hours(1), // Doesn't seem to do anything?
     },
   );
 
@@ -83,6 +82,10 @@ function useItemMgr(itemId: number): UseItemMgr {
     const version: i.Versions = isClassicWowhead ? 'classic' : 'retail';
 
     if (version === 'classic') {
+      if (!memoUser.server || !memoUser.faction) {
+        return;
+      }
+
       const body: ItemBody = {
         server_name: memoUser.server,
         faction: memoUser.faction as i.Factions,
@@ -137,4 +140,4 @@ interface UseItemMgr {
   refetch: i.ItemRefetchFn;
 }
 
-export default useItemMgr;
+export default useItemFetcher;
