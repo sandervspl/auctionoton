@@ -56,7 +56,7 @@ const PageTooltip = (): React.ReactPortal | null => {
         {({ error, loading, item, getItem }) => {
           return (
             <div className="mt-2">
-              {((error && !loading) || (!item)) && (
+              {(!loading && (error || !item)) && (
                 <div className="mb-2">
                   <button
                     className="btn btn-small"
