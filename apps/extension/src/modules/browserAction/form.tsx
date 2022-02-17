@@ -55,17 +55,17 @@ export const Form: React.FC = () => {
         version: user.version,
         region: user.region,
         server: user.version
-          ? user.server?.[user.version]?.name
+          ? user.server[user.version]?.name
           : undefined,
-        faction: user.server?.classic
-          ? user.faction?.[user.server.classic.slug]
+        faction: user.server.classic
+          ? user.faction[user.server.classic.slug]
           : undefined,
       });
     }
   }, [isFetching, reset, user]);
 
   React.useEffect(() => {
-    const storedServer = user?.server?.[watchVersion]?.name;
+    const storedServer = user?.server[watchVersion]?.name;
     const firstServerInlist = serverList[0]?.[0];
 
     if (storedServer && serverList.find((arr) => arr[0] === storedServer)) {
@@ -84,7 +84,7 @@ export const Form: React.FC = () => {
       return;
     }
 
-    const faction = user?.faction?.[createSlug(watchServer)];
+    const faction = user?.faction[createSlug(watchServer)];
     setValue('faction', faction || 'Alliance');
   }, [watchServer]);
 

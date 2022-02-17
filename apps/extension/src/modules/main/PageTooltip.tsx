@@ -23,10 +23,10 @@ const PageTooltip = (): React.ReactPortal | null => {
   const tooltipElement = document.querySelector(`div#${tooltipElementId}`);
 
   function createNexushubLink(item: i.CachedItemDataClassic): string | void {
-    const server = user?.server?.classic?.slug;
+    const server = user?.server.classic?.slug;
 
     if (server) {
-      const faction = user?.faction?.[server]?.toLowerCase();
+      const faction = user?.faction[server]?.toLowerCase();
       return `https://nexushub.co/wow-classic/items/${server}-${faction}/${item.uniqueName}`;
     }
   }

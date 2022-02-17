@@ -30,11 +30,11 @@ const Tooltip: React.FC<Props> = (props) => {
   }
 
   /** @TODO Show link to change realm, let user know to set realm */
-  if (isClassicWowhead && !user?.server?.classic) {
+  if (isClassicWowhead && !user?.server.classic) {
     return null;
   }
 
-  if (!isClassicWowhead && !user?.server?.retail) {
+  if (!isClassicWowhead && !user?.server.retail) {
     return null;
   }
 
@@ -50,7 +50,7 @@ const Tooltip: React.FC<Props> = (props) => {
 
   function getServerName(): string {
     const version: i.Versions = isClassicWowhead ? 'classic' : 'retail';
-    const serverName = user?.server?.[version];
+    const serverName = user?.server[version];
     const region = user?.region?.toUpperCase();
 
     if (!serverName) {
@@ -58,7 +58,7 @@ const Tooltip: React.FC<Props> = (props) => {
     }
 
     if ('slug' in serverName) {
-      const faction = user?.faction?.[serverName.slug];
+      const faction = user?.faction[serverName.slug];
 
       return `${serverName.name} ${region}-${faction}`;
     }
