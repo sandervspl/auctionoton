@@ -7,7 +7,7 @@ import asyncStorage from 'utils/asyncStorage';
 addon.runtime.onInstalled.addListener(async (details) => {
   if (details.reason === 'install') {
     asyncStorage.init();
-    addon.tabs.create({ url: './form.html' });
+    addon.tabs.create({ url: './form.html?large=true' });
   }
 
   if (details.reason === 'update') {

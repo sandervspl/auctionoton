@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body > * {
+  font-family: 'Roboto', Helvetica, sans-serif;
+
+  div#root {
+    @apply flex justify-center items-center flex-col;
+  }
+}
+
+label {
+  @apply text-sm font-bold;
+}
+
+select {
+  @apply block w-[230px] md:w-full mt-1 mx-auto mb-5 h-9 py-2 px-4;
+  @apply rounded-md outline-none border-none bg-gray-100 text-gray-500;
+  @apply text-sm cursor-default;
+
+  &:hover {
+    @apply bg-gray-300;
+  }
+}
+
+.submit-button {
+  @apply bg-red-400 font-bold w-[230px] md:w-full mx-auto mt-0 mb-5 h-11 py-2 px-4;
+  @apply rounded-md outline-none border-none text-white text-sm cursor-pointer;
+
+  &:disabled {
+    @apply bg-red-300;
+  }
+
+  &:not(:disabled):hover {
+    @apply bg-red-500;
+  }
+}

@@ -88,7 +88,8 @@ export const Form: React.FC = () => {
     setValue('faction', faction || 'Alliance');
   }, [watchServer]);
 
-  const onSubmit: SubmitHandler<FormInput> = async (data) => {
+  const onSubmit: SubmitHandler<FormInput> = async (data, e) => {
+    e?.preventDefault();
     userMutation.mutate(data);
   };
 
@@ -150,17 +151,17 @@ export const Form: React.FC = () => {
   }
 
   return (
-    <>
+    <div className="grid place-items-center mt-5">
       <img src={`static/icon${isLarge ? '' : '-48'}.png`} alt="logo" />
-      <h1>
+      <h1 className="text-gray-500">
         Auctionoton
         {isLarge ? ' - Auction House Prices for Wowhead' : ''}
       </h1>
 
-      <div className="form-container">
+      <div className="py-0 px-9 md:px-0 md:w-[300px]">
         {isFetching ? <div>Loading...</div> : (
           <form onSubmit={handleSubmit(onSubmit)}>
-            <h2>Select your server</h2>
+            <h2 className="my-5 mx-auto text-lg font-bold">Select your server</h2>
 
             <label htmlFor="version">
               Version
@@ -202,15 +203,23 @@ export const Form: React.FC = () => {
               </label>
             )}
 
-            <button disabled={userMutation.isLoading || !isValid} type="submit">
+            <button
+              disabled={userMutation.isLoading || !isValid}
+              type="submit"
+              className="submit-button"
+            >
               {userMutation.isLoading ? 'Saving...' : 'Save'}
             </button>
           </form>
         )}
 
-        {userMutation.status === 'success' && <div id="result">Saved succesfully!</div>}
+        {userMutation.status === 'success' && (
+          <div className="grid place-items-center mx-auto mt-0 mb-5 text-sm text-green-500">
+            Saved succesfully!
+          </div>
+        )}
       </div>
-    </>
+    </div>
   );
 };
 

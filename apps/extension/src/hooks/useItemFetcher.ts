@@ -14,7 +14,6 @@ import useMemoUser from './useMemoUser';
 
 
 function useItemFetcher(itemId: number): UseItemFetcher {
-
   const memoUser = useMemoUser();
   const [error, setError] = React.useState('');
   const [warning, setWarning] = React.useState('');
