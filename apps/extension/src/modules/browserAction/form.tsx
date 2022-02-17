@@ -173,7 +173,6 @@ export const Form: React.FC = () => {
             <label htmlFor="Region">
               Region
               <select {...register('region', { required: true })}>
-                <option disabled value="default">Region</option>
                 <option value="us">Americas and Oceania</option>
                 <option value="eu">Europe</option>
                 {watchVersion === 'retail' && (
@@ -185,7 +184,6 @@ export const Form: React.FC = () => {
             <label htmlFor="server">
               Server
               <select {...register('server', { required: true })}>
-                <option disabled value="default">Server</option>
                 {serverList.map(([english, localized]) => (
                   <option key={english} value={localized || english}>
                     {localized || english}
@@ -216,16 +214,11 @@ export const Form: React.FC = () => {
   );
 };
 
-async function main() {
-  // await initState();
 
-  ReactDOM.render(
-    <QueryClientProvider client={queryClient}>
-      <Form />
-      <ReactQueryDevtools />
-    </QueryClientProvider>,
-    document.getElementById('root'),
-  );
-}
-
-main();
+ReactDOM.render(
+  <QueryClientProvider client={queryClient}>
+    <Form />
+    <ReactQueryDevtools />
+  </QueryClientProvider>,
+  document.getElementById('root'),
+);
