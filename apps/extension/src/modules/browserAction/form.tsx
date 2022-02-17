@@ -31,31 +31,9 @@ const queryClient = new QueryClient();
 
 export const Form: React.FC = () => {
   const queries = new URLSearchParams(window.location.search);
+  const isLarge = queries.has('large');
   const { data: user, isFetching } = useStorageQuery('user');
-  const userMutation = useMutation((data: FormInput) => {
-    return asyncStorage.set('user', (draft) => {
-      const serverOption = document.querySelector(`option[value="${data.server}"]`);
-      const serverData = serverOption?.dataset.realm;
-
-      draft = draft || {};
-      draft.version = data.version;
-      draft.region = data.region;
-
-      if (serverData) {
-        draft.server = draft.server || {};
-        draft.server[data.version] = JSON.parse(serverData);
-
-        if (data.server) {
-          draft.faction = {
-            ...user?.faction,
-            [createSlug(data.server)]: data.faction,
-          };
-        }
-      } else {
-        console.error('Something went wrong parsing server data', { data, serverOption,  serverData });
-      }
-    });
-  });
+  const userMutation = useMutation(userMutateFn);
   const { register, handleSubmit, watch, setValue, formState, reset } = useForm<FormInput>({
     mode: 'all',
   });
@@ -132,11 +110,44 @@ export const Form: React.FC = () => {
     return JSON.stringify(realm);
   }
 
-  if (!user) {
-    return null;
-  }
+  function userMutateFn(data: FormInput) {
+    return asyncStorage.set('user', (draft) => {
+      const server = serverList.find((names) => names.includes(data.server));
+      if (!server) {
+        throw Error('Could not find server');
+      }
 
-  const isLarge = queries.has('large');
+      const [english, localized] = server;
+      const serverData = (() => {
+        if (watchVersion === 'classic') {
+          return createValue(localized || english, english);
+        }
+
+        if (retailServerData) {
+          return JSON.stringify({
+            ...retailServerData[english],
+            name: english,
+          });
+        }
+      })();
+
+      draft.version = data.version;
+      draft.region = data.region;
+
+      if (serverData) {
+        draft.server[data.version] = JSON.parse(serverData);
+
+        if (data.server) {
+          draft.faction = {
+            ...user?.faction,
+            [createSlug(data.server)]: data.faction,
+          };
+        }
+      } else {
+        console.error('Something went wrong parsing server data', { data, server, serverData });
+      }
+    });
+  }
 
   return (
     <>
@@ -175,27 +186,11 @@ export const Form: React.FC = () => {
               Server
               <select {...register('server', { required: true })}>
                 <option disabled value="default">Server</option>
-                {serverList.map((server) => {
-                  const [english, localized] = server;
-                  const data = (() => {
-                    if (watchVersion === 'classic') {
-                      return createValue(localized || english, english);
-                    }
-
-                    if (retailServerData) {
-                      return JSON.stringify({
-                        ...retailServerData[english],
-                        name: english,
-                      });
-                    }
-                  })();
-
-                  return (
-                    <option key={english} value={localized || english} data-realm={data}>
-                      {localized || english}
-                    </option>
-                  );
-                })}
+                {serverList.map(([english, localized]) => (
+                  <option key={english} value={localized || english}>
+                    {localized || english}
+                  </option>
+                ))}
               </select>
             </label>
 
