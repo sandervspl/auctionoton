@@ -44,9 +44,9 @@ export type ValueObject = {
 }
 
 type ServerSlug = string;
-export interface UserData {
-  version: i.Versions;
-  region: i.Regions;
+export type UserData = {
+  version?: i.Versions;
+  region?: i.Regions;
   faction: Record<ServerSlug, i.Factions>; // server tied with faction
   server: {
     classic?: {
@@ -74,7 +74,7 @@ export type UiData = {
 
 // Everything can be nullable -- protect the extension from crashing at all cost
 export type BrowserStorage = {
-  user: Partial<i.UserData>;
+  user: i.UserData;
   items: i.ItemsData;
   ui: UiData;
 };

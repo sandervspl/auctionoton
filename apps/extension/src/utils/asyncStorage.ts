@@ -69,6 +69,7 @@ class AsyncStorage {
     const items: i.ItemsData = {};
     const user: Partial<i.UserData> = {
       server: {},
+      faction: {},
     };
     const ui: i.UiData = {
       keys: {},
