@@ -151,73 +151,84 @@ export const Form: React.FC = () => {
   }
 
   return (
-    <div className="grid place-items-center mt-5">
-      <img src={`static/icon${isLarge ? '' : '-48'}.png`} alt="logo" />
-      <h1 className="text-gray-500">
-        Auctionoton
-        {isLarge ? ' - Auction House Prices for Wowhead' : ''}
-      </h1>
+    <div className="md:min-w-[600px] md:rounded-md">
+      <div className="grid place-items-center mt-5 md:mt-0 md:items-st md:justify-items-center md:grid-cols-2 md:rounded-md">
+        <div className="grid place-items-center md:bg-white md:h-full md:w-full md:px-8 md:rounded-l-lg">
+          <div className="md:grid md:place-items-center">
+            <img src={`static/icon${isLarge ? '' : '-48'}.png`} alt="logo" />
+            <h1 className="text-gray-500 text-sm md:text-center">
+              Auctionoton
+              {isLarge ? (
+                <>
+                  <br />
+                  Auction House Prices for Wowhead
+                </>
+              ) : null}
+            </h1>
+          </div>
+        </div>
 
-      <div className="py-0 px-9 md:px-0 md:w-[300px]">
-        {isFetching ? <div>Loading...</div> : (
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <h2 className="my-5 mx-auto text-lg font-bold">Select your server</h2>
+        <div className="py-0 px-9 md:w-full md:py-0 md:px-8 md:bg-gray-100 md:rounded-r-lg">
+          {isFetching ? <div>Loading...</div> : (
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <h2 className="my-5 mx-auto text-lg font-bold">Select your server</h2>
 
-            <label htmlFor="version">
+              <label htmlFor="version">
               Version
-              <select {...register('version', { required: true })}>
-                <option value="classic">Classic</option>
-                <option value="retail">Retail</option>
-              </select>
-            </label>
-
-            <label htmlFor="Region">
-              Region
-              <select {...register('region', { required: true })}>
-                <option value="us">Americas and Oceania</option>
-                <option value="eu">Europe</option>
-                {watchVersion === 'retail' && (
-                  <option value="kr">South-Korea</option>
-                )}
-              </select>
-            </label>
-
-            <label htmlFor="server">
-              Server
-              <select {...register('server', { required: true })}>
-                {serverList.map(([english, localized]) => (
-                  <option key={english} value={localized || english}>
-                    {localized || english}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            {watchVersion === 'classic' && (
-              <label htmlFor="faction">
-                Faction
-                <select {...register('faction', { required: true })}>
-                  <option value="Alliance">Alliance</option>
-                  <option value="Horde">Horde</option>
+                <select {...register('version', { required: true })}>
+                  <option value="classic">Classic</option>
+                  <option value="retail">Retail</option>
                 </select>
               </label>
-            )}
 
-            <button
-              disabled={userMutation.isLoading || !isValid}
-              type="submit"
-              className="submit-button"
-            >
-              {userMutation.isLoading ? 'Saving...' : 'Save'}
-            </button>
-          </form>
-        )}
+              <label htmlFor="Region">
+              Region
+                <select {...register('region', { required: true })}>
+                  <option value="us">Americas and Oceania</option>
+                  <option value="eu">Europe</option>
+                  {watchVersion === 'retail' && (
+                    <option value="kr">South-Korea</option>
+                  )}
+                </select>
+              </label>
 
-        {userMutation.status === 'success' && (
-          <div className="grid place-items-center mx-auto mt-0 mb-5 text-sm text-green-500">
+              <label htmlFor="server">
+              Server
+                <select {...register('server', { required: true })}>
+                  {serverList.map(([english, localized]) => (
+                    <option key={english} value={localized || english}>
+                      {localized || english}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              {watchVersion === 'classic' && (
+                <label htmlFor="faction">
+                Faction
+                  <select {...register('faction', { required: true })}>
+                    <option value="Alliance">Alliance</option>
+                    <option value="Horde">Horde</option>
+                  </select>
+                </label>
+              )}
+
+              <button
+                disabled={userMutation.isLoading || !isValid}
+                type="submit"
+                className="submit-button"
+              >
+                {userMutation.isLoading ? 'Saving...' : 'Save'}
+              </button>
+            </form>
+          )}
+
+          {userMutation.status === 'success' && (
+            <div className="grid place-items-center mx-auto mt-0 mb-5 text-sm text-green-500">
             Saved succesfully!
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

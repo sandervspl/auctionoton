@@ -2,12 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
-body > * {
+* {
   font-family: 'Roboto', Helvetica, sans-serif;
+}
 
-  div#root {
-    @apply flex justify-center items-center flex-col;
+@media (min-width: 768px) {
+  body {
+    --bg-color: #999999;
+    --dot-color: #eee;
+    --dot-size: 1px;
+    --dot-space: 15px;
+    background:
+      linear-gradient(90deg, var(--bg-color) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center,
+      linear-gradient(var(--bg-color) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center,
+      var(--dot-color);
+    background-size: var(--dot-space) var(--dot-space);
   }
+}
+
+#root {
+  @apply grid place-items-center;
+  @apply md:h-screen;
 }
 
 label {
@@ -18,6 +33,7 @@ select {
   @apply block w-[230px] md:w-full mt-1 mx-auto mb-5 h-9 py-2 px-4;
   @apply rounded-md outline-none border-none bg-gray-100 text-gray-500;
   @apply text-sm cursor-default;
+  @apply md:bg-white md:border-solid border-2 border-gray-200;
 
   &:hover {
     @apply bg-gray-300;
