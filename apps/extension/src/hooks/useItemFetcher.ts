@@ -10,47 +10,24 @@ import asyncStorage from 'utils/asyncStorage';
 import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
 import validateCache from 'utils/validateCache';
 
-import useStorageQuery from './useStorageQuery';
+import useMemoUser from './useMemoUser';
 
 
 function useItemFetcher(itemId: number): UseItemFetcher {
-  const { data: user } = useStorageQuery('user');
+
+  const memoUser = useMemoUser();
   const [error, setError] = React.useState('');
   const [warning, setWarning] = React.useState('');
   const [item, setItem] = React.useState<i.MaybeAnyItem>();
   const isClassicWowhead = useIsClassicWowhead();
 
-  const memoUser = React.useMemo(() => {
-    let server = '';
-    let faction = '';
-
-    if (user?.version === 'classic') {
-      server = user.server?.classic?.slug ?? '';
-    } else if (user?.version === 'retail') {
-      server = user.server?.retail?.name ?? '';
-    }
-
-    faction = user?.faction?.[server.toLowerCase()]?.toLowerCase() || '';
-
-    return {
-      server,
-      faction,
-    };
-  }, [
-    user?.server?.classic?.name,
-    user?.server?.retail?.name,
-    user?.faction?.[user?.server?.classic?.slug.toLowerCase() || ''],
-    user?.faction?.[user?.server?.retail?.name.toLowerCase() || ''],
-  ]);
-
-  const ITEM_IDENTIFIER = ['item', {
-    itemId,
-    server: memoUser.server,
-    faction: memoUser.faction,
-    version: user?.version,
-  }] as i.ItemQueryKey;
   const { data, isLoading, isFetching, isError, refetch } = useQuery(
-    ITEM_IDENTIFIER,
+    ['item', {
+      itemId,
+      server: memoUser.server,
+      faction: memoUser.faction,
+      version: memoUser.version,
+    }] as i.ItemQueryKey,
     fetchItem,
     {
       refetchOnWindowFocus: false, // Generally just annoying, especially when fetch is failing
@@ -79,9 +56,7 @@ function useItemFetcher(itemId: number): UseItemFetcher {
     }
 
     // If item from storage is stale, fetch item
-    const version: i.Versions = isClassicWowhead ? 'classic' : 'retail';
-
-    if (version === 'classic') {
+    if (isClassicWowhead) {
       if (!memoUser.server || !memoUser.faction) {
         return;
       }
@@ -92,31 +67,31 @@ function useItemFetcher(itemId: number): UseItemFetcher {
         amount: 1,
       };
 
-      const { data } = await axios.post<i.ItemDataClassicResponse>(`${API.ItemsUrl}/${itemId}`, body, {
-        params: {
-          fields: 'amount,uniqueName,stats',
-        },
-      });
+      try {
+        const { data } = await axios.post<i.ItemDataClassicResponse>(`${API.ItemsUrl}/${itemId}`, body, {
+          params: {
+            fields: 'amount,uniqueName,stats',
+          },
+        });
 
-      const localData: i.CachedItemDataClassic = {
-        ...data,
-        __version: 'classic',
-        updatedAt: dayjs().toISOString(),
-      };
+        const localData: i.CachedItemDataClassic = {
+          ...data,
+          __version: 'classic',
+          updatedAt: dayjs().toISOString(),
+        };
 
-      return localData;
+        return localData;
+      } catch (err) {
+        console.error(err);
+      }
     }
 
     /** @TODO */
-    if (version === 'retail') {
+    if (!isClassicWowhead) {
       return;
     }
 
-    if (isClassicWowhead) {
-      setError('Something went wrong fetching this item. This might be because Auction House service is down.');
-    } else {
-      setError('Something went wrong fetching this item. Please try again.');
-    }
+    setError('Something went wrong fetching this item. Please try again.');
   }
 
   return {
