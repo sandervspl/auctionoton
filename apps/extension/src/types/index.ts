@@ -1,6 +1,6 @@
 export * from '@project/types';
 
-export * from '../state/types';
+export * from './data';
 export * from './reactQuery';
 
 export type Realm = string | {

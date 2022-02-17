@@ -1,10 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { useMutation } from 'react-query';
 
 import getBodyElement from 'utils/getBodyElement';
+import asyncStorage from 'utils/asyncStorage';
 import useKeybind from 'hooks/useKeybind';
+import useStorageQuery from 'hooks/useStorageQuery';
 import useGetItemFromPage from 'hooks/useGetItemFromPage';
-import { useStore } from 'state/store';
 
 import Tooltip from './tooltip';
 import generateContainer from './generateContainer';
@@ -17,8 +19,12 @@ const HoverTooltip = (): React.ReactPortal | null => {
   const [visible, setVisible] = React.useState(false);
   const [amount, setAmount] = React.useState(1);
   const shiftKeyPressed = useKeybind((key) => key.Shift);
-  const showShiftKeyTip = useStore((store) => store?.storage?.showTip?.shiftKey);
-  const saveToStorage = useStore((store) => store.storage.actions.save);
+  const { data: ui } = useStorageQuery('ui');
+  const uiMutation = useMutation(() => {
+    return asyncStorage.set('ui', (draft) => {
+      draft!.showTip.shiftKey = false;
+    });
+  });
   const { getItemIdFromUrl, isAuctionableItem } = useGetItemFromPage();
 
 
@@ -37,12 +43,8 @@ const HoverTooltip = (): React.ReactPortal | null => {
 
   React.useEffect(() => {
     // Remove shift key tip if user has never pressed shift, has pressed shift and we hover an item with an amount shown
-    if (showShiftKeyTip && shiftKeyPressed && hoverEl && getAmount() > 1) {
-      saveToStorage('showTip', (draftState) => {
-        if (draftState) {
-          draftState.shiftKey = false;
-        }
-      });
+    if (ui?.showTip.shiftKey && shiftKeyPressed && hoverEl && getAmount() > 1) {
+      uiMutation.mutate();
     }
   }, [shiftKeyPressed]);
 
@@ -181,7 +183,7 @@ const HoverTooltip = (): React.ReactPortal | null => {
 
   return ReactDOM.createPortal(
     <Tooltip itemId={itemId} amount={amount}>
-      {(() => showShiftKeyTip && getAmount() > 1 ? (
+      {(() => ui?.showTip.shiftKey && getAmount() > 1 ? (
         <div className="mt-2">
           Tip: press shift to see the price for the stack!
         </div>

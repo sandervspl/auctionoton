@@ -1,24 +1,5 @@
 import * as i from 'types';
-import { GetState, SetState } from 'zustand';
 
-export * from './stores/storage/types';
-export * from './stores/ui/types';
-
-
-export type Store = Stores & {
-  set: i.Set;
-}
-
-export type Stores = {
-  storage: i.StorageStore;
-  ui: i.UiStore;
-}
-
-export type GenStore = {
-  [key in keyof Stores]: (set: i.Set, get: i.Get) => Stores[key];
-} & {
-  set?: (fn: (state: i.Store) => void) => void;
-}
 
 export type ItemDataClassicPrices = {
   marketValue: i.ValueObject;
@@ -84,18 +65,18 @@ export type ItemsData = {
   [ItemQueryKeyString: string]: i.AnyCachedItem;
 }
 
-// Everything can be nullable -- protect the extension from crashing at all cost
-export type BrowserStorage = Partial<{
-  user: Partial<i.UserData>;
-  items: Partial<i.ItemsData>;
+export type UiData = {
+  keys: Record<string, boolean>;
   showTip: {
     shiftKey: boolean;
   };
-}>;
+}
+
+// Everything can be nullable -- protect the extension from crashing at all cost
+export type BrowserStorage = {
+  user: Partial<i.UserData>;
+  items: i.ItemsData;
+  ui: UiData;
+};
 
 export type StorageKeys = keyof BrowserStorage;
-
-export type ZustandSet = SetState<i.Store>;
-// This is the Zustand set function augmented with Immer's produce
-export type Set = ((fn: (state: i.Store) => void) => void);
-export type Get = GetState<i.Store>;

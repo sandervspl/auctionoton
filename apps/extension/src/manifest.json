@@ -57,6 +57,7 @@
     "storage",
     "https://api.ahdfw.nl/*",
     "https://*.ngrok.io/*",
+    "https://5d9b-82-168-31-31.ngrok.io/*",
     "https://auctionoton-server.herokuapp.com/*",
     "https://develop--auctionoton-server.herokuapp.com/*"
   ]

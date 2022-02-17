@@ -6,6 +6,7 @@ import asyncStorage from 'utils/asyncStorage';
 // Open page for user's server/faction information after installation
 addon.runtime.onInstalled.addListener(async (details) => {
   if (details.reason === 'install') {
+    asyncStorage.init();
     addon.tabs.create({ url: './form.html' });
   }
 

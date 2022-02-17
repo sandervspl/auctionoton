@@ -1,12 +1,13 @@
 import React from 'react';
 import { Key } from 'w3c-keys';
+import useStorageQuery from './useStorageQuery';
 
-import { useStore } from 'state/store';
-
-
+/** @TODO broken */
 function useKeybind(keyFn: (key: typeof Key) => Key): boolean {
   const key = React.useRef(keyFn(Key));
-  const pressed = useStore((store) => store.ui.keys[key.current] || false);
+  const { data: ui } = useStorageQuery('ui');
+
+  const pressed = ui?.keys[key.current] || false;
 
   return pressed;
 }

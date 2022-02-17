@@ -5,10 +5,10 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 
 import LoadingSvg from 'static/loading.svg';
 // import WarningSvg from 'static/exclamation-circle-regular.svg';
-import { useStore } from 'state/store';
 import { ELEMENT_ID } from 'src/constants';
 import useGetItem from 'hooks/useGetItem';
 import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
+import useStorageQuery from 'hooks/useStorageQuery';
 
 import { SellPrice } from './SellPrice';
 
@@ -21,20 +21,20 @@ dayjs.extend(relativeTime);
  */
 
 const Tooltip: React.FC<Props> = (props) => {
-  const storage = useStore((store) => store.storage);
+  const { data: user } = useStorageQuery('user');
   const { loading, error, item, mutableItem, getItem } = useGetItem(props.itemId, props.amount);
   const isClassicWowhead = useIsClassicWowhead();
 
-  if (!storage?.user?.version) {
+  if (!user?.version) {
     return null;
   }
 
   /** @TODO Show link to change realm, let user know to set realm */
-  if (isClassicWowhead && !storage?.user?.server?.classic) {
+  if (isClassicWowhead && !user?.server?.classic) {
     return null;
   }
 
-  if (!isClassicWowhead && !storage?.user?.server?.retail) {
+  if (!isClassicWowhead && !user?.server?.retail) {
     return null;
   }
 
@@ -50,15 +50,15 @@ const Tooltip: React.FC<Props> = (props) => {
 
   function getServerName(): string {
     const version: i.Versions = isClassicWowhead ? 'classic' : 'retail';
-    const serverName = storage?.user?.server?.[version];
-    const region = storage?.user?.region?.toUpperCase();
+    const serverName = user?.server?.[version];
+    const region = user?.region?.toUpperCase();
 
     if (!serverName) {
       return 'Unknown';
     }
 
     if ('slug' in serverName) {
-      const faction = storage?.user?.faction?.[serverName.slug];
+      const faction = user?.faction?.[serverName.slug];
 
       return `${serverName.name} ${region}-${faction}`;
     }

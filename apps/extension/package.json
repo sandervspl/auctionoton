@@ -30,8 +30,7 @@
     "react-query": "3.34.14",
     "tsafe": "0.9.0",
     "typed-query-selector": "2.6.1",
-    "w3c-keys": "1.0.3",
-    "zustand": "3.6.9"
+    "w3c-keys": "1.0.3"
   },
   "devDependencies": {
     "@types/chrome": "0.0.178",

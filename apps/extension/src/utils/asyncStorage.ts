@@ -16,7 +16,7 @@ class AsyncStorage {
     });
   }
 
-  get = async <T extends i.StorageKeys>(key: T): Promise<i.BrowserStorage[T] | undefined> => {
+  get = async <T extends i.StorageKeys>(key: T): Promise<i.BrowserStorage[T]> => {
     return new Promise((resolve) => {
       addon.storage.local.get(key, (items) => {
         return resolve(items[key]);
@@ -63,6 +63,21 @@ class AsyncStorage {
     }
 
     return item;
+  };
+
+  init = async () => {
+    const items: i.ItemsData = {};
+    const user: Partial<i.UserData> = {
+      server: {},
+    };
+    const ui: i.UiData = {
+      keys: {},
+      showTip: {
+        shiftKey: true,
+      },
+    };
+
+    addon.storage.local.set({ items, ui, user });
   };
 }
 

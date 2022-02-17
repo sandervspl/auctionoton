@@ -6,14 +6,15 @@ import dayjs from 'dayjs';
 import { ItemBody } from '@project/validation';
 import { API } from '@project/constants';
 
-import { useStore } from 'state/store';
 import asyncStorage from 'utils/asyncStorage';
 import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
 import validateCache from 'utils/validateCache';
 
+import useStorageQuery from './useStorageQuery';
+
 
 function useItemFetcher(itemId: number): UseItemFetcher {
-  const { user } = useStore((store) => store.storage);
+  const { data: user } = useStorageQuery('user');
   const [error, setError] = React.useState('');
   const [warning, setWarning] = React.useState('');
   const [item, setItem] = React.useState<i.MaybeAnyItem>();
