@@ -26,6 +26,7 @@ function useItemFetcher(itemId: number): UseItemFetcher {
       server: memoUser.server,
       faction: memoUser.faction,
       version: memoUser.version,
+      region: memoUser.region,
     }] as i.ItemQueryKey,
     fetchItem,
     {
@@ -78,6 +79,9 @@ function useItemFetcher(itemId: number): UseItemFetcher {
           __version: 'classic',
           updatedAt: dayjs().toISOString(),
         };
+
+        // Store in browser storage
+        await asyncStorage.addItem(queryKey, localData);
 
         return localData;
       } catch (err) {

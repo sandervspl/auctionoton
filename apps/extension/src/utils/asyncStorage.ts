@@ -41,8 +41,7 @@ class AsyncStorage {
 
   getKeyFromQueryKey = (itemQueryKey: i.ItemQueryKeyCtx) => {
     const [, itemObj] = itemQueryKey.queryKey;
-
-    return JSON.stringify(itemObj);
+    return `${itemObj.itemId}-${itemObj.region}-${itemObj.server}-${itemObj.faction}-${itemObj.version}`;
   };
 
   addItem = async (itemQueryKey: i.ItemQueryKeyCtx, data: i.MaybeAnyItem): Promise<void> => {

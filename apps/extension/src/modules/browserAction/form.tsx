@@ -88,11 +88,6 @@ export const Form: React.FC = () => {
     setValue('faction', faction || 'Alliance');
   }, [watchServer]);
 
-  const onSubmit: SubmitHandler<FormInput> = async (data, e) => {
-    e?.preventDefault();
-    userMutation.mutate(data);
-  };
-
   function createSlug(name: string): string {
     return name
       .toLowerCase()
@@ -110,6 +105,11 @@ export const Form: React.FC = () => {
 
     return JSON.stringify(realm);
   }
+
+  const onSubmit: SubmitHandler<FormInput> = async (data, e) => {
+    e?.preventDefault();
+    userMutation.mutate(data);
+  };
 
   function userMutateFn(data: FormInput) {
     return asyncStorage.set('user', (draft) => {

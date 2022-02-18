@@ -6,7 +6,8 @@ export type ItemQueryKey = [string, ({
   itemId: number;
   server: string;
   faction: i.Factions;
-  version: i.Versions;
+  version: string;
+  region: string;
 })];
 
 export type ItemQueryKeyCtx = QueryFunctionContext<ItemQueryKey, unknown>;

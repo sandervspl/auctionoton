@@ -1,30 +1,23 @@
-import * as i from 'types';
 import React from 'react';
 
 import useStorageQuery from './useStorageQuery';
 import useIsClassicWowhead from './useIsClassicWowhead';
 
 
-function useMemoUser(): { server: string; faction: string; version?: i.Versions } {
+function useMemoUser(): { server: string; faction: string; version: string; region: string } {
   const { data: user } = useStorageQuery('user');
   const isClassicWowhead = useIsClassicWowhead();
 
   const memoUser = React.useMemo(() => {
-    let server = '';
-    let faction = '';
-
-    if (isClassicWowhead) {
-      server = user?.server.classic?.slug ?? '';
-    } else {
-      server = user?.server.retail?.name ?? '';
-    }
-
-    faction = user?.faction[server.toLowerCase()]?.toLowerCase() ?? '';
+    const server = isClassicWowhead
+      ? user?.server.classic?.slug ?? ''
+      : user?.server.retail?.name ?? '';
 
     return {
       server,
-      faction,
-      version: user?.version,
+      faction: user?.faction[server.toLowerCase()]?.toLowerCase() ?? '',
+      version: user?.version ?? '',
+      region: user?.region ?? '',
     };
   }, [
     isClassicWowhead,
@@ -33,6 +26,7 @@ function useMemoUser(): { server: string; faction: string; version?: i.Versions 
     user?.faction[user?.server.classic?.slug.toLowerCase() ?? ''],
     user?.faction[user?.server.retail?.name.toLowerCase() ?? ''],
     user?.version,
+    user?.region,
   ]);
 
   return memoUser;
