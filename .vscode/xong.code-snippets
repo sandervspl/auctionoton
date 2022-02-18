@@ -1,0 +1,14 @@
+{
+  "Import project types": {
+    "prefix": "xtypes",
+    "body": [
+      "import type * as i from '@project/types';"
+    ]
+  },
+  "Import project constants": {
+    "prefix": "xconstants",
+    "body": [
+      "import * as c from '@project/constants';"
+    ]
+  },
+}
