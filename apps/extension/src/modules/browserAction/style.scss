@@ -6,9 +6,25 @@
   font-family: 'Roboto', Helvetica, sans-serif;
 }
 
+@media (prefers-color-scheme: dark) {
+  * {
+    @apply text-slate-200;
+  }
+}
+
+body {
+  @apply bg-slate-600;
+  --bg-color: rgb(107 114 128 / 1);
+}
+
+@media ((min-width: 768px) and (prefers-color-scheme: dark)) {
+  body {
+    --bg-color: rgb(15 23 42 / 1);
+  }
+}
+
 @media (min-width: 768px) {
   body {
-    --bg-color: #999999;
     --dot-color: #eee;
     --dot-size: 1px;
     --dot-space: 15px;
@@ -21,7 +37,7 @@
 }
 
 #root {
-  @apply grid place-items-center;
+  @apply grid place-content-center place-items-center;
   @apply md:h-screen;
 }
 
@@ -30,25 +46,28 @@ label {
 }
 
 select {
-  @apply block w-[230px] md:w-full mt-1 mx-auto mb-5 h-9 py-2 px-4;
-  @apply rounded-md outline-none border-none bg-gray-100 text-gray-500;
-  @apply text-sm cursor-default;
-  @apply md:bg-white md:border-solid border-2 border-gray-200;
+  @apply block w-[230px] mt-1 mx-auto mb-5 h-9 py-2 px-4;
+  @apply rounded-md outline-none bg-gray-100 text-gray-500;
+  @apply border-2 border-gray-200 text-sm cursor-pointer;
+  @apply md:bg-white md:border-solid md:w-full;
+  @apply dark:bg-slate-500 dark:border-slate-400 dark:text-slate-200;
+}
 
-  &:hover {
-    @apply bg-gray-300;
-  }
+select:hover {
+  @apply bg-gray-300;
+  @apply dark:bg-slate-600;
 }
 
 .submit-button {
-  @apply bg-red-400 font-bold w-[230px] md:w-full mx-auto mt-0 mb-5 h-11 py-2 px-4;
+  @apply bg-red-400 font-bold w-[230px] mx-auto mt-0 mb-5 h-11 py-2 px-4;
   @apply rounded-md outline-none border-none text-white text-sm cursor-pointer;
+  @apply md:w-full;
+}
 
-  &:disabled {
-    @apply bg-red-300;
-  }
+.submit-button:disabled {
+  @apply cursor-not-allowed bg-red-300;
+}
 
-  &:not(:disabled):hover {
-    @apply bg-red-500;
-  }
+.submit-button:not(:disabled):hover {
+  @apply bg-red-500;
 }

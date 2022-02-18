@@ -32,7 +32,7 @@ const queryClient = new QueryClient();
 export const Form: React.FC = () => {
   const queries = new URLSearchParams(window.location.search);
   const isLarge = queries.has('large');
-  const { data: user, isFetching } = useStorageQuery('user');
+  const { data: user, isLoading: isUserLoading } = useStorageQuery('user');
   const userMutation = useMutation(userMutateFn);
   const { register, handleSubmit, watch, setValue, formState, reset } = useForm<FormInput>({
     mode: 'all',
@@ -43,14 +43,14 @@ export const Form: React.FC = () => {
   const watchServer = watch('server');
   const { serverList, retailServerData, isLoading } = useServerList(watchRegion, watchVersion);
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     if (user?.version == null) {
       reset({
         version: 'classic',
         region: 'us',
         faction: 'Alliance',
       });
-    } else if (!isFetching && user != null) {
+    } else if (!isUserLoading && user != null) {
       reset({
         version: user.version,
         region: user.region,
@@ -62,7 +62,7 @@ export const Form: React.FC = () => {
           : undefined,
       });
     }
-  }, [isFetching, reset, user]);
+  }, [isUserLoading, reset, user]);
 
   React.useEffect(() => {
     const storedServer = user?.server[watchVersion]?.name;
@@ -153,10 +153,10 @@ export const Form: React.FC = () => {
   return (
     <div className="md:min-w-[600px] md:rounded-md">
       <div className="grid place-items-center mt-5 md:mt-0 md:items-st md:justify-items-center md:grid-cols-2 md:rounded-md">
-        <div className="grid place-items-center md:bg-white md:h-full md:w-full md:px-8 md:rounded-l-lg">
-          <div className="md:grid md:place-items-center">
+        <div className="grid place-items-center md:bg-white md:dark:bg-slate-500 md:h-full md:w-full md:px-8 md:rounded-l-lg">
+          <div className="grid place-items-center">
             <img src={`static/icon${isLarge ? '' : '-48'}.png`} alt="logo" />
-            <h1 className="text-gray-500 text-sm md:text-center">
+            <h1 className="text-gray-500 text-sm md:text-center dark:text-slate-200">
               Auctionoton
               {isLarge ? (
                 <>
@@ -168,13 +168,13 @@ export const Form: React.FC = () => {
           </div>
         </div>
 
-        <div className="py-0 px-9 md:w-full md:py-0 md:px-8 md:bg-gray-100 md:rounded-r-lg">
-          {isFetching ? <div>Loading...</div> : (
+        <div className="py-0 px-9 md:w-full md:py-0 md:px-8 md:bg-gray-100 md:dark:bg-slate-600 md:rounded-r-lg">
+          {(
             <form onSubmit={handleSubmit(onSubmit)}>
-              <h2 className="my-5 mx-auto text-lg font-bold">Select your server</h2>
+              <h2 className="my-5 mx-auto text-lg font-bold hidden md:block">Select your server</h2>
 
               <label htmlFor="version">
-              Version
+                Version
                 <select {...register('version', { required: true })}>
                   <option value="classic">Classic</option>
                   <option value="retail">Retail</option>
@@ -182,7 +182,7 @@ export const Form: React.FC = () => {
               </label>
 
               <label htmlFor="Region">
-              Region
+                Region
                 <select {...register('region', { required: true })}>
                   <option value="us">Americas and Oceania</option>
                   <option value="eu">Europe</option>
@@ -193,7 +193,7 @@ export const Form: React.FC = () => {
               </label>
 
               <label htmlFor="server">
-              Server
+                Server
                 <select {...register('server', { required: true })}>
                   {serverList.map(([english, localized]) => (
                     <option key={english} value={localized || english}>
@@ -203,9 +203,9 @@ export const Form: React.FC = () => {
                 </select>
               </label>
 
-              {watchVersion === 'classic' && (
+              {(!watchVersion || watchVersion === 'classic') && (
                 <label htmlFor="faction">
-                Faction
+                  Faction
                   <select {...register('faction', { required: true })}>
                     <option value="Alliance">Alliance</option>
                     <option value="Horde">Horde</option>
@@ -225,7 +225,7 @@ export const Form: React.FC = () => {
 
           {userMutation.status === 'success' && (
             <div className="grid place-items-center mx-auto mt-0 mb-5 text-sm text-green-500">
-            Saved succesfully!
+              Saved succesfully!
             </div>
           )}
         </div>
