@@ -1,20 +1,17 @@
 import * as i from 'types';
 import * as React from 'react';
-import { useQuery, UseQueryResult } from 'react-query';
+import { useQuery, useQueryClient, UseQueryResult } from 'react-query';
 
 import asyncStorage from 'utils/asyncStorage';
 
 
 function useStorageQuery<K extends i.StorageKeys>(key: K): UseQueryResult<i.BrowserStorage[K]> {
+  const queryClient = useQueryClient();
   const query = useQuery(['storage', key], () => asyncStorage.get(key));
 
   React.useEffect(() => {
-    addon.storage.onChanged.addListener(({ user }) => {
-      if (!user) {
-        return;
-      }
-
-      query.refetch();
+    addon.storage.onChanged.addListener(() => {
+      queryClient.invalidateQueries(['storage', key]);
     });
   }, []);
 
