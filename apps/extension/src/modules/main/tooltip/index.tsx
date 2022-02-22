@@ -40,6 +40,10 @@ const Tooltip: React.FC<Props> = (props) => {
 
   function getRelativeTime() {
     if (item?.__version === 'classic') {
+      if (!item?.stats.lastUpdated) {
+        return 'N/A';
+      }
+
       return dayjs(item?.stats.lastUpdated).fromNow();
     } else if (item?.__version === 'retail') {
       // return dayjs(item?.lastUpdated).fromNow();
@@ -90,49 +94,61 @@ const Tooltip: React.FC<Props> = (props) => {
                 {item ? (
                   <tr>
                     <td>
-                      {/* Support for older versions */}
-                      {(!('__version' in item) || item.__version === 'classic') ? (
-                        <>
-                          <SellPrice
-                            heading="Market Value"
-                            amount={props.amount}
-                            value={item.stats.current.marketValue}
-                          />
-                          <SellPrice
-                            heading="Historical Value"
-                            amount={props.amount}
-                            value={item.stats.current.historicalValue}
-                          />
-                          <SellPrice
-                            heading="Minimum Buyout"
-                            amount={props.amount}
-                            value={item.stats.current.minimumBuyout}
-                          />
-                        </>
-                      ) : null}
-                      {/* {item.__version === 'retail' ? (
-                        <>
-                          <SellPrice
-                            heading="Buyout Price"
-                            amount={props.amount}
-                            value={item.buyoutPrice}
-                          />
-                          <SellPrice
-                            heading="Unit Price"
-                            amount={props.amount}
-                            value={item.unitPrice}
-                          />
-                        </>
-                      ) : null} */}
-                      <SellPrice
-                        heading="Quantity"
-                        amount={props.amount}
-                        value={
-                          item.__version === 'classic'
-                            ? `${item.stats.current.quantity} auction${item.stats.current.quantity === 1 ? '' : 's'}`
-                            : `${item.quantity} auction${item.quantity === 1 ? '' : 's'}`
+                      {(() => {
+                        // Support for older versions
+                        if (!('__version' in item) || item.__version === 'classic') {
+                          if (!item.stats.lastUpdated) {
+                            return 'No data is available for this realm.';
+                          }
+
+                          return (
+                            <>
+                              <SellPrice
+                                heading="Market Value"
+                                amount={props.amount}
+                                value={item.stats.current.marketValue}
+                              />
+                              <SellPrice
+                                heading="Historical Value"
+                                amount={props.amount}
+                                value={item.stats.current.historicalValue}
+                              />
+                              <SellPrice
+                                heading="Minimum Buyout"
+                                amount={props.amount}
+                                value={item.stats.current.minimumBuyout}
+                              />
+                              <SellPrice
+                                heading="Quantity"
+                                amount={props.amount}
+                                value={`${item.stats.current.quantity} auction${item.stats.current.quantity === 1 ? '' : 's'}`}
+                              />
+                            </>
+                          );
                         }
-                      />
+
+                        // if (item.__version === 'retail') {
+                        //   return (
+                        //     <>
+                        //       <SellPrice
+                        //         heading="Buyout Price"
+                        //         amount={props.amount}
+                        //         value={item.buyoutPrice}
+                        //       />
+                        //       <SellPrice
+                        //         heading="Unit Price"
+                        //         amount={props.amount}
+                        //         value={item.unitPrice}
+                        //       />
+                        //       <SellPrice
+                        //         heading="Quantity"
+                        //         amount={props.amount}
+                        //         value={`${item.quantity} auction${item.quantity === 1 ? '' : 's'}`}
+                        //       />
+                        //     </>
+                        //   );
+                        // }
+                      })()}
 
                       {/* Only show this loading indicator if we can show a cached item */}
                       {item && (isLoading || isFetching) ? (

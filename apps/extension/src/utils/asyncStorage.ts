@@ -34,9 +34,7 @@ class AsyncStorage {
       if (key) {
         addon.storage.local.set({ [key]: {} }, resolve);
       } else {
-        this.init(() => {
-          resolve();
-        });
+        this.init(resolve);
       }
     });
   };

@@ -18,8 +18,7 @@ function generateContainer(parent: Element, uniqueKey: string): HTMLElement | vo
 
   const container = document.createElement('div');
   container.id = id;
-  container.style.position = 'relative';
-  container.style.width = 'auto';
+  container.className = 'relative w-auto';
   container.style.minWidth = tooltipWidth > minContainerWidth
     ? `${tooltipWidth}px`
     : `${minContainerWidth}px`;

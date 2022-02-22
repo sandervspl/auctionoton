@@ -49,6 +49,7 @@ export const Form: React.FC = () => {
         version: 'classic',
         region: 'us',
         faction: 'Alliance',
+        server: 'Anathema',
       });
     } else if (!isUserLoading && user != null) {
       reset({
@@ -138,12 +139,10 @@ export const Form: React.FC = () => {
       if (serverData) {
         draft.server[data.version] = JSON.parse(serverData);
 
-        if (data.server) {
-          draft.faction = {
-            ...user?.faction,
-            [createSlug(data.server)]: data.faction,
-          };
-        }
+        draft.faction = {
+          ...user?.faction,
+          [createSlug(data.server)]: data.faction,
+        };
       } else {
         console.error('Something went wrong parsing server data', { data, server, serverData });
       }
