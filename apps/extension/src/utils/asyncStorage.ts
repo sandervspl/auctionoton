@@ -3,10 +3,6 @@ import produce from 'immer';
 import _set from 'lodash/set';
 
 
-if (__DEV__) {
-  addon.storage.local.clear();
-}
-
 class AsyncStorage {
   async getAll(): Promise<i.BrowserStorage> {
     return new Promise((resolve) => {
@@ -33,9 +29,15 @@ class AsyncStorage {
     });
   };
 
-  clear = async <T extends i.StorageKeys>(key: T): Promise<void> => {
+  clear = async <T extends i.StorageKeys>(key?: T): Promise<void> => {
     return new Promise((resolve) => {
-      addon.storage.local.set({ [key]: {} }, resolve);
+      if (key) {
+        addon.storage.local.set({ [key]: {} }, resolve);
+      } else {
+        this.init(() => {
+          resolve();
+        });
+      }
     });
   };
 
@@ -64,7 +66,7 @@ class AsyncStorage {
     return item;
   };
 
-  init = async () => {
+  init = async (cb?: () => void) => {
     const items: i.ItemsData = {};
     const user: Partial<i.UserData> = {
       server: {},
@@ -76,10 +78,14 @@ class AsyncStorage {
       },
     };
 
-    addon.storage.local.set({ items, ui, user });
+    addon.storage.local.set({ items, ui, user }, cb);
   };
 }
 
 const asyncStorage = new AsyncStorage();
+
+if (__DEV__) {
+  // asyncStorage.clear();
+}
 
 export default asyncStorage;
