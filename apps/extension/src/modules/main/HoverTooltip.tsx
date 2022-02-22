@@ -44,7 +44,7 @@ const HoverTooltip = (): React.ReactPortal | null => {
   }, []);
 
   React.useEffect(() => {
-    if (!visible || !hoverEl || !tooltipEl.current || !hoverEl.current) {
+    if (!visible || !hoverEl.current || !tooltipEl.current || !hoverEl.current) {
       return;
     }
 
@@ -69,12 +69,12 @@ const HoverTooltip = (): React.ReactPortal | null => {
 
   React.useEffect(() => {
     // Remove shift key tip if user has never pressed shift, has pressed shift and we hover an item with an amount shown
-    if (ui?.showTip.shiftKey && shiftKeyPressed && hoverEl && getAmount() > 1) {
+    if (ui?.showTip.shiftKey && shiftKeyPressed && hoverEl.current && getAmount() > 1) {
       uiMutation.mutate();
     }
-  }, [ui?.showTip.shiftKey, shiftKeyPressed, hoverEl]);
+  }, [ui?.showTip.shiftKey, shiftKeyPressed, hoverEl.current]);
 
-  React.useEffect(multiplyValue, [shiftKeyPressed, hoverEl]);
+  React.useEffect(multiplyValue, [shiftKeyPressed, hoverEl.current]);
 
   // Listen to bubbled events and check if we are targeting a link to an item
   // Event Delegation: https://davidwalsh.name/event-delegate
