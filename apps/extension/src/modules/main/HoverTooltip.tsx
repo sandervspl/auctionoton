@@ -9,14 +9,13 @@ import asyncStorage from 'utils/asyncStorage';
 import useStorageQuery from 'hooks/useStorageQuery';
 import useGetItemFromPage from 'hooks/useGetItemFromPage';
 
+import { useEventListener } from 'hooks/useEventListener';
 import Tooltip from './tooltip';
 import generateContainer from './generateContainer';
 import { uiState } from './state';
 
 
 const HoverTooltip = (): React.ReactPortal | null => {
-  const [containerEl, setContainerEl] = React.useState<HTMLElement>();
-  const [hoverEl, setHoverEl] = React.useState<HTMLElement>();
   const [itemId, setItemId] = React.useState<number>();
   const [visible, setVisible] = React.useState(false);
   const [amount, setAmount] = React.useState(1);
@@ -29,19 +28,44 @@ const HoverTooltip = (): React.ReactPortal | null => {
     });
   });
   const { getItemIdFromUrl, isAuctionableItem } = useGetItemFromPage();
+  const hoverElObserver = React.useRef<MutationObserver | null>(null);
+  const tooltipEl = React.useRef<HTMLElement | null>(null);
+  const hoverEl = React.useRef<HTMLAnchorElement | null>(null);
+  const containerEl = React.useRef<HTMLElement | null>(null);
 
   React.useEffect(() => {
-    const cb = listenToItemLinkHover();
-
     // Wait for wowhead tooltip to be created
     const observer = observeWowheadTooltipCreate();
 
-
     return function cleanup() {
       observer.disconnect();
-      getBodyElement().removeEventListener('mouseover', cb);
+      hoverElObserver.current?.disconnect();
     };
   }, []);
+
+  React.useEffect(() => {
+    if (!visible || !hoverEl || !tooltipEl.current || !hoverEl.current) {
+      return;
+    }
+
+    // Look for item ID in the URL
+    const itemId = getItemIdFromUrl(hoverEl.current.href);
+
+    // Look for item name in tooltip body
+    // Check if item can be put on the AH
+    if (!isAuctionableItem(tooltipEl.current.innerHTML)) {
+      return;
+    }
+
+    if (!itemId) {
+      return;
+    }
+
+    if (itemId) {
+      setVisible(true);
+      setItemId(itemId);
+    }
+  }, [visible]);
 
   React.useEffect(() => {
     // Remove shift key tip if user has never pressed shift, has pressed shift and we hover an item with an amount shown
@@ -52,11 +76,29 @@ const HoverTooltip = (): React.ReactPortal | null => {
 
   React.useEffect(multiplyValue, [shiftKeyPressed, hoverEl]);
 
+  // Listen to bubbled events and check if we are targeting a link to an item
+  // Event Delegation: https://davidwalsh.name/event-delegate
+  useEventListener('mouseover', (e: MouseEvent) => {
+    const target = e.target as HTMLAnchorElement;
+    const parent = target.parentNode as HTMLAnchorElement;
+    const selector = 'a[href*="item="]';
+
+    if (target) {
+      if (target.matches(selector) || parent.matches(selector)) {
+        hoverEl.current = target;
+
+        return;
+      }
+    }
+
+    hide();
+  }, getBodyElement());
+
 
   function hide() {
     setVisible(false);
     setItemId(undefined);
-    setHoverEl(undefined);
+    hoverEl.current = null;
   }
 
   // Observe the creation of the wowhead tooltip container
@@ -71,11 +113,27 @@ const HoverTooltip = (): React.ReactPortal | null => {
             const container = generateContainer(node, 'hover');
 
             if (container) {
-              setContainerEl(container);
-              triggerTooltip();
+              containerEl.current = container;
+              tooltipEl.current = node;
 
               // Stop observing DOM changes
               observer.disconnect();
+
+              // Create Observer for the tooltip
+              const tooltipObserver = new MutationObserver((mutations) => {
+                for (const mutation of mutations) {
+                  const node = mutation.target as HTMLElement;
+
+                  if (node.dataset.visible === 'yes') {
+                    setVisible(node.dataset.visible === 'yes');
+                  } else {
+                    hide();
+                  }
+                }
+              });
+
+              tooltipObserver.observe(node, { attributeFilter: ['data-visible'] });
+              hoverElObserver.current = tooltipObserver;
             }
           }
         }
@@ -88,73 +146,8 @@ const HoverTooltip = (): React.ReactPortal | null => {
     return observer;
   }
 
-  // Set tooltip to visible and set item name
-  function triggerTooltip(node?: HTMLAnchorElement) {
-    setTimeout(() => {
-      let itemId: number | undefined;
-
-      // Look for item ID in the URL
-      if (node) {
-        itemId = getItemIdFromUrl(node.href);
-      }
-
-
-      // Look for item name in tooltip body
-      const whttList = Array.from(document.querySelectorAll('.wowhead-tooltip'));
-      for (const whtt of whttList) {
-        // Check if item can be put on the AH
-        if (!isAuctionableItem(whtt.innerHTML)) {
-          hide();
-          return;
-        }
-
-        if (itemId) {
-          continue;
-        }
-
-        const id = whtt.id;
-
-        if (id) {
-          itemId = Number(id.replace('tt', ''));
-        }
-      }
-
-      if (itemId) {
-        setVisible(true);
-        setItemId(itemId);
-      } else {
-        hide();
-      }
-    }, 50);
-  }
-
-  // Listen to bubbled events and check if we are targeting a link to an item
-  // Event Delegation: https://davidwalsh.name/event-delegate
-  function listenToItemLinkHover() {
-    function onMouseOver(e: MouseEvent) {
-      const target = e.target as HTMLAnchorElement;
-      const parent = target.parentNode as HTMLAnchorElement;
-      const selector = 'a[href*="item="]';
-
-      if (target) {
-        if (target.matches(selector) || parent.matches(selector)) {
-          setHoverEl(target);
-          triggerTooltip(target);
-
-          return;
-        }
-      }
-
-      hide();
-    }
-
-    getBodyElement().addEventListener('mouseover', onMouseOver);
-
-    return onMouseOver;
-  }
-
   function getAmount(): number {
-    const parentEl = hoverEl?.parentNode as HTMLElement | undefined;
+    const parentEl = hoverEl.current?.parentNode as HTMLElement | undefined;
     const amtSelector = 'span.glow div:first-child';
     let amt = 1;
 
@@ -179,7 +172,7 @@ const HoverTooltip = (): React.ReactPortal | null => {
     setAmount(getAmount());
   }
 
-  if (!itemId || !containerEl || !visible) {
+  if (!visible || !itemId || !containerEl.current || !hoverEl.current) {
     return null;
   }
 
@@ -191,7 +184,7 @@ const HoverTooltip = (): React.ReactPortal | null => {
         </div>
       ) : null}
     </Tooltip>,
-    containerEl,
+    containerEl.current,
   );
 };
 
