@@ -17,7 +17,7 @@ body {
   --bg-color: rgb(107 114 128 / 1);
 }
 
-@media ((min-width: 768px) and (prefers-color-scheme: dark)) {
+@media (prefers-color-scheme: dark) {
   body {
     --bg-color: rgb(15 23 42 / 1);
   }
@@ -37,7 +37,7 @@ body {
 }
 
 #root {
-  @apply grid place-content-center place-items-center;
+  @apply grid place-content-center place-items-center min-w-[300px];
   @apply md:h-screen;
 }
 

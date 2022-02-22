@@ -171,7 +171,9 @@ export const Form: React.FC = () => {
         <div className="py-0 px-9 md:w-full md:py-0 md:px-8 md:bg-gray-100 md:dark:bg-slate-600 md:rounded-r-lg">
           {(
             <form onSubmit={handleSubmit(onSubmit)}>
-              <h2 className="my-5 mx-auto text-lg font-bold hidden md:block">Select your server</h2>
+              <h2 className="my-5 mx-auto text-lg font-bold hidden md:block">
+                Select your server
+              </h2>
 
               <label htmlFor="version">
                 Version
