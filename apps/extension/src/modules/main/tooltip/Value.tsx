@@ -1,6 +1,8 @@
 import * as i from 'types';
 import React from 'react';
 
+import { convertToGSCv2 } from '@project/utils';
+
 
 export const Value: React.FC<Props> = (props) => {
   const getValueStrings = (): string | JSX.Element[] => {
@@ -8,26 +10,25 @@ export const Value: React.FC<Props> = (props) => {
       return props.value;
     }
 
-    const values: JSX.Element[] = [];
-    let coin: keyof i.ValueObject;
+    const amount = props.amount ?? 1;
+    const coins = convertToGSCv2(props.value.raw * amount);
+    const coinComponents: JSX.Element[] = [];
 
-    for (coin in props.value) {
-      const coinValue = props.value[coin];
-
-      if (coinValue === 0) {
-        continue;
-      }
-
-      const style: React.CSSProperties = {};
-      const coinIndex = ['gold', 'silver', 'copper'].indexOf(coin);
-
-      values[coinIndex] =
-        <span key={coin} className={`money${coin}`} style={style}>
-          {coinValue}
-        </span>;
+    if (typeof coins === 'string') {
+      return 'N/A';
     }
 
-    return values.filter(Boolean);
+    let coin: keyof typeof coins;
+    for (coin in coins) {
+      const coinOrderIndex = ['gold', 'silver', 'copper'].indexOf(coin);
+      coinComponents[coinOrderIndex] = (
+        <span key={coin} className={`money${coin}`}>
+          {coins[coin]}
+        </span>
+      );
+    }
+
+    return coinComponents.filter(Boolean);
   };
 
   const value = getValueStrings();
@@ -37,12 +38,11 @@ export const Value: React.FC<Props> = (props) => {
   }
 
   return (
-    <span className="text-gray-300">
-      N/A
-    </span>
+    <span className="text-gray-300">N/A</span>
   );
 };
 
 export type Props = {
-  value: string | i.ValueObject;
+  amount?: number;
+  value: string | i.PriceObjectV2;
 };

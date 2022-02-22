@@ -8,7 +8,7 @@ import _ from 'lodash';
 import { Cache } from 'cache-manager';
 import immer, { Draft } from 'immer';
 
-import { convertToGSCv2 } from 'utils/convertToGSC';
+import { convertToGSCv2 } from '@project/utils';
 import * as v from 'controllers/v2/Items/validation';
 
 

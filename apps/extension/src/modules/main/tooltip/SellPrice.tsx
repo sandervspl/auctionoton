@@ -13,7 +13,7 @@ export const SellPrice: React.FC<Props> = (props) => {
       <span>
         {props.heading}{isMultiple && ` (x${props.amount})`}
       </span>
-      <Value value={props.value} />
+      <Value value={props.value} amount={props.amount} />
     </span>
   );
 };
@@ -21,5 +21,5 @@ export const SellPrice: React.FC<Props> = (props) => {
 export type Props = {
   heading: string;
   amount?: number;
-  value: string | i.ValueObject;
+  value: string | i.PriceObjectV2;
 };

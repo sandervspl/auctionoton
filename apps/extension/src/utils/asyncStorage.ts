@@ -4,7 +4,7 @@ import _set from 'lodash/set';
 
 
 if (__DEV__) {
-  // addon.storage.local.clear();
+  addon.storage.local.clear();
 }
 
 class AsyncStorage {
@@ -71,7 +71,6 @@ class AsyncStorage {
       faction: {},
     };
     const ui: i.UiData = {
-      keys: {},
       showTip: {
         shiftKey: true,
       },

@@ -1,12 +1,6 @@
 import * as i from 'types';
 
 
-export type PriceObject = string | {
-  gold: number;
-  silver: number;
-  copper: number;
-}
-
 export type ItemResponse = {
   id: number;
   url: string;

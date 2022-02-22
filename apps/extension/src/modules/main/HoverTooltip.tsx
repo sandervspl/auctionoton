@@ -1,15 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { useMutation } from 'react-query';
+import { Key } from 'w3c-keys';
+import { useSnapshot } from 'valtio';
 
 import getBodyElement from 'utils/getBodyElement';
 import asyncStorage from 'utils/asyncStorage';
-import useKeybind from 'hooks/useKeybind';
 import useStorageQuery from 'hooks/useStorageQuery';
 import useGetItemFromPage from 'hooks/useGetItemFromPage';
 
 import Tooltip from './tooltip';
 import generateContainer from './generateContainer';
+import { uiState } from './state';
 
 
 const HoverTooltip = (): React.ReactPortal | null => {
@@ -18,7 +20,8 @@ const HoverTooltip = (): React.ReactPortal | null => {
   const [itemId, setItemId] = React.useState<number>();
   const [visible, setVisible] = React.useState(false);
   const [amount, setAmount] = React.useState(1);
-  const shiftKeyPressed = useKeybind((key) => key.Shift);
+  const uiSnap = useSnapshot(uiState);
+  const shiftKeyPressed = uiSnap.keys[Key.Shift];
   const { data: ui } = useStorageQuery('ui');
   const uiMutation = useMutation(() => {
     return asyncStorage.set('ui', (draft) => {
@@ -26,7 +29,6 @@ const HoverTooltip = (): React.ReactPortal | null => {
     });
   });
   const { getItemIdFromUrl, isAuctionableItem } = useGetItemFromPage();
-
 
   React.useEffect(() => {
     const cb = listenToItemLinkHover();
@@ -46,7 +48,7 @@ const HoverTooltip = (): React.ReactPortal | null => {
     if (ui?.showTip.shiftKey && shiftKeyPressed && hoverEl && getAmount() > 1) {
       uiMutation.mutate();
     }
-  }, [shiftKeyPressed]);
+  }, [ui?.showTip.shiftKey, shiftKeyPressed, hoverEl]);
 
   React.useEffect(multiplyValue, [shiftKeyPressed, hoverEl]);
 
@@ -183,11 +185,11 @@ const HoverTooltip = (): React.ReactPortal | null => {
 
   return ReactDOM.createPortal(
     <Tooltip itemId={itemId} amount={amount}>
-      {(() => ui?.showTip.shiftKey && getAmount() > 1 ? (
-        <div className="mt-2">
+      {ui?.showTip.shiftKey && getAmount() > 1 ? (
+        <div className="blizzard-blue mt-2">
           Tip: press shift to see the price for the stack!
         </div>
-      ) : null)}
+      ) : null}
     </Tooltip>,
     containerEl,
   );

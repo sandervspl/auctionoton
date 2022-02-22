@@ -6,7 +6,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import LoadingSvg from 'static/loading.svg';
 // import WarningSvg from 'static/exclamation-circle-regular.svg';
 import { ELEMENT_ID } from 'src/constants';
-import useGetItem from 'hooks/useGetItem';
+import useItemFetcher from 'hooks/useItemFetcher';
 import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
 import useStorageQuery from 'hooks/useStorageQuery';
 
@@ -22,7 +22,7 @@ dayjs.extend(relativeTime);
 
 const Tooltip: React.FC<Props> = (props) => {
   const { data: user } = useStorageQuery('user');
-  const { loading, error, item, mutableItem, getItem } = useGetItem(props.itemId, props.amount);
+  const { error, isFetching, isLoading, item, refetch } = useItemFetcher(props.itemId);
   const isClassicWowhead = useIsClassicWowhead();
 
   if (!user?.version) {
@@ -39,9 +39,9 @@ const Tooltip: React.FC<Props> = (props) => {
   }
 
   function getRelativeTime() {
-    if (mutableItem?.__version === 'classic') {
-      return dayjs(mutableItem?.stats.lastUpdated).fromNow();
-    } else if (mutableItem?.__version === 'retail') {
+    if (item?.__version === 'classic') {
+      return dayjs(item?.stats.lastUpdated).fromNow();
+    } else if (item?.__version === 'retail') {
       // return dayjs(item?.lastUpdated).fromNow();
     }
 
@@ -87,55 +87,55 @@ const Tooltip: React.FC<Props> = (props) => {
                     </div>
                   </td>
                 </tr>
-                {mutableItem ? (
+                {item ? (
                   <tr>
                     <td>
                       {/* Support for older versions */}
-                      {(!('__version' in mutableItem) || mutableItem.__version === 'classic') ? (
+                      {(!('__version' in item) || item.__version === 'classic') ? (
                         <>
                           <SellPrice
                             heading="Market Value"
                             amount={props.amount}
-                            value={mutableItem.stats.current.marketValue}
+                            value={item.stats.current.marketValue}
                           />
                           <SellPrice
                             heading="Historical Value"
                             amount={props.amount}
-                            value={mutableItem.stats.current.historicalValue}
+                            value={item.stats.current.historicalValue}
                           />
                           <SellPrice
                             heading="Minimum Buyout"
                             amount={props.amount}
-                            value={mutableItem.stats.current.minimumBuyout}
+                            value={item.stats.current.minimumBuyout}
                           />
                         </>
                       ) : null}
-                      {mutableItem.__version === 'retail' ? (
+                      {/* {item.__version === 'retail' ? (
                         <>
                           <SellPrice
                             heading="Buyout Price"
                             amount={props.amount}
-                            value={mutableItem.buyoutPrice}
+                            value={item.buyoutPrice}
                           />
                           <SellPrice
                             heading="Unit Price"
                             amount={props.amount}
-                            value={mutableItem.unitPrice}
+                            value={item.unitPrice}
                           />
                         </>
-                      ) : null}
+                      ) : null} */}
                       <SellPrice
                         heading="Quantity"
                         amount={props.amount}
                         value={
-                          mutableItem.__version === 'classic'
-                            ? `${mutableItem.stats.current.quantity} auction${mutableItem.stats.current.quantity === 1 ? '' : 's'}`
-                            : `${mutableItem.quantity} auction${mutableItem.quantity === 1 ? '' : 's'}`
+                          item.__version === 'classic'
+                            ? `${item.stats.current.quantity} auction${item.stats.current.quantity === 1 ? '' : 's'}`
+                            : `${item.quantity} auction${item.quantity === 1 ? '' : 's'}`
                         }
                       />
 
                       {/* Only show this loading indicator if we can show a cached item */}
-                      {item && loading ? (
+                      {item && (isLoading || isFetching) ? (
                         <div className="flex mt-2">
                           <LoadingSvg className="inline-block mr-1 w-4" />
                           Fetching latest price info...
@@ -144,7 +144,7 @@ const Tooltip: React.FC<Props> = (props) => {
                     </td>
                   </tr>
                 ) : null}
-                {(!item || !mutableItem) && loading ? (
+                {(!item || !item) && (isLoading || isFetching) ? (
                   <tr>
                     <td>
                       <LoadingSvg />
@@ -173,7 +173,7 @@ const Tooltip: React.FC<Props> = (props) => {
                 <tr>
                   <td>
                     {typeof props.children === 'function'
-                      ? props.children({ error: !!error, item, loading, getItem })
+                      ? props.children({ error: !!error, item, loading: isLoading || isFetching, getItem: refetch })
                       : props.children}
                   </td>
                 </tr>
@@ -207,7 +207,7 @@ interface ChildrenFuncArgs {
 interface Props {
   itemId: number;
   amount?: number;
-  children?: JSX.Element | ((args: ChildrenFuncArgs) => JSX.Element | null);
+  children: null | JSX.Element | ((args: ChildrenFuncArgs) => JSX.Element | null);
 }
 
 export default Tooltip;

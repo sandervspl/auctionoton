@@ -23,6 +23,7 @@
     "@nestjs/throttler": "2.0.0",
     "@project/constants": "*",
     "@project/types": "*",
+    "@project/utils": "*",
     "@project/validation": "*",
     "blizzapi": "2.1.0",
     "cache-manager": "3.6.0",

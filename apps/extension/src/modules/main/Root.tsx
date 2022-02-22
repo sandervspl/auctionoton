@@ -1,13 +1,12 @@
 import React from 'react';
-import { QueryClient, QueryClientProvider, useMutation } from 'react-query';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
-import { Key } from 'w3c-keys';
 
 import time from 'utils/time';
-import asyncStorage from 'utils/asyncStorage';
 
 import PageTooltip from './PageTooltip';
 import HoverTooltip from './HoverTooltip';
+import { uiState } from './state';
 
 class AppContainer extends React.Component {
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
@@ -22,25 +21,15 @@ class AppContainer extends React.Component {
 }
 
 const App: React.VFC = () => {
-  const uiMutation = useMutation(([key, bool]: [string, boolean]) => {
-    return asyncStorage.set('ui', (draft) => {
-      draft.keys[key] = bool;
-    });
-  });
   const [isItemPage, setIsItemPage] = React.useState(window.location.pathname.includes('item='));
 
   React.useEffect(() => {
-    // Ugly for now until I need more keybinds
     window.addEventListener('keydown', (e) => {
-      if (e.key === Key.Shift) {
-        uiMutation.mutate([Key.Shift, true]);
-      }
+      uiState.keys[e.key] = true;
     });
 
-    window.addEventListener('keyup', (e) => {
-      if (e.key === Key.Shift) {
-        uiMutation.mutate([Key.Shift, false]);
-      }
+    document.addEventListener('keyup', (e) => {
+      uiState.keys[e.key] = false;
     });
   }, []);
 

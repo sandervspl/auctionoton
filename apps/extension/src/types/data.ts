@@ -5,7 +5,6 @@ export type ItemDataClassicPrices = {
   marketValue: i.ValueObject;
   historicalValue: i.ValueObject;
   minimumBuyout: i.ValueObject;
-  raw: number;
 }
 
 export type Cache<V = i.Versions> = {
@@ -66,7 +65,6 @@ export type ItemsData = {
 }
 
 export type UiData = {
-  keys: Record<string, boolean>;
   showTip: {
     shiftKey: boolean;
   };

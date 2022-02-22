@@ -1,6 +1,12 @@
 import { Date_ISO_8601 } from './general';
 import { NexusHub } from './nexushub';
 
+export type PriceObject = string | {
+  gold: number;
+  silver: number;
+  copper: number;
+}
+
 export type PriceObjectV2 = string | {
   gold: number;
   silver: number;
