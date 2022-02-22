@@ -20,18 +20,19 @@ const HoverTooltip = (): React.ReactPortal | null => {
   const [visible, setVisible] = React.useState(false);
   const [amount, setAmount] = React.useState(1);
   const uiSnap = useSnapshot(uiState);
-  const shiftKeyPressed = uiSnap.keys[Key.Shift];
   const { data: ui } = useStorageQuery('ui');
-  const uiMutation = useMutation(() => {
-    return asyncStorage.set('ui', (draft) => {
-      draft!.showTip.shiftKey = false;
-    });
-  });
   const { getItemIdFromUrl, isAuctionableItem } = useGetItemFromPage();
   const hoverElObserver = React.useRef<MutationObserver | null>(null);
   const tooltipEl = React.useRef<HTMLElement | null>(null);
   const hoverEl = React.useRef<HTMLAnchorElement | null>(null);
   const containerEl = React.useRef<HTMLElement | null>(null);
+  const uiMutation = useMutation(() => {
+    return asyncStorage.set('ui', (draft) => {
+      draft!.showTip.shiftKey = false;
+    });
+  });
+
+  const shiftKeyPressed = uiSnap.keys[Key.Shift];
 
   React.useEffect(() => {
     // Wait for wowhead tooltip to be created
@@ -115,6 +116,7 @@ const HoverTooltip = (): React.ReactPortal | null => {
             if (container) {
               containerEl.current = container;
               tooltipEl.current = node;
+              setVisible(true);
 
               // Stop observing DOM changes
               observer.disconnect();
