@@ -48,7 +48,7 @@ const PageTooltip = (): React.ReactPortal | null => {
   return ReactDOM.createPortal(
     <>
       <div className="h-2" />
-      <p className="!relative !w-auto !h-auto text-[10px] !left-0">
+      <p className="!relative !left-0 !w-auto !h-auto text-[10px]">
         Auction House Prices for Wowhead
       </p>
 

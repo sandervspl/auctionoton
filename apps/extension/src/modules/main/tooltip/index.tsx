@@ -86,7 +86,7 @@ const Tooltip: React.FC<Props> = (props) => {
                         {getServerName()}
                       </span>
                     </span>
-                    <div className="whtt-sellprice mb-2">
+                    <div className="mb-2 whtt-sellprice">
                       Last updated: {getRelativeTime()}
                     </div>
                   </td>

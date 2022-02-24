@@ -9,7 +9,7 @@ export const SellPrice: React.FC<Props> = (props) => {
   const isMultiple = isValueObject && props.amount && props.amount > 1;
 
   return (
-    <span className="whtt-sellprice flex justify-between gap-10">
+    <span className="flex gap-10 justify-between whtt-sellprice">
       <span>
         {props.heading}{isMultiple && ` (x${props.amount})`}
       </span>

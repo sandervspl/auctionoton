@@ -1,11 +1,17 @@
 {
   "parser": "@typescript-eslint/parser",
   "extends": [
-      "react-app",
-      "plugin:@typescript-eslint/recommended",
-      "plugin:import/errors",
-      "plugin:import/warnings",
-      "plugin:import/typescript"
+    "react-app",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript",
+    "plugin:tailwindcss/recommended"
+  ],
+  "plugins": [
+    "@typescript-eslint",
+    "import",
+    "tailwindcss"
   ],
   "parserOptions": {
       "ecmaVersion": 2018,
@@ -119,6 +125,8 @@
       ],
       "allowDirectConstAssertionInArrowFunctions": true
     }],
-    "@typescript-eslint/ban-ts-comment": [0]
+    "@typescript-eslint/ban-ts-comment": [0],
+
+    "tailwindcss/no-custom-classname": [0]
   }
 }
