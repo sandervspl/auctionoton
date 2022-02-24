@@ -31,7 +31,7 @@ require('esbuild').build({
   },
   sourcemap: dev,
   outdir: 'dist',
-  target: 'es2018',
+  target: 'es2020',
   define: {
     __DEV__: dev,
     __PROD__: prod,
