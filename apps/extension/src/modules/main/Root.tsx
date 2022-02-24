@@ -1,6 +1,7 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
+import { Key } from 'w3c-keys';
 
 import time from 'utils/time';
 
@@ -25,11 +26,11 @@ const App: React.VFC = () => {
 
   React.useEffect(() => {
     window.addEventListener('keydown', (e) => {
-      uiState.keys[e.key] = true;
+      uiState.keys[e.key as Key] = true;
     });
 
     document.addEventListener('keyup', (e) => {
-      uiState.keys[e.key] = false;
+      uiState.keys[e.key as Key] = false;
     });
   }, []);
 
