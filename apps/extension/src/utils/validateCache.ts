@@ -11,7 +11,7 @@ function validateCache(data: i.AnyCachedItem | undefined): data is i.AnyCachedIt
   const diff = __DEV__ ? time.seconds(10) : time.hours(1);
 
   // Valid if less than diff old
-  return now - data.updatedAt < diff;
+  return now - new Date(data.updatedAt).getTime() < diff;
 }
 
 export default validateCache;
