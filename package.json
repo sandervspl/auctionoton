@@ -19,7 +19,8 @@
     "nu:e": "npm uninstall -w extension",
     "nu:s": "npm uninstall -w server",
     "cs:add": "npx changeset",
-    "cs:ver": "npx changeset version"
+    "cs:ver": "npx changeset version",
+    "e:version": "npm run version -prefix apps/extension"
   },
   "devDependencies": {
     "@changesets/cli": "2.19.0",
