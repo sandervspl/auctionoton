@@ -2,7 +2,7 @@
   <img src="https://github.com/sandervspl/auctionoton/blob/master/apps/extension/store/promo-440x280.png?raw=true" alt="prime-logo" />
 </p>
 
-# Auctionoton
+# Auctionoton: Auction House Prices for Wowhead
 
 Display current Auction House price data for items on [tbc.wowhead.com](https://tbc.wowhead.com).
 
