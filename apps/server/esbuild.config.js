@@ -27,6 +27,10 @@ function build() {
     bundle: true,
     platform: 'node',
     target: ['node14'],
+    define: {
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+      'process.env.APP_ENV': JSON.stringify(process.env.APP_ENV),
+    },
     plugins: [
       esbuildDecorators(),
     ],

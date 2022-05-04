@@ -1,6 +1,13 @@
 # extension
 
+## 3.1.1
+
+### Patch Changes
+
+- Properly define NODE_ENV and APP_ENV in esbuild config
+
 ## 3.1.0
+
 ### Minor Changes
 
 - - Fix tooltip not rendering on first hover

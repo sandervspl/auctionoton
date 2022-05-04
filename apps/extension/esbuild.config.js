@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const svgrPlugin = require('esbuild-plugin-svgr');
 
-
 const env = process.env.NODE_ENV || 'development';
 const dev = env !== 'production';
 const prod = !dev;
@@ -33,6 +32,7 @@ require('esbuild').build({
   outdir: 'dist',
   target: 'es2020',
   define: {
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
     __DEV__: dev,
     __PROD__: prod,
     /** @TODO make endpoint */
