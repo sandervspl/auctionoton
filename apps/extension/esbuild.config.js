@@ -2,8 +2,8 @@
 const svgrPlugin = require('esbuild-plugin-svgr');
 
 const env = process.env.NODE_ENV || 'development';
-const dev = env !== 'production';
-const prod = !dev;
+const DEV = env !== 'production';
+const PROD = !DEV;
 
 require('esbuild').build({
   entryPoints: {
@@ -13,7 +13,7 @@ require('esbuild').build({
   },
   platform: 'browser',
   bundle: true,
-  watch: dev && {
+  watch: DEV && {
     onRebuild(err) {
       if (err) console.error('watch build failed:', err);
 
@@ -28,13 +28,13 @@ require('esbuild').build({
       });
     },
   },
-  sourcemap: dev,
+  sourcemap: DEV,
   outdir: 'dist',
   target: 'es2020',
   define: {
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-    __DEV__: dev,
-    __PROD__: prod,
+    'process.env.NODE_ENV': JSON.stringify(env),
+    __DEV__: DEV,
+    __PROD__: PROD,
     /** @TODO make endpoint */
     __CUR_CLASSIC_VERSION__: JSON.stringify('tbc'),
   },

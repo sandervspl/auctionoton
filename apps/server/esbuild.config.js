@@ -2,7 +2,8 @@ const path = require('path');
 const { fork } = require('child_process');
 const { esbuildDecorators } = require('@anatine/esbuild-decorators');
 
-const DEV = process.env.NODE_ENV !== 'production';
+const env = process.env.NODE_ENV || 'development';
+const DEV = env !== 'production';
 
 // Fork process to start/kill app with
 let nodeFork;
@@ -28,8 +29,8 @@ function build() {
     platform: 'node',
     target: ['node14'],
     define: {
-      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-      'process.env.APP_ENV': JSON.stringify(process.env.APP_ENV),
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+      'process.env.APP_ENV': JSON.stringify(process.env.APP_ENV || 'development'),
     },
     plugins: [
       esbuildDecorators(),
