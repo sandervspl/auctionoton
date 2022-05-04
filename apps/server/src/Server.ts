@@ -8,6 +8,8 @@ import { HttpServer, ValidationPipe } from '@nestjs/common';
 
 import ApplicationModule from './modules/Api';
 
+const port = process.env.PORT || 8080;
+
 async function bootstrap() {
   const app = await NestFactory.create(ApplicationModule);
   app.useGlobalPipes(new ValidationPipe());
@@ -25,10 +27,10 @@ async function bootstrap() {
   expressApp.disable('x-powered-by');
 
   // Start server
-  await app.listen(process.env.PORT!, () => {
+  await app.listen(port, () => {
     console.info(
       `[${process.env.NODE_ENV} / ${process.env.APP_ENV}]`,
-      `Server started at ${color.cyan(`https://localhost:${process.env.PORT}`)}`,
+      `Server started at ${color.cyan(`https://localhost:${port}`)}`,
     );
   });
 }

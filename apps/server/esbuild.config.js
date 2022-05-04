@@ -27,7 +27,7 @@ function build() {
     outfile: 'dist/bundle.js',
     bundle: true,
     platform: 'node',
-    target: ['node14'],
+    target: 'node15',
     define: {
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
       'process.env.APP_ENV': JSON.stringify(process.env.APP_ENV || 'development'),

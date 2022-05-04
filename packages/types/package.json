@@ -9,7 +9,7 @@
     "dev": "npx tsup index.ts --dts --watch"
   },
   "devDependencies": {
-    "tsup": "5.11.11",
+    "tsup": "5.12.6",
     "typescript": "*"
   }
 }
