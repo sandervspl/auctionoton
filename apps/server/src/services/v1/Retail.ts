@@ -43,8 +43,8 @@ export default class RetailService {
 
       // Refresh auctions
       if (cache.__key === 'auctions') {
-        const { region, connectedRealmId } = cache;
-        this.getAllAuctionsForRealmId(region, connectedRealmId, true);
+        // const { region, connectedRealmId } = cache;
+        // this.getAllAuctionsForRealmId(region, connectedRealmId, true);
       }
     });
   }

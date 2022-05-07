@@ -153,15 +153,15 @@ export default class ItemService {
       return error;
     }
 
-    const auctions = await this.retailService.getAllAuctionsForRealmId(params.region, CRID);
+    // const auctions = await this.retailService.getAllAuctionsForRealmId(params.region, CRID);
 
-    if (auctions) {
-      return {
-        lastUpdated: auctions.lastUpdated,
-        ...auctions[Number(params.item_id)],
-        id: Number(params.item_id),
-      };
-    }
+    // if (auctions) {
+    //   return {
+    //     lastUpdated: auctions.lastUpdated,
+    //     ...auctions[Number(params.item_id)],
+    //     id: Number(params.item_id),
+    //   };
+    // }
 
     throw new NotFoundException();
   }
