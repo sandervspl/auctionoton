@@ -101,7 +101,7 @@ export default class ItemsService {
         await this.cacheMgr.set(
           this.getCacheKey(serverSlug, factionSlug, params.id),
           result,
-          { ttl: 15 * 60 }, // Cache 15 min
+          { ttl: 60 * 60 }, // Cache 1 hour
         );
 
         data = result;
