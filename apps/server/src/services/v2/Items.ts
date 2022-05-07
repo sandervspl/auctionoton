@@ -65,6 +65,8 @@ export default class ItemsService {
     const serverSlug = this.getServerSlug(body.server_name);
     const factionSlug = this.getFactionSlug(body.faction);
 
+    console.info(`Fetching item '${params.id}' for '${serverSlug}' (${factionSlug})`);
+
     // Check cache
     let data = await this.cacheMgr.get<i.NexusHub.ItemsResponse>(this.getCacheKey(serverSlug, factionSlug, params.id));
 
