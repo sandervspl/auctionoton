@@ -8,3 +8,4 @@ herokugit
 deploy.sh
 
 .env.dev
+.env
