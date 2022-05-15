@@ -38,7 +38,7 @@ function useGetPageData(): UseGetPageData {
     const match = url?.match(/(item|spell)=(\d+)/);
 
     if (match) {
-      return Number(match[1]);
+      return Number(match[2]);
     }
   }
 
