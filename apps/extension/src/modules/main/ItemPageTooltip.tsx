@@ -14,7 +14,7 @@ import Tooltip from './tooltip';
 import generateContainer from './generateContainer';
 
 
-const PageTooltip = (): React.ReactPortal | null => {
+const ItemPageTooltip = (): React.ReactPortal | null => {
   const isClassicWowhead = useIsClassicWowhead();
   const { item: pageItem, isAuctionableItem } = useGetItemFromPage();
   const { data: user } = useStorageQuery('user');
@@ -98,4 +98,4 @@ const PageTooltip = (): React.ReactPortal | null => {
   );
 };
 
-export default PageTooltip;
+export default ItemPageTooltip;

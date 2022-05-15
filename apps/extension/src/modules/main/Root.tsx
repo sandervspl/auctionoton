@@ -5,7 +5,7 @@ import { Key } from 'w3c-keys';
 
 import time from 'utils/time';
 
-import PageTooltip from './PageTooltip';
+import ItemPageTooltip from './ItemPageTooltip';
 import HoverTooltip from './HoverTooltip';
 import { uiState } from './state';
 
@@ -40,7 +40,7 @@ const App: React.VFC = () => {
 
   return (
     <>
-      {isItemPage && <PageTooltip />}
+      {isItemPage && <ItemPageTooltip />}
       <HoverTooltip />
     </>
   );
