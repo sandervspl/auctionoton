@@ -7,7 +7,7 @@ import { useSnapshot } from 'valtio';
 import getBodyElement from 'utils/getBodyElement';
 import asyncStorage from 'utils/asyncStorage';
 import useStorageQuery from 'hooks/useStorageQuery';
-import useGetItemFromPage from 'hooks/useGetItemFromPage';
+import useGetPageData from 'hooks/useGetPageData';
 
 import { useEventListener } from 'hooks/useEventListener';
 import Tooltip from './tooltip';
@@ -21,7 +21,7 @@ const HoverTooltip = (): React.ReactPortal | null => {
   const [amount, setAmount] = React.useState(1);
   const uiSnap = useSnapshot(uiState);
   const { data: ui } = useStorageQuery('ui');
-  const { getItemIdFromUrl, isAuctionableItem } = useGetItemFromPage();
+  const { getIdFromUrl, isAuctionableItem } = useGetPageData();
   const hoverElObserver = React.useRef<MutationObserver | null>(null);
   const tooltipEl = React.useRef<HTMLElement | null>(null);
   const hoverEl = React.useRef<HTMLAnchorElement | null>(null);
@@ -50,7 +50,7 @@ const HoverTooltip = (): React.ReactPortal | null => {
     }
 
     // Look for item ID in the URL
-    const itemId = getItemIdFromUrl(hoverEl.current.href);
+    const itemId = getIdFromUrl(hoverEl.current.href);
 
     // Look for item name in tooltip body
     // Check if item can be put on the AH

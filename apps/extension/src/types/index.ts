@@ -16,7 +16,7 @@ export type Realms = {
   us: string[];
 }
 
-export type PageItem = {
+export type PageData = {
   name: string;
   id: number;
 }

@@ -7,7 +7,7 @@ import ExternalLinkSvg from 'static/external-link.svg';
 import RedoSvg from 'static/redo-solid.svg';
 import GlobeSvg from 'static/globe-americas-regular.svg';
 import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
-import useGetItemFromPage from 'hooks/useGetItemFromPage';
+import useGetPageData from 'hooks/useGetPageData';
 import useStorageQuery from 'hooks/useStorageQuery';
 
 import Tooltip from './tooltip';
@@ -16,7 +16,7 @@ import generateContainer from './generateContainer';
 
 const ItemPageTooltip = (): React.ReactPortal | null => {
   const isClassicWowhead = useIsClassicWowhead();
-  const { item: pageItem, isAuctionableItem } = useGetItemFromPage();
+  const { data: pageItem, isAuctionableItem } = useGetPageData();
   const { data: user } = useStorageQuery('user');
 
   const tooltipElementId = `tt${pageItem?.id}`;

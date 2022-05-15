@@ -6,6 +6,7 @@ import { Key } from 'w3c-keys';
 import time from 'utils/time';
 
 import ItemPageTooltip from './ItemPageTooltip';
+import SpellPageTooltip from './SpellPageTooltip';
 import HoverTooltip from './HoverTooltip';
 import { uiState } from './state';
 
@@ -23,6 +24,7 @@ class AppContainer extends React.Component {
 
 const App: React.VFC = () => {
   const [isItemPage, setIsItemPage] = React.useState(window.location.pathname.includes('item='));
+  const [isSpellPage, setIsSpellPage] = React.useState(window.location.pathname.includes('spell='));
 
   React.useEffect(() => {
     window.addEventListener('keydown', (e) => {
@@ -36,11 +38,13 @@ const App: React.VFC = () => {
 
   React.useEffect(() => {
     setIsItemPage(window.location.pathname.includes('item='));
+    setIsSpellPage(window.location.pathname.includes('spell='));
   }, [window.location.pathname]);
 
   return (
     <>
       {isItemPage && <ItemPageTooltip />}
+      {isSpellPage && <SpellPageTooltip />}
       <HoverTooltip />
     </>
   );
