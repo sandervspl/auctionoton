@@ -23,8 +23,8 @@ class AppContainer extends React.Component {
 }
 
 const App: React.VFC = () => {
-  const [isItemPage, setIsItemPage] = React.useState(window.location.pathname.includes('item='));
-  const [isSpellPage, setIsSpellPage] = React.useState(window.location.pathname.includes('spell='));
+  const isItemPage = window.location.pathname.includes('item=');
+  const isSpellPage = window.location.pathname.includes('spell=');
 
   React.useEffect(() => {
     window.addEventListener('keydown', (e) => {
@@ -35,11 +35,6 @@ const App: React.VFC = () => {
       uiState.keys[e.key as Key] = false;
     });
   }, []);
-
-  React.useEffect(() => {
-    setIsItemPage(window.location.pathname.includes('item='));
-    setIsSpellPage(window.location.pathname.includes('spell='));
-  }, [window.location.pathname]);
 
   return (
     <>
