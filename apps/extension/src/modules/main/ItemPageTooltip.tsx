@@ -11,6 +11,7 @@ import useGetPageData from 'hooks/useGetPageData';
 import useStorageQuery from 'hooks/useStorageQuery';
 
 import Tooltip from './tooltip';
+import SingleItemLayout from './SingleItemTooltip';
 import generateContainer from './generateContainer';
 
 
@@ -52,7 +53,10 @@ const ItemPageTooltip = (): React.ReactPortal | null => {
         Auction House Prices for Wowhead
       </p>
 
-      <Tooltip itemId={pageItem.id}>
+      <Tooltip
+        itemId={pageItem.id}
+        layout={<SingleItemLayout />}
+      >
         {({ error, loading, item, getItem }) => {
           return (
             <div className="mt-2">

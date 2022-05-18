@@ -13,6 +13,7 @@ import { useEventListener } from 'hooks/useEventListener';
 import Tooltip from './tooltip';
 import generateContainer from './generateContainer';
 import { uiState } from './state';
+import SingleItemLayout from './SingleItemTooltip';
 
 
 const HoverTooltip = (): React.ReactPortal | null => {
@@ -179,7 +180,10 @@ const HoverTooltip = (): React.ReactPortal | null => {
   }
 
   return ReactDOM.createPortal(
-    <Tooltip itemId={itemId} amount={amount}>
+    <Tooltip
+      itemId={itemId}
+      layout={<SingleItemLayout amount={amount} />}
+    >
       {ui?.showTip.shiftKey && getAmount() > 1 ? (
         <div className="mt-2 blizzard-blue">
           Tip: press shift to see the price for the stack!
