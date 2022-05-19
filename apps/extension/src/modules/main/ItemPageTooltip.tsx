@@ -42,7 +42,11 @@ const ItemPageTooltip = (): React.ReactPortal | null => {
     return null;
   }
 
-  if (!isAuctionableItem(tooltipElement.innerHTML)) {
+  const itemMetaStr = tooltipElement
+    .querySelector('table > tbody > tr:nth-child(1) > td > table:nth-child(1) > tbody > tr > td')
+    ?.innerHTML;
+
+  if (!isAuctionableItem(itemMetaStr)) {
     return null;
   }
 

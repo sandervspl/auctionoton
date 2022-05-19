@@ -55,7 +55,11 @@ const HoverTooltip = (): React.ReactPortal | null => {
 
     // Look for item name in tooltip body
     // Check if item can be put on the AH
-    if (!isAuctionableItem(tooltipEl.current.innerHTML)) {
+    const itemMetaStr = tooltipEl.current
+      .querySelector('table > tbody > tr:nth-child(1) > td > table:nth-child(1) > tbody > tr > td')
+      ?.innerHTML;
+
+    if (!isAuctionableItem(itemMetaStr)) {
       return;
     }
 
