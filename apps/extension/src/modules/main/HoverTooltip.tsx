@@ -155,7 +155,7 @@ const HoverTooltip = (): React.ReactPortal | null => {
 
   function getAmount(): number {
     const parentEl = hoverEl.current?.parentNode as HTMLElement | undefined;
-    const amtSelector = 'span.glow div:first-child';
+    const amtSelector = '.wh-icon-text';
     let amt = 1;
 
     if (parentEl?.className.includes('icon')) {
