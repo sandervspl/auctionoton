@@ -154,16 +154,6 @@ const SingleItemLayout: React.FC<Props> = (props) => {
           </td>
         </tr>
       ) : null}
-      {/* {warning ? (
-        <tr>
-          <td>
-            <div className="mt-1">
-              <WarningSvg className="h-3" />
-              {warning}
-            </div>
-          </td>
-        </tr>
-      ) : null} */}
     </>
   );
 };

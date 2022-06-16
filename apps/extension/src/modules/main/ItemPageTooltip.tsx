@@ -11,7 +11,7 @@ import useGetPageData from 'hooks/useGetPageData';
 import useStorageQuery from 'hooks/useStorageQuery';
 
 import Tooltip from './tooltip';
-import SingleItemLayout from './SingleItemTooltip';
+import SingleItemLayout from './SingleItemLayout';
 import generateContainer from './generateContainer';
 
 
@@ -80,7 +80,7 @@ const ItemPageTooltip = (): React.ReactPortal | null => {
                   rel="noopener noreferrer"
                   className="flex gap-2 place-items-center mt-4 q"
                 >
-                More information on Nexushub.co <ExternalLinkSvg />
+                  More information on Nexushub.co <ExternalLinkSvg />
                 </a>
               )}
             </>
