@@ -138,7 +138,10 @@ const SingleItemLayout: React.FC<Props> = (props) => {
       {(!item || !item) && (isLoading || isFetching) ? (
         <tr>
           <td>
-            <LoadingSvg className="inline-block mt-4 mr-1 w-4" />
+            <div className="flex items-center">
+              <LoadingSvg className="inline-block mr-1 w-4" />
+                Fetching latest price info...
+            </div>
           </td>
         </tr>
       ) : null}
