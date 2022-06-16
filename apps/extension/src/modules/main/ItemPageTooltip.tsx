@@ -11,7 +11,7 @@ import useGetPageData from 'hooks/useGetPageData';
 import useStorageQuery from 'hooks/useStorageQuery';
 
 import Tooltip from './tooltip';
-import SingleItemLayout from './SingleItemLayout';
+import SingleItemLayout from './layouts/SingleItemLayout';
 import generateContainer from './generateContainer';
 
 

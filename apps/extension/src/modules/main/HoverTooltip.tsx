@@ -13,7 +13,7 @@ import { useEventListener } from 'hooks/useEventListener';
 import Tooltip from './tooltip';
 import generateContainer from './generateContainer';
 import { uiState } from './state';
-import SingleItemLayout from './SingleItemLayout';
+import SingleItemLayout from './layouts/SingleItemLayout';
 
 
 const HoverTooltip = (): React.ReactPortal | null => {

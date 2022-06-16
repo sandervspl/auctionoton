@@ -7,7 +7,7 @@ import useItemFetcher from 'hooks/useItemFetcher';
 import LoadingSvg from 'static/loading.svg';
 import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
 
-import { SellPrice } from './tooltip/SellPrice';
+import { SellPrice } from '../tooltip/SellPrice';
 
 const SingleItemLayout: React.FC<Props> = (props) => {
   if (!props.itemId) {
