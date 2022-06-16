@@ -1,22 +1,17 @@
-import type * as i from 'types';
 import React from 'react';
 import dayjs from 'dayjs';
 
-import useStorageQuery from 'hooks/useStorageQuery';
 import useItemFetcher from 'hooks/useItemFetcher';
 import LoadingSvg from 'static/loading.svg';
-import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
 
 import { SellPrice } from '../tooltip/SellPrice';
+import ServerName from './components/ServerName';
 
 const SingleItemLayout: React.FC<Props> = (props) => {
   if (!props.itemId) {
     throw new Error('the "itemId" prop is missing in SingleItemTooltip! Pass the "itemId" prop to the <Tooltip /> component.');
   }
-
-  const { data: user } = useStorageQuery('user');
   const { error, isFetching, isLoading, item } = useItemFetcher(props.itemId);
-  const isClassicWowhead = useIsClassicWowhead();
 
   function getRelativeTime() {
     if (item?.__version === 'classic') {
@@ -32,35 +27,13 @@ const SingleItemLayout: React.FC<Props> = (props) => {
     return 'N/A';
   }
 
-  function getServerName(): string {
-    const version: i.Versions = isClassicWowhead ? 'classic' : 'retail';
-    const serverName = user?.server[version];
-    const region = user?.region?.toUpperCase();
-
-    if (!serverName) {
-      return 'Unknown';
-    }
-
-    if ('slug' in serverName) {
-      const faction = user?.faction[serverName.slug];
-
-      return `${serverName.name} ${region}-${faction}`;
-    }
-
-    return `${serverName.name}-${region}`;
-  }
-
   const errorStr = `Error: ${error || 'Something went wrong. Try again later.'}`;
 
   return (
     <>
       <tr>
         <td>
-          <span className="q whtt-extra whtt-ilvl">
-            <span className="capitalize">
-              {getServerName()}
-            </span>
-          </span>
+          <ServerName />
           <div className="mb-4 whtt-sellprice">
             Last updated: {getRelativeTime()}
           </div>
@@ -140,7 +113,7 @@ const SingleItemLayout: React.FC<Props> = (props) => {
           <td>
             <div className="flex items-center">
               <LoadingSvg className="inline-block mr-1 w-4" />
-                Fetching latest price info...
+              Fetching latest price info...
             </div>
           </td>
         </tr>
