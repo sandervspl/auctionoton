@@ -61,7 +61,7 @@ const SingleItemLayout: React.FC<Props> = (props) => {
               {getServerName()}
             </span>
           </span>
-          <div className="mb-2 whtt-sellprice">
+          <div className="mb-4 whtt-sellprice">
             Last updated: {getRelativeTime()}
           </div>
         </td>
@@ -127,7 +127,7 @@ const SingleItemLayout: React.FC<Props> = (props) => {
 
             {/* Only show this loading indicator if we can show a cached item */}
             {item && (isLoading || isFetching) ? (
-              <div className="flex mt-2">
+              <div className="flex items-center mt-4">
                 <LoadingSvg className="inline-block mr-1 w-4" />
                 Fetching latest price info...
               </div>
@@ -138,7 +138,7 @@ const SingleItemLayout: React.FC<Props> = (props) => {
       {(!item || !item) && (isLoading || isFetching) ? (
         <tr>
           <td>
-            <LoadingSvg />
+            <LoadingSvg className="inline-block mt-4 mr-1 w-4" />
           </td>
         </tr>
       ) : null}

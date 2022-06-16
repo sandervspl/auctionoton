@@ -38,7 +38,7 @@ const Tooltip: React.FC<Props> = (props) => {
   return (
     <>
       <div className="h-2" />
-      <p className="!relative !left-0 !my-0 !mt-1 !w-auto !h-auto text-[10px]">
+      <p className="!relative !left-0 !my-0 !ml-1 !w-auto !h-auto text-[10px]">
         Auctionoton: Auction House Prices
       </p>
       <table id={ELEMENT_ID.TOOLTIP}>

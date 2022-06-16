@@ -26,9 +26,11 @@ const ItemPageTooltip = (): React.ReactPortal | null => {
   function createNexushubLink(item: i.CachedItemDataClassic): string | void {
     const server = user?.server.classic?.slug;
 
-    if (server) {
+    if (item && server) {
       const faction = user?.faction[server]?.toLowerCase();
       return `https://nexushub.co/wow-classic/items/${server}-${faction}/${item.uniqueName}`;
+    } else {
+      return 'https://nexushub.co/wow-classic';
     }
   }
 
@@ -60,7 +62,7 @@ const ItemPageTooltip = (): React.ReactPortal | null => {
           return (
             <>
               {(!loading && (error || !item)) && (
-                <div className="mb-2">
+                <div className="my-4">
                   <button
                     className="btn btn-small"
                     onClick={() => getItem()}
@@ -71,12 +73,12 @@ const ItemPageTooltip = (): React.ReactPortal | null => {
                   </button>
                 </div>
               )}
-              {isClassicWowhead && user && item && 'stats' in item && (
+              {isClassicWowhead && (
                 <a
                   href={createNexushubLink(item as i.CachedItemDataClassic)!}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex gap-1 place-items-center q"
+                  className="flex gap-2 place-items-center mt-4 q"
                 >
                 More information on Nexushub.co <ExternalLinkSvg />
                 </a>
