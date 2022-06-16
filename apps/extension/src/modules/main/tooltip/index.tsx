@@ -84,8 +84,8 @@ interface ChildrenFuncArgs {
 }
 
 interface Props {
-  itemId: number;
   children: null | JSX.Element | ((args: ChildrenFuncArgs) => JSX.Element | null);
+  itemId?: number;
   layout?: React.ReactElement;
 }
 

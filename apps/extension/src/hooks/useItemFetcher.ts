@@ -13,7 +13,7 @@ import validateCache from 'utils/validateCache';
 import useMemoUser from './useMemoUser';
 
 
-function useItemFetcher(itemId: number): UseItemFetcher {
+function useItemFetcher(itemId?: number): UseItemFetcher {
   const memoUser = useMemoUser();
   const [error, setError] = React.useState('');
   const [warning, setWarning] = React.useState('');
@@ -32,6 +32,7 @@ function useItemFetcher(itemId: number): UseItemFetcher {
     {
       refetchOnWindowFocus: false, // Generally just annoying, especially when fetch is failing
       retry: false, // Let user retry on demand with button
+      enabled: itemId != null,
     },
   );
 
