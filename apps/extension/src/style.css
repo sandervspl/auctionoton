@@ -1,7 +1,2 @@
-@tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-.btn {
-  @apply !flex place-items-center gap-1;
-}
