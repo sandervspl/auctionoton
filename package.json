@@ -23,7 +23,7 @@
     "e:version": "npm run version -prefix apps/extension"
   },
   "devDependencies": {
-    "@changesets/cli": "2.19.0",
+    "@changesets/cli": "2.22.0",
     "turbo": "latest"
   },
   "turbo": {
