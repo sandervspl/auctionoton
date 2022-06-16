@@ -52,18 +52,13 @@ const ItemPageTooltip = (): React.ReactPortal | null => {
 
   return ReactDOM.createPortal(
     <>
-      <div className="h-2" />
-      <p className="!relative !left-0 !w-auto !h-auto text-[10px]">
-        Auction House Prices for Wowhead
-      </p>
-
       <Tooltip
         itemId={pageItem.id}
         layout={<SingleItemLayout />}
       >
         {({ error, loading, item, getItem }) => {
           return (
-            <div className="mt-2">
+            <>
               {(!loading && (error || !item)) && (
                 <div className="mb-2">
                   <button
@@ -86,7 +81,7 @@ const ItemPageTooltip = (): React.ReactPortal | null => {
                 More information on Nexushub.co <ExternalLinkSvg />
                 </a>
               )}
-            </div>
+            </>
           );
         }}
       </Tooltip>

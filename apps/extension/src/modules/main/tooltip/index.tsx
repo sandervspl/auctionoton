@@ -36,37 +36,43 @@ const Tooltip: React.FC<Props> = (props) => {
   }
 
   return (
-    <table id={ELEMENT_ID.TOOLTIP}>
-      <tbody>
-        <tr>
-          <td>
-            <table className="w-full">
-              <tbody>
-                {props.layout != null && (
-                  React.cloneElement(props.layout, {
-                    itemId: props.itemId,
-                  })
-                )}
-                <tr>
-                  <td>
-                    {typeof props.children === 'function'
-                      ? props.children({ error: !!error, item, loading: isLoading || isFetching, getItem: refetch })
-                      : props.children}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </td>
+    <>
+      <div className="h-2" />
+      <p className="!relative !left-0 !my-0 !mt-1 !w-auto !h-auto text-[10px]">
+        Auctionoton: Auction House Prices
+      </p>
+      <table id={ELEMENT_ID.TOOLTIP}>
+        <tbody>
+          <tr>
+            <td>
+              <table className="w-full">
+                <tbody>
+                  {props.layout != null && (
+                    React.cloneElement(props.layout, {
+                      itemId: props.itemId,
+                    })
+                  )}
+                  <tr>
+                    <td>
+                      {typeof props.children === 'function'
+                        ? props.children({ error: !!error, item, loading: isLoading || isFetching, getItem: refetch })
+                        : props.children}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
 
-          <th className="!bg-right-top" />
-        </tr>
+            <th className="!bg-right-top" />
+          </tr>
 
-        <tr>
-          <th className="!bg-left-bottom" />
-          <th className="!bg-right-bottom" />
-        </tr>
-      </tbody>
-    </table>
+          <tr>
+            <th className="!bg-left-bottom" />
+            <th className="!bg-right-bottom" />
+          </tr>
+        </tbody>
+      </table>
+    </>
   );
 };
 
