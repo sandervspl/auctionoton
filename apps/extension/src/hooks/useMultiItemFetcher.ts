@@ -15,6 +15,7 @@ import useMemoUser from './useMemoUser';
 export function useMultiItemFetcher(itemIds: number[]) {
   const memoUser = useMemoUser();
   const [itemsFromStorage, setItemsFromStorage] = React.useState<i.CachedItemDataClassic[]>([]);
+  const [storageFetched, setStorageFetched] = React.useState(false);
 
   const queryClient = useQueryClient();
 
@@ -31,7 +32,7 @@ export function useMultiItemFetcher(itemIds: number[]) {
       };
 
       const storedItems: i.CachedItemDataClassic[] = [];
-      for (const id of itemIds) {
+      for await (const id of itemIds) {
         const itemFromStorage = await asyncStorage.getItem(getItemQueryKey(id, memoUser)) as i.CachedItemDataClassic;
 
         // If found, set it as the item
@@ -43,6 +44,8 @@ export function useMultiItemFetcher(itemIds: number[]) {
       if (storedItems.length > 0) {
         setItemsFromStorage(storedItems);
       }
+
+      setStorageFetched(true);
 
       const { data } = await axios.post<i.MultiItemDataClassicResponse>(
         `${API.ItemsUrl}`,
@@ -79,5 +82,6 @@ export function useMultiItemFetcher(itemIds: number[]) {
   return {
     ...query,
     itemsFromStorage,
+    storageFetched,
   };
 }

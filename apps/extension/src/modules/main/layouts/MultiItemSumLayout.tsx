@@ -25,7 +25,7 @@ const MultiItemSumLayout: React.VFC<Props> = (props) => {
     });
 
     setCombinedItems(combinedItems);
-  }, [props.items, props.reagents]);
+  }, [props.items?.length, props.reagents.length]);
 
   return (
     <>

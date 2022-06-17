@@ -17,13 +17,11 @@ export async function fetchItem(
   // Check browser storage if item is stored
     const itemFromStorage = await asyncStorage.getItem(queryKey);
 
-    // If found, set it as the item
-    if (itemFromStorage) {
-      cb(itemFromStorage);
+    // Return whatever we find
+    cb(itemFromStorage);
 
-      if (validateCache(itemFromStorage)) {
-        return itemFromStorage;
-      }
+    if (validateCache(itemFromStorage)) {
+      return itemFromStorage;
     }
 
     // If item from storage is stale, fetch item

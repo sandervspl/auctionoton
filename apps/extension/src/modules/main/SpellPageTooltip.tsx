@@ -40,10 +40,10 @@ const SpellPageTooltip = (): React.ReactPortal | null => {
   }
 
   const {
-    data: items, isLoading, isFetching, error, refetch, itemsFromStorage,
+    data: items, isLoading, isFetching, error, refetch, itemsFromStorage, storageFetched,
   } = useMultiItemFetcher(reagentItems.map((item) => Number(item.id)));
 
-  if (reagentItems.length === 0) {
+  if (reagentItems.length === 0 || !storageFetched) {
     return null;
   }
 

@@ -5,18 +5,19 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 
 // import WarningSvg from 'static/exclamation-circle-regular.svg';
 import { ELEMENT_ID } from 'src/constants';
-import useItemFetcher from 'hooks/useItemFetcher';
+// import useItemFetcher from 'hooks/useItemFetcher';
 import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
 import useStorageQuery from 'hooks/useStorageQuery';
+import { useFetchItem } from 'hooks/useFetchItem';
 
 dayjs.extend(relativeTime);
 
 const Tooltip: React.FC<Props> = (props) => {
   const { data: user } = useStorageQuery('user');
-  const { error, isFetching, isLoading, item, refetch } = useItemFetcher(props.itemId);
+  const { data: item, error, isFetching, isLoading, refetch, storageFetched } = useFetchItem(props.itemId);
   const isClassicWowhead = useIsClassicWowhead();
 
-  if (!user?.version) {
+  if (!user?.version || (props.itemId && !storageFetched)) {
     return null;
   }
 
