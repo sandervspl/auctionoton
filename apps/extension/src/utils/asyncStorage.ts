@@ -51,7 +51,7 @@ class AsyncStorage {
     });
   };
 
-  getItem = async (itemQueryKey: i.ItemQueryKey, cb?: (item: i.MaybeAnyItem | undefined) => void): Promise<i.MaybeAnyItem> => {
+  getItem = async (itemQueryKey: i.ItemQueryKey, cb?: (item: i.MaybeAnyItem | undefined) => void): Promise<i.AnyCachedItem> => {
     const items = await this.get('items');
     const key = this.getKeyFromQueryKey(itemQueryKey[1]);
     const item = items?.[key];

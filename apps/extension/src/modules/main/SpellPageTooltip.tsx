@@ -40,7 +40,7 @@ const SpellPageTooltip = (): React.ReactPortal | null => {
   }
 
   const {
-    data: items, isLoading, isFetching, error, refetch,
+    data: items, isLoading, isFetching, error, refetch, itemsFromStorage,
   } = useMultiItemFetcher(reagentItems.map((item) => Number(item.id)));
 
   const tooltipElementId = `tt${spell?.id}`;
@@ -58,7 +58,9 @@ const SpellPageTooltip = (): React.ReactPortal | null => {
 
   return ReactDOM.createPortal(
     <>
-      <Tooltip layout={<MultiItemSumLayout reagents={reagentItems} items={items} />}>
+      <Tooltip
+        layout={<MultiItemSumLayout reagents={reagentItems} items={items || itemsFromStorage} />}
+      >
         <div className="mt-2">
           {(!isLoading && error) ? (
             <div className="mb-2">

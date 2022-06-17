@@ -14,12 +14,12 @@ import useMemoUser from './useMemoUser';
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function useMultiItemFetcher(itemIds: number[]) {
   const memoUser = useMemoUser();
-  const [itemsFromStorage, setItemsFromStorage] = React.useState<Map<number, i.MaybeAnyItem>>(new Map());
+  const [itemsFromStorage, setItemsFromStorage] = React.useState<i.CachedItemDataClassic[]>([]);
 
   const queryClient = useQueryClient();
 
   const query = useQuery(
-    ['items', ...itemIds],
+    ['items', itemIds.map((id) => getItemQueryKey(id, memoUser))],
     async () => {
       const body: ItemsBody = {
         items: itemIds.map((id) => ({
@@ -29,6 +29,20 @@ export function useMultiItemFetcher(itemIds: number[]) {
           amount: 1,
         })),
       };
+
+      const storedItems: i.CachedItemDataClassic[] = [];
+      for (const id of itemIds) {
+        const itemFromStorage = await asyncStorage.getItem(getItemQueryKey(id, memoUser)) as i.CachedItemDataClassic;
+
+        // If found, set it as the item
+        if (itemFromStorage) {
+          storedItems.push(itemFromStorage);
+        }
+      }
+
+      if (storedItems.length > 0) {
+        setItemsFromStorage(storedItems);
+      }
 
       const { data } = await axios.post<i.MultiItemDataClassicResponse>(
         `${API.ItemsUrl}`,
@@ -43,7 +57,7 @@ export function useMultiItemFetcher(itemIds: number[]) {
       return data;
     },
     {
-      enabled: !!memoUser.server && !!memoUser.faction,
+      enabled: !!memoUser.server && !!memoUser.faction && !!memoUser.region && !!memoUser.version,
       onSuccess: (data) => {
         for (const item of data) {
           const cacheData: i.CachedItemDataClassic = {
@@ -56,7 +70,7 @@ export function useMultiItemFetcher(itemIds: number[]) {
           asyncStorage.addItem(getItemQueryKey(item.itemId, memoUser)[1], cacheData);
 
           // Store in react-query cache
-          queryClient.setQueryData(['item', getItemQueryKey(item.itemId, memoUser)], data);
+          queryClient.setQueryData(getItemQueryKey(item.itemId, memoUser), item);
         }
       },
     },
@@ -64,6 +78,6 @@ export function useMultiItemFetcher(itemIds: number[]) {
 
   return {
     ...query,
-    itemFromStorage,
+    itemsFromStorage,
   };
 }

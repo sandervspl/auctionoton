@@ -8,8 +8,6 @@ const MultiItemSumLayout: React.VFC<Props> = (props) => {
   const [combinedItems, setCombinedItems] = React.useState<CombinedItem[]>([]);
 
   React.useEffect(() => {
-    console.log('MultiItemSumLayout useEffect');
-
     if (props.items == null) {
       return;
     }
@@ -76,10 +74,10 @@ export type Props = {
     amount: number;
     id: number;
   }[];
-  items?: i.MultiItemDataClassicResponse;
+  items?: i.MultiItemDataClassicResponse | i.CachedItemDataClassic[];
 };
 
-type CombinedItem = i.ItemDataClassicResponse & {
+type CombinedItem = (i.ItemDataClassicResponse | i.CachedItemDataClassic) & {
   fullPrice: number;
   amount: number;
   name?: string;
