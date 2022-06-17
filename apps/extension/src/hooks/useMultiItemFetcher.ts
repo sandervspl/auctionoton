@@ -58,8 +58,8 @@ export function useMultiItemFetcher(itemIds: number[]) {
     },
     {
       enabled: !!memoUser.server && !!memoUser.faction && !!memoUser.region && !!memoUser.version,
-      onSuccess: (data) => {
-        for (const item of data) {
+      onSuccess: async (data) => {
+        for await (const item of data) {
           const cacheData: i.CachedItemDataClassic = {
             ...item,
             __version: 'classic',
@@ -67,7 +67,7 @@ export function useMultiItemFetcher(itemIds: number[]) {
           };
 
           // Store in browser cache
-          asyncStorage.addItem(getItemQueryKey(item.itemId, memoUser)[1], cacheData);
+          await asyncStorage.addItem(getItemQueryKey(item.itemId, memoUser)[1], cacheData);
 
           // Store in react-query cache
           queryClient.setQueryData(getItemQueryKey(item.itemId, memoUser), item);
