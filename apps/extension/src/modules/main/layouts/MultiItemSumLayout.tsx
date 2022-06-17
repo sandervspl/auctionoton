@@ -54,11 +54,13 @@ const MultiItemSumLayout: React.VFC<Props> = (props) => {
           })}
           {combinedItems.length > 0 ? (
             <>
-              <div />
-              <div className="font-bold">Total</div>
-              <Value
-                value={combinedItems.reduce((prev, item) => prev + item.fullPrice, 0)}
-              />
+              <div className="mt-4" />
+              <div className="mt-4 font-bold">Total</div>
+              <div className="mt-4">
+                <Value
+                  value={combinedItems.reduce((prev, item) => prev + item.fullPrice, 0)}
+                />
+              </div>
             </>
           ) : null}
         </td>
