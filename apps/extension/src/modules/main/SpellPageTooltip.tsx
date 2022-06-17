@@ -20,7 +20,7 @@ const SpellPageTooltip = (): React.ReactPortal | null => {
 
   // Grab reagent elements from the page
   const reagentAnchorSelector =
-      '#icon-list-reagents > tbody > tr > td:not([style^="padding"]) > a[href^="/item"]';
+      'table.icon-list > tbody > tr > td:not([style^="padding"]) > a[href^="/item"]';
 
   const elements = Array.from(
     document.querySelectorAll(reagentAnchorSelector),
