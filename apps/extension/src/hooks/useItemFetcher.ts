@@ -1,6 +1,5 @@
 import * as i from 'types';
 import React from 'react';
-import { useQuery } from 'react-query';
 
 import { getItemQueryKey } from 'utils/getItemQueryKey';
 

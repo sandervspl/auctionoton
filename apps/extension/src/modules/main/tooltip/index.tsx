@@ -11,12 +11,6 @@ import useStorageQuery from 'hooks/useStorageQuery';
 
 dayjs.extend(relativeTime);
 
-/** @TODO */
-/**
- * x fix new item format
- * - add tooltip with text to add your server with a link to the form
- */
-
 const Tooltip: React.FC<Props> = (props) => {
   const { data: user } = useStorageQuery('user');
   const { error, isFetching, isLoading, item, refetch } = useItemFetcher(props.itemId);

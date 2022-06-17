@@ -43,6 +43,10 @@ const SpellPageTooltip = (): React.ReactPortal | null => {
     data: items, isLoading, isFetching, error, refetch, itemsFromStorage,
   } = useMultiItemFetcher(reagentItems.map((item) => Number(item.id)));
 
+  if (reagentItems.length === 0) {
+    return null;
+  }
+
   const tooltipElementId = `tt${spell?.id}`;
   const tooltipElement = document.querySelector(`div#${tooltipElementId}`);
 
@@ -52,7 +56,7 @@ const SpellPageTooltip = (): React.ReactPortal | null => {
 
   const container = generateContainer(tooltipElement, 'page');
 
-  if (!container || !spell) {
+  if (!container) {
     return null;
   }
 
