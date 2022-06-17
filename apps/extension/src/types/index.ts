@@ -1,5 +1,7 @@
 export * from '@project/types';
 
+export * from 'hooks/useMemoUser';
+
 export * from './data';
 export * from './reactQuery';
 

@@ -11,6 +11,7 @@ const SingleItemLayout: React.FC<Props> = (props) => {
   if (!props.itemId) {
     throw new Error('the "itemId" prop is missing in SingleItemTooltip! Pass the "itemId" prop to the <Tooltip /> component.');
   }
+  /** @TODO this fetch is also done in <Tooltip />? */
   const { error, isFetching, isLoading, item } = useItemFetcher(props.itemId);
 
   function getRelativeTime() {

@@ -2,10 +2,12 @@ import 'typed-query-selector';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import LoadingSvg from 'static/loading.svg';
 import RedoSvg from 'static/redo-solid.svg';
 import GlobeSvg from 'static/globe-americas-regular.svg';
 import useGetPageData from 'hooks/useGetPageData';
 import useStorageQuery from 'hooks/useStorageQuery';
+import { useMultiItemFetcher } from 'hooks/useMultiItemFetcher';
 
 import Tooltip from './tooltip';
 import generateContainer from './generateContainer';
@@ -16,24 +18,30 @@ const SpellPageTooltip = (): React.ReactPortal | null => {
   const { data: spell } = useGetPageData();
   const { data: user } = useStorageQuery('user');
 
-  const reagents = React.useMemo(() => {
-    // Grab reagent elements from the page
-    const elements = Array.from(
-      document.querySelectorAll(
-        '#icon-list-reagents > tbody > tr > td:not([style^="padding"]) > a[href^="/item"]',
-      ),
-    );
+  // Grab reagent elements from the page
+  const reagentAnchorSelector =
+      '#icon-list-reagents > tbody > tr > td:not([style^="padding"]) > a[href^="/item"]';
 
-    const items = [];
-    for (const el of elements) {
-      items.push({
-        name: el.innerText,
-        className: el.className,
-      });
-    }
+  const elements = Array.from(
+    document.querySelectorAll(reagentAnchorSelector),
+  );
 
-    return items;
-  }, []);
+  const reagentItems = [];
+  for (const el of elements) {
+    const amountStr = (el.nextSibling as HTMLElement)?.innerText;
+    const amount = Number(amountStr.match(/\d+/g)?.[0] || 1);
+
+    reagentItems.push({
+      name: el.innerText,
+      className: el.className,
+      amount,
+      id: Number(el.href.match(/\d+/g)?.[0] || -1),
+    });
+  }
+
+  const {
+    data: items, isLoading, isFetching, error, refetch,
+  } = useMultiItemFetcher(reagentItems.map((item) => Number(item.id)));
 
   const tooltipElementId = `tt${spell?.id}`;
   const tooltipElement = document.querySelector(`div#${tooltipElementId}`);
@@ -50,25 +58,28 @@ const SpellPageTooltip = (): React.ReactPortal | null => {
 
   return ReactDOM.createPortal(
     <>
-      <Tooltip layout={<MultiItemSumLayout items={reagents} />}>
-        {({ error, loading, item, getItem }) => {
-          return (
-            <div className="mt-2">
-              {(!loading && (error || !item)) && (
-                <div className="mb-2">
-                  <button
-                    className="btn btn-small"
-                    onClick={() => getItem()}
-                    title="Try loading item data again for Auctionoton"
-                  >
-                    <RedoSvg className="pr-1 h-2" />
-                    <span>Try again</span>
-                  </button>
-                </div>
-              )}
+      <Tooltip layout={<MultiItemSumLayout reagents={reagentItems} items={items} />}>
+        <div className="mt-2">
+          {(!isLoading && error) ? (
+            <div className="mb-2">
+              <button
+                className="btn btn-small"
+                onClick={() => refetch()}
+                title="Try loading data again for Auctionoton"
+              >
+                <RedoSvg className="pr-1 h-2" />
+                <span>Try again</span>
+              </button>
             </div>
-          );
-        }}
+          ) : null}
+
+          {(isLoading || isFetching) ? (
+            <div className="flex items-center mt-4">
+              <LoadingSvg className="inline-block mr-1 w-4" />
+              Fetching latest price info...
+            </div>
+          ) : null}
+        </div>
       </Tooltip>
 
       <div className="h-1" />

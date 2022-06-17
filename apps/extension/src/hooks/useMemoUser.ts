@@ -1,10 +1,11 @@
+import * as i from 'types';
 import React from 'react';
 
 import useStorageQuery from './useStorageQuery';
 import useIsClassicWowhead from './useIsClassicWowhead';
 
 
-function useMemoUser(): { server: string; faction: string; version: string; region: string } {
+function useMemoUser(): i.MemoUser {
   const { data: user } = useStorageQuery('user');
   const isClassicWowhead = useIsClassicWowhead();
 
@@ -31,5 +32,12 @@ function useMemoUser(): { server: string; faction: string; version: string; regi
 
   return memoUser;
 }
+
+export type MemoUser = {
+  server: string;
+  faction: string;
+  version: string;
+  region: string;
+};
 
 export default useMemoUser;

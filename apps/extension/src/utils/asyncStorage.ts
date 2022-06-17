@@ -39,12 +39,11 @@ class AsyncStorage {
     });
   };
 
-  getKeyFromQueryKey = (itemQueryKey: i.ItemQueryKeyCtx) => {
-    const [, itemObj] = itemQueryKey.queryKey;
-    return `${itemObj.itemId}-${itemObj.region}-${itemObj.server}-${itemObj.faction}-${itemObj.version}`;
+  getKeyFromQueryKey = (itemQueryKey: i.ItemQueryKey[1]) => {
+    return `${itemQueryKey.itemId}-${itemQueryKey.region}-${itemQueryKey.server}-${itemQueryKey.faction}-${itemQueryKey.version}`;
   };
 
-  addItem = async (itemQueryKey: i.ItemQueryKeyCtx, data: i.MaybeAnyItem): Promise<void> => {
+  addItem = async (itemQueryKey: i.ItemQueryKey[1], data: i.MaybeAnyItem): Promise<void> => {
     await this.set('items', (draftState) => {
       if (draftState != null) {
         _set(draftState, this.getKeyFromQueryKey(itemQueryKey), data);
@@ -52,9 +51,9 @@ class AsyncStorage {
     });
   };
 
-  getItem = async (itemQueryKey: i.ItemQueryKeyCtx, cb?: (item: i.MaybeAnyItem | undefined) => void): Promise<i.MaybeAnyItem> => {
+  getItem = async (itemQueryKey: i.ItemQueryKey, cb?: (item: i.MaybeAnyItem | undefined) => void): Promise<i.MaybeAnyItem> => {
     const items = await this.get('items');
-    const key = this.getKeyFromQueryKey(itemQueryKey);
+    const key = this.getKeyFromQueryKey(itemQueryKey[1]);
     const item = items?.[key];
 
     if (cb) {

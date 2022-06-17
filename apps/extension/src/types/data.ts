@@ -22,7 +22,8 @@ export type ItemDataRetail = i.ItemDataRetailPrices & {
   quantity: number;
 }
 
-export type ItemDataClassicResponse = Pick<i.ItemResponseV2, | 'amount' | 'uniqueName' | 'stats'>;
+export type ItemDataClassicResponse = Pick<i.ItemResponseV2, 'itemId' | 'uniqueName' | 'stats'>;
+export type MultiItemDataClassicResponse = i.ItemDataClassicResponse[];
 
 export type AnyCachedItem = i.CachedItemDataClassic | i.CachedItemDataRetail;
 export type CachedItemDataClassic = ItemDataClassicResponse & i.Cache<'classic'>;
