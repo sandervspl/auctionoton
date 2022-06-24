@@ -2,8 +2,7 @@
 import { Factions } from '@project/types';
 import { Type } from 'class-transformer';
 import {
-  ArrayMinSize, IsArray, IsEnum, IsNumber, IsNumberString, IsOptional, IsString, Max, Min,
-  ValidateNested, ArrayMaxSize,
+  ArrayMinSize, IsArray, IsEnum, IsNumber, IsOptional, IsString, Max, Min, ValidateNested, ArrayMaxSize,
 } from 'class-validator';
 
 export class ItemsArrayObject {

@@ -239,8 +239,13 @@ importers:
   packages/validation:
     specifiers:
       '@project/types': '*'
+      class-transformer: 0.5.1
+      class-validator: 0.13.2
       tsup: 5.12.6
       typescript: '*'
+    dependencies:
+      class-transformer: 0.5.1
+      class-validator: 0.13.2
     devDependencies:
       '@project/types': link:../types
       tsup: 5.12.6_typescript@4.7.4
