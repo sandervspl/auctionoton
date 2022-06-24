@@ -12,6 +12,9 @@ jobs:
     runs-on: macos-latest
 
     steps:
+      - uses: pnpm/action-setup@v2.2.2
+        with:
+          version: 7.x.x
       # Checkout to branch to execute from
       - uses: actions/checkout@v2
       
