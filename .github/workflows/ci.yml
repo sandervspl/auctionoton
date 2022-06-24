@@ -12,12 +12,10 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: pnpm/action-setup@v2.2.2
-        with:
-          version: 7.x.x
       # Checkout to branch to execute from
       - uses: actions/checkout@v2
       
+      # Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
@@ -25,17 +23,14 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
 
-      # Not sure if this works
-      - name: Cache dependencies
-        uses: actions/cache@v2
+      # Setup pnpm
+      - uses: pnpm/action-setup@v2.2.2
         with:
-          path: ~/.npm
-          key: npm-${{ hashFiles('package-lock.json') }}
-          restore-keys: npm-
+          version: 7.x.x
 
-      # ci / ignore-scripts speeds this step up a lot
+      # Install dependencies with pnpm
       - name: Install dependencies
-        run: npm ci --ignore-scripts
+        run: pnpm install
 
       - name: Build monorepo
         run: npm run build -- --cwd=. --graph
