@@ -14,6 +14,11 @@ jobs:
     steps:
       # Checkout to branch to execute from
       - uses: actions/checkout@v2
+
+      # Setup pnpm
+      - uses: pnpm/action-setup@v2.2.2
+        with:
+          version: 7.x.x
       
       # Setup Node.js
       - name: Setup Node.js
@@ -22,11 +27,6 @@ jobs:
           node-version: '16'
           cache: 'pnpm'
           cache-dependency-path: '**/pnpm-lock.yaml'
-
-      # Setup pnpm
-      - uses: pnpm/action-setup@v2.2.2
-        with:
-          version: 7.x.x
 
       # Install dependencies with pnpm
       - name: Install dependencies
