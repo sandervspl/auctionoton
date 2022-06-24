@@ -19,9 +19,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          node-version: '16'
+          cache: 'pnpm'
+          cache-dependency-path: '**/pnpm-lock.yaml'
 
       # Setup pnpm
       - uses: pnpm/action-setup@v2.2.2
