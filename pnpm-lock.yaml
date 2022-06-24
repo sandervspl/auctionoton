@@ -211,10 +211,12 @@ importers:
   packages/constants:
     specifiers:
       '@project/types': '*'
+      '@types/node': 18.0.0
       tsup: 5.12.6
       typescript: '*'
     devDependencies:
       '@project/types': link:../types
+      '@types/node': 18.0.0
       tsup: 5.12.6_typescript@4.7.4
       typescript: 4.7.4
 
