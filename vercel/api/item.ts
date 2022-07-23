@@ -1,10 +1,8 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
 export const config = {
   runtime: 'experimental-edge',
 };
 
-export default async (req: VercelRequest, res: VercelResponse) => {
+export default async function handler(req: Request, res: Response) {
   const query = new URLSearchParams(req.url!.split('?')[1]);
   const serverSlug = getServerSlug(query.get('server_name')!);
   const factionSlug = getFactionSlug(query.get('faction')!);
@@ -16,12 +14,22 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
   if ('error' in result) {
     const code = result.error ? 500 : 404;
-    return res.status(code).json({ error: true, message: result.error });
+    return new Response(
+      JSON.stringify({ error: 'true', message: result.error }),
+      { status: code },
+    );
   }
 
   const data = nexushubToItemResponse(result, Number(query.get('amount') || 1));
-
-  return res.status(200).json(data);
+  return new Response(
+    JSON.stringify(data),
+    { 
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
+  );
 }
 
 
@@ -44,36 +52,41 @@ function convertToCoins(rawPrice: number = 0, amount = 1): PriceObject {
   const copper = multiPrice % 100 || 0;
 
   return {
-    gold,
-    silver,
-    copper,
-    raw: rawPrice,
+    gold: String(gold),
+    silver: String(silver),
+    copper: String(copper),
+    raw: String(rawPrice),
   };
 }
 
-function nexushubToItemResponse(data: NexusHub.ItemsResponse, amount = 1) {
-  const datav2 = {
+function nexushubToItemResponse(data: NexusHub.ItemsResponse, amount = 1): ItemResponse {
+  const transformedData: ItemResponse = {
+    ...data,
+    tooltip: undefined,
+    tags: data.tags.join(','),
     uri: '/items/' + data.itemId,
     stats: {
       current: {
-        numAuctions: data.stats.current?.numAuctions ?? 0,
-        quantity: data.stats.current?.quantity ?? 0,
+        numAuctions: String(data.stats.current?.numAuctions ?? 0),
+        quantity: String(data.stats.current?.quantity ?? 0),
         minimumBuyout: convertToCoins(data.stats.current?.minBuyout, amount),
         historicalValue: convertToCoins(data.stats.current?.historicalValue, amount),
         marketValue: convertToCoins(data.stats.current?.marketValue, amount),
       },
       previous: {
-        numAuctions: data.stats.previous?.numAuctions ?? 0,
-        quantity: data.stats.previous?.quantity ?? 0,
+        numAuctions: String(data.stats.previous?.numAuctions ?? 0),
+        quantity: String(data.stats.previous?.quantity ?? 0),
         minimumBuyout: convertToCoins(data.stats.current?.minBuyout, amount),
         historicalValue: convertToCoins(data.stats.current?.historicalValue, amount),
         marketValue: convertToCoins(data.stats.current?.marketValue, amount),
       },
-      amount,
-    }
+      // lastUpdated: data.stats.lastUpdated?.toISOString(),
+      lastUpdated: '',
+    },
+    amount: String(amount),
   };
 
-  return datav2;
+  return transformedData;
 }
 
 
@@ -87,77 +100,80 @@ type Query = {
 
 namespace NexusHub {
   interface Tooltip {
-      label: string;
-      format: string;
+    label: string;
+    format: string;
   }
 
   interface Current {
-      historicalValue: number;
-      marketValue: number;
-      minBuyout: number;
-      numAuctions: number;
-      quantity: number;
+    historicalValue: number;
+    marketValue: number;
+    minBuyout: number;
+    numAuctions: number;
+    quantity: number;
   }
 
   interface Previous {
-      marketValue: number;
-      minBuyout: number;
-      quantity: number;
-      historicalValue: number;
-      numAuctions: number;
+    marketValue: number;
+    minBuyout: number;
+    quantity: number;
+    historicalValue: number;
+    numAuctions: number;
   }
 
   interface Stats {
-      lastUpdated: Date;
-      current: Current | null;
-      previous: Previous | null;
+    lastUpdated: Date;
+    current: Current | null;
+    previous: Previous | null;
   }
 
   export interface ItemsResponse {
-      server: string;
-      itemId: number;
-      name: string;
-      uniqueName: string;
-      icon: string;
-      tags: string[];
-      requiredLevel: number;
-      itemLevel: number;
-      sellPrice: number;
-      vendorPrice: number | null;
-      tooltip: Tooltip[];
-      itemLink: string;
-      stats: Stats;
+    server: string;
+    itemId: NumberString;
+    name: string;
+    uniqueName: string;
+    icon: string;
+    tags: string[];
+    requiredLevel: NumberString;
+    itemLevel: NumberString;
+    sellPrice: NumberString;
+    vendorPrice?: NumberString;
+    tooltip: Tooltip[];
+    itemLink: string;
+    stats: Stats;
   }
 
   export interface ErrorResponse {
-      error: string;
-      reason: string;
+    error: string;
+    reason: string;
   }
 }
 
 type Date_ISO_8601 = string;
+type NumberString = string;
 
 type PriceObject = string | {
-  gold: number;
-  silver: number;
-  copper: number;
-  raw: number;
+  gold: NumberString;
+  silver: NumberString;
+  copper: NumberString;
+  raw: NumberString;
 };
 
-type PriceSnapshotV2 = {
+type PriceSnapshot = {
   marketValue: PriceObject;
   historicalValue: PriceObject;
   minimumBuyout: PriceObject;
-  numAuctions: number;
-  quantity: number;
+  numAuctions: NumberString;
+  quantity: NumberString;
 };
 
-type ItemResponseV2 = Omit<NexusHub.ItemsResponse, 'stats'> & {
+type ItemResponse = Omit<NexusHub.ItemsResponse, 'stats' | 'tags' | 'tooltip'> & {
   uri: string;
-  amount: number;
+  amount: NumberString;
   stats: {
-      lastUpdated: Date_ISO_8601;
-      current: PriceSnapshotV2;
-      previous: PriceSnapshotV2;
+    lastUpdated: Date_ISO_8601;
+    current: PriceSnapshot;
+    previous: PriceSnapshot;
   };
+  tags: string;
+  tooltip: undefined;
 };

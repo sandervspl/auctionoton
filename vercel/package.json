@@ -2,7 +2,5 @@
   "name": "auctionoton-edge-api",
   "version": "1.0.0",
   "license": "ISC",
-  "devDependencies": {
-    "@vercel/node": "^2.4.5"
-  }
+  "devDependencies": {}
 }
