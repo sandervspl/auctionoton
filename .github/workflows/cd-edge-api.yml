@@ -11,7 +11,7 @@ on:
       - vercel/**
 
 jobs:
-  build:
+  deploy:
     runs-on: macos-latest
 
     steps:
@@ -30,4 +30,4 @@ jobs:
           mkdir -p .vercel
           touch project.json
           echo $'{ "projectId": "${{ secrets.VERCEL_API_PROJECT_ID }}", "orgId": "${{ secrets.VERCEL_API_ORG_ID }}", "settings": { "createdAt": 1658573033947, "framework": null, "devCommand": null, "installCommand": null, "buildCommand": null, "outputDirectory": null, "rootDirectory": null, "directoryListing": false, "nodeVersion": "16.x" } }' > .vercel/project.json
-          npx vercel deploy
+          npx vercel deploy --token ${{ secrets.VERCEL_TOKEN }}
