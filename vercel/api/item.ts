@@ -1,12 +1,12 @@
 import * as i from './_types';
-import { getFactionSlug, getServerSlug, nexushubToItemResponse } from './_utils';
+import { getFactionSlug, getQueries, getServerSlug, nexushubToItemResponse } from './_utils';
 
 export const config = {
   runtime: 'experimental-edge',
 };
 
 export default async function handler(req: Request, res: Response) {
-  const query = new URLSearchParams(req.url!.split('?')[1]);
+  const query = getQueries(req.url);
   const serverSlug = getServerSlug(query.get('server_name')!);
   const factionSlug = getFactionSlug(query.get('faction')!);
 

@@ -1,5 +1,9 @@
 import * as i from './_types';
 
+export function getQueries(url: string): URLSearchParams {
+  return new URLSearchParams(url.split('?')[1]);
+}
+
 export function getServerSlug(name = '') {
   return decodeURI(name)
     .toLowerCase()
