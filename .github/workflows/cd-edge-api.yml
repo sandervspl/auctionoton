@@ -12,7 +12,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
       # Checkout to branch to execute from
@@ -27,6 +27,7 @@ jobs:
 
       - name: Deploy to Vercel
         run: |
+          cd vercel
           mkdir -p .vercel
           touch project.json
           echo $'{ "projectId": "${{ secrets.VERCEL_API_PROJECT_ID }}", "orgId": "${{ secrets.VERCEL_API_ORG_ID }}", "settings": { "createdAt": 1658573033947, "framework": null, "devCommand": null, "installCommand": null, "buildCommand": null, "outputDirectory": null, "rootDirectory": null, "directoryListing": false, "nodeVersion": "16.x" } }' > .vercel/project.json
