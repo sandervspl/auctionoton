@@ -20,7 +20,7 @@
     "nu:s": "npm uninstall -w server",
     "cs:add": "npx changeset",
     "cs:ver": "npx changeset version",
-    "e:version": "npm run version -prefix apps/extension"
+    "e:version": "npm run build && npm run version --prefix apps/extension"
   },
   "devDependencies": {
     "@changesets/cli": "2.19.0",

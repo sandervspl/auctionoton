@@ -1,5 +1,11 @@
 # extension
 
+## 3.2.0
+
+### Minor Changes
+
+- b496d6d: Use Vercel Edge API routes
+
 ## 3.1.1
 
 ### Patch Changes
