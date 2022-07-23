@@ -3,7 +3,6 @@ import React from 'react';
 import { useQuery } from 'react-query';
 import axios from 'axios';
 import dayjs from 'dayjs';
-import { ItemBody } from '@project/validation';
 import { API } from '@project/constants';
 
 import asyncStorage from 'utils/asyncStorage';
@@ -61,16 +60,13 @@ function useItemFetcher(itemId: number): UseItemFetcher {
         return;
       }
 
-      const body: ItemBody = {
-        server_name: memoUser.server,
-        faction: memoUser.faction as i.Factions,
-        amount: 1,
-      };
-
       try {
-        const { data } = await axios.post<i.ItemDataClassicResponse>(`${API.ItemsUrl}/${itemId}`, body, {
+        const { data } = await axios.get<i.ItemDataClassicResponse>(API.ItemUrl, {
           params: {
-            fields: 'amount,uniqueName,stats',
+            id: itemId,
+            server_name: memoUser.server,
+            faction: memoUser.faction,
+            amount: 1,
           },
         });
 
