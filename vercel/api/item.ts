@@ -80,8 +80,7 @@ function nexushubToItemResponse(data: NexusHub.ItemsResponse, amount = 1): ItemR
         historicalValue: convertToCoins(data.stats.current?.historicalValue, amount),
         marketValue: convertToCoins(data.stats.current?.marketValue, amount),
       },
-      // lastUpdated: data.stats.lastUpdated?.toISOString(),
-      lastUpdated: '',
+      lastUpdated: data.stats.lastUpdated,
     },
     amount: String(amount),
   };
@@ -121,7 +120,7 @@ namespace NexusHub {
   }
 
   interface Stats {
-    lastUpdated: Date;
+    lastUpdated: Date_ISO_8601;
     current: Current | null;
     previous: Previous | null;
   }
