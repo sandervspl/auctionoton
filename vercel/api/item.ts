@@ -5,7 +5,7 @@ export const config = {
 };
 
 export default async (req: VercelRequest, res: VercelResponse) => {
-  const { id, server_name, faction, amount } = req.body as Body;
+  const { id, server_name, faction, amount } = req.query as Query;
   const serverSlug = getServerSlug(server_name);
   const factionSlug = getFactionSlug(faction);
 
@@ -19,7 +19,9 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     return res.status(code).json({ error: true, message: result.error });
   }
 
-  const response = nexushubToItemResponse(result, amount);
+  const data = nexushubToItemResponse(result, Number(amount || 1));
+
+  return res.status(200).json(data);
 }
 
 
@@ -76,11 +78,11 @@ function nexushubToItemResponse(data: NexusHub.ItemsResponse, amount = 1) {
 
 
 /** TYPES */
-type Body = {
-  id: number;
+type Query = {
+  id: string;
   server_name: string;
   faction: string;
-  amount?: number;
+  amount?: string;
 };
 
 namespace NexusHub {
