@@ -30,6 +30,7 @@ export default async function handler(req: Request, res: Response) {
     headers: {
       'Content-Type': 'application/json',
       'cache-control': 'public, max-age=3600',
+      'Access-Control-Allow-Origin': '*',
     },
   });
 }
