@@ -2,14 +2,12 @@
   "root": true,
   "parser": "@typescript-eslint/parser",
   "extends": [
+    "plugin:react-app",
     "plugin:@typescript-eslint/recommended",
     "plugin:import/errors",
     "plugin:import/warnings",
     "plugin:import/typescript",
     "plugin:flowtype/recommended"
-  ],
-  "plugins": [
-    "flowtype"
   ],
   "parserOptions": {
     "ecmaVersion": 2018,
