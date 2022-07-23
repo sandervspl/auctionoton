@@ -5,7 +5,7 @@
   "workspaces": [
     "apps/*",
     "packages/*",
-    "api"
+    "vercel/*"
   ],
   "scripts": {
     "build": "turbo run build",
