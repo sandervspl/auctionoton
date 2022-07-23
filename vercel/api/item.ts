@@ -5,13 +5,13 @@ export const config = {
 };
 
 export default async (req: VercelRequest, res: VercelResponse) => {
-  const { id, server_name, faction, amount } = req.query as Query;
-  const serverSlug = getServerSlug(server_name);
-  const factionSlug = getFactionSlug(faction);
+  const query = new URLSearchParams(req.url!.split('?')[1]);
+  const serverSlug = getServerSlug(query.get('server_name')!);
+  const factionSlug = getFactionSlug(query.get('faction')!);
 
-  console.info(`Fetching item '${id}' for '${serverSlug}' (${factionSlug})`);
+  console.info(`Fetching item '${query.get('id')}' for '${serverSlug}' (${factionSlug})`);
 
-  const url = `https://api.nexushub.co/wow-classic/v1/items/${serverSlug}-${factionSlug}/${id}`;
+  const url = `https://api.nexushub.co/wow-classic/v1/items/${serverSlug}-${factionSlug}/${query.get('id')}`;
   const result = await (await fetch(url)).json() as NexusHub.ItemsResponse | NexusHub.ErrorResponse;
 
   if ('error' in result) {
@@ -19,21 +19,21 @@ export default async (req: VercelRequest, res: VercelResponse) => {
     return res.status(code).json({ error: true, message: result.error });
   }
 
-  const data = nexushubToItemResponse(result, Number(amount || 1));
+  const data = nexushubToItemResponse(result, Number(query.get('amount') || 1));
 
   return res.status(200).json(data);
 }
 
 
 /** UTILS */
-function getServerSlug(name: string) {
+function getServerSlug(name = '') {
   return decodeURI(name)
     .toLowerCase()
     .replace('\'', '')
     .replace(' ', '-');
 }
 
-function getFactionSlug(faction: string) {
+function getFactionSlug(faction = '') {
   return faction.toLowerCase();
 }
 
