@@ -59,6 +59,8 @@
     "https://*.ngrok.io/*",
     "https://5d9b-82-168-31-31.ngrok.io/*",
     "https://auctionoton-production.up.railway.app/*",
-    "https://develop--auctionoton-server.herokuapp.com/*"
+    "https://develop--auctionoton-server.herokuapp.com/*",
+    "https://auctionoton-edge-api-sandervspl.vercel.app/api/*",
+    "https://auctionoton-edge-api.vercel.app/api/*"
   ]
 }

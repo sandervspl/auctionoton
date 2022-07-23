@@ -9,31 +9,21 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     steps:
       # Checkout to branch to execute from
-      - uses: actions/checkout@v2
-      
+      - uses: actions/checkout@v3
+
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: '14'
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          node-version: 16
+          cache: 'yarn'
+          cache-dependency-path: '**/yarn.lock'
 
-      # Not sure if this works
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: npm-${{ hashFiles('package-lock.json') }}
-          restore-keys: npm-
-
-      # ci / ignore-scripts speeds this step up a lot
       - name: Install dependencies
-        run: npm ci --ignore-scripts
+        run: yarn install --frozen-lockfile --immutable
 
       - name: Build monorepo
-        run: npm run build -- --cwd=. --graph
-        
+        run: yarn build -- --cwd=. --graph

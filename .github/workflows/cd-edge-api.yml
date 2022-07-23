@@ -1,0 +1,49 @@
+name: CD Vercel Edge Api
+
+on:
+  push:
+    branches: ['**']
+    paths:
+      - vercel/**
+  pull_request:
+    branches: ['**']
+    paths:
+      - vercel/**
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout to branch to execute from
+      - name: Checkout Branch
+        uses: actions/checkout@v3
+
+      # Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'yarn'
+          cache-dependency-path: 'vercel/yarn.lock'
+
+      # Install Yarn if we are running actions with Act
+      - name: Act prep
+        if: ${{ env.ACT }}
+        run: npm i -g yarn
+
+      - name: Install dependencies
+        run: yarn install --cwd vercel --frozen-lockfile --immutable
+
+      # vercel pull doesnt work for some reason
+      - name: Setup Vercel files
+        run: |
+          cd vercel
+          mkdir -p .vercel
+          touch project.json
+          echo $'{ "projectId": "${{ secrets.VERCEL_API_PROJECT_ID }}", "orgId": "${{ secrets.VERCEL_API_ORG_ID }}", "settings": { "createdAt": 1658573033947, "framework": null, "devCommand": null, "installCommand": null, "buildCommand": null, "outputDirectory": null, "rootDirectory": null, "directoryListing": false, "nodeVersion": "16.x" } }' > .vercel/project.json
+
+      - name: Deploy to Vercel
+        run: |
+          cd vercel
+          yarn vercel deploy ${{ github.ref == 'refs/heads/master' && '--prod' || '' }} --token ${{ secrets.VERCEL_TOKEN }}

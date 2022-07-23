@@ -1,3 +1,5 @@
 {
-  "css.customData": [".vscode/css.json"]
+  "css.customData": [".vscode/css.json"],
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }
