@@ -1,5 +1,5 @@
 import * as i from './_types';
-import { getFactionSlug, getQueries, getServerSlug, nexushubToItemResponse } from './_utils';
+import { getFactionSlug, getQueries, getServerSlug } from './_utils';
 
 export const config = {
   runtime: 'experimental-edge',
@@ -10,7 +10,9 @@ export default async function handler(req: Request, res: Response) {
   const serverSlug = getServerSlug(query.get('server_name')!);
   const factionSlug = getFactionSlug(query.get('faction')!);
 
-  console.info(`Fetching items '${query.get('list')?.split(', ')}' for '${serverSlug}' (${factionSlug})`);
+  console.info(
+    `Fetching items '${query.get('list')?.split(', ')}' for '${serverSlug}' (${factionSlug})`,
+  );
 
   // Query is in the form of id:amount i.e. list=123:1,456:20,987:5
   const listItems = query.get('list')!.split(',');
@@ -33,16 +35,12 @@ export default async function handler(req: Request, res: Response) {
       });
     }),
   );
-  
-  return new Response(
-    JSON.stringify(results),
-    { 
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'cache-control': 'public, max-age=3600',
-      },
-    },
-  );
-}
 
+  return new Response(JSON.stringify(results), {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+      'cache-control': 'public, max-age=3600',
+    },
+  });
+}

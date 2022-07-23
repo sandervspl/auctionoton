@@ -5,10 +5,7 @@ export function getQueries(url: string): URLSearchParams {
 }
 
 export function getServerSlug(name = '') {
-  return decodeURI(name)
-    .toLowerCase()
-    .replace('\'', '')
-    .replace(' ', '-');
+  return decodeURI(name).toLowerCase().replace("'", '').replace(' ', '-');
 }
 
 export function getFactionSlug(faction = '') {
@@ -18,7 +15,7 @@ export function getFactionSlug(faction = '') {
 export function convertToCoins(rawPrice: number = 0, amount = 1): i.PriceObject {
   const multiPrice = rawPrice * amount;
   const gold = Math.floor(multiPrice / 10000) || 0;
-  const silver = Math.floor(multiPrice % 10000 / 100) || 0;
+  const silver = Math.floor((multiPrice % 10000) / 100) || 0;
   const copper = multiPrice % 100 || 0;
 
   return {

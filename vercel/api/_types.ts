@@ -51,12 +51,14 @@ export namespace NexusHub {
 export type Date_ISO_8601 = string;
 export type NumberString = string;
 
-export type PriceObject = string | {
-  gold: NumberString;
-  silver: NumberString;
-  copper: NumberString;
-  raw: NumberString;
-};
+export type PriceObject =
+  | string
+  | {
+      gold: NumberString;
+      silver: NumberString;
+      copper: NumberString;
+      raw: NumberString;
+    };
 
 export type PriceSnapshot = {
   marketValue: PriceObject;
