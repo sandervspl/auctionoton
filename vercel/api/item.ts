@@ -10,8 +10,6 @@ export default async function handler(req: Request, res: Response) {
   const serverSlug = getServerSlug(query.get('server_name')!);
   const factionSlug = getFactionSlug(query.get('faction')!);
 
-  console.info(`Fetching item '${query.get('id')}' for '${serverSlug}' (${factionSlug})`);
-
   const url = `https://api.nexushub.co/wow-classic/v1/items/${serverSlug}-${factionSlug}/${query.get(
     'id',
   )}`;

@@ -10,10 +10,6 @@ export default async function handler(req: Request, res: Response) {
   const serverSlug = getServerSlug(query.get('server_name')!);
   const factionSlug = getFactionSlug(query.get('faction')!);
 
-  console.info(
-    `Fetching items '${query.get('list')?.split(', ')}' for '${serverSlug}' (${factionSlug})`,
-  );
-
   // Query is in the form of id:amount i.e. list=123:1,456:20,987:5
   const listItems = query.get('list')!.split(',');
 
