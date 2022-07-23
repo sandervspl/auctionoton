@@ -153,6 +153,7 @@ const Tooltip: React.FC<Props> = (props) => {
                       {/* Only show this loading indicator if we can show a cached item */}
                       {item && (isLoading || isFetching) ? (
                         <div className="flex mt-2">
+                          {/* @ts-ignore */}
                           <LoadingSvg className="inline-block mr-1 w-4" />
                           Fetching latest price info...
                         </div>
@@ -163,6 +164,7 @@ const Tooltip: React.FC<Props> = (props) => {
                 {(!item || !item) && (isLoading || isFetching) ? (
                   <tr>
                     <td>
+                      {/* @ts-ignore */}
                       <LoadingSvg />
                     </td>
                   </tr>

@@ -63,6 +63,7 @@ const PageTooltip = (): React.ReactPortal | null => {
                     onClick={() => getItem()}
                     title="Try loading item data again for Auctionoton"
                   >
+                    {/* @ts-ignore */}
                     <RedoSvg className="pr-1 h-2" />
                     <span>Try again</span>
                   </button>
@@ -75,6 +76,7 @@ const PageTooltip = (): React.ReactPortal | null => {
                   rel="noopener noreferrer"
                   className="flex gap-1 place-items-center q"
                 >
+                {/* @ts-ignore */}
                 More information on Nexushub.co <ExternalLinkSvg />
                 </a>
               )}
@@ -90,6 +92,7 @@ const PageTooltip = (): React.ReactPortal | null => {
         onClick={() => window.open(`${addon.extension.getURL('form.html')}?large=true`)}
         title="Change server for Auctionoton"
       >
+        {/* @ts-ignore */}
         <GlobeSvg className="pr-1 h-3" />
         <span>{!user?.version ? 'Add your realm!' : 'Change realm'}</span>
       </button>
