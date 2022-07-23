@@ -25,9 +25,14 @@ export default async function handler(req: Request, res: Response) {
         queries.set('server_name', serverSlug);
         queries.set('faction', factionSlug);
         const url = req.url.split('/api')[0] + '/api/item?' + queries;
-        const result = await (await fetch(url)).json();
+        try {
+          const result = await (await fetch(url)).json();
 
-        return resolve(result);
+          return resolve(result);
+        } catch (err) {
+          console.error(err);
+          reject();
+        }
       });
     }),
   );
