@@ -27,6 +27,7 @@ export default async function handler(req: Request, res: Response) {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
+        'cache-control': 'public, max-age=3600',
       },
     },
   );
