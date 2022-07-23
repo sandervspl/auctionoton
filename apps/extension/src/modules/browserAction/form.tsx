@@ -151,8 +151,8 @@ export const Form: React.FC = () => {
 
   return (
     <div className="md:min-w-[600px] md:rounded-md">
-      <div className="grid place-items-center mt-5 md:grid-cols-2 md:justify-items-center md:mt-0 md:rounded-md md:items-st">
-        <div className="grid place-items-center md:px-8 md:w-full md:h-full md:bg-white md:dark:bg-slate-500 md:rounded-l-lg">
+      <div className="md:items-st mt-5 grid place-items-center md:mt-0 md:grid-cols-2 md:justify-items-center md:rounded-md">
+        <div className="grid place-items-center md:h-full md:w-full md:rounded-l-lg md:bg-white md:px-8 md:dark:bg-slate-500">
           <div className="grid place-items-center">
             <img src={`static/icon${isLarge ? '' : '-48'}.png`} alt="logo" />
             <h1 className="text-sm text-gray-500 dark:text-slate-200 md:text-center">
@@ -167,10 +167,10 @@ export const Form: React.FC = () => {
           </div>
         </div>
 
-        <div className="py-0 px-9 md:py-0 md:px-8 md:w-full md:bg-gray-100 md:dark:bg-slate-600 md:rounded-r-lg">
+        <div className="py-0 px-9 md:w-full md:rounded-r-lg md:bg-gray-100 md:py-0 md:px-8 md:dark:bg-slate-600">
           {(
             <form onSubmit={handleSubmit(onSubmit)}>
-              <h2 className="hidden my-5 mx-auto text-lg font-bold md:block">
+              <h2 className="my-5 mx-auto hidden text-lg font-bold md:block">
                 Select your server
               </h2>
 
@@ -225,7 +225,7 @@ export const Form: React.FC = () => {
           )}
 
           {userMutation.status === 'success' && (
-            <div className="grid place-items-center mx-auto mt-0 mb-5 text-sm text-green-500">
+            <div className="mx-auto mt-0 mb-5 grid place-items-center text-sm text-green-500">
               Saved succesfully!
             </div>
           )}

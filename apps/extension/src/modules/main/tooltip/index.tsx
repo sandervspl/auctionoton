@@ -86,7 +86,7 @@ const Tooltip: React.FC<Props> = (props) => {
                         {getServerName()}
                       </span>
                     </span>
-                    <div className="mb-2 whtt-sellprice">
+                    <div className="whtt-sellprice mb-2">
                       Last updated: {getRelativeTime()}
                     </div>
                   </td>
@@ -152,9 +152,9 @@ const Tooltip: React.FC<Props> = (props) => {
 
                       {/* Only show this loading indicator if we can show a cached item */}
                       {item && (isLoading || isFetching) ? (
-                        <div className="flex mt-2">
+                        <div className="mt-2 flex">
                           {/* @ts-ignore */}
-                          <LoadingSvg className="inline-block mr-1 w-4" />
+                          <LoadingSvg className="mr-1 inline-block w-4" />
                           Fetching latest price info...
                         </div>
                       ) : null}
@@ -172,7 +172,7 @@ const Tooltip: React.FC<Props> = (props) => {
                 {error ? (
                   <tr>
                     <td>
-                      <div className="flex mt-2 text-red-500">
+                      <div className="mt-2 flex text-red-500">
                         {errorStr}
                       </div>
                     </td>

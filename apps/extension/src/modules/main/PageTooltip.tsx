@@ -48,7 +48,7 @@ const PageTooltip = (): React.ReactPortal | null => {
   return ReactDOM.createPortal(
     <>
       <div className="h-2" />
-      <p className="!relative !left-0 !w-auto !h-auto text-[10px]">
+      <p className="!relative !left-0 !h-auto !w-auto text-[10px]">
         Auction House Prices for Wowhead
       </p>
 
@@ -64,7 +64,7 @@ const PageTooltip = (): React.ReactPortal | null => {
                     title="Try loading item data again for Auctionoton"
                   >
                     {/* @ts-ignore */}
-                    <RedoSvg className="pr-1 h-2" />
+                    <RedoSvg className="h-2 pr-1" />
                     <span>Try again</span>
                   </button>
                 </div>
@@ -74,9 +74,9 @@ const PageTooltip = (): React.ReactPortal | null => {
                   href={createNexushubLink(item as i.CachedItemDataClassic)!}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex gap-1 place-items-center q"
+                  className="q flex place-items-center gap-1"
                 >
-                {/* @ts-ignore */}
+                  {/* @ts-ignore */}
                 More information on Nexushub.co <ExternalLinkSvg />
                 </a>
               )}
@@ -93,7 +93,7 @@ const PageTooltip = (): React.ReactPortal | null => {
         title="Change server for Auctionoton"
       >
         {/* @ts-ignore */}
-        <GlobeSvg className="pr-1 h-3" />
+        <GlobeSvg className="h-3 pr-1" />
         <span>{!user?.version ? 'Add your realm!' : 'Change realm'}</span>
       </button>
     </>,
