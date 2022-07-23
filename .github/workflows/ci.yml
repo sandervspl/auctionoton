@@ -22,7 +22,6 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: '**/yarn.lock'
 
-      # ci / ignore-scripts speeds this step up a lot
       - name: Install dependencies
         run: yarn install --frozen-lockfile --immutable
 
