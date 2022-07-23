@@ -13,18 +13,18 @@ jobs:
 
     steps:
       # Checkout to branch to execute from
-      - uses: actions/checkout@v2
-      
+      - uses: actions/checkout@v3
+
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: 16
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
 
       # Not sure if this works
       - name: Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.npm
           key: npm-${{ hashFiles('package-lock.json') }}
@@ -36,4 +36,3 @@ jobs:
 
       - name: Build monorepo
         run: npm run build -- --cwd=. --graph
-        

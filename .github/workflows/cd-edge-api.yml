@@ -1,0 +1,33 @@
+name: CD Vercel Edge Api
+
+on:
+  push:
+    branches: ['**']
+    paths:
+      - vercel/**
+  pull_request:
+    branches: ['**']
+    paths:
+      - vercel/**
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      # Checkout to branch to execute from
+      - name: Checkout Branch
+        uses: actions/checkout@v3
+
+      # Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Deploy to Vercel
+        run: |
+          mkdir -p .vercel
+          touch project.json
+          echo $'{ "projectId": "${{ secrets.VERCEL_API_PROJECT_ID }}", "orgId": "${{ secrets.VERCEL_API_ORG_ID }}", "settings": { "createdAt": 1658573033947, "framework": null, "devCommand": null, "installCommand": null, "buildCommand": null, "outputDirectory": null, "rootDirectory": null, "directoryListing": false, "nodeVersion": "16.x" } }' > .vercel/project.json
+          npx vercel deploy
