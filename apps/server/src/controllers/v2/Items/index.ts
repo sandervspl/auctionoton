@@ -1,5 +1,4 @@
 import * as i from 'types';
-import { API } from '@project/constants';
 import type { ItemBody, ItemsBody } from '@project/validation';
 import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
@@ -8,7 +7,7 @@ import ItemsService from 'services/v2/Items';
 import { ItemParams } from './validation';
 
 
-@Controller(API.ItemsRoot)
+@Controller('/items')
 export default class ItemsController {
   constructor(
     private readonly itemsService: ItemsService,
