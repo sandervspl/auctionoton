@@ -137,6 +137,7 @@ export const Form: React.FC = () => {
       draft.region = data.region;
 
       if (serverData) {
+        draft.server ||= {};
         draft.server[data.version] = JSON.parse(serverData);
 
         draft.faction = {
