@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Auctionoton: Auction House Prices for Wowhead",
-  "version": "3.2.2",
+  "version": "3.2.3",
   "description": "Display current Auction House price data for items on wowhead.com",
   "content_scripts": [
     {

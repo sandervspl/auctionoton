@@ -1,5 +1,11 @@
 # extension
 
+## 3.2.3
+
+### Patch Changes
+
+- Fix an issue where the form would not properly save your data if this is the first time setting up the extension
+
 ## 3.2.1
 
 ### Patch Changes
