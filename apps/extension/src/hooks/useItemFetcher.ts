@@ -3,7 +3,7 @@ import React from 'react';
 import { useQuery } from 'react-query';
 import axios from 'axios';
 import dayjs from 'dayjs';
-import { API } from '@project/constants';
+import { EdgeAPI } from '@project/constants';
 
 import asyncStorage from 'utils/asyncStorage';
 import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
@@ -61,7 +61,7 @@ function useItemFetcher(itemId: number): UseItemFetcher {
       }
 
       try {
-        const { data } = await axios.get<i.ItemDataClassicResponse>(API.ItemUrl, {
+        const { data } = await axios.get<i.ItemDataClassicResponse>(EdgeAPI.ItemUrl, {
           params: {
             id: itemId,
             server_name: memoUser.server,
