@@ -1,5 +1,11 @@
 # extension
 
+## 3.2.1
+
+### Patch Changes
+
+- df97caa: Add prefix to tailwind classes to prevent CSS clashing
+
 ## 3.2.0
 
 ### Minor Changes
