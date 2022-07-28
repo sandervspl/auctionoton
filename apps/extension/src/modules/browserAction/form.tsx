@@ -1,7 +1,7 @@
 import 'typed-query-selector';
 import * as i from 'types';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import { QueryClient, QueryClientProvider, useMutation } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -239,11 +239,13 @@ export const Form: React.FC = () => {
   );
 };
 
+const root = document.getElementById('root');
 
-ReactDOM.render(
-  <QueryClientProvider client={queryClient}>
-    <Form />
-    <ReactQueryDevtools />
-  </QueryClientProvider>,
-  document.getElementById('root'),
-);
+if (root) {
+  ReactDOM.createRoot(root).render(
+    <QueryClientProvider client={queryClient}>
+      <Form />
+      <ReactQueryDevtools />
+    </QueryClientProvider>
+  );
+}

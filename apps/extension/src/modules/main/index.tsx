@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 
 import { ELEMENT_ID } from 'src/constants';
 import getBodyElement from 'utils/getBodyElement';
@@ -14,7 +14,9 @@ async function main(): Promise<void> {
 
   getBodyElement().appendChild(rootElement);
 
-  ReactDOM.render(<Root />, rootElement);
+  if (rootElement) {
+    ReactDOM.createRoot(rootElement).render(<Root />);
+  }
 }
 
 main();
