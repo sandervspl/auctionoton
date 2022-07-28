@@ -77,16 +77,16 @@ const Tooltip: React.FC<Props> = (props) => {
       <tbody>
         <tr>
           <td>
-            <table className="w-full">
+            <table className="auc-w-full">
               <tbody>
                 <tr>
                   <td>
                     <span className="q whtt-extra whtt-ilvl">
-                      <span className="capitalize">
+                      <span className="auc-capitalize">
                         {getServerName()}
                       </span>
                     </span>
-                    <div className="whtt-sellprice mb-2">
+                    <div className="whtt-sellprice auc-mb-2">
                       Last updated: {getRelativeTime()}
                     </div>
                   </td>
@@ -152,9 +152,9 @@ const Tooltip: React.FC<Props> = (props) => {
 
                       {/* Only show this loading indicator if we can show a cached item */}
                       {item && (isLoading || isFetching) ? (
-                        <div className="mt-2 flex">
+                        <div className="auc-mt-2 auc-flex">
                           {/* @ts-ignore */}
-                          <LoadingSvg className="mr-1 inline-block w-4" />
+                          <LoadingSvg className="auc-mr-1 auc-inline-block auc-w-4" />
                           Fetching latest price info...
                         </div>
                       ) : null}
@@ -172,7 +172,7 @@ const Tooltip: React.FC<Props> = (props) => {
                 {error ? (
                   <tr>
                     <td>
-                      <div className="mt-2 flex text-red-500">
+                      <div className="auc-mt-2 auc-flex auc-text-red-500">
                         {errorStr}
                       </div>
                     </td>
@@ -181,8 +181,8 @@ const Tooltip: React.FC<Props> = (props) => {
                 {/* {warning ? (
                   <tr>
                     <td>
-                      <div className="mt-1">
-                        <WarningSvg className="h-3" />
+                      <div className="auc-mt-1">
+                        <WarningSvg className="auc-h-3" />
                         {warning}
                       </div>
                     </td>
@@ -199,12 +199,12 @@ const Tooltip: React.FC<Props> = (props) => {
             </table>
           </td>
 
-          <th className="!bg-right-top" />
+          <th className="!auc-bg-right-top" />
         </tr>
 
         <tr>
-          <th className="!bg-left-bottom" />
-          <th className="!bg-right-bottom" />
+          <th className="!auc-bg-left-bottom" />
+          <th className="!auc-bg-right-bottom" />
         </tr>
       </tbody>
     </table>

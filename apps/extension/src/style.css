@@ -2,6 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-.btn {
-  @apply !flex place-items-center gap-1;
+.auc-btn {
+  @apply !auc-flex auc-place-items-center auc-gap-1;
 }

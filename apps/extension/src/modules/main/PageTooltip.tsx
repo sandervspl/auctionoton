@@ -47,24 +47,24 @@ const PageTooltip = (): React.ReactPortal | null => {
 
   return ReactDOM.createPortal(
     <>
-      <div className="h-2" />
-      <p className="!relative !left-0 !h-auto !w-auto text-[10px]">
+      <div className="auc-h-2" />
+      <p className="!auc-relative !auc-left-0 !auc-h-auto !auc-w-auto auc-text-[10px]">
         Auction House Prices for Wowhead
       </p>
 
       <Tooltip itemId={pageItem.id}>
         {({ error, loading, item, getItem }) => {
           return (
-            <div className="mt-2">
+            <div className="auc-mt-2">
               {(!loading && (error || !item)) && (
-                <div className="mb-2">
+                <div className="auc-mb-2">
                   <button
-                    className="btn btn-small"
+                    className="btn btn-small auc-btn"
                     onClick={() => getItem()}
                     title="Try loading item data again for Auctionoton"
                   >
                     {/* @ts-ignore */}
-                    <RedoSvg className="h-2 pr-1" />
+                    <RedoSvg className="auc-h-2 auc-pr-1" />
                     <span>Try again</span>
                   </button>
                 </div>
@@ -74,7 +74,7 @@ const PageTooltip = (): React.ReactPortal | null => {
                   href={createNexushubLink(item as i.CachedItemDataClassic)!}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="q flex place-items-center gap-1"
+                  className="q auc-flex auc-place-items-center auc-gap-1"
                 >
                   {/* @ts-ignore */}
                 More information on Nexushub.co <ExternalLinkSvg />
@@ -85,15 +85,15 @@ const PageTooltip = (): React.ReactPortal | null => {
         }}
       </Tooltip>
 
-      <div className="h-1" />
+      <div className="auc-h-1" />
 
       <button
-        className="btn btn-small"
+        className="btn btn-small auc-btn"
         onClick={() => window.open(`${addon.extension.getURL('form.html')}?large=true`)}
         title="Change server for Auctionoton"
       >
         {/* @ts-ignore */}
-        <GlobeSvg className="h-3 pr-1" />
+        <GlobeSvg className="auc-h-3 auc-pr-1" />
         <span>{!user?.version ? 'Add your realm!' : 'Change realm'}</span>
       </button>
     </>,
