@@ -11,4 +11,7 @@ module.exports = {
     require('autoprefixer'),
   ],
   prefix: 'auc-',
+  corePlugins: {
+    preflight: false,
+  },
 };
