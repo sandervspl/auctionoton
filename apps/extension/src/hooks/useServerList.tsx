@@ -18,12 +18,11 @@ function useServerList(region?: i.Regions, version?: i.Versions): UseServerList 
   const [servers, setServers] = React.useState<string[][]>([]);
   const { data: retailServers, isLoading } = useQuery(
     ['servers', { region }],
-    region != null
-      ? () => api.getRetailRealms(region)
-      : () => void {},
+    () => api.getRetailRealms(region),
     {
       refetchOnWindowFocus: false, // Generally just annoying, especially when fetch is failing
       staleTime: time.hours(24),
+      enabled: region != null,
     },
   );
 

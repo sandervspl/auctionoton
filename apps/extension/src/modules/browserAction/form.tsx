@@ -203,6 +203,9 @@ export const Form: React.FC = () => {
                   ))}
                 </select>
               </label>
+              {watchVersion === 'retail' && isLoading && (
+                <p className="auc-font-bold auc-mb-5">Fetching servers...</p>
+              )}
 
               {(!watchVersion || watchVersion === 'classic') && (
                 <label htmlFor="faction">

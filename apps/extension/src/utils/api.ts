@@ -1,6 +1,5 @@
 import * as i from 'types';
-import { API } from '@project/constants';
-
+import { LegacyAPI } from '@project/constants';
 
 class Api {
   private requestController!: AbortController;
@@ -14,16 +13,19 @@ class Api {
 
   async getRetailRealms(region?: i.Regions): Promise<i.RetailRealmResult | undefined> {
     if (!region) {
+      console.error('No region was provided for getRetailRealms fetch', { region });
       return;
     }
 
-    const url = `${API.Url}/retail/realms/${region}`;
+    try {
+      const result = await fetch(LegacyAPI.retailRealmsUrl(region));
+      const data = await result.json();
 
-    const result = await fetch(url);
-    const data = await result.json();
-
-    if (!('error' in data)) {
-      return data;
+      if (!('error' in data)) {
+        return data;
+      }
+    } catch (error) {
+      console.error('Error fetching retail realms', { error });
     }
   }
 }
