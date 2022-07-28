@@ -8,12 +8,12 @@
 
 @media (prefers-color-scheme: dark) {
   * {
-    @apply text-slate-200;
+    @apply auc-text-slate-200;
   }
 }
 
 body {
-  @apply bg-slate-600;
+  @apply auc-bg-slate-600;
   --bg-color: rgb(107 114 128 / 1);
 }
 
@@ -37,37 +37,37 @@ body {
 }
 
 #root {
-  @apply grid place-content-center place-items-center min-w-[300px];
-  @apply md:h-screen;
+  @apply auc-grid auc-place-content-center auc-place-items-center auc-min-w-[300px];
+  @apply md:auc-h-screen;
 }
 
 label {
-  @apply text-sm font-bold;
+  @apply auc-text-sm auc-font-bold;
 }
 
 select {
-  @apply block w-[230px] mt-1 mx-auto mb-5 h-9 py-2 px-4;
-  @apply rounded-md outline-none bg-gray-100 text-gray-500;
-  @apply border-2 border-gray-200 text-sm cursor-pointer;
-  @apply md:bg-white md:border-solid md:w-full;
-  @apply dark:bg-slate-500 dark:border-slate-400 dark:text-slate-200;
+  @apply auc-block auc-w-[230px] auc-mt-1 auc-mx-auto auc-mb-5 auc-h-9 auc-py-2 auc-px-4;
+  @apply auc-rounded-md auc-outline-none auc-bg-gray-100 auc-text-gray-500;
+  @apply auc-border-2 auc-border-gray-200 auc-text-sm auc-cursor-pointer;
+  @apply md:auc-bg-white md:auc-border-solid md:auc-w-full;
+  @apply dark:auc-bg-slate-500 dark:auc-border-slate-400 dark:auc-text-slate-200;
 }
 
 select:hover {
-  @apply bg-gray-300;
-  @apply dark:bg-slate-600;
+  @apply auc-bg-gray-300;
+  @apply dark:auc-bg-slate-600;
 }
 
 .submit-button {
-  @apply bg-red-400 font-bold w-[230px] mx-auto mt-0 mb-5 h-11 py-2 px-4;
-  @apply rounded-md outline-none border-none text-white text-sm cursor-pointer;
-  @apply md:w-full;
+  @apply auc-bg-red-400 auc-font-bold auc-w-[230px] auc-mx-auto auc-mt-0 auc-mb-5 auc-h-11 auc-py-2 auc-px-4;
+  @apply auc-rounded-md auc-outline-none auc-border-none auc-text-white auc-text-sm auc-cursor-pointer;
+  @apply md:auc-w-full;
 }
 
 .submit-button:disabled {
-  @apply cursor-not-allowed bg-red-300;
+  @apply auc-cursor-not-allowed auc-bg-red-300;
 }
 
 .submit-button:not(:disabled):hover {
-  @apply bg-red-500;
+  @apply auc-bg-red-500;
 }

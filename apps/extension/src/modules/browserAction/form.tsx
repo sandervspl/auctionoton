@@ -150,12 +150,12 @@ export const Form: React.FC = () => {
   }
 
   return (
-    <div className="md:min-w-[600px] md:rounded-md">
-      <div className="md:items-st mt-5 grid place-items-center md:mt-0 md:grid-cols-2 md:justify-items-center md:rounded-md">
-        <div className="grid place-items-center md:h-full md:w-full md:rounded-l-lg md:bg-white md:px-8 md:dark:bg-slate-500">
-          <div className="grid place-items-center">
+    <div className="md:auc-min-w-[600px] md:auc-rounded-md">
+      <div className="md:auc-items-st auc-mt-5 auc-grid auc-place-items-center md:auc-mt-0 md:auc-grid-cols-2 md:auc-justify-items-center md:auc-rounded-md">
+        <div className="auc-grid auc-place-items-center md:auc-h-full md:auc-w-full md:auc-rounded-l-lg md:auc-bg-white md:auc-px-8 md:dark:auc-bg-slate-500">
+          <div className="auc-grid auc-place-items-center">
             <img src={`static/icon${isLarge ? '' : '-48'}.png`} alt="logo" />
-            <h1 className="text-sm text-gray-500 dark:text-slate-200 md:text-center">
+            <h1 className="auc-text-sm auc-text-gray-500 dark:auc-text-slate-200 md:auc-text-center">
               Auctionoton
               {isLarge ? (
                 <>
@@ -167,10 +167,10 @@ export const Form: React.FC = () => {
           </div>
         </div>
 
-        <div className="py-0 px-9 md:w-full md:rounded-r-lg md:bg-gray-100 md:py-0 md:px-8 md:dark:bg-slate-600">
+        <div className="auc-py-0 auc-px-9 md:auc-w-full md:auc-rounded-r-lg md:auc-bg-gray-100 md:auc-py-0 md:auc-px-8 md:dark:auc-bg-slate-600">
           {(
             <form onSubmit={handleSubmit(onSubmit)}>
-              <h2 className="my-5 mx-auto hidden text-lg font-bold md:block">
+              <h2 className="auc-my-5 auc-mx-auto auc-hidden auc-text-lg auc-font-bold md:auc-block">
                 Select your server
               </h2>
 
@@ -225,7 +225,7 @@ export const Form: React.FC = () => {
           )}
 
           {userMutation.status === 'success' && (
-            <div className="mx-auto mt-0 mb-5 grid place-items-center text-sm text-green-500">
+            <div className="auc-mx-auto auc-mt-0 auc-mb-5 auc-grid auc-place-items-center auc-text-sm auc-text-green-500">
               Saved succesfully!
             </div>
           )}
