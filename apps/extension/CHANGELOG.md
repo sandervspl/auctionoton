@@ -1,5 +1,11 @@
 # extension
 
+## 3.2.4
+
+### Patch Changes
+
+- Remove preflight Tailwind styles that were affecting base HTML components
+
 ## 3.2.3
 
 ### Patch Changes
