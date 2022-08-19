@@ -5,7 +5,7 @@ export const config = {
   runtime: 'experimental-edge',
 };
 
-export default async function handler(req: Request, res: Response) {
+export default async function handler(req: Request) {
   const query = getQueries(req.url);
   const serverSlug = getServerSlug(query.get('server_name')!);
   const factionSlug = getFactionSlug(query.get('faction')!);
