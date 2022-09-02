@@ -5,7 +5,8 @@ function useIsClassicWowhead(): boolean {
   const isClassic = React.useRef<boolean>(isClassicWowhead());
 
   function isClassicWowhead(): boolean {
-    return window.location.host.includes(__CUR_CLASSIC_VERSION__);
+    const { href } = window.location;
+    return href.startsWith('https://tbc.wowhead.com') || href.includes('wowhead.com/wotlk');
   }
 
   return isClassic.current;

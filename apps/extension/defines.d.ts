@@ -3,5 +3,4 @@ declare module '*.svg' {
   export = value;
 }
 
-declare const __CUR_CLASSIC_VERSION__: string;
 declare const __DEV__: boolean;

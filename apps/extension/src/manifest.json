@@ -14,7 +14,9 @@
     },
     {
       "matches": [
-        "https://*.wowhead.com/*"
+        "https://tbc.wowhead.com/*",
+        "https://wotlk.wowhead.com/*",
+        "https://wowhead.com/wotlk/*"
       ],
       "css": [
         "style.css"
