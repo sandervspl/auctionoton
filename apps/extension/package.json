@@ -22,6 +22,7 @@
     "@project/types": "*",
     "@project/utils": "*",
     "@project/validation": "*",
+    "classnames": "^2.3.2",
     "dayjs": "1.11.5",
     "immer": "9.0.15",
     "lodash": "4.17.21",

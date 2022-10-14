@@ -1,6 +1,7 @@
 import * as i from 'types';
 import React from 'react';
 import dayjs from 'dayjs';
+import cn from 'classnames';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
 import LoadingSvg from 'static/loading.svg';
@@ -41,15 +42,26 @@ const Tooltip: React.FC<Props> = (props) => {
   function getRelativeTime() {
     if (item?.__version === 'classic') {
       if (!item?.stats.lastUpdated) {
-        return 'N/A';
+        return {
+          hours: -1,
+          text: 'N/A',
+        }
       }
 
-      return dayjs(item?.stats.lastUpdated).fromNow();
+      const time = dayjs(item.stats.lastUpdated);
+
+      return {
+        hours: Math.abs(time.diff(dayjs(), 'hour')),
+        text: time.fromNow(),
+      }
     } else if (item?.__version === 'retail') {
       // return dayjs(item?.lastUpdated).fromNow();
     }
 
-    return 'N/A';
+    return {
+      hours: -1,
+      text: 'N/A',
+    }
   }
 
   function getServerName(): string {
@@ -71,6 +83,7 @@ const Tooltip: React.FC<Props> = (props) => {
   }
 
   const errorStr = `Error: ${error || 'Something went wrong. Try again later.'}`;
+  const lastUpdated = getRelativeTime();
 
   return (
     <table id={ELEMENT_ID.TOOLTIP}>
@@ -87,7 +100,15 @@ const Tooltip: React.FC<Props> = (props) => {
                       </span>
                     </span>
                     <div className="whtt-sellprice auc-mb-2">
-                      Last updated: {getRelativeTime()}
+                      Last updated:&nbsp;
+                      <span
+                        className={cn({
+                          q2: lastUpdated.hours < 6,
+                          q10: lastUpdated.hours >= 6,
+                        })}
+                      >
+                        {lastUpdated.text}
+                      </span>
                     </div>
                   </td>
                 </tr>
