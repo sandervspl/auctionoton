@@ -1,5 +1,11 @@
 # extension
 
+## 3.2.6
+
+### Patch Changes
+
+- 25cbc48: Add color indication for last updated time
+
 ## 3.2.4
 
 ### Patch Changes
