@@ -12,7 +12,7 @@
     "dev": "rm -rf ./dist && npx concurrently 'node esbuild.config.js' 'npx tailwindcss -i ./src/style.css -o ./dist/style.css --watch' 'npx tailwindcss -i ./src/modules/browserAction/style.scss -o ./dist/style_form.css --watch'",
     "postbuild": "cd dist; zip -D -r ../auctionoton-$npm_package_version.zip ./*",
     "preversion": "tsc --noEmit",
-    "version": "npx json -I -f src/manifest.json -e \"this.version='$npm_package_version'\"; git add .",
+    "version": "changeset version && npx json -I -f src/manifest.json -e \"this.version='$npm_package_version'\"; git add .",
     "postversion": "git push && git push --tags && npm run build && npm run mozilla",
     "mozilla": "zip -r auctionoton-$npm_package_version-source.zip ./src config.js defines.d.ts global.d.ts package.json package-lock.json README.md tsconfig.json webpack.config.js",
     "tc": "tsc --noEmit"
