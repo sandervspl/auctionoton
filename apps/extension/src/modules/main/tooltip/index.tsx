@@ -12,6 +12,7 @@ import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
 import useStorageQuery from 'hooks/useStorageQuery';
 
 import { SellPrice } from './SellPrice';
+import { useQuery } from 'react-query';
 
 dayjs.extend(relativeTime);
 
@@ -25,6 +26,15 @@ const Tooltip: React.FC<Props> = (props) => {
   const { data: user } = useStorageQuery('user');
   const { error, isFetching, isLoading, item, refetch } = useItemFetcher(props.itemId);
   const isClassicWowhead = useIsClassicWowhead();
+  const { data: lastUpdated } = useQuery(
+    ['last-updated', props.itemId],
+    () => getRelativeTime(),
+    {
+      enabled: !!item,
+      refetchOnWindowFocus: true,
+      refetchInterval: 60 * 1000,
+    }
+  );
 
   if (!user?.version) {
     return null;
@@ -83,7 +93,6 @@ const Tooltip: React.FC<Props> = (props) => {
   }
 
   const errorStr = `Error: ${error || 'Something went wrong. Try again later.'}`;
-  const lastUpdated = getRelativeTime();
 
   return (
     <table id={ELEMENT_ID.TOOLTIP}>
@@ -99,17 +108,19 @@ const Tooltip: React.FC<Props> = (props) => {
                         {getServerName()}
                       </span>
                     </span>
-                    <div className="whtt-sellprice auc-mb-2">
-                      Last updated:&nbsp;
-                      <span
-                        className={cn({
-                          q2: lastUpdated.hours < 6,
-                          q10: lastUpdated.hours >= 6,
-                        })}
-                      >
-                        {lastUpdated.text}
-                      </span>
-                    </div>
+                    {lastUpdated && (
+                      <div className="whtt-sellprice auc-mb-2">
+                        Last updated:&nbsp;
+                        <span
+                          className={cn({
+                            q2: lastUpdated.hours < 6,
+                            q10: lastUpdated.hours >= 6,
+                          })}
+                        >
+                          {lastUpdated.text}
+                        </span>
+                      </div>
+                    )}
                   </td>
                 </tr>
                 {item ? (
