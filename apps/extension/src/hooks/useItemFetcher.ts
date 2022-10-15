@@ -29,7 +29,7 @@ function useItemFetcher(itemId: number): UseItemFetcher {
     }] as i.ItemQueryKey,
     fetchItem,
     {
-      refetchOnWindowFocus: false, // Generally just annoying, especially when fetch is failing
+      refetchOnWindowFocus: true,
       retry: false, // Let user retry on demand with button
     },
   );
