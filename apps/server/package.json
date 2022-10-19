@@ -7,7 +7,7 @@
   "author": "Sander Vispoel <sandervspl@github>",
   "license": "ISC",
   "scripts": {
-    "dev": "NODE_ENV=development APP_ENV=development node esbuild.config.js",
+    "foo": "NODE_ENV=development APP_ENV=development node esbuild.config.js",
     "build": "NODE_ENV=production APP_ENV=production node esbuild.config.js",
     "start": "NODE_ENV=production APP_ENV=production node dist/bundle.js",
     "clean": "rimraf dist/",

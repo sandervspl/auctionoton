@@ -9,7 +9,7 @@
   "scripts": {
     "lint": "eslint ./src --ext .ts,.tsx --fix",
     "build": "NODE_ENV=production node esbuild.config.js",
-    "dev": "rm -rf ./dist && npx concurrently 'node esbuild.config.js' 'npx tailwindcss -i ./src/style.css -o ./dist/style.css --watch' 'npx tailwindcss -i ./src/modules/browserAction/style.scss -o ./dist/style_form.css --watch'",
+    "foo": "rm -rf ./dist && npx concurrently 'node esbuild.config.js' 'npx tailwindcss -i ./src/style.css -o ./dist/style.css --watch' 'npx tailwindcss -i ./src/modules/browserAction/style.scss -o ./dist/style_form.css --watch'",
     "postbuild": "cd dist; zip -D -r ../auctionoton-$npm_package_version.zip ./*",
     "preversion": "tsc --noEmit",
     "version": "npx json -I -f src/manifest.json -e \"this.version='$npm_package_version'\"; git add .",

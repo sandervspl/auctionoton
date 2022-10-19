@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "build": "npx tsup index.ts --dts",
-    "dev": "npx tsup index.ts --dts --watch"
+    "foo": "npx tsup index.ts --dts --watch"
   },
   "devDependencies": {
     "tsup": "5.12.6",

@@ -5,14 +5,15 @@
   "license": "ISC",
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "vercel"
   ],
   "scripts": {
     "build": "turbo run build",
     "heroku-postbuild": "npx turbo run build --scope=server --include-dependencies --no-deps",
     "start": "node ./apps/server/dist/bundle.js",
-    "dev": "turbo run dev --parallel",
-    "dev:ext": "turbo run dev --scope=extension --include-dependencies",
+    "foo": "turbo run foo --parallel",
+    "dev:ext": "turbo run foo --scope=extension --include-dependencies",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "ni:e": "npm install -w extension",

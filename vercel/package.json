@@ -4,5 +4,8 @@
   "license": "ISC",
   "devDependencies": {
     "vercel": "latest"
+  },
+  "scripts": {
+    "foo": "vercel dev"
   }
 }

@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "build": "NODE_ENV=production npx tsup index.ts --dts",
-    "dev": "NODE_ENV=development npx tsup index.ts --dts --watch"
+    "foo": "NODE_ENV=development npx tsup index.ts --dts --watch"
   },
   "devDependencies": {
     "@project/types": "*",
