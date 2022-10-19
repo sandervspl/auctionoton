@@ -4,7 +4,7 @@
   "private": true,
   "license": "ISC",
   "workspaces": [
-    "apps/*",
+    "apps/extension",
     "packages/*"
   ],
   "scripts": {

@@ -1,6 +1,6 @@
 import * as i from 'types';
 import React from 'react';
-import { useQuery } from 'react-query';
+import { useQuery, UseQueryOptions } from 'react-query';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import { EdgeAPI } from '@project/constants';
@@ -11,26 +11,36 @@ import validateCache from 'utils/validateCache';
 
 import useMemoUser from './useMemoUser';
 
+type Options = UseQueryOptions<
+  i.CachedItemDataClassic | undefined,
+  unknown,
+  i.CachedItemDataClassic,
+  i.ItemQueryKey
+>;
 
-function useItemFetcher(itemId: number): UseItemFetcher {
+function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
   const memoUser = useMemoUser();
   const [error, setError] = React.useState('');
   const [warning, setWarning] = React.useState('');
-  const [item, setItem] = React.useState<i.MaybeAnyItem>();
+  const [item, setItem] = React.useState<i.CachedItemDataClassic>();
   const isClassicWowhead = useIsClassicWowhead();
 
   const { data, isLoading, isFetching, isError, refetch } = useQuery(
-    ['item', {
-      itemId,
-      server: memoUser.server,
-      faction: memoUser.faction,
-      version: memoUser.version,
-      region: memoUser.region,
-    }] as i.ItemQueryKey,
+    [
+      'item',
+      {
+        itemId,
+        server: memoUser.server,
+        faction: memoUser.faction,
+        version: memoUser.version,
+        region: memoUser.region,
+      },
+    ] as i.ItemQueryKey,
     fetchItem,
     {
       refetchOnWindowFocus: true,
       retry: false, // Let user retry on demand with button
+      ...options,
     },
   );
 
@@ -105,7 +115,7 @@ function useItemFetcher(itemId: number): UseItemFetcher {
 }
 
 interface UseItemFetcher {
-  item: i.MaybeAnyItem;
+  item?: i.CachedItemDataClassic;
   isLoading: boolean;
   isFetching: boolean;
   isError: boolean;

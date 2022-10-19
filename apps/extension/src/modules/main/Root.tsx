@@ -6,6 +6,7 @@ import { Key } from 'w3c-keys';
 import time from 'utils/time';
 
 import PageTooltip from './PageTooltip';
+import TableBuyout from './TableBuyout';
 import HoverTooltip from './HoverTooltip';
 import { uiState } from './state';
 
@@ -21,7 +22,7 @@ class AppContainer extends React.Component {
   }
 }
 
-const App: React.VFC = () => {
+const App: React.FC = () => {
   const [isItemPage, setIsItemPage] = React.useState(window.location.pathname.includes('item='));
 
   React.useEffect(() => {
@@ -41,6 +42,7 @@ const App: React.VFC = () => {
   return (
     <>
       {isItemPage && <PageTooltip />}
+      {window.location.pathname.includes('/items/') && <TableBuyout />}
       <HoverTooltip />
     </>
   );

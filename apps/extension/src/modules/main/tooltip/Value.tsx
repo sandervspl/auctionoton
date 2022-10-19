@@ -3,7 +3,6 @@ import React from 'react';
 
 import { convertToGSCv2 } from '@project/utils';
 
-
 export const Value: React.FC<Props> = (props) => {
   const getValueStrings = (): string | JSX.Element[] => {
     if (typeof props.value === 'string') {
@@ -14,7 +13,7 @@ export const Value: React.FC<Props> = (props) => {
     const coins = convertToGSCv2(props.value.raw * amount);
     const coinComponents: JSX.Element[] = [];
 
-    if (typeof coins === 'string') {
+    if (typeof coins === 'string' || Number(props.value.raw) === 0) {
       return 'N/A';
     }
 
@@ -37,9 +36,7 @@ export const Value: React.FC<Props> = (props) => {
     return <span className="auc-flex auc-gap-1">{value}</span>;
   }
 
-  return (
-    <span className="auc-text-gray-300">N/A</span>
-  );
+  return <span className="auc-text-gray-300">N/A</span>;
 };
 
 export type Props = {

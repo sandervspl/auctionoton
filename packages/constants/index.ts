@@ -3,6 +3,7 @@ import * as i from '@project/types';
 export class EdgeAPI {
   static Url = {
     development: 'http://localhost:3000/api',
+    // development: 'https://auctionoton-edge-api.vercel.app/api',
     production: 'https://auctionoton-edge-api.vercel.app/api',
   }[process.env.NODE_ENV as string];
 

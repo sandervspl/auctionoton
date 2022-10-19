@@ -1,30 +1,30 @@
 import * as i from 'types';
 
-
 export type ItemDataClassicPrices = {
   marketValue: i.ValueObject;
   historicalValue: i.ValueObject;
   minimumBuyout: i.ValueObject;
-}
+};
 
 export type Cache<V = i.Versions> = {
   __version: V;
   updatedAt: i.Date_ISO_8601;
-}
+};
 
 export type ItemDataRetailPrices = {
   buyoutPrice: i.ValueObject;
   unitPrice: i.ValueObject;
-}
+};
 
 export type ItemDataRetail = i.ItemDataRetailPrices & {
   lastUpdated: string;
   quantity: number;
-}
+};
 
-export type ItemDataClassicResponse = Pick<i.ItemResponseV2, | 'amount' | 'uniqueName' | 'stats'>;
+export type ItemDataClassicResponse = Pick<i.ItemResponseV2, 'amount' | 'uniqueName' | 'stats'>;
 
-export type AnyCachedItem = i.CachedItemDataClassic | i.CachedItemDataRetail;
+// export type AnyCachedItem = i.CachedItemDataClassic | i.CachedItemDataRetail;
+export type AnyCachedItem = i.CachedItemDataClassic;
 export type CachedItemDataClassic = ItemDataClassicResponse & i.Cache<'classic'>;
 export type MaybeCachedItemDataClassic = CachedItemDataClassic | undefined;
 export type CachedItemDataRetail = i.ItemDataRetail & i.Cache<'retail'>;
@@ -34,13 +34,13 @@ export type MaybeAnyItem = i.MaybeCachedItemDataClassic | i.MaybeCachedItemDataR
 export type ItemError = {
   error: boolean;
   reason: string;
-}
+};
 
 export type ValueObject = {
   gold: number;
   silver: number;
   copper: number;
-}
+};
 
 type ServerSlug = string;
 export type UserData = {
@@ -56,19 +56,19 @@ export type UserData = {
       name: string;
       realmId: number;
       connectedRealmId: number;
-    }
+    };
   };
-}
+};
 
 export type ItemsData = {
   [ItemQueryKeyString: string]: i.AnyCachedItem;
-}
+};
 
 export type UiData = {
   showTip: {
     shiftKey: boolean;
   };
-}
+};
 
 // Everything can be nullable -- protect the extension from crashing at all cost
 export type BrowserStorage = {

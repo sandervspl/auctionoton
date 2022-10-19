@@ -2,7 +2,6 @@ import * as i from 'types';
 import produce from 'immer';
 import _set from 'lodash/set';
 
-
 class AsyncStorage {
   async getAll(): Promise<i.BrowserStorage> {
     return new Promise((resolve) => {
@@ -20,7 +19,10 @@ class AsyncStorage {
     });
   };
 
-  set = async <T extends i.StorageKeys>(key: T, update: (draft: i.BrowserStorage[T]) => void): Promise<void> => {
+  set = async <T extends i.StorageKeys>(
+    key: T,
+    update: (draft: i.BrowserStorage[T]) => void,
+  ): Promise<void> => {
     const cur = await this.get(key);
     const next = produce(cur || {}, update);
 
@@ -44,7 +46,10 @@ class AsyncStorage {
     return `${itemObj.itemId}-${itemObj.region}-${itemObj.server}-${itemObj.faction}-${itemObj.version}`;
   };
 
-  addItem = async (itemQueryKey: i.ItemQueryKeyCtx, data: i.MaybeAnyItem): Promise<void> => {
+  addItem = async (
+    itemQueryKey: i.ItemQueryKeyCtx,
+    data: i.CachedItemDataClassic,
+  ): Promise<void> => {
     await this.set('items', (draftState) => {
       if (draftState != null) {
         _set(draftState, this.getKeyFromQueryKey(itemQueryKey), data);
@@ -52,7 +57,10 @@ class AsyncStorage {
     });
   };
 
-  getItem = async (itemQueryKey: i.ItemQueryKeyCtx, cb?: (item: i.MaybeAnyItem | undefined) => void): Promise<i.MaybeAnyItem> => {
+  getItem = async (
+    itemQueryKey: i.ItemQueryKeyCtx,
+    cb?: (item: i.CachedItemDataClassic | undefined) => void,
+  ): Promise<i.CachedItemDataClassic> => {
     const items = await this.get('items');
     const key = this.getKeyFromQueryKey(itemQueryKey);
     const item = items?.[key];
