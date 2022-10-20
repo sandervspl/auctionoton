@@ -1,7 +1,6 @@
 import * as i from 'types';
 import React from 'react';
 
-
 function useGetItemFromPage(): UseGetItemFromPage {
   const [item, setItem] = React.useState<i.PageItem>();
   const pathname = React.useRef(window.location.pathname);
@@ -32,7 +31,7 @@ function useGetItemFromPage(): UseGetItemFromPage {
 
     str = str.toLowerCase();
 
-    return !str.includes('picked up') && !str.includes('quest');
+    return !str.includes('picked up') && !str.includes('quest item');
   }
 
   function getItemIdFromUrl(url?: string): number | undefined {
