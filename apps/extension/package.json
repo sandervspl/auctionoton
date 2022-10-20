@@ -8,9 +8,10 @@
   "license": "ISC",
   "scripts": {
     "lint": "eslint ./src --ext .ts,.tsx --fix",
-    "build": "cross-env NODE_ENV=production node esbuild.config.js",
-    "dev": "rm -rf ./dist && npx concurrently 'node esbuild.config.js' 'npx tailwindcss -i ./src/style.css -o ./dist/style.css' 'npx tailwindcss -i ./src/modules/browserAction/style.scss -o ./dist/style_form.css'",
-    "postbuild": "cd dist; zip -D -r ../auctionoton-$npm_package_version.zip ./*",
+    "build": "npm run css && cross-env NODE_ENV=production node esbuild.config.js",
+    "dev": "rm -rf ./dist && npm run css && node esbuild.config.js",
+    "css": "tailwindcss -i ./src/style.css -o ./dist/style.css && tailwindcss -i ./src/modules/browserAction/style.scss -o ./dist/style_form.css",
+    "postbuild": "cd dist",
     "preversion": "tsc --noEmit",
     "version": "changeset version && npx json -I -f src/manifest.json -e \"this.version='$npm_package_version'\"; git add .",
     "postversion": "git push && git push --tags && npm run build && npm run mozilla",
