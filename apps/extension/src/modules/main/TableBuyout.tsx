@@ -18,9 +18,22 @@ const TableBuyout = () => {
     );
 
     if (tableHead) {
-      const th = document.createElement('th');
-      th.textContent = 'AH Buyout';
-      tableHead.appendChild(th);
+      const html = String.raw;
+
+      tableHead.insertAdjacentHTML(
+        'beforeend',
+        html`
+          <th id="buyout-header">
+            <div>
+              <a href="javascript:">
+                <span>
+                  <span>AH Buyout</span>
+                </span>
+              </a>
+            </div>
+          </th>
+        `,
+      );
     }
   }, []);
 
@@ -50,13 +63,16 @@ const TableCell: React.FC<Props> = (props) => {
   });
   const isVisible = entry?.isIntersecting;
   const { isError, isLoading, item } = useItemFetcher(props.itemId, {
+    enabled: isVisible,
     refetchOnWindowFocus: false,
     retry: 1,
   });
   const isFetchingItem = !item || isLoading;
+  const buyout = item?.stats.current.minimumBuyout;
+  const raw = typeof buyout === 'string' ? buyout : buyout?.raw;
 
   return (
-    <td ref={cellRef} className="auc-text-left">
+    <td ref={cellRef} className="auc-text-left" data-raw={raw}>
       {isError ? (
         'Error!'
       ) : isFetchingItem && isVisible ? (
