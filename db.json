@@ -1,8 +1,9 @@
 {
-  "item": {
-    "40051": {
+  "item": [
+    {
+      "id": 40051,
+      "itemId": 40051,
       "server": "gehennas-horde",
-      "itemId": 40008,
       "name": "Solid Sky Sapphire",
       "uniqueName": "solid-sky-sapphire",
       "contentPhase": 1,
@@ -12,7 +13,7 @@
       "itemLevel": 80,
       "sellPrice": 45000,
       "vendorPrice": null,
-      "itemLink": "|cff0070dd|Hitem:40008::::::::::0|h[Solid Sky Sapphire]|h|r",
+      "itemLink": "|cff0070dd|Hitem:40051::::::::::0|h[Solid Sky Sapphire]|h|r",
       "stats": {
         "current": {
           "numAuctions": "444",
@@ -60,8 +61,8 @@
         },
         "lastUpdated": "2022-10-20T07:23:07.000Z"
       },
-      "uri": "/items/40008",
+      "uri": "/items/40051",
       "amount": "1"
     }
-  }
+  ]
 }
