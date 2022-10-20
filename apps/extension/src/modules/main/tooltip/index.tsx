@@ -26,15 +26,11 @@ const Tooltip: React.FC<Props> = (props) => {
   const { data: user } = useStorageQuery('user');
   const { error, isFetching, isLoading, item, refetch } = useItemFetcher(props.itemId);
   const isClassicWowhead = useIsClassicWowhead();
-  const { data: lastUpdated } = useQuery(
-    ['last-updated', props.itemId],
-    () => getRelativeTime(),
-    {
-      enabled: !!item,
-      refetchOnWindowFocus: true,
-      refetchInterval: 60 * 1000,
-    }
-  );
+  const { data: lastUpdated } = useQuery(['last-updated', props.itemId], () => getRelativeTime(), {
+    enabled: !!item,
+    refetchOnWindowFocus: true,
+    refetchInterval: 60 * 1000,
+  });
 
   if (!user?.version) {
     return null;
@@ -55,7 +51,7 @@ const Tooltip: React.FC<Props> = (props) => {
         return {
           hours: -1,
           text: 'N/A',
-        }
+        };
       }
 
       const time = dayjs(item.stats.lastUpdated);
@@ -63,7 +59,7 @@ const Tooltip: React.FC<Props> = (props) => {
       return {
         hours: Math.abs(time.diff(dayjs(), 'hour')),
         text: time.fromNow(),
-      }
+      };
     } else if (item?.__version === 'retail') {
       // return dayjs(item?.lastUpdated).fromNow();
     }
@@ -71,7 +67,7 @@ const Tooltip: React.FC<Props> = (props) => {
     return {
       hours: -1,
       text: 'N/A',
-    }
+    };
   }
 
   function getServerName(): string {
@@ -104,17 +100,15 @@ const Tooltip: React.FC<Props> = (props) => {
                 <tr>
                   <td>
                     <span className="q whtt-extra whtt-ilvl">
-                      <span className="auc-capitalize">
-                        {getServerName()}
-                      </span>
+                      <span className="auc-capitalize">{getServerName()}</span>
                     </span>
                     {lastUpdated && (
                       <div className="whtt-sellprice auc-mb-2">
                         Last updated:&nbsp;
                         <span
                           className={cn({
-                            q2: lastUpdated.hours < 6,
-                            q10: lastUpdated.hours >= 6,
+                            q2: lastUpdated.hours < 3,
+                            q10: lastUpdated.hours >= 3,
                           })}
                         >
                           {lastUpdated.text}
@@ -153,7 +147,9 @@ const Tooltip: React.FC<Props> = (props) => {
                               <SellPrice
                                 heading="Quantity"
                                 amount={props.amount}
-                                value={`${item.stats.current.quantity} auction${item.stats.current.quantity === 1 ? '' : 's'}`}
+                                value={`${item.stats.current.quantity} auction${
+                                  item.stats.current.quantity === 1 ? '' : 's'
+                                }`}
                               />
                             </>
                           );
@@ -204,9 +200,7 @@ const Tooltip: React.FC<Props> = (props) => {
                 {error ? (
                   <tr>
                     <td>
-                      <div className="auc-mt-2 auc-flex auc-text-red-500">
-                        {errorStr}
-                      </div>
+                      <div className="auc-mt-2 auc-flex auc-text-red-500">{errorStr}</div>
                     </td>
                   </tr>
                 ) : null}
@@ -223,7 +217,12 @@ const Tooltip: React.FC<Props> = (props) => {
                 <tr>
                   <td>
                     {typeof props.children === 'function'
-                      ? props.children({ error: !!error, item, loading: isLoading || isFetching, getItem: refetch })
+                      ? props.children({
+                          error: !!error,
+                          item,
+                          loading: isLoading || isFetching,
+                          getItem: refetch,
+                        })
                       : props.children}
                   </td>
                 </tr>
