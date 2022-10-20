@@ -1,6 +1,7 @@
 import 'typed-query-selector';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import cn from 'classnames';
 
 import LoadingSvg from 'static/loading.svg';
 import useItemFetcher from 'hooks/useItemFetcher';
@@ -8,10 +9,10 @@ import useIntersectionObserver from 'hooks/useIntersectionObserver';
 
 import { Value } from './tooltip/Value';
 
-type Sorting = 'asc' | 'desc';
+type Sorting = null | 'asc' | 'desc';
 
 const TableBuyout = () => {
-  const [sorting, setSorting] = React.useState<Sorting>('asc');
+  const [sorting, setSorting] = React.useState<Sorting>(null);
 
   const sortByBuyout = React.useCallback(
     function sortByBuyout() {
@@ -24,6 +25,8 @@ const TableBuyout = () => {
       if (resetBtn) {
         resetBtn.style.removeProperty('display');
       }
+
+      const curSorting = sorting || 'asc';
 
       // Sort rows and append to table
       let i = 0;
@@ -52,12 +55,12 @@ const TableBuyout = () => {
           const boa = Number(a.dataset.buyoutRaw);
           const bob = Number(b.dataset.buyoutRaw);
 
-          if (sorting === 'asc') {
+          if (curSorting === 'asc') {
             if (boa > bob) {
               shouldSwitch = true;
               break;
             }
-          } else if (sorting === 'desc') {
+          } else if (curSorting === 'desc') {
             if (boa < bob) {
               shouldSwitch = true;
               break;
@@ -72,14 +75,14 @@ const TableBuyout = () => {
             switchcount++;
           }
         } else {
-          if (switchcount === 0 && sorting === 'asc') {
+          if (switchcount === 0 && curSorting === 'asc') {
             setSorting('desc');
             switching = true;
           }
         }
       }
 
-      setSorting(sorting === 'asc' ? 'desc' : 'asc');
+      setSorting(curSorting === 'asc' ? 'desc' : 'asc');
     },
     [sorting, setSorting],
   );
@@ -90,7 +93,12 @@ const TableBuyout = () => {
         <th id="buyout-header">
           <div>
             <a onClick={sortByBuyout}>
-              <span>
+              <span
+                className={cn({
+                  'listview-sort-asc': sorting === 'asc',
+                  'listview-sort-desc': sorting === 'desc',
+                })}
+              >
                 <span>AH Buyout</span>
               </span>
             </a>
