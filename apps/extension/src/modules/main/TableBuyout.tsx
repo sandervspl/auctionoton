@@ -20,6 +20,11 @@ const TableBuyout = () => {
         return;
       }
 
+      const resetBtn = document.querySelector('.listview-reset-sort') as HTMLAnchorElement;
+      if (resetBtn) {
+        resetBtn.style.removeProperty('display');
+      }
+
       // Sort rows and append to table
       let i = 0;
       let switching = true;
