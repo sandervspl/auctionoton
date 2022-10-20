@@ -1,0 +1,67 @@
+{
+  "item": {
+    "40051": {
+      "server": "gehennas-horde",
+      "itemId": 40008,
+      "name": "Solid Sky Sapphire",
+      "uniqueName": "solid-sky-sapphire",
+      "contentPhase": 1,
+      "icon": "https://wow.zamimg.com/images/wow/icons/large/inv_jewelcrafting_gem_27.jpg",
+      "tags": "Rare,Gem",
+      "requiredLevel": 0,
+      "itemLevel": 80,
+      "sellPrice": 45000,
+      "vendorPrice": null,
+      "itemLink": "|cff0070dd|Hitem:40008::::::::::0|h[Solid Sky Sapphire]|h|r",
+      "stats": {
+        "current": {
+          "numAuctions": "444",
+          "quantity": "444",
+          "minimumBuyout": {
+            "gold": "7",
+            "silver": "94",
+            "copper": "99",
+            "raw": "79499"
+          },
+          "historicalValue": {
+            "gold": "14",
+            "silver": "22",
+            "copper": "92",
+            "raw": "142292"
+          },
+          "marketValue": {
+            "gold": "9",
+            "silver": "46",
+            "copper": "86",
+            "raw": "94686"
+          }
+        },
+        "previous": {
+          "numAuctions": "254",
+          "quantity": "254",
+          "minimumBuyout": {
+            "gold": "7",
+            "silver": "94",
+            "copper": "99",
+            "raw": "79499"
+          },
+          "historicalValue": {
+            "gold": "14",
+            "silver": "22",
+            "copper": "92",
+            "raw": "142292"
+          },
+          "marketValue": {
+            "gold": "9",
+            "silver": "46",
+            "copper": "86",
+            "raw": "94686"
+          }
+        },
+        "lastUpdated": "2022-10-20T07:23:07.000Z"
+      },
+      "uri": "/items/40008",
+      "amount": "1"
+    }
+  }
+}
