@@ -164,7 +164,7 @@ const TableCell: React.FC<Props> = (props) => {
   const { isError, isLoading, item } = useItemFetcher(props.itemId!, {
     enabled: !!props.itemId && isVisible,
     refetchOnWindowFocus: false,
-    retry: 1,
+    retry: false,
     cacheTime: Infinity,
     staleTime: Infinity,
   });
@@ -173,7 +173,7 @@ const TableCell: React.FC<Props> = (props) => {
   const raw = typeof buyout === 'string' ? buyout : buyout?.raw;
 
   React.useEffect(() => {
-    const val = raw == null || raw.toString() === '0' ? '9999999' : raw.toString();
+    const val = raw == null || raw.toString() === '0' ? '9999999999999' : raw.toString();
     props.rowEl.setAttribute('data-buyout-raw', val);
   }, [props.rowEl, raw]);
 
