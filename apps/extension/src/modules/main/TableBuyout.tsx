@@ -164,7 +164,7 @@ const TableCell: React.FC<Props> = (props) => {
     disconnectOnceVisible: true,
   });
   const isVisible = entry?.isIntersecting;
-  const { isError, isLoading, item } = useItemFetcher(props.itemId!, {
+  const { isError, isLoading, isFetching, item } = useItemFetcher(props.itemId!, {
     enabled: !!props.itemId && isVisible,
     refetchOnWindowFocus: false,
     retry: false,
@@ -196,10 +196,15 @@ const TableCell: React.FC<Props> = (props) => {
     <td ref={cellRef} className="auc-text-left">
       {isError && !item ? (
         <span className="auc-flex">Error!</span>
-      ) : isFetchingItem && isVisible ? (
-        <LoadingSvg />
+      ) : item && (isLoading || isFetching) ? (
+        <div className="auc-flex auc-gap-2">
+          <LoadingSvg style={{ width: '15px' }} />
+          <Value value={item.stats.current.minimumBuyout} />
+        </div>
       ) : item ? (
         <Value value={item.stats.current.minimumBuyout} />
+      ) : isFetchingItem && isVisible ? (
+        <LoadingSvg />
       ) : (
         'N/A'
       )}
