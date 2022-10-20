@@ -2,6 +2,7 @@ import * as i from 'types';
 import React from 'react';
 import { useQuery, UseQueryOptions } from 'react-query';
 import axios from 'axios';
+import rateLimit from 'axios-rate-limit';
 import dayjs from 'dayjs';
 import { EdgeAPI } from '@project/constants';
 
@@ -17,6 +18,8 @@ type Options = UseQueryOptions<
   i.CachedItemDataClassic,
   i.ItemQueryKey
 >;
+
+const api = rateLimit(axios.create(), { maxRequests: 3, perMilliseconds: 500 });
 
 function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
   const memoUser = useMemoUser();
@@ -71,9 +74,8 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
       }
 
       try {
-        const { data } = await axios.get<i.ItemDataClassicResponse>(EdgeAPI.ItemUrl, {
+        const { data } = await api.get<i.ItemDataClassicResponse>(`${EdgeAPI.ItemUrl}/${itemId}`, {
           params: {
-            id: itemId,
             server_name: memoUser.server,
             faction: memoUser.faction,
             amount: 1,

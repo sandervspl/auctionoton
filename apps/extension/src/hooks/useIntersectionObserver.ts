@@ -2,17 +2,31 @@ import { RefObject, useEffect, useState } from 'react';
 
 interface Args extends IntersectionObserverInit {
   freezeOnceVisible?: boolean;
+  disconnectOnceVisible?: boolean;
 }
 
 function useIntersectionObserver(
   elementRef: RefObject<Element>,
-  { threshold = 0, root = null, rootMargin = '0%', freezeOnceVisible = false }: Args,
+  {
+    threshold = 0,
+    root = null,
+    rootMargin = '0%',
+    freezeOnceVisible = false,
+    disconnectOnceVisible = false,
+  }: Args,
 ): IntersectionObserverEntry | undefined {
   const [entry, setEntry] = useState<IntersectionObserverEntry>();
 
   const frozen = entry?.isIntersecting && freezeOnceVisible;
 
-  const updateEntry = ([entry]: IntersectionObserverEntry[]): void => {
+  const updateEntry = (
+    [entry]: IntersectionObserverEntry[],
+    observer: IntersectionObserver,
+  ): void => {
+    if (disconnectOnceVisible && entry.isIntersecting) {
+      observer.disconnect();
+    }
+
     setEntry(entry);
   };
 
