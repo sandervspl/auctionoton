@@ -103,6 +103,7 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
     }
 
     setError('Something went wrong fetching this item. Please try again.');
+    throw new Error('Something went wrong fetching this item. Please try again.');
   }
 
   return {
