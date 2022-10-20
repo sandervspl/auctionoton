@@ -179,8 +179,8 @@ const TableCell: React.FC<Props> = (props) => {
 
   return (
     <td ref={cellRef} className="auc-text-left">
-      {isError ? (
-        'Error!'
+      {isError && !item ? (
+        <span className="auc-flex">Error!</span>
       ) : isFetchingItem && isVisible ? (
         <LoadingSvg />
       ) : item ? (
