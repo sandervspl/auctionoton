@@ -21,9 +21,28 @@ const TableBuyout = () => {
         return;
       }
 
-      const resetBtn = document.querySelector('.listview-reset-sort') as HTMLAnchorElement;
+      // The table displays a reset button when a sorting is active
+      const resetBtn = document.querySelector('.listview-reset-sort') as
+        | HTMLAnchorElement
+        | undefined;
       if (resetBtn) {
+        // Make button visible
         resetBtn.style.removeProperty('display');
+
+        // Remove sorting if user clicks the reset button
+        resetBtn.addEventListener('click', resetSorting);
+      }
+
+      // Remove other sorting indicators
+      for (const el of [
+        Array.from(document.querySelectorAll('.listview-sort-desc')),
+        Array.from(document.querySelectorAll('.listview-sort-asc')),
+      ].flat()) {
+        // Remove class which gives the indicator
+        el.classList.remove('listview-sort-desc', 'listview-sort-asc');
+
+        // Remove hash from URL
+        history.pushState('', document.title, window.location.pathname + window.location.search);
       }
 
       const curSorting = sorting || 'asc';
@@ -83,6 +102,10 @@ const TableBuyout = () => {
       }
 
       setSorting(curSorting === 'asc' ? 'desc' : 'asc');
+
+      return function cleanup() {
+        resetBtn?.addEventListener('click', resetSorting);
+      };
     },
     [sorting, setSorting],
   );
