@@ -87,6 +87,18 @@ const TableBuyout = () => {
     [sorting, setSorting],
   );
 
+  function resetSorting() {
+    setSorting(null);
+  }
+
+  React.useEffect(() => {
+    window.addEventListener('hashchange', resetSorting);
+
+    return function cleanup() {
+      window.removeEventListener('hashchange', resetSorting);
+    };
+  }, []);
+
   return (
     <>
       {ReactDOM.createPortal(
