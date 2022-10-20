@@ -4,8 +4,18 @@ export function getQueries(url: string): URLSearchParams {
   return new URLSearchParams(url.split('?')[1]);
 }
 
+export function getURLParam(req: Request): string {
+  return new URL(req.url).pathname
+    .replace(/\/+$/, '')
+    .split('/')
+    .slice(-1)[0];
+}
+
 export function getServerSlug(name = '') {
-  return decodeURI(name).toLowerCase().replace("'", '').replace(' ', '-');
+  return decodeURI(name)
+    .toLowerCase()
+    .replace("'", '')
+    .replace(' ', '-');
 }
 
 export function getFactionSlug(faction = '') {
