@@ -148,7 +148,10 @@ const TableBuyout = () => {
         const itemIdRaw = anchorEl?.href.split('item=')[1].split('/')[0];
         const itemId = itemIdRaw == null ? null : Number(itemIdRaw);
 
-        return ReactDOM.createPortal(<TableCell num={i} itemId={itemId} rowEl={rowEl} />, rowEl);
+        return ReactDOM.createPortal(
+          <TableCell num={i} itemId={itemId} rowEl={rowEl} sorting={sorting} />,
+          rowEl,
+        );
       })}
     </>
   );
@@ -165,6 +168,7 @@ const TableCell: React.FC<Props> = (props) => {
     enabled: !!props.itemId && isVisible,
     refetchOnWindowFocus: false,
     retry: false,
+    retryOnMount: false,
     cacheTime: Infinity,
     staleTime: Infinity,
   });
@@ -173,9 +177,20 @@ const TableCell: React.FC<Props> = (props) => {
   const raw = typeof buyout === 'string' ? buyout : buyout?.raw;
 
   React.useEffect(() => {
-    const val = raw == null || raw.toString() === '0' ? '9999999999999' : raw.toString();
+    let val = null;
+
+    if (raw == null || raw.toString() === '0') {
+      if (props.sorting !== 'desc') {
+        val = '999999999999999999';
+      } else {
+        val = '0';
+      }
+    } else {
+      val = raw.toString();
+    }
+
     props.rowEl.setAttribute('data-buyout-raw', val);
-  }, [props.rowEl, raw]);
+  }, [props.rowEl, raw, props.sorting]);
 
   return (
     <td ref={cellRef} className="auc-text-left">
@@ -196,6 +211,7 @@ type Props = {
   num: number;
   itemId: number | null;
   rowEl: Element;
+  sorting: Sorting;
 };
 
 export default TableBuyout;
