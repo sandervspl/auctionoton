@@ -146,12 +146,7 @@ const TableBuyout = () => {
       {Array.from(document.querySelectorAll('.listview-row')).map((rowEl, i) => {
         const anchorEl = rowEl.querySelector('a[href*="/item="]');
         const itemIdRaw = anchorEl?.href.split('item=')[1].split('/')[0];
-
-        if (!itemIdRaw) {
-          return ReactDOM.createPortal(<td>N/A</td>, rowEl);
-        }
-
-        const itemId = Number(itemIdRaw);
+        const itemId = itemIdRaw == null ? null : Number(itemIdRaw);
 
         return ReactDOM.createPortal(<TableCell num={i} itemId={itemId} rowEl={rowEl} />, rowEl);
       })}
@@ -166,17 +161,20 @@ const TableCell: React.FC<Props> = (props) => {
     disconnectOnceVisible: true,
   });
   const isVisible = entry?.isIntersecting;
-  const { isError, isLoading, item } = useItemFetcher(props.itemId, {
-    enabled: isVisible,
+  const { isError, isLoading, item } = useItemFetcher(props.itemId!, {
+    enabled: !!props.itemId && isVisible,
     refetchOnWindowFocus: false,
     retry: 1,
+    cacheTime: Infinity,
+    staleTime: Infinity,
   });
   const isFetchingItem = !item || isLoading;
   const buyout = item?.stats.current.minimumBuyout;
   const raw = typeof buyout === 'string' ? buyout : buyout?.raw;
 
   React.useEffect(() => {
-    props.rowEl.setAttribute('data-buyout-raw', raw?.toString() || '9999999999');
+    const val = raw == null || raw.toString() === '0' ? '9999999' : raw.toString();
+    props.rowEl.setAttribute('data-buyout-raw', val);
   }, [props.rowEl, raw]);
 
   return (
@@ -187,14 +185,16 @@ const TableCell: React.FC<Props> = (props) => {
         <LoadingSvg />
       ) : item ? (
         <Value value={item.stats.current.minimumBuyout} />
-      ) : null}
+      ) : (
+        'N/A'
+      )}
     </td>
   );
 };
 
 type Props = {
   num: number;
-  itemId: number;
+  itemId: number | null;
   rowEl: Element;
 };
 
