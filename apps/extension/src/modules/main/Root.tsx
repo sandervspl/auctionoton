@@ -51,7 +51,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: time.minutes(30),
-      cacheTime: Infinity,
+      cacheTime: time.hours(5),
       retryOnMount: false,
       notifyOnChangeProps: 'tracked',
     },
