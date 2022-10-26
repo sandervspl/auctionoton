@@ -16,9 +16,7 @@ class AppContainer extends React.Component {
   }
 
   render() {
-    return (
-      <App />
-    );
+    return <App />;
   }
 }
 
@@ -52,8 +50,9 @@ const App: React.FC = () => {
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: time.minutes(5),
-      cacheTime: time.minutes(10),
+      staleTime: time.minutes(30),
+      cacheTime: Infinity,
+      retryOnMount: false,
       notifyOnChangeProps: 'tracked',
     },
   },

@@ -166,11 +166,8 @@ const TableCell: React.FC<Props> = (props) => {
   const isVisible = entry?.isIntersecting;
   const { isError, isLoading, isFetching, item } = useItemFetcher(props.itemId!, {
     enabled: !!props.itemId && isVisible,
-    refetchOnWindowFocus: false,
     retry: false,
     retryOnMount: false,
-    cacheTime: Infinity,
-    staleTime: Infinity,
   });
   const isFetchingItem = !item || isLoading;
   const buyout = item?.stats.current.minimumBuyout;

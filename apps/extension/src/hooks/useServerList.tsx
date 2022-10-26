@@ -6,13 +6,11 @@ import realms from 'src/constants/realms';
 import time from 'utils/time';
 import api from 'utils/api';
 
-
 interface UseServerList {
   serverList: string[][];
   isLoading: boolean;
   retailServerData?: i.RetailRealmResult;
 }
-
 
 function useServerList(region?: i.Regions, version?: i.Versions): UseServerList {
   const [servers, setServers] = React.useState<string[][]>([]);
@@ -20,7 +18,9 @@ function useServerList(region?: i.Regions, version?: i.Versions): UseServerList 
     ['servers', { region }],
     () => api.getRetailRealms(region),
     {
+      retry: false,
       refetchOnWindowFocus: false, // Generally just annoying, especially when fetch is failing
+      cacheTime: time.hours(24),
       staleTime: time.hours(24),
       enabled: region != null,
     },
