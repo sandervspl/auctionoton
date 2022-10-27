@@ -26,11 +26,36 @@ const Tooltip: React.FC<Props> = (props) => {
   const { data: user } = useStorageQuery('user');
   const { error, isFetching, isLoading, item, refetch } = useItemFetcher(props.itemId);
   const isClassicWowhead = useIsClassicWowhead();
-  const { data: lastUpdated } = useQuery(['last-updated', props.itemId], () => getRelativeTime(), {
-    enabled: !!item,
-    refetchOnWindowFocus: true,
-    refetchInterval: 60 * 1000,
-  });
+  const { data: lastUpdated } = useQuery(
+    ['last-updated', props.itemId],
+    () => {
+      if (item?.__version === 'classic') {
+        if (!item?.stats.lastUpdated) {
+          return {
+            hours: -1,
+            text: 'N/A',
+          };
+        }
+
+        const time = dayjs(item.stats.lastUpdated);
+
+        return {
+          hours: Math.abs(time.diff(dayjs(), 'hour')),
+          text: time.fromNow(),
+        };
+      }
+
+      return {
+        hours: -1,
+        text: 'N/A',
+      };
+    },
+    {
+      enabled: !!item,
+      refetchOnWindowFocus: true,
+      refetchInterval: 60 * 1000,
+    },
+  );
 
   if (!user?.version) {
     return null;
@@ -43,31 +68,6 @@ const Tooltip: React.FC<Props> = (props) => {
 
   if (!isClassicWowhead && !user?.server.retail) {
     return null;
-  }
-
-  function getRelativeTime() {
-    if (item?.__version === 'classic') {
-      if (!item?.stats.lastUpdated) {
-        return {
-          hours: -1,
-          text: 'N/A',
-        };
-      }
-
-      const time = dayjs(item.stats.lastUpdated);
-
-      return {
-        hours: Math.abs(time.diff(dayjs(), 'hour')),
-        text: time.fromNow(),
-      };
-    } else if (item?.__version === 'retail') {
-      // return dayjs(item?.lastUpdated).fromNow();
-    }
-
-    return {
-      hours: -1,
-      text: 'N/A',
-    };
   }
 
   function getServerName(): string {
