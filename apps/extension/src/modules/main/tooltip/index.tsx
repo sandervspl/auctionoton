@@ -27,7 +27,7 @@ const Tooltip: React.FC<Props> = (props) => {
   const { error, isFetching, isLoading, item, refetch } = useItemFetcher(props.itemId);
   const isClassicWowhead = useIsClassicWowhead();
   const { data: lastUpdated } = useQuery(
-    ['last-updated', props.itemId],
+    ['last-updated', props.itemId, item?.updatedAt],
     () => {
       if (item?.__version === 'classic') {
         if (!item?.stats.lastUpdated) {
