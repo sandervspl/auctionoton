@@ -1,6 +1,6 @@
 {
   "name": "extension",
-  "version": "3.2.6",
+  "version": "3.2.7",
   "description": "Code for auctionoton-extension.",
   "private": true,
   "main": "index.js",
@@ -15,7 +15,7 @@
     "css:extension": "tailwindcss -i ./src/style.css -o ./dist/style.css",
     "css:form": "tailwindcss -i ./src/modules/browserAction/style.scss -o ./dist/style_form.css",
     "preversion": "tsc --noEmit",
-    "version": "changeset version && npx json -I -f src/manifest.json -e \"this.version='$npm_package_version'\"; git add .",
+    "version": "npx json -I -f src/manifest.json -e \"this.version='$npm_package_version'\"; git add .",
     "postversion": "git push && git push --tags && npm run build && npm run mozilla",
     "mozilla": "zip -r auctionoton-$npm_package_version-source.zip ./src config.js defines.d.ts global.d.ts package.json package-lock.json README.md tsconfig.json webpack.config.js",
     "tc": "tsc --noEmit"

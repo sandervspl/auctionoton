@@ -1,5 +1,18 @@
 # extension
 
+## 3.2.7
+
+### Patch Changes
+
+- fedcdb1: Fix "This Item Begins a Quest" items not showing the tooltip
+- Update to push new version to stores
+- d39119a: Refetch item on window focus, and recalculate last updated on interval and window focus
+- Updated dependencies
+  - @project/constants@0.0.2
+  - @project/types@0.0.1
+  - @project/utils@0.0.1
+  - @project/validation@0.0.1
+
 ## 3.2.6
 
 ### Patch Changes
