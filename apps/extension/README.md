@@ -9,26 +9,31 @@ All Chromium based browsers are supported. This includes: Chrome, Firefox, Brave
 There are currently no plans to support Safari.
 
 # Download
+
 - Chrome/Brave/Edge/Opera: https://chrome.google.com/webstore/detail/auctionoton-auction-house/ffflgkmjodhdladikaglbeofemhbojio?hl=en&authuser=0
 - Firefox: https://addons.mozilla.org/en-US/firefox/addon/auctionoton/
 
 # Build instructions (for Mozilla)
+
 A step by step guide for building the compiled code
 
 ## Requirements
+
 These are the programs used to compile the current version
 
-- MacOS Catalina v10.15.4
-- Node v10.16.0
-- NPM v6.14.5
+- MacOS Catalina >= v10.15.4
+- Node >= v10.16.0
+- NPM >= v6.14.5
 
 ## Building
+
 Run the following commands in order
 
 1. `$ npm install`
 2. `$ npm run build`
 
 # Development Workflow
+
 - Navigate to this project in your terminal
 - Start the dev server with `dev`
 - Open your browser (preferably a chromium browser)
