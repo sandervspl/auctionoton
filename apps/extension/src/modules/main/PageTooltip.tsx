@@ -13,7 +13,6 @@ import useStorageQuery from 'hooks/useStorageQuery';
 import Tooltip from './tooltip';
 import generateContainer from './generateContainer';
 
-
 const PageTooltip = (): React.ReactPortal | null => {
   const isClassicWowhead = useIsClassicWowhead();
   const { item: pageItem, isAuctionableItem } = useGetItemFromPage();
@@ -56,7 +55,7 @@ const PageTooltip = (): React.ReactPortal | null => {
         {({ error, loading, item, getItem }) => {
           return (
             <div className="auc-mt-2">
-              {(!loading && (error || !item)) && (
+              {!loading && error && !item && (
                 <div className="auc-mb-2">
                   <button
                     className="btn btn-small auc-btn"
@@ -77,7 +76,7 @@ const PageTooltip = (): React.ReactPortal | null => {
                   className="q auc-flex auc-place-items-center auc-gap-1"
                 >
                   {/* @ts-ignore */}
-                More information on Nexushub.co <ExternalLinkSvg />
+                  More information on Nexushub.co <ExternalLinkSvg />
                 </a>
               )}
             </div>

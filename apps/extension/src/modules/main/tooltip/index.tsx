@@ -57,6 +57,8 @@ const Tooltip: React.FC<Props> = (props) => {
     },
   );
 
+  console.log(item);
+
   if (!user?.version) {
     return null;
   }
@@ -123,7 +125,7 @@ const Tooltip: React.FC<Props> = (props) => {
                       {(() => {
                         // Support for older versions
                         if (!('__version' in item) || item.__version === 'classic') {
-                          if (!item.stats.lastUpdated) {
+                          if (!item?.stats?.current?.minimumBuyout) {
                             return 'No data is available for this realm.';
                           }
 
@@ -197,7 +199,7 @@ const Tooltip: React.FC<Props> = (props) => {
                     </td>
                   </tr>
                 ) : null}
-                {error ? (
+                {error && !item ? (
                   <tr>
                     <td>
                       <div className="auc-mt-2 auc-flex auc-text-red-500">{errorStr}</div>
