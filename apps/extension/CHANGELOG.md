@@ -1,5 +1,11 @@
 # extension
 
+## 3.2.8
+
+### Patch Changes
+
+- f3c1773: Fix prices not showing when there is no lastUpdated but there is data
+
 ## 3.2.7
 
 ### Patch Changes
