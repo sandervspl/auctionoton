@@ -2,8 +2,6 @@ name: CI
 
 # Run this on every push and pull
 on:
-  push:
-    branches: '*'
   pull_request:
     branches: '*'
 
