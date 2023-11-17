@@ -11,10 +11,6 @@
     "dev:ext": "turbo run dev --scope=extension --include-dependencies",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "ni:e": "npm install -w extension",
-    "ni:s": "npm install -w server",
-    "nu:e": "npm uninstall -w extension",
-    "nu:s": "npm uninstall -w server",
     "cs:add": "npx changeset",
     "cs:ver": "npx changeset version",
     "e:version": "npm run build && cd apps/extension && npm run version"

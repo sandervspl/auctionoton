@@ -84,7 +84,7 @@ class AsyncStorage {
       },
     };
 
-    addon.storage.local.set({ items, ui, user }, cb);
+    addon.storage.local.set({ items, ui, user }).then(cb);
   };
 }
 

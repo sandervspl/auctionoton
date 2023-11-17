@@ -1,25 +1,25 @@
 {
   "compilerOptions": {
-      "outDir": "./dist",
-      "module": "commonjs",
-      "target": "es6",
-      "jsx": "react",
-      "removeComments": true,
-      "esModuleInterop": true,
-      "skipLibCheck": true,
-      "strict": true,
-      "baseUrl": ".",
-      "paths": {
-        "state": ["src/state/index"],
-        "state/*": ["src/state/*"],
-        "hooks/*": ["src/hooks/*"],
-        "utils/*": ["src/utils/*"],
-        "static/*": ["src/static/*"],
-        "modules/*": ["src/modules/*"],
-        "types": ["src/types/index"],
-        "src/*": ["src/*"],
-      },
-      "lib": ["esnext", "DOM"]
+    "outDir": "./dist",
+    "module": "commonjs",
+    "target": "es2020",
+    "jsx": "react",
+    "removeComments": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "state": ["src/state/index"],
+      "state/*": ["src/state/*"],
+      "hooks/*": ["src/hooks/*"],
+      "utils/*": ["src/utils/*"],
+      "static/*": ["src/static/*"],
+      "modules/*": ["src/modules/*"],
+      "types": ["src/types/index"],
+      "src/*": ["src/*"]
+    },
+    "lib": ["esnext", "DOM"]
   },
   "exclude": ["node_modules"]
 }
