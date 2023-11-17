@@ -1,8 +1,0 @@
-{
-  "ignore": {
-    "node-fetch": {
-      "versions": ">2",
-      "reason": "v3+ is ESM"
-    }
-  }
-}
