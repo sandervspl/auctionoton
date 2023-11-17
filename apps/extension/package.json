@@ -12,6 +12,7 @@
     "dev": "rm -rf ./dist && npm run css && node esbuild.config.js",
     "css": "concurrently 'npm run css:extension --watch' 'npm run css:form --watch'",
     "postbuild": "cd dist; zip -D -r ../auctionoton-$npm_package_version.zip ./*",
+    "ci:create-dist": "cd dist; zip -D -r ../auctionoton.zip ./*",
     "css:extension": "tailwindcss -i ./src/style.css -o ./dist/style.css",
     "css:form": "tailwindcss -i ./src/modules/browserAction/style.scss -o ./dist/style_form.css",
     "preversion": "tsc --noEmit",

@@ -1,0 +1,41 @@
+name: Deploy to Chrome Web Store
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build extension
+        run: |
+          cd apps/extension
+          pnpm build
+          pnpm ci:create-dist
+          cd ../..
+
+      - name: Deploy to Chrome Web Store
+        uses: mnao305/chrome-extension-upload@v4.0.1
+        with:
+          file-path: apps/extension/auctionoton.zip
+          extension-id: hogefuga(extension id)
+          client-id: ${{ secrets.CHROME_WEBSTORE_CLIENT_ID }}
+          client-secret: ${{ secrets.CHROME_WEBSTORE_CLIENT_SECRET }}
+          refresh-token: ${{ secrets.CHROME_WEBSTORE_REFRESH_TOKEN }}
+
+      - name: Notify success
+        run: echo "Extension deployed successfully!"
