@@ -1,12 +1,12 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Auctionoton: Auction House Prices for Wowhead",
   "version": "3.2.8",
   "description": "Display current Auction House price data for items on wowhead.com",
   "content_scripts": [
     {
       "matches": [
-        "*://*/*"
+        "<all_urls>"
       ],
       "js": [
         "index.js"
@@ -25,30 +25,27 @@
     }
   ],
   "web_accessible_resources": [
-    "index.js",
-    "form.html"
+    {
+      "resources": [
+        "index.js",
+        "form.html"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
   ],
   "background": {
-    "scripts": [
-      "background.js"
-    ],
-    "persistent": false
+    "service_worker": "background.js"
   },
-  "browser_action": {
+  "action": {
     "default_icon": "static/icon.png",
     "default_popup": "form.html",
     "default_title": "Auctionoton: Auction House Prices for Wowhead"
   },
   "options_ui": {
     "page": "form.html",
-    "open_in_tab": true,
-    "browser_style": false,
-    "chrome_style": false
-  },
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "auctiono@ton.com"
-    }
+    "open_in_tab": true
   },
   "icons": {
     "16": "static/icon-16.png",
@@ -65,5 +62,10 @@
     "https://develop--auctionoton-server.herokuapp.com/*",
     "https://auctionoton-edge-api-sandervspl.vercel.app/api/*",
     "https://auctionoton-edge-api.vercel.app/api/*"
-  ]
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "auctiono@ton.com"
+    }
+  }
 }
