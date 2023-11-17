@@ -9,6 +9,7 @@ import { convertToGSCv2 } from '@project/utils';
 import generateContainer from './generateContainer';
 import { TooltipBody } from './tooltip/TooltipBody';
 import { Value } from './tooltip/Value';
+import { ChangeRealmButton } from './ChangeRealmButton';
 
 type Props = unknown;
 
@@ -138,14 +139,15 @@ export const ReagentsTooltip: React.FC<Props> = (props) => {
 
           {items.data?.map((item) => (
             <React.Fragment key={item.itemId}>
-              <div
+              <a
+                href={`https://www.wowhead.com/wotlk/item=${item.itemId}/${item.uniqueName}`}
                 className={`auc-flex auc-gap-1 auc-items-center ${getQualityClassFromTags(
                   item.tags,
                 )}`}
               >
                 <ItemIcon url={item.icon} itemId={item.itemId} slug={item.uniqueName} />
                 <span className="auc-flex-1">{item.name}</span>
-              </div>
+              </a>
               <div className="auc-flex auc-items-center auc-justify-end">
                 {reagents.get(item.itemId)}
               </div>
@@ -167,6 +169,10 @@ export const ReagentsTooltip: React.FC<Props> = (props) => {
           </div>
         </div>
       </TooltipBody>
+
+      <div className="auc-h-1" />
+
+      <ChangeRealmButton />
     </>,
     container,
   );

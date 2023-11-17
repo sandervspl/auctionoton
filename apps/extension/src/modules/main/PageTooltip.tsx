@@ -5,13 +5,13 @@ import ReactDOM from 'react-dom';
 
 import ExternalLinkSvg from 'static/external-link.svg';
 import RedoSvg from 'static/redo-solid.svg';
-import GlobeSvg from 'static/globe-americas-regular.svg';
 import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
 import useGetItemFromPage from 'hooks/useGetItemFromPage';
 import useStorageQuery from 'hooks/useStorageQuery';
 
 import Tooltip from './tooltip';
 import generateContainer from './generateContainer';
+import { ChangeRealmButton } from './ChangeRealmButton';
 
 const PageTooltip = (): React.ReactPortal | null => {
   const isClassicWowhead = useIsClassicWowhead();
@@ -86,15 +86,7 @@ const PageTooltip = (): React.ReactPortal | null => {
 
       <div className="auc-h-1" />
 
-      <button
-        className="btn btn-small auc-btn"
-        onClick={() => window.open(`${addon.runtime.getURL('form.html')}?large=true`)}
-        title="Change server for Auctionoton"
-      >
-        {/* @ts-ignore */}
-        <GlobeSvg className="auc-h-3 auc-pr-1" />
-        <span>{!user?.version ? 'Add your realm!' : 'Change realm'}</span>
-      </button>
+      <ChangeRealmButton />
     </>,
     container,
   );
