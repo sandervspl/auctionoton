@@ -1,5 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+
+import LoadingSvg from 'static/loading.svg';
 import useGetSpellFromPage from 'hooks/useGetSpellFromPage';
 import { ELEMENT_ID } from 'src/constants';
 import { useItemsFetcher } from 'hooks/useItemsFetcher';
@@ -101,7 +103,11 @@ export const ReagentsTooltip: React.FC<Props> = (props) => {
         Auction House Prices for Wowhead
       </p>
 
-      <TooltipBody id={ELEMENT_ID.TOOLTIP} className="!auc-w-full">
+      <TooltipBody
+        id={ELEMENT_ID.TOOLTIP}
+        className="!auc-w-full"
+        header={<div>Cost breakdown</div>}
+      >
         <div
           className="auc-grid auc-mt-2 auc-gap-x-4"
           style={{ gridTemplateColumns: 'auto 30px auto' }}
@@ -109,6 +115,12 @@ export const ReagentsTooltip: React.FC<Props> = (props) => {
           <span className="auc-font-bold">Item</span>
           <span className="auc-font-bold auc-text-right">Qty</span>
           <span className="auc-font-bold auc-mb-2 auc-text-right">Min. Buyout</span>
+
+          {(!items.data || items.isLoading) && (
+            <div className="auc-col-span-3 auc-flex auc-items-center auc-justify-center">
+              <LoadingSvg />
+            </div>
+          )}
 
           {items.data?.map((item) => (
             <React.Fragment key={item.itemId}>
