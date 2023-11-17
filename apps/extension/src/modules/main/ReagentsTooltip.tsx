@@ -11,9 +11,7 @@ import { TooltipBody } from './tooltip/TooltipBody';
 import { Value } from './tooltip/Value';
 import { ChangeRealmButton } from './ChangeRealmButton';
 
-type Props = unknown;
-
-export const ReagentsTooltip: React.FC<Props> = (props) => {
+export const ReagentsTooltip: React.FC = (props) => {
   const { spell: pageSpell } = useGetSpellFromPage();
   const tooltipElementId = `tt${pageSpell?.id}`;
   const tooltipElement = document.querySelector(`div#${tooltipElementId}`);

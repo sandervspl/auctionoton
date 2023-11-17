@@ -22,8 +22,10 @@ class AppContainer extends React.Component {
 }
 
 const App: React.FC = () => {
-  const [isItemPage, setIsItemPage] = React.useState(window.location.pathname.includes('item='));
-  const [isSpellPage, setIsSpellPage] = React.useState(window.location.pathname.includes('spell='));
+  const isItemPage = window.location.pathname.includes('item=');
+  const isSpellPage = window.location.pathname.includes('spell=');
+  // Check if there is an anchor to the create spell page
+  const createSpellAnchor = document.querySelector('#tab-created-by-spell a[href*="spell="]');
 
   React.useEffect(() => {
     window.addEventListener('keydown', (e) => {
@@ -35,15 +37,10 @@ const App: React.FC = () => {
     });
   }, []);
 
-  React.useEffect(() => {
-    setIsItemPage(window.location.pathname.includes('item='));
-    setIsSpellPage(window.location.pathname.includes('spell='));
-  }, [window.location.pathname]);
-
   return (
     <>
       {isItemPage && <PageTooltip />}
-      {isSpellPage && <ReagentsTooltip />}
+      {(isSpellPage || createSpellAnchor) && <ReagentsTooltip />}
       {window.location.pathname.includes('/items/') && <TableBuyout />}
       <HoverTooltip />
     </>
