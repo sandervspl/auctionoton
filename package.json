@@ -3,10 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "license": "ISC",
-  "workspaces": [
-    "apps/extension",
-    "packages/*"
-  ],
   "scripts": {
     "build": "turbo run build",
     "heroku-postbuild": "npx turbo run build --scope=server --include-dependencies --no-deps",

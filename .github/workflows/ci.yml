@@ -3,9 +3,9 @@ name: CI
 # Run this on every push and pull
 on:
   push:
-    branches: ['**']
+    branches: '*'
   pull_request:
-    branches: ['**']
+    branches: '*'
 
 jobs:
   build:
@@ -18,12 +18,28 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16
-          cache: 'yarn'
-          cache-dependency-path: '**/yarn.lock'
+          node-version: 18
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --immutable
+        run: pnpm install
 
       - name: Build monorepo
-        run: yarn build -- --cwd=. --graph
+        run: pnpm build

@@ -2,11 +2,11 @@ name: CD Vercel Edge Api
 
 on:
   push:
-    branches: ['**']
+    branches: '*'
     paths:
       - vercel/**
   pull_request:
-    branches: ['**']
+    branches: '*'
     paths:
       - vercel/**
 
@@ -23,17 +23,28 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16
-          cache: 'yarn'
-          cache-dependency-path: 'vercel/yarn.lock'
+          node-version: 18
 
-      # Install Yarn if we are running actions with Act
-      - name: Act prep
-        if: ${{ env.ACT }}
-        run: npm i -g yarn
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: yarn install --cwd vercel --frozen-lockfile --immutable
+        run: pnpm install
 
       # vercel pull doesnt work for some reason
       - name: Setup Vercel files
@@ -46,4 +57,4 @@ jobs:
       - name: Deploy to Vercel
         run: |
           cd vercel
-          yarn vercel deploy ${{ github.ref == 'refs/heads/master' && '--prod' || '' }} --token ${{ secrets.VERCEL_TOKEN }}
+          pnpm vercel deploy ${{ github.ref == 'refs/heads/master' && '--prod' || '' }} --token ${{ secrets.VERCEL_TOKEN }}
