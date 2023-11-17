@@ -27,6 +27,16 @@ export default async function handler(req: Request) {
     return new Response(JSON.stringify({ error: 'true', message: result.error }), { status: code });
   }
 
+  try {
+    await fetch(`${process.env.KV_REST_API_URL}/set/item:${serverSlug}:{factionSlug[0]}:${itemId}/${JSON.stringify(result)}`, {
+      headers: {
+        Authorization: "Bearer " + process.env.KV_REST_API_TOKEN,
+      }
+    });
+  catch (error) {
+    console.error('kv error:', error)
+  }
+
   const data = nexushubToItemResponse(result, Number(query.get('amount') || 1));
   return new Response(JSON.stringify(data), {
     status: 200,
