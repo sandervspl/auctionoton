@@ -1,5 +1,11 @@
 # extension
 
+## 4.0.0
+
+### Major Changes
+
+- 14239c6: Update to Manifest v3
+
 ## 3.2.8
 
 ### Patch Changes
