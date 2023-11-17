@@ -88,7 +88,7 @@ const PageTooltip = (): React.ReactPortal | null => {
 
       <button
         className="btn btn-small auc-btn"
-        onClick={() => window.open(`${addon.extension.getURL('form.html')}?large=true`)}
+        onClick={() => window.open(`${addon.runtime.getURL('form.html')}?large=true`)}
         title="Change server for Auctionoton"
       >
         {/* @ts-ignore */}
