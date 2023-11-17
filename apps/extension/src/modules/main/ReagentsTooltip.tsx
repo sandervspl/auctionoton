@@ -5,6 +5,7 @@ import LoadingSvg from 'static/loading.svg';
 import useGetSpellFromPage from 'hooks/useGetSpellFromPage';
 import { ELEMENT_ID } from 'src/constants';
 import { useItemsFetcher } from 'hooks/useItemsFetcher';
+import { convertToGSCv2 } from '@project/utils';
 import generateContainer from './generateContainer';
 import { TooltipBody } from './tooltip/TooltipBody';
 import { Value } from './tooltip/Value';
@@ -96,6 +97,19 @@ export const ReagentsTooltip: React.FC<Props> = (props) => {
     return null;
   }
 
+  const total =
+    items.data?.reduce((acc, item) => {
+      const amount = reagents.get(item.itemId) ?? 1;
+      const { minimumBuyout } = item.stats.current;
+      const value = typeof minimumBuyout === 'string' ? Number(minimumBuyout) : minimumBuyout.raw;
+
+      if (isNaN(value)) {
+        return acc;
+      }
+
+      return acc + value * amount;
+    }, 0) || 0;
+
   return ReactDOM.createPortal(
     <>
       <div className="auc-h-2" />
@@ -130,16 +144,27 @@ export const ReagentsTooltip: React.FC<Props> = (props) => {
                 )}`}
               >
                 <ItemIcon url={item.icon} itemId={item.itemId} slug={item.uniqueName} />
-                {item.name}
+                <span className="auc-flex-1">{item.name}</span>
               </div>
               <div className="auc-flex auc-items-center auc-justify-end">
                 {reagents.get(item.itemId)}
               </div>
               <div className="auc-flex auc-items-center auc-justify-end">
-                <Value value={item.stats.current.minimumBuyout} />
+                <Value
+                  value={item.stats.current.minimumBuyout}
+                  amount={reagents.get(item.itemId)}
+                />
               </div>
             </React.Fragment>
           ))}
+
+          <div className="auc-col-span-3 auc-h-4" />
+
+          <div className="auc-flex auc-items-center auc-font-bold">Total</div>
+          <div />
+          <div className="auc-flex auc-justify-end auc-items-center">
+            <Value value={convertToGSCv2(total)} />
+          </div>
         </div>
       </TooltipBody>
     </>,
@@ -157,9 +182,6 @@ const ItemIcon = (props: { url: string; itemId: number; slug: string }) => {
         aria-label="Icon"
         href={`https://www.wowhead.com/wotlk/item=${props.itemId}/${props.slug}`}
       />
-      <span className="wh-icon-text" data-type="number">
-        20
-      </span>
     </div>
   );
 };
