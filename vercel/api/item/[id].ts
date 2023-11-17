@@ -28,7 +28,7 @@ export default async function handler(req: Request) {
   }
 
   try {
-    await fetch(`${process.env.KV_REST_API_URL}/set/item:${serverSlug}:{factionSlug[0]}:${itemId}/${JSON.stringify(result)}`, {
+    await fetch(`${process.env.KV_REST_API_URL}/set/item:${serverSlug}:${factionSlug[0]}:${itemId}/${JSON.stringify(result)}`, {
       headers: {
         Authorization: "Bearer " + process.env.KV_REST_API_TOKEN,
       }
