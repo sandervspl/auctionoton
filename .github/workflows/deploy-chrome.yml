@@ -41,8 +41,8 @@ jobs:
 
       - name: Build extension
         run: |
-          cd apps/extension
           pnpm build
+          cd apps/extension
           pnpm ci:create-dist
           cd ../..
 
