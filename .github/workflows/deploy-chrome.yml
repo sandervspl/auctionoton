@@ -50,7 +50,7 @@ jobs:
         uses: mnao305/chrome-extension-upload@v4.0.1
         with:
           file-path: apps/extension/auctionoton.zip
-          extension-id: hogefuga(${{ secrets.CHROME_WEBSTORE_EXTENSION_ID }})
+          extension-id: ${{ secrets.CHROME_WEBSTORE_EXTENSION_ID }}
           client-id: ${{ secrets.CHROME_WEBSTORE_CLIENT_ID }}
           client-secret: ${{ secrets.CHROME_WEBSTORE_CLIENT_SECRET }}
           refresh-token: ${{ secrets.CHROME_WEBSTORE_REFRESH_TOKEN }}
