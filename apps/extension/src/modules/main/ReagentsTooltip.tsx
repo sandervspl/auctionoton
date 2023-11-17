@@ -13,6 +13,7 @@ export const ReagentsTooltip: React.FC<Props> = (props) => {
   const { spell: pageSpell } = useGetSpellFromPage();
   const tooltipElementId = `tt${pageSpell?.id}`;
   const tooltipElement = document.querySelector(`div#${tooltipElementId}`);
+  const [reagents, setReagents] = React.useState<Map<number, number>>(new Map());
   const container = React.useMemo(
     () => (tooltipElement ? generateContainer(tooltipElement, 'page') : null),
     [tooltipElement],
@@ -52,9 +53,23 @@ export const ReagentsTooltip: React.FC<Props> = (props) => {
           return null;
         }
 
-        return match[1];
+        const id = Number(match[1]);
+
+        const amountEl = anchor.nextElementSibling;
+        if (amountEl) {
+          const amount = amountEl.querySelector('span')?.textContent;
+
+          if (amount) {
+            setReagents((map) => {
+              map.set(id, Number(amount));
+              return map;
+            });
+          }
+        }
+
+        return id;
       })
-      .filter((id): id is string => !!id);
+      .filter((id): id is number => !!id);
 
     if (reagentAnchors.length === 0) {
       if (__DEV__) {
@@ -66,7 +81,7 @@ export const ReagentsTooltip: React.FC<Props> = (props) => {
 
     const uniqueItemIds = new Set(reagentItemIds);
 
-    return Array.from(uniqueItemIds).map(Number);
+    return Array.from(uniqueItemIds);
   }, []);
   const items = useItemsFetcher(pageSpell?.id, reagentItemIds);
 
@@ -102,7 +117,7 @@ export const ReagentsTooltip: React.FC<Props> = (props) => {
                 <ItemIcon url={item.icon} itemId={item.itemId} slug={item.uniqueName} />
                 {item.name}
               </div>
-              <span>amount</span>
+              <span>{reagents.get(item.itemId)}</span>
               <span>
                 <Value value={item.stats.current.minimumBuyout} />
               </span>
