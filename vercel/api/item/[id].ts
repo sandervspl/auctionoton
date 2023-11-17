@@ -33,7 +33,7 @@ export default async function handler(req: Request) {
         Authorization: "Bearer " + process.env.KV_REST_API_TOKEN,
       }
     });
-  catch (error) {
+  } catch (error) {
     console.error('kv error:', error)
   }
 
