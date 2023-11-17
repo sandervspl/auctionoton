@@ -9,6 +9,7 @@ import PageTooltip from './PageTooltip';
 import TableBuyout from './TableBuyout';
 import HoverTooltip from './HoverTooltip';
 import { uiState } from './state';
+import { ReagentsTooltip } from './ReagentsTooltip';
 
 class AppContainer extends React.Component {
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
@@ -22,6 +23,7 @@ class AppContainer extends React.Component {
 
 const App: React.FC = () => {
   const [isItemPage, setIsItemPage] = React.useState(window.location.pathname.includes('item='));
+  const [isSpellPage, setIsSpellPage] = React.useState(window.location.pathname.includes('spell='));
 
   React.useEffect(() => {
     window.addEventListener('keydown', (e) => {
@@ -35,11 +37,13 @@ const App: React.FC = () => {
 
   React.useEffect(() => {
     setIsItemPage(window.location.pathname.includes('item='));
+    setIsSpellPage(window.location.pathname.includes('spell='));
   }, [window.location.pathname]);
 
   return (
     <>
       {isItemPage && <PageTooltip />}
+      {isSpellPage && <ReagentsTooltip />}
       {window.location.pathname.includes('/items/') && <TableBuyout />}
       <HoverTooltip />
     </>

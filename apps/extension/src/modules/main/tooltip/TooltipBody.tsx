@@ -1,0 +1,67 @@
+import * as i from 'types';
+import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
+import useStorageQuery from 'hooks/useStorageQuery';
+import React from 'react';
+
+type Props = {
+  id: string;
+  hideServerName?: boolean;
+  header?: React.ReactNode;
+  children?: React.ReactNode;
+};
+
+export const TooltipBody: React.FC<Props> = (props) => {
+  const isClassicWowhead = useIsClassicWowhead();
+  const { data: user } = useStorageQuery('user');
+
+  function getServerName(): string {
+    const version: i.Versions = isClassicWowhead ? 'classic' : 'retail';
+    const serverName = user?.server[version];
+    const region = user?.region?.toUpperCase();
+
+    if (!serverName) {
+      return 'Unknown';
+    }
+
+    if ('slug' in serverName) {
+      const faction = user?.faction[serverName.slug];
+
+      return `${serverName.name} ${region}-${faction}`;
+    }
+
+    return `${serverName.name}-${region}`;
+  }
+
+  return (
+    <table id={props.id}>
+      <tbody>
+        <tr>
+          <td>
+            <table className="auc-w-full">
+              <tbody>
+                <tr>
+                  <td>
+                    {props.hideServerName ? null : (
+                      <span className="q whtt-extra whtt-ilvl">
+                        <span className="auc-capitalize">{getServerName()}</span>
+                      </span>
+                    )}
+                    {props.header}
+                  </td>
+                </tr>
+                {props.children}
+              </tbody>
+            </table>
+          </td>
+
+          <th className="!auc-bg-right-top" />
+        </tr>
+
+        <tr>
+          <th className="!auc-bg-left-bottom" />
+          <th className="!auc-bg-right-bottom" />
+        </tr>
+      </tbody>
+    </table>
+  );
+};
