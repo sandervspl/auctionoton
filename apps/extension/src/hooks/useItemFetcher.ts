@@ -1,15 +1,12 @@
 import * as i from 'types';
 import React from 'react';
 import { useQuery, UseQueryOptions } from 'react-query';
-import axios from 'axios';
-import rateLimit from 'axios-rate-limit';
-import dayjs from 'dayjs';
-import { EdgeAPI } from '@project/constants';
 
 import asyncStorage from 'utils/asyncStorage';
 import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
 import validateCache from 'utils/validateCache';
 
+import { fetchItemFromAPI } from 'src/queries/item';
 import useMemoUser from './useMemoUser';
 
 type Options = UseQueryOptions<
@@ -19,8 +16,6 @@ type Options = UseQueryOptions<
   i.ItemQueryKey
 >;
 
-const api = rateLimit(axios.create(), { maxRequests: 3, perMilliseconds: 500 });
-
 function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
   const memoUser = useMemoUser();
   const [error, setError] = React.useState('');
@@ -28,8 +23,8 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
   const [item, setItem] = React.useState<i.CachedItemDataClassic>();
   const isClassicWowhead = useIsClassicWowhead();
 
-  const { data, isLoading, isFetching, isError, refetch } = useQuery(
-    [
+  const { data, isLoading, isFetching, isError, refetch } = useQuery({
+    queryKey: [
       'item',
       {
         itemId,
@@ -39,13 +34,11 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
         region: memoUser.region,
       },
     ] as i.ItemQueryKey,
-    fetchItem,
-    {
-      refetchOnWindowFocus: true,
-      retry: false, // Let user retry on demand with button
-      ...options,
-    },
-  );
+    queryFn: fetchItem,
+    refetchOnWindowFocus: true,
+    retry: false, // Let user retry on demand with button
+    ...options,
+  });
 
   React.useEffect(() => {
     setItem(data);
@@ -73,27 +66,10 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
         return;
       }
 
-      try {
-        const { data } = await api.get<i.ItemDataClassicResponse>(`${EdgeAPI.ItemUrl}/${itemId}`, {
-          params: {
-            server_name: memoUser.server,
-            faction: memoUser.faction,
-            amount: 1,
-          },
-        });
+      const result = await fetchItemFromAPI(itemId, memoUser.server, memoUser.faction, queryKey);
 
-        const localData: i.CachedItemDataClassic = {
-          ...data,
-          __version: 'classic',
-          updatedAt: dayjs().toISOString(),
-        };
-
-        // Store in browser storage
-        await asyncStorage.addItem(queryKey, localData);
-
-        return localData;
-      } catch (err) {
-        console.error(err);
+      if (result) {
+        return result;
       }
     }
 

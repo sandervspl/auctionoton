@@ -8,6 +8,8 @@ type Props = {
   hideServerName?: boolean;
   header?: React.ReactNode;
   children?: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
 };
 
 export const TooltipBody: React.FC<Props> = (props) => {
@@ -33,12 +35,12 @@ export const TooltipBody: React.FC<Props> = (props) => {
   }
 
   return (
-    <table id={props.id}>
+    <table id={props.id} className={props.className} style={props.style}>
       <tbody>
         <tr>
           <td>
-            <table className="auc-w-full">
-              <tbody>
+            <table style={{ display: 'block', width: '100%' }}>
+              <tbody style={{ display: 'block', width: '100%' }}>
                 <tr>
                   <td>
                     {props.hideServerName ? null : (

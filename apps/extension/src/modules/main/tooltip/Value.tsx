@@ -3,6 +3,11 @@ import React from 'react';
 
 import { convertToGSCv2 } from '@project/utils';
 
+export type Props = {
+  amount?: number;
+  value: string | i.PriceObjectV2;
+};
+
 export const Value: React.FC<Props> = (props) => {
   const getValueStrings = (): string | JSX.Element[] => {
     if (typeof props.value === 'string') {
@@ -37,9 +42,4 @@ export const Value: React.FC<Props> = (props) => {
   }
 
   return <span className="auc-text-gray-300">N/A</span>;
-};
-
-export type Props = {
-  amount?: number;
-  value: string | i.PriceObjectV2;
 };
