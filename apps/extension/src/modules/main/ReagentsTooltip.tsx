@@ -18,6 +18,7 @@ export const ReagentsTooltip: React.FC<Props> = (props) => {
   const tooltipElementId = `tt${pageSpell?.id}`;
   const tooltipElement = document.querySelector(`div#${tooltipElementId}`);
   const [reagents, setReagents] = React.useState<Map<number, number>>(new Map());
+  const [amount, setAmount] = React.useState(1);
   const container = React.useMemo(
     () => (tooltipElement ? generateContainer(tooltipElement, 'page') : null),
     [tooltipElement],
@@ -89,6 +90,27 @@ export const ReagentsTooltip: React.FC<Props> = (props) => {
   }, []);
   const items = useItemsFetcher(pageSpell?.id, reagentItemIds);
 
+  React.useEffect(() => {
+    const amountInputEl = document.querySelector<HTMLInputElement>(
+      '#icon-list-heading-reagents input',
+    );
+    if (!amountInputEl) {
+      console.error('Could not find amount input element');
+      return;
+    }
+
+    function onAmountChange(e: Event) {
+      const value = Number((e.target as HTMLInputElement).value);
+      setAmount(value);
+    }
+
+    amountInputEl.addEventListener('change', onAmountChange);
+
+    return () => {
+      amountInputEl.removeEventListener('change', onAmountChange);
+    };
+  }, []);
+
   // If there are no reagents, don't show the tooltip
   if (reagentItemIds.length === 0) {
     return null;
@@ -100,7 +122,7 @@ export const ReagentsTooltip: React.FC<Props> = (props) => {
 
   const total =
     items.data?.reduce((acc, item) => {
-      const amount = reagents.get(item.itemId) ?? 1;
+      const reagentAmount = reagents.get(item.itemId) ?? 1;
       const { minimumBuyout } = item.stats.current;
       const value = typeof minimumBuyout === 'string' ? Number(minimumBuyout) : minimumBuyout.raw;
 
@@ -108,7 +130,7 @@ export const ReagentsTooltip: React.FC<Props> = (props) => {
         return acc;
       }
 
-      return acc + value * amount;
+      return acc + value * reagentAmount * amount;
     }, 0) || 0;
 
   return ReactDOM.createPortal(
@@ -149,12 +171,12 @@ export const ReagentsTooltip: React.FC<Props> = (props) => {
                 <span className="auc-flex-1">{item.name}</span>
               </a>
               <div className="auc-flex auc-items-center auc-justify-end">
-                {reagents.get(item.itemId)}
+                {(reagents.get(item.itemId) || 1) * amount}
               </div>
               <div className="auc-flex auc-items-center auc-justify-end">
                 <Value
                   value={item.stats.current.minimumBuyout}
-                  amount={reagents.get(item.itemId)}
+                  amount={(reagents.get(item.itemId) || 1) * amount}
                 />
               </div>
             </React.Fragment>
