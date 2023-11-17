@@ -101,11 +101,14 @@ export const ReagentsTooltip: React.FC<Props> = (props) => {
         Auction House Prices for Wowhead
       </p>
 
-      <TooltipBody id={ELEMENT_ID.TOOLTIP} style={{ width: '100%' }}>
-        <div className="auc-grid auc-mt-2" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
+      <TooltipBody id={ELEMENT_ID.TOOLTIP} className="!auc-w-full">
+        <div
+          className="auc-grid auc-mt-2 auc-gap-x-4"
+          style={{ gridTemplateColumns: 'auto 30px auto' }}
+        >
           <span className="auc-font-bold">Item</span>
-          <span className="auc-font-bold">Quantity</span>
-          <span className="auc-font-bold auc-mb-2">Min. Buyout</span>
+          <span className="auc-font-bold auc-text-right">Qty</span>
+          <span className="auc-font-bold auc-mb-2 auc-text-right">Min. Buyout</span>
 
           {items.data?.map((item) => (
             <React.Fragment key={item.itemId}>
@@ -117,10 +120,12 @@ export const ReagentsTooltip: React.FC<Props> = (props) => {
                 <ItemIcon url={item.icon} itemId={item.itemId} slug={item.uniqueName} />
                 {item.name}
               </div>
-              <span>{reagents.get(item.itemId)}</span>
-              <span>
+              <div className="auc-flex auc-items-center auc-justify-end">
+                {reagents.get(item.itemId)}
+              </div>
+              <div className="auc-flex auc-items-center auc-justify-end">
                 <Value value={item.stats.current.minimumBuyout} />
-              </span>
+              </div>
             </React.Fragment>
           ))}
         </div>
