@@ -129,7 +129,7 @@ export const ReagentsTooltip: React.FC<Props> = (props) => {
         >
           <span className="auc-font-bold">Item</span>
           <span className="auc-font-bold auc-text-right">Qty</span>
-          <span className="auc-font-bold auc-mb-2 auc-text-right">Min. Buyout</span>
+          <span className="auc-font-bold auc-mb-2 auc-text-right">Cost</span>
 
           {(!items.data || items.isLoading) && (
             <div className="auc-col-span-3 auc-flex auc-items-center auc-justify-center">
