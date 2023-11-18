@@ -4,5 +4,8 @@
   "license": "ISC",
   "devDependencies": {
     "vercel": "latest"
+  },
+  "dependencies": {
+    "@vercel/kv": "^1.0.0"
   }
 }
