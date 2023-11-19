@@ -20,10 +20,11 @@ const HoverTooltip = (): React.ReactPortal | null => {
   const [amount, setAmount] = React.useState(1);
   const uiSnap = useSnapshot(uiState);
   const { data: ui } = useStorageQuery('ui');
-  const { getItemIdFromUrl, isAuctionableItem } = useGetItemFromPage();
-  const hoverElObserver = React.useRef<MutationObserver | null>(null);
+  const { getItemIdFromUrl, getIsAuctionableItem } = useGetItemFromPage();
   const tooltipEl = React.useRef<HTMLElement | null>(null);
   const hoverEl = React.useRef<HTMLAnchorElement | null>(null);
+  const isAuctionableItem = getIsAuctionableItem(tooltipEl.current?.innerHTML);
+  const hoverElObserver = React.useRef<MutationObserver | null>(null);
   const containerEl = React.useRef<HTMLElement | null>(null);
   const uiMutation = useMutation(() => {
     return asyncStorage.set('ui', (draft) => {
@@ -53,7 +54,7 @@ const HoverTooltip = (): React.ReactPortal | null => {
 
     // Look for item name in tooltip body
     // Check if item can be put on the AH
-    if (!isAuctionableItem(tooltipEl.current.innerHTML)) {
+    if (!isAuctionableItem) {
       return;
     }
 

@@ -16,11 +16,12 @@ import { CraftingCostTooltip } from '../CraftingCostTooltip';
 const tabs = ['Item price', 'Crafting price'];
 
 export const ItemPage = (): React.ReactPortal | null => {
-  const { item: pageItem, isAuctionableItem, isCraftableItem } = useGetItemFromPage();
-  const [activeTab, setActiveTab] = React.useState(0);
-  const showTabs = isCraftableItem;
+  const { item: pageItem, getIsAuctionableItem, isCraftableItem } = useGetItemFromPage();
   const tooltipElementId = `tt${pageItem?.id}`;
   const tooltipElement = document.querySelector(`div#${tooltipElementId}`);
+  const isAuctionableItem = getIsAuctionableItem(tooltipElement?.innerHTML);
+  const showTabs = isCraftableItem && isAuctionableItem;
+  const [activeTab, setActiveTab] = React.useState(isAuctionableItem ? 0 : 1);
   const { reagentItemIds, reagentsAmountMap } = useGetReagentItemIds();
   const { items } = useCraftableItemPage(reagentItemIds);
 
@@ -34,7 +35,7 @@ export const ItemPage = (): React.ReactPortal | null => {
     return null;
   }
 
-  if (!isAuctionableItem(tooltipElement.innerHTML)) {
+  if (!isAuctionableItem && !isCraftableItem) {
     return null;
   }
 
