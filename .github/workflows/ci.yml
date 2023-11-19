@@ -4,6 +4,9 @@ name: CI
 on:
   pull_request:
     branches: '*'
+  push:
+    branches:
+      - development
 
 jobs:
   build:
