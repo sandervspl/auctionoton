@@ -4,7 +4,6 @@ import { useQuery, useQueryClient, UseQueryResult } from 'react-query';
 
 import asyncStorage from 'utils/asyncStorage';
 
-
 function useStorageQuery<K extends i.StorageKeys>(key: K): UseQueryResult<i.BrowserStorage[K]> {
   const queryClient = useQueryClient();
   const query = useQuery(['storage', key], () => asyncStorage.get(key));

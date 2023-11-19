@@ -1,6 +1,5 @@
 import React from 'react';
 
-
 function useIsClassicWowhead(): boolean {
   const isClassic = React.useRef<boolean>(isClassicWowhead());
 

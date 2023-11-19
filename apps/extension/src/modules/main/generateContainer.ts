@@ -1,6 +1,5 @@
 import { ELEMENT_ID } from 'src/constants';
 
-
 function generateContainer(parent: Element, uniqueKey: string): HTMLElement | void {
   if (!parent) {
     return;
@@ -19,9 +18,8 @@ function generateContainer(parent: Element, uniqueKey: string): HTMLElement | vo
   const container = document.createElement('div');
   container.id = id;
   container.className = 'relative w-auto';
-  container.style.minWidth = tooltipWidth > minContainerWidth
-    ? `${tooltipWidth}px`
-    : `${minContainerWidth}px`;
+  container.style.minWidth =
+    tooltipWidth > minContainerWidth ? `${tooltipWidth}px` : `${minContainerWidth}px`;
 
   parent.appendChild(container);
 

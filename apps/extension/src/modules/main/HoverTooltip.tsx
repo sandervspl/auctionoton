@@ -14,7 +14,6 @@ import Tooltip from './tooltip';
 import generateContainer from './generateContainer';
 import { uiState } from './state';
 
-
 const HoverTooltip = (): React.ReactPortal | null => {
   const [itemId, setItemId] = React.useState<number>();
   const [visible, setVisible] = React.useState(false);
@@ -79,22 +78,25 @@ const HoverTooltip = (): React.ReactPortal | null => {
 
   // Listen to bubbled events and check if we are targeting a link to an item
   // Event Delegation: https://davidwalsh.name/event-delegate
-  useEventListener('mouseover', (e: MouseEvent) => {
-    const target = e.target as HTMLAnchorElement;
-    const parent = target.parentNode as HTMLAnchorElement;
-    const selector = 'a[href*="item="]';
+  useEventListener(
+    'mouseover',
+    (e: MouseEvent) => {
+      const target = e.target as HTMLAnchorElement;
+      const parent = target.parentNode as HTMLAnchorElement;
+      const selector = 'a[href*="item="]';
 
-    if (target) {
-      if (target.matches(selector) || parent.matches(selector)) {
-        hoverEl.current = target;
+      if (target) {
+        if (target.matches(selector) || parent.matches(selector)) {
+          hoverEl.current = target;
 
-        return;
+          return;
+        }
       }
-    }
 
-    hide();
-  }, getBodyElement());
-
+      hide();
+    },
+    getBodyElement(),
+  );
 
   function hide() {
     setVisible(false);

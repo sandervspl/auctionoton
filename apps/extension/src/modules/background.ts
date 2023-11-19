@@ -21,7 +21,6 @@ addon.runtime.onInstalled.addListener(async (details) => {
   }
 });
 
-
 // Clean up browser storage cache on browser startup
 // addon.runtime.onStartup.addListener(async () => {
 //   const items = await asyncStorage.get('items');
