@@ -3,7 +3,7 @@ import React from 'react';
 
 import realms from 'src/constants/realms';
 
-function useServerList(region?: i.Regions, version?: i.Versions) {
+function useServerList(region?: i.Regions) {
   const [servers, setServers] = React.useState<string[][]>([]);
 
   React.useEffect(() => {

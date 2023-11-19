@@ -6,30 +6,17 @@ export type ItemDataClassicPrices = {
   minimumBuyout: i.ValueObject;
 };
 
-export type Cache<V = i.Versions> = {
-  __version: V;
+export type Cache = {
+  __version: 'classic';
   updatedAt: i.Date_ISO_8601;
-};
-
-export type ItemDataRetailPrices = {
-  buyoutPrice: i.ValueObject;
-  unitPrice: i.ValueObject;
-};
-
-export type ItemDataRetail = i.ItemDataRetailPrices & {
-  lastUpdated: string;
-  quantity: number;
 };
 
 export type ItemDataClassicResponse = i.ItemResponseV2;
 
-// export type AnyCachedItem = i.CachedItemDataClassic | i.CachedItemDataRetail;
 export type AnyCachedItem = i.CachedItemDataClassic;
-export type CachedItemDataClassic = ItemDataClassicResponse & i.Cache<'classic'>;
+export type CachedItemDataClassic = ItemDataClassicResponse & i.Cache;
 export type MaybeCachedItemDataClassic = CachedItemDataClassic | undefined;
-export type CachedItemDataRetail = i.ItemDataRetail & i.Cache<'retail'>;
-export type MaybeCachedItemDataRetail = i.CachedItemDataRetail | undefined;
-export type MaybeAnyItem = i.MaybeCachedItemDataClassic | i.MaybeCachedItemDataRetail;
+export type MaybeAnyItem = i.MaybeCachedItemDataClassic;
 
 export type ItemError = {
   error: boolean;
@@ -44,7 +31,6 @@ export type ValueObject = {
 
 type ServerSlug = string;
 export type UserData = {
-  version?: i.Versions;
   region?: i.Regions;
   faction: Record<ServerSlug, i.Factions>; // server tied with faction
   server: {

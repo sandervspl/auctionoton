@@ -24,10 +24,3 @@ export type PageItem = {
   name: string;
   id: number;
 };
-
-export interface RetailRealmResult {
-  [realmName: string]: {
-    connectedRealmId: number;
-    realmId: number;
-  };
-}
