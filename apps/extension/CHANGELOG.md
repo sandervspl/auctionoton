@@ -1,5 +1,11 @@
 # extension
 
+## 4.1.1
+
+### Patch Changes
+
+- 4624892: Improved reliability of the tooltip when hovering an item
+
 ## 4.1.0
 
 ### Minor Changes
