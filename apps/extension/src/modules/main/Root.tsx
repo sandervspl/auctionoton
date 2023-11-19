@@ -5,11 +5,11 @@ import { Key } from 'w3c-keys';
 
 import time from 'utils/time';
 
-import PageTooltip from './PageTooltip';
-import TableBuyout from './TableBuyout';
+import { ItemPage } from './routes/ItemPage';
+import { SpellPage } from './routes/SpellPage';
+import ItemsPage from './routes/ItemsPage';
 import HoverTooltip from './HoverTooltip';
 import { uiState } from './state';
-import { ReagentsTooltip } from './ReagentsTooltip';
 
 class AppContainer extends React.Component {
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
@@ -24,8 +24,7 @@ class AppContainer extends React.Component {
 const App: React.FC = () => {
   const isItemPage = window.location.pathname.includes('item=');
   const isSpellPage = window.location.pathname.includes('spell=');
-  // Check if there is an anchor to the create spell page
-  const createSpellAnchor = document.querySelector('#tab-created-by-spell a[href*="spell="]');
+  const isItemsPage = window.location.pathname.includes('/items/');
 
   React.useEffect(() => {
     window.addEventListener('keydown', (e) => {
@@ -39,9 +38,9 @@ const App: React.FC = () => {
 
   return (
     <>
-      {isItemPage && <PageTooltip />}
-      {(isSpellPage || createSpellAnchor) && <ReagentsTooltip />}
-      {window.location.pathname.includes('/items/') && <TableBuyout />}
+      {isItemPage && <ItemPage />}
+      {isItemsPage && <ItemsPage />}
+      {isSpellPage && <SpellPage />}
       <HoverTooltip />
     </>
   );

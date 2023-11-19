@@ -7,11 +7,11 @@ import LoadingSvg from 'static/loading.svg';
 import useItemFetcher from 'hooks/useItemFetcher';
 import useIntersectionObserver from 'hooks/useIntersectionObserver';
 
-import { Value } from './tooltip/Value';
+import { Value } from '../tooltip/Value';
 
 type Sorting = null | 'asc' | 'desc';
 
-const TableBuyout: React.FC = () => {
+const ItemsPage: React.FC = () => {
   const [sorting, setSorting] = React.useState<Sorting>(null);
 
   const sortByBuyout = React.useCallback(
@@ -221,4 +221,4 @@ type Props = {
   sorting: Sorting;
 };
 
-export default TableBuyout;
+export default ItemsPage;
