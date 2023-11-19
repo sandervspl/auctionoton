@@ -95,8 +95,8 @@ const Tooltip: React.FC<Props> = (props) => {
       }
     >
       {item ? (
-        <tr>
-          <td>
+        <tr className="auc-block auc-w-full">
+          <td className="auc-block auc-w-full">
             {(() => {
               // Support for older versions
               if (!('__version' in item) || item.__version === 'classic') {

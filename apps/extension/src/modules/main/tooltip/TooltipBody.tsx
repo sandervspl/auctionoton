@@ -39,9 +39,9 @@ export const TooltipBody: React.FC<Props> = (props) => {
       <tbody>
         <tr>
           <td>
-            <table style={{ display: 'block', width: '100%' }}>
-              <tbody style={{ display: 'block', width: '100%' }}>
-                <tr>
+            <table className="!auc-block !auc-w-full">
+              <tbody className="!auc-block !auc-w-full">
+                <tr className="auc-block auc-w-full">
                   <td>
                     {props.hideServerName ? null : (
                       <span className="q whtt-extra whtt-ilvl">

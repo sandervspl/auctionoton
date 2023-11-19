@@ -4,6 +4,7 @@ import React from 'react';
 function useGetItemFromPage(): UseGetItemFromPage {
   const [item, setItem] = React.useState<i.PageItem>();
   const pathname = React.useRef(window.location.pathname);
+  const isCraftableItem = !!document.querySelector('#tab-created-by-spell a[href*="spell="]');
 
   React.useEffect(() => {
     // Get item name
@@ -46,6 +47,7 @@ function useGetItemFromPage(): UseGetItemFromPage {
     item: item,
     isAuctionableItem,
     getItemIdFromUrl,
+    isCraftableItem,
   };
 }
 
@@ -53,6 +55,7 @@ interface UseGetItemFromPage {
   item?: i.PageItem;
   isAuctionableItem(str: string | undefined): boolean;
   getItemIdFromUrl(url?: string): number | undefined;
+  isCraftableItem: boolean;
 }
 
 export default useGetItemFromPage;
