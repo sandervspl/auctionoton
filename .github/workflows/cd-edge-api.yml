@@ -2,7 +2,9 @@ name: CD Vercel Edge Api
 
 on:
   push:
-    branches: master
+    branches:
+      - master
+      - development
     paths:
       - apps/vercel/**
   pull_request:
