@@ -1,8 +1,11 @@
 {
   "name": "auctionoton-edge-api",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "ISC",
   "devDependencies": {
     "vercel": "latest"
+  },
+  "dependencies": {
+    "@vercel/kv": "^1.0.0"
   }
 }
