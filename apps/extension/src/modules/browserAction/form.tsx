@@ -10,7 +10,6 @@ import useServerList from 'hooks/useServerList';
 import useStorageQuery from 'hooks/useStorageQuery';
 import asyncStorage from 'utils/asyncStorage';
 
-
 interface FlatRetailRealm {
   connectedRealmId: number;
   realmId: number;
@@ -24,10 +23,8 @@ interface FormInput {
   faction: i.Factions;
 }
 
-
 // Create a client
 const queryClient = new QueryClient();
-
 
 export const Form: React.FC = () => {
   const queries = new URLSearchParams(window.location.search);
@@ -55,12 +52,8 @@ export const Form: React.FC = () => {
       reset({
         version: user.version,
         region: user.region,
-        server: user.version
-          ? user.server[user.version]?.name
-          : undefined,
-        faction: user.server.classic
-          ? user.faction[user.server.classic.slug]
-          : undefined,
+        server: user.version ? user.server[user.version]?.name : undefined,
+        faction: user.server.classic ? user.faction[user.server.classic.slug] : undefined,
       });
     }
   }, [isUserLoading, reset, user]);
@@ -90,10 +83,7 @@ export const Form: React.FC = () => {
   }, [watchServer]);
 
   function createSlug(name: string): string {
-    return name
-      .toLowerCase()
-      .replace('\'', '')
-      .replace(' ', '-');
+    return name.toLowerCase().replace("'", '').replace(' ', '-');
   }
 
   function createValue(realm: string | FlatRetailRealm, slug?: string): string {
@@ -169,7 +159,7 @@ export const Form: React.FC = () => {
         </div>
 
         <div className="auc-py-0 auc-px-9 md:auc-w-full md:auc-rounded-r-lg md:auc-bg-gray-100 md:auc-py-0 md:auc-px-8 md:dark:auc-bg-slate-600">
-          {(
+          {
             <form onSubmit={handleSubmit(onSubmit)}>
               <h2 className="auc-my-5 auc-mx-auto auc-hidden auc-text-lg auc-font-bold md:auc-block">
                 Select your server
@@ -188,9 +178,7 @@ export const Form: React.FC = () => {
                 <select {...register('region', { required: true })}>
                   <option value="us">Americas and Oceania</option>
                   <option value="eu">Europe</option>
-                  {watchVersion === 'retail' && (
-                    <option value="kr">South-Korea</option>
-                  )}
+                  {watchVersion === 'retail' && <option value="kr">South-Korea</option>}
                 </select>
               </label>
 
@@ -226,7 +214,7 @@ export const Form: React.FC = () => {
                 {userMutation.isLoading ? 'Saving...' : 'Save'}
               </button>
             </form>
-          )}
+          }
 
           {userMutation.status === 'success' && (
             <div className="auc-mx-auto auc-mt-0 auc-mb-5 auc-grid auc-place-items-center auc-text-sm auc-text-green-500">
@@ -246,6 +234,6 @@ if (root) {
     <QueryClientProvider client={queryClient}>
       <Form />
       <ReactQueryDevtools />
-    </QueryClientProvider>
+    </QueryClientProvider>,
   );
 }

@@ -6,7 +6,6 @@ import getBodyElement from 'utils/getBodyElement';
 
 import Root from './Root';
 
-
 async function main(): Promise<void> {
   // Generate a root element for React to render on
   const rootElement = document.createElement('span');

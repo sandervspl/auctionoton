@@ -7,11 +7,11 @@ import LoadingSvg from 'static/loading.svg';
 import useItemFetcher from 'hooks/useItemFetcher';
 import useIntersectionObserver from 'hooks/useIntersectionObserver';
 
-import { Value } from './tooltip/Value';
+import { Value } from '../tooltip/Value';
 
 type Sorting = null | 'asc' | 'desc';
 
-const TableBuyout = () => {
+const ItemsPage: React.FC = () => {
   const [sorting, setSorting] = React.useState<Sorting>(null);
 
   const sortByBuyout = React.useCallback(
@@ -42,7 +42,11 @@ const TableBuyout = () => {
         el.classList.remove('listview-sort-desc', 'listview-sort-asc');
 
         // Remove hash from URL
-        history.pushState('', document.title, window.location.pathname + window.location.search);
+        window.history.pushState(
+          '',
+          document.title,
+          window.location.pathname + window.location.search,
+        );
       }
 
       const curSorting = sorting || 'asc';
@@ -53,7 +57,7 @@ const TableBuyout = () => {
       let shouldSwitch = false;
       let switchcount = 0;
       let loopCount = 0;
-      let MAX_LOOP_COUNT = 500;
+      const MAX_LOOP_COUNT = 500;
 
       while (switching) {
         if (++loopCount > MAX_LOOP_COUNT) {
@@ -127,6 +131,7 @@ const TableBuyout = () => {
       {ReactDOM.createPortal(
         <th id="buyout-header">
           <div>
+            {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
             <a onClick={sortByBuyout}>
               <span
                 className={cn({
@@ -216,4 +221,4 @@ type Props = {
   sorting: Sorting;
 };
 
-export default TableBuyout;
+export default ItemsPage;

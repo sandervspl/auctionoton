@@ -1,5 +1,11 @@
 # extension
 
+## 4.1.0
+
+### Minor Changes
+
+- b285117: Added a new tooltip to show the crafting price of an item on the item page and the item's crafting spell page
+
 ## 4.0.0
 
 ### Major Changes

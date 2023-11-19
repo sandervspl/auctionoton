@@ -2,19 +2,10 @@ import * as i from 'types';
 import React from 'react';
 
 function useGetItemFromPage(): UseGetItemFromPage {
-  const [item, setItem] = React.useState<i.PageItem>();
   const pathname = React.useRef(window.location.pathname);
-
-  React.useEffect(() => {
-    // Get item name
-    const itemName = getItemNameFromUrl(pathname.current);
-    const itemIdSearch = getItemIdFromUrl(pathname.current);
-
-    setItem({
-      name: itemName || '',
-      id: itemIdSearch || -1,
-    });
-  }, []);
+  const itemName = getItemNameFromUrl(pathname.current);
+  const itemIdSearch = getItemIdFromUrl(pathname.current);
+  const isCraftableItem = !!document.querySelector('#tab-created-by-spell a[href*="spell="]');
 
   function getItemNameFromUrl(url?: string): string | undefined {
     const match = url?.match(/item=\d+\/([\w\d-]+)/);
@@ -24,7 +15,7 @@ function useGetItemFromPage(): UseGetItemFromPage {
     }
   }
 
-  function isAuctionableItem(str: string | undefined): boolean {
+  function getIsAuctionableItem(str: string | undefined): boolean {
     if (!str) {
       return false;
     }
@@ -43,16 +34,21 @@ function useGetItemFromPage(): UseGetItemFromPage {
   }
 
   return {
-    item: item,
-    isAuctionableItem,
+    item: {
+      name: itemName || '',
+      id: itemIdSearch || -1,
+    },
+    getIsAuctionableItem,
     getItemIdFromUrl,
+    isCraftableItem,
   };
 }
 
 interface UseGetItemFromPage {
   item?: i.PageItem;
-  isAuctionableItem(str: string | undefined): boolean;
+  getIsAuctionableItem(str: string | undefined): boolean;
   getItemIdFromUrl(url?: string): number | undefined;
+  isCraftableItem: boolean;
 }
 
 export default useGetItemFromPage;

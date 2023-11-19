@@ -1,7 +1,6 @@
 import * as i from 'types';
 import time from './time';
 
-
 function validateCache(data: i.AnyCachedItem | undefined): data is i.AnyCachedItem {
   if (!data) {
     return false;

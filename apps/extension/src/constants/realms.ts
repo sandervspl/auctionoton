@@ -1,6 +1,5 @@
 import * as i from 'types';
 
-
 const realms: i.Realms = {
   eu: {
     english: [
@@ -9,7 +8,7 @@ const realms: i.Realms = {
       'Auberdine',
       'Bloodfang',
       'Celebras',
-      'Dragon\'s Call',
+      "Dragon's Call",
       'Dragonfang',
       'Dreadmist',
       'Earthshaker',
@@ -100,7 +99,7 @@ const realms: i.Realms = {
     'Skeram',
     'Smolderweb',
     'Stalagg',
-    'Sul\'thraze',
+    "Sul'thraze",
     'Sulfuras',
     'Thalnos',
     'Thunderfury',

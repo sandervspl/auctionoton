@@ -5,12 +5,10 @@
   "license": "ISC",
   "scripts": {
     "build": "turbo run build",
-    "heroku-postbuild": "npx turbo run build --scope=server --include-dependencies --no-deps",
-    "start": "node ./apps/server/dist/bundle.js",
     "dev": "turbo run dev --parallel",
     "dev:ext": "turbo run dev --scope=extension --include-dependencies",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "prettier": "prettier --write \"**/*.{ts,tsx,md}\"",
     "cs:add": "npx changeset",
     "cs:ver": "npx changeset version",
     "e:version": "npm run build && cd apps/extension && npm run version"

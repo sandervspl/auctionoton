@@ -3,6 +3,7 @@ import React from 'react';
 import dayjs from 'dayjs';
 import cn from 'classnames';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { useQuery } from 'react-query';
 
 import LoadingSvg from 'static/loading.svg';
 // import WarningSvg from 'static/exclamation-circle-regular.svg';
@@ -12,7 +13,7 @@ import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
 import useStorageQuery from 'hooks/useStorageQuery';
 
 import { SellPrice } from './SellPrice';
-import { useQuery } from 'react-query';
+import { TooltipBody } from './TooltipBody';
 
 dayjs.extend(relativeTime);
 
@@ -57,8 +58,6 @@ const Tooltip: React.FC<Props> = (props) => {
     },
   );
 
-  console.log(item);
-
   if (!user?.version) {
     return null;
   }
@@ -72,141 +71,117 @@ const Tooltip: React.FC<Props> = (props) => {
     return null;
   }
 
-  function getServerName(): string {
-    const version: i.Versions = isClassicWowhead ? 'classic' : 'retail';
-    const serverName = user?.server[version];
-    const region = user?.region?.toUpperCase();
-
-    if (!serverName) {
-      return 'Unknown';
-    }
-
-    if ('slug' in serverName) {
-      const faction = user?.faction[serverName.slug];
-
-      return `${serverName.name} ${region}-${faction}`;
-    }
-
-    return `${serverName.name}-${region}`;
-  }
-
   const errorStr = `Error: ${error || 'Something went wrong. Try again later.'}`;
 
   return (
-    <table id={ELEMENT_ID.TOOLTIP}>
-      <tbody>
+    <TooltipBody
+      id={ELEMENT_ID.TOOLTIP}
+      header={
+        <>
+          {lastUpdated && (
+            <div className="whtt-sellprice auc-mb-2">
+              Last updated:&nbsp;
+              <span
+                className={cn({
+                  q2: lastUpdated.hours < 3,
+                  q10: lastUpdated.hours >= 3,
+                })}
+              >
+                {lastUpdated.text}
+              </span>
+            </div>
+          )}
+        </>
+      }
+    >
+      {item ? (
+        <tr className="auc-block auc-w-full">
+          <td className="auc-block auc-w-full">
+            {(() => {
+              // Support for older versions
+              if (!('__version' in item) || item.__version === 'classic') {
+                if (!item?.stats?.current?.minimumBuyout) {
+                  return 'No data is available for this realm.';
+                }
+
+                return (
+                  <>
+                    <SellPrice
+                      heading="Market Value"
+                      amount={props.amount}
+                      value={item.stats.current.marketValue}
+                    />
+                    <SellPrice
+                      heading="Historical Value"
+                      amount={props.amount}
+                      value={item.stats.current.historicalValue}
+                    />
+                    <SellPrice
+                      heading="Minimum Buyout"
+                      amount={props.amount}
+                      value={item.stats.current.minimumBuyout}
+                    />
+                    <SellPrice
+                      heading="Quantity"
+                      amount={props.amount}
+                      value={`${item.stats.current.quantity} auction${
+                        item.stats.current.quantity === 1 ? '' : 's'
+                      }`}
+                    />
+                  </>
+                );
+              }
+
+              // if (item.__version === 'retail') {
+              //   return (
+              //     <>
+              //       <SellPrice
+              //         heading="Buyout Price"
+              //         amount={props.amount}
+              //         value={item.buyoutPrice}
+              //       />
+              //       <SellPrice
+              //         heading="Unit Price"
+              //         amount={props.amount}
+              //         value={item.unitPrice}
+              //       />
+              //       <SellPrice
+              //         heading="Quantity"
+              //         amount={props.amount}
+              //         value={`${item.quantity} auction${item.quantity === 1 ? '' : 's'}`}
+              //       />
+              //     </>
+              //   );
+              // }
+            })()}
+
+            {/* Only show this loading indicator if we can show a cached item */}
+            {item && (isLoading || isFetching) ? (
+              <div className="auc-mt-2 auc-flex">
+                {/* @ts-ignore */}
+                <LoadingSvg className="auc-mr-1 auc-inline-block auc-w-4" />
+                Fetching latest price info...
+              </div>
+            ) : null}
+          </td>
+        </tr>
+      ) : null}
+      {(!item || !item) && (isLoading || isFetching) ? (
         <tr>
           <td>
-            <table className="auc-w-full">
-              <tbody>
-                <tr>
-                  <td>
-                    <span className="q whtt-extra whtt-ilvl">
-                      <span className="auc-capitalize">{getServerName()}</span>
-                    </span>
-                    {lastUpdated && (
-                      <div className="whtt-sellprice auc-mb-2">
-                        Last updated:&nbsp;
-                        <span
-                          className={cn({
-                            q2: lastUpdated.hours < 3,
-                            q10: lastUpdated.hours >= 3,
-                          })}
-                        >
-                          {lastUpdated.text}
-                        </span>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-                {item ? (
-                  <tr>
-                    <td>
-                      {(() => {
-                        // Support for older versions
-                        if (!('__version' in item) || item.__version === 'classic') {
-                          if (!item?.stats?.current?.minimumBuyout) {
-                            return 'No data is available for this realm.';
-                          }
-
-                          return (
-                            <>
-                              <SellPrice
-                                heading="Market Value"
-                                amount={props.amount}
-                                value={item.stats.current.marketValue}
-                              />
-                              <SellPrice
-                                heading="Historical Value"
-                                amount={props.amount}
-                                value={item.stats.current.historicalValue}
-                              />
-                              <SellPrice
-                                heading="Minimum Buyout"
-                                amount={props.amount}
-                                value={item.stats.current.minimumBuyout}
-                              />
-                              <SellPrice
-                                heading="Quantity"
-                                amount={props.amount}
-                                value={`${item.stats.current.quantity} auction${
-                                  item.stats.current.quantity === 1 ? '' : 's'
-                                }`}
-                              />
-                            </>
-                          );
-                        }
-
-                        // if (item.__version === 'retail') {
-                        //   return (
-                        //     <>
-                        //       <SellPrice
-                        //         heading="Buyout Price"
-                        //         amount={props.amount}
-                        //         value={item.buyoutPrice}
-                        //       />
-                        //       <SellPrice
-                        //         heading="Unit Price"
-                        //         amount={props.amount}
-                        //         value={item.unitPrice}
-                        //       />
-                        //       <SellPrice
-                        //         heading="Quantity"
-                        //         amount={props.amount}
-                        //         value={`${item.quantity} auction${item.quantity === 1 ? '' : 's'}`}
-                        //       />
-                        //     </>
-                        //   );
-                        // }
-                      })()}
-
-                      {/* Only show this loading indicator if we can show a cached item */}
-                      {item && (isLoading || isFetching) ? (
-                        <div className="auc-mt-2 auc-flex">
-                          {/* @ts-ignore */}
-                          <LoadingSvg className="auc-mr-1 auc-inline-block auc-w-4" />
-                          Fetching latest price info...
-                        </div>
-                      ) : null}
-                    </td>
-                  </tr>
-                ) : null}
-                {(!item || !item) && (isLoading || isFetching) ? (
-                  <tr>
-                    <td>
-                      {/* @ts-ignore */}
-                      <LoadingSvg />
-                    </td>
-                  </tr>
-                ) : null}
-                {error && !item ? (
-                  <tr>
-                    <td>
-                      <div className="auc-mt-2 auc-flex auc-text-red-500">{errorStr}</div>
-                    </td>
-                  </tr>
-                ) : null}
-                {/* {warning ? (
+            {/* @ts-ignore */}
+            <LoadingSvg />
+          </td>
+        </tr>
+      ) : null}
+      {error && !item ? (
+        <tr>
+          <td>
+            <div className="auc-mt-2 auc-flex auc-text-red-500">{errorStr}</div>
+          </td>
+        </tr>
+      ) : null}
+      {/* {warning ? (
                   <tr>
                     <td>
                       <div className="auc-mt-1">
@@ -216,31 +191,19 @@ const Tooltip: React.FC<Props> = (props) => {
                     </td>
                   </tr>
                 ) : null} */}
-                <tr>
-                  <td>
-                    {typeof props.children === 'function'
-                      ? props.children({
-                          error: !!error,
-                          item,
-                          loading: isLoading || isFetching,
-                          getItem: refetch,
-                        })
-                      : props.children}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </td>
-
-          <th className="!auc-bg-right-top" />
-        </tr>
-
-        <tr>
-          <th className="!auc-bg-left-bottom" />
-          <th className="!auc-bg-right-bottom" />
-        </tr>
-      </tbody>
-    </table>
+      <tr>
+        <td>
+          {typeof props.children === 'function'
+            ? props.children({
+                error: !!error,
+                item,
+                loading: isLoading || isFetching,
+                getItem: refetch,
+              })
+            : props.children}
+        </td>
+      </tr>
+    </TooltipBody>
   );
 };
 

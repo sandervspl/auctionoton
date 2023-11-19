@@ -5,8 +5,9 @@ import { Key } from 'w3c-keys';
 
 import time from 'utils/time';
 
-import PageTooltip from './PageTooltip';
-import TableBuyout from './TableBuyout';
+import { ItemPage } from './routes/ItemPage';
+import { SpellPage } from './routes/SpellPage';
+import ItemsPage from './routes/ItemsPage';
 import HoverTooltip from './HoverTooltip';
 import { uiState } from './state';
 
@@ -21,7 +22,9 @@ class AppContainer extends React.Component {
 }
 
 const App: React.FC = () => {
-  const [isItemPage, setIsItemPage] = React.useState(window.location.pathname.includes('item='));
+  const isItemPage = window.location.pathname.includes('item=');
+  const isSpellPage = window.location.pathname.includes('spell=');
+  const isItemsPage = window.location.pathname.includes('/items/');
 
   React.useEffect(() => {
     window.addEventListener('keydown', (e) => {
@@ -33,14 +36,11 @@ const App: React.FC = () => {
     });
   }, []);
 
-  React.useEffect(() => {
-    setIsItemPage(window.location.pathname.includes('item='));
-  }, [window.location.pathname]);
-
   return (
     <>
-      {isItemPage && <PageTooltip />}
-      {window.location.pathname.includes('/items/') && <TableBuyout />}
+      {isItemPage && <ItemPage />}
+      {isItemsPage && <ItemsPage />}
+      {isSpellPage && <SpellPage />}
       <HoverTooltip />
     </>
   );
