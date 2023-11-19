@@ -10,7 +10,7 @@
     "lint": "eslint ./src --ext .ts,.tsx --fix",
     "build": "npm run css:extension && npm run css:form && cross-env NODE_ENV=production node esbuild.config.js",
     "dev": "rm -rf ./dist && npm run css && node esbuild.config.js",
-    "css": "concurrently 'npm run css:extension --watch' 'npm run css:form --watch'",
+    "css": "concurrently 'npm run css:extension -- --watch' 'npm run css:form -- --watch'",
     "postbuild": "cd dist; zip -D -r ../auctionoton-$npm_package_version.zip ./*",
     "ci:create-dist": "cd dist; zip -D -r ../auctionoton.zip ./*",
     "css:extension": "tailwindcss -i ./src/style.css -o ./dist/style.css",
