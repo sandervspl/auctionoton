@@ -52,11 +52,6 @@ export type UserData = {
       name: string;
       slug: string;
     };
-    retail?: {
-      name: string;
-      realmId: number;
-      connectedRealmId: number;
-    };
   };
 };
 
