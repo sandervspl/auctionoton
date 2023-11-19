@@ -10,6 +10,7 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
+      "constants/*": ["src/constants/*"],
       "state": ["src/state/index"],
       "state/*": ["src/state/*"],
       "hooks/*": ["src/hooks/*"],

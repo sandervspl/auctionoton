@@ -1,9 +1,8 @@
 import * as i from 'types';
-import { EdgeAPI } from '@project/constants';
 import dayjs from 'dayjs';
 
 import asyncStorage from 'utils/asyncStorage';
-import { edgeAPI } from 'utils/edgeApi';
+import { EdgeAPI, edgeAPI } from 'utils/edgeApi';
 
 export async function fetchItemFromAPI(
   itemId: number,

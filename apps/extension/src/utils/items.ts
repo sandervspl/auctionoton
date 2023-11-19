@@ -1,4 +1,4 @@
-import * as i from '@project/types';
+import * as i from 'types';
 
 export function convertToGSC(rawPrice: number, amount = 1): Exclude<i.PriceObject, string> {
   const multiPrice = rawPrice * amount;
