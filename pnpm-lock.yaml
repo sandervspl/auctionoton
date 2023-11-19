@@ -154,6 +154,16 @@ importers:
         specifier: ^4.9.5
         version: 4.9.5
 
+  apps/vercel:
+    dependencies:
+      '@vercel/kv':
+        specifier: ^1.0.0
+        version: 1.0.0
+    devDependencies:
+      vercel:
+        specifier: latest
+        version: 32.5.5
+
   packages/constants:
     devDependencies:
       '@project/types':
@@ -208,16 +218,6 @@ importers:
       typescript:
         specifier: '*'
         version: 4.9.5
-
-  vercel:
-    dependencies:
-      '@vercel/kv':
-        specifier: ^1.0.0
-        version: 1.0.0
-    devDependencies:
-      vercel:
-        specifier: latest
-        version: 32.5.5
 
 packages:
 
@@ -3535,7 +3535,7 @@ packages:
       supports-color:
         optional: true
     dependencies:
-      ms: 2.1.1
+      ms: 2.1.3
     dev: true
 
   /debug@4.3.4:

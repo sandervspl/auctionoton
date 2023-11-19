@@ -4,11 +4,11 @@ on:
   push:
     branches: master
     paths:
-      - vercel/**
+      - apps/vercel/**
   pull_request:
     branches: '*'
     paths:
-      - vercel/**
+      - apps/vercel/**
 
 jobs:
   deploy:
@@ -49,12 +49,12 @@ jobs:
       # vercel pull doesnt work for some reason
       - name: Setup Vercel files
         run: |
-          cd vercel
+          cd apps/vercel
           mkdir -p .vercel
           touch project.json
           echo $'{ "projectId": "${{ secrets.VERCEL_API_PROJECT_ID }}", "orgId": "${{ secrets.VERCEL_API_ORG_ID }}", "settings": { "createdAt": 1658573033947, "framework": null, "devCommand": null, "installCommand": null, "buildCommand": null, "outputDirectory": null, "rootDirectory": null, "directoryListing": false, "nodeVersion": "16.x" } }' > .vercel/project.json
 
       - name: Deploy to Vercel
         run: |
-          cd vercel
+          cd apps/vercel
           pnpm vercel deploy ${{ github.ref == 'refs/heads/master' && '--prod' || '' }} --token ${{ secrets.VERCEL_TOKEN }}
