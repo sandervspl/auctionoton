@@ -33,7 +33,7 @@ export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
       <TooltipBody
         id={ELEMENT_ID.TOOLTIP}
         className="!auc-w-full"
-        header={<div>Cost breakdown</div>}
+        header={<div>Crafting cost breakdown</div>}
       >
         <div
           className="auc-grid auc-mt-2 auc-gap-x-4"
