@@ -45,28 +45,34 @@ const HoverTooltip = (): React.ReactPortal | null => {
   }, []);
 
   React.useEffect(() => {
-    if (!visible || !hoverEl.current || !tooltipEl.current || !hoverEl.current) {
+    if (
+      itemId ||
+      !visible ||
+      !hoverEl.current ||
+      !tooltipEl.current ||
+      !hoverEl.current ||
+      !isAuctionableItem
+    ) {
       return;
     }
 
     // Look for item ID in the URL
-    const itemId = getItemIdFromUrl(hoverEl.current.href);
+    const MAX_DEPTH = 5;
+    let depth = 0;
+    let currentEl = hoverEl.current;
+    while (currentEl && depth < MAX_DEPTH) {
+      const itemId = getItemIdFromUrl(currentEl.href);
 
-    // Look for item name in tooltip body
-    // Check if item can be put on the AH
-    if (!isAuctionableItem) {
-      return;
-    }
+      if (itemId) {
+        setItemId(itemId);
+        setVisible(true);
+        break;
+      }
 
-    if (!itemId) {
-      return;
+      currentEl = currentEl.parentNode as HTMLAnchorElement;
+      depth++;
     }
-
-    if (itemId) {
-      setVisible(true);
-      setItemId(itemId);
-    }
-  }, [visible]);
+  }, [visible, itemId]);
 
   React.useEffect(() => {
     // Remove shift key tip if user has never pressed shift, has pressed shift and we hover an item with an amount shown
