@@ -1,5 +1,12 @@
 # extension
 
+## 4.1.2
+
+### Patch Changes
+
+- e3bd496: Updated realm lists
+- 24b2395: Delete Retail as option from server selection
+
 ## 4.1.1
 
 ### Patch Changes
