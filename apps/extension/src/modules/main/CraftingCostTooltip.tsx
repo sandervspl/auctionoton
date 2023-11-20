@@ -1,7 +1,7 @@
 import * as i from 'types';
 import * as React from 'react';
 import { ELEMENT_ID } from 'src/constants';
-import { convertToGSCv2 } from '@project/utils';
+import { convertToGSCv2 } from 'utils/items';
 import LoadingSvg from 'static/loading.svg';
 import { TooltipBody } from './tooltip/TooltipBody';
 import { Value } from './tooltip/Value';

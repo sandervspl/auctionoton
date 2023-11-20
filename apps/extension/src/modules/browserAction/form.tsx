@@ -10,14 +10,7 @@ import useServerList from 'hooks/useServerList';
 import useStorageQuery from 'hooks/useStorageQuery';
 import asyncStorage from 'utils/asyncStorage';
 
-interface FlatRetailRealm {
-  connectedRealmId: number;
-  realmId: number;
-  name: string;
-}
-
 interface FormInput {
-  version: i.Versions;
   region: i.Regions;
   server: string;
   faction: i.Factions;
@@ -36,30 +29,27 @@ export const Form: React.FC = () => {
   });
   const { isValid } = formState;
   const watchRegion = watch('region');
-  const watchVersion = watch('version');
   const watchServer = watch('server');
-  const { serverList, retailServerData, isLoading } = useServerList(watchRegion, watchVersion);
+  const { serverList } = useServerList(watchRegion);
 
   React.useLayoutEffect(() => {
-    if (user?.version == null) {
+    if (user?.server == null) {
       reset({
-        version: 'classic',
         region: 'us',
         faction: 'Alliance',
         server: 'Anathema',
       });
     } else if (!isUserLoading && user != null) {
       reset({
-        version: user.version,
         region: user.region,
-        server: user.version ? user.server[user.version]?.name : undefined,
+        server: user.server.classic?.name,
         faction: user.server.classic ? user.faction[user.server.classic.slug] : undefined,
       });
     }
   }, [isUserLoading, reset, user]);
 
   React.useEffect(() => {
-    const storedServer = user?.server[watchVersion]?.name;
+    const storedServer = user?.server.classic?.name;
     const firstServerInlist = serverList[0]?.[0];
 
     if (storedServer && serverList.find((arr) => arr[0] === storedServer)) {
@@ -67,13 +57,9 @@ export const Form: React.FC = () => {
     } else {
       setValue('server', firstServerInlist);
     }
-  }, [serverList, watchVersion, isLoading]);
+  }, [serverList]);
 
   React.useEffect(() => {
-    if (watchVersion !== 'classic') {
-      return;
-    }
-
     if (!watchServer) {
       return;
     }
@@ -86,7 +72,7 @@ export const Form: React.FC = () => {
     return name.toLowerCase().replace("'", '').replace(' ', '-');
   }
 
-  function createValue(realm: string | FlatRetailRealm, slug?: string): string {
+  function createValue(realm: string, slug?: string): string {
     if (typeof realm === 'string') {
       return JSON.stringify({
         name: realm,
@@ -111,24 +97,14 @@ export const Form: React.FC = () => {
 
       const [english, localized] = server;
       const serverData = (() => {
-        if (watchVersion === 'classic') {
-          return createValue(localized || english, english);
-        }
-
-        if (retailServerData) {
-          return JSON.stringify({
-            ...retailServerData[english],
-            name: english,
-          });
-        }
+        return createValue(localized || english, english);
       })();
 
-      draft.version = data.version;
       draft.region = data.region;
 
       if (serverData) {
         draft.server ||= {};
-        draft.server[data.version] = JSON.parse(serverData);
+        draft.server.classic = JSON.parse(serverData);
 
         draft.faction = {
           ...user?.faction,
@@ -165,20 +141,11 @@ export const Form: React.FC = () => {
                 Select your server
               </h2>
 
-              <label htmlFor="version">
-                Version
-                <select {...register('version', { required: true })}>
-                  <option value="classic">Classic</option>
-                  <option value="retail">Retail</option>
-                </select>
-              </label>
-
               <label htmlFor="Region">
                 Region
                 <select {...register('region', { required: true })}>
                   <option value="us">Americas and Oceania</option>
                   <option value="eu">Europe</option>
-                  {watchVersion === 'retail' && <option value="kr">South-Korea</option>}
                 </select>
               </label>
 
@@ -192,19 +159,14 @@ export const Form: React.FC = () => {
                   ))}
                 </select>
               </label>
-              {watchVersion === 'retail' && isLoading && (
-                <p className="auc-mb-5 auc-font-bold">Fetching servers...</p>
-              )}
 
-              {(!watchVersion || watchVersion === 'classic') && (
-                <label htmlFor="faction">
-                  Faction
-                  <select {...register('faction', { required: true })}>
-                    <option value="Alliance">Alliance</option>
-                    <option value="Horde">Horde</option>
-                  </select>
-                </label>
-              )}
+              <label htmlFor="faction">
+                Faction
+                <select {...register('faction', { required: true })}>
+                  <option value="Alliance">Alliance</option>
+                  <option value="Horde">Horde</option>
+                </select>
+              </label>
 
               <button
                 disabled={userMutation.isLoading || !isValid}

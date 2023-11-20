@@ -1,7 +1,7 @@
 import * as i from 'types';
 import React from 'react';
 
-import { convertToGSCv2 } from '@project/utils';
+import { convertToGSCv2 } from 'utils/items';
 
 export type Props = {
   amount?: number;

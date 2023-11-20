@@ -30,7 +30,6 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
         itemId,
         server: memoUser.server,
         faction: memoUser.faction,
-        version: memoUser.version,
         region: memoUser.region,
       },
     ] as i.ItemQueryKey,

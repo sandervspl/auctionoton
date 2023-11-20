@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-namespace */
 export namespace NexusHub {
   export interface Tooltip {
     label: string;

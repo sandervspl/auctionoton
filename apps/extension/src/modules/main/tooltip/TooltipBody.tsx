@@ -1,5 +1,3 @@
-import * as i from 'types';
-import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
 import useStorageQuery from 'hooks/useStorageQuery';
 import React from 'react';
 
@@ -13,25 +11,19 @@ type Props = {
 };
 
 export const TooltipBody: React.FC<Props> = (props) => {
-  const isClassicWowhead = useIsClassicWowhead();
   const { data: user } = useStorageQuery('user');
 
   function getServerName(): string {
-    const version: i.Versions = isClassicWowhead ? 'classic' : 'retail';
-    const serverName = user?.server[version];
+    const serverName = user?.server.classic;
     const region = user?.region?.toUpperCase();
 
     if (!serverName) {
       return 'Unknown';
     }
 
-    if ('slug' in serverName) {
-      const faction = user?.faction[serverName.slug];
+    const faction = user.faction[serverName.slug];
 
-      return `${serverName.name} ${region}-${faction}`;
-    }
-
-    return `${serverName.name}-${region}`;
+    return `${serverName.name} ${region}-${faction}`;
   }
 
   return (

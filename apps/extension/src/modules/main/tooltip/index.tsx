@@ -58,16 +58,12 @@ const Tooltip: React.FC<Props> = (props) => {
     },
   );
 
-  if (!user?.version) {
+  if (!user?.server) {
     return null;
   }
 
   /** @TODO Show link to change realm, let user know to set realm */
   if (isClassicWowhead && !user?.server.classic) {
-    return null;
-  }
-
-  if (!isClassicWowhead && !user?.server.retail) {
     return null;
   }
 
@@ -131,28 +127,6 @@ const Tooltip: React.FC<Props> = (props) => {
                   </>
                 );
               }
-
-              // if (item.__version === 'retail') {
-              //   return (
-              //     <>
-              //       <SellPrice
-              //         heading="Buyout Price"
-              //         amount={props.amount}
-              //         value={item.buyoutPrice}
-              //       />
-              //       <SellPrice
-              //         heading="Unit Price"
-              //         amount={props.amount}
-              //         value={item.unitPrice}
-              //       />
-              //       <SellPrice
-              //         heading="Quantity"
-              //         amount={props.amount}
-              //         value={`${item.quantity} auction${item.quantity === 1 ? '' : 's'}`}
-              //       />
-              //     </>
-              //   );
-              // }
             })()}
 
             {/* Only show this loading indicator if we can show a cached item */}

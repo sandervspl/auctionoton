@@ -5,6 +5,7 @@ import { Key } from 'w3c-keys';
 
 import time from 'utils/time';
 
+import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
 import { ItemPage } from './routes/ItemPage';
 import { SpellPage } from './routes/SpellPage';
 import ItemsPage from './routes/ItemsPage';
@@ -22,18 +23,27 @@ class AppContainer extends React.Component {
 }
 
 const App: React.FC = () => {
-  const isItemPage = window.location.pathname.includes('item=');
-  const isSpellPage = window.location.pathname.includes('spell=');
-  const isItemsPage = window.location.pathname.includes('/items/');
+  const isClassicWowhead = useIsClassicWowhead();
+  const isItemPage = isClassicWowhead && window.location.pathname.includes('item=');
+  const isSpellPage = isClassicWowhead && window.location.pathname.includes('spell=');
+  const isItemsPage = isClassicWowhead && window.location.pathname.includes('/items/');
+
+  function onKeyDown(e: KeyboardEvent) {
+    uiState.keys[e.key as Key] = true;
+  }
+
+  function onKeyUp(e: KeyboardEvent) {
+    uiState.keys[e.key as Key] = false;
+  }
 
   React.useEffect(() => {
-    window.addEventListener('keydown', (e) => {
-      uiState.keys[e.key as Key] = true;
-    });
+    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('keyup', onKeyUp);
 
-    document.addEventListener('keyup', (e) => {
-      uiState.keys[e.key as Key] = false;
-    });
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('keyup', onKeyUp);
+    };
   }, []);
 
   return (

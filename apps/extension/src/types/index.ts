@@ -1,4 +1,6 @@
-export * from '@project/types';
+export type { NexusHub } from './nexushub';
+export * from './api';
+export * from './general';
 
 export * from './data';
 export * from './reactQuery';
@@ -22,10 +24,3 @@ export type PageItem = {
   name: string;
   id: number;
 };
-
-export interface RetailRealmResult {
-  [realmName: string]: {
-    connectedRealmId: number;
-    realmId: number;
-  };
-}

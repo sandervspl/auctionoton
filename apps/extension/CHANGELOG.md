@@ -1,5 +1,24 @@
 # extension
 
+## 4.1.3
+
+### Patch Changes
+
+- Fixed shift key keybind on item hover tooltip
+
+## 4.1.2
+
+### Patch Changes
+
+- e3bd496: Updated realm lists
+- 24b2395: Delete Retail as option from server selection
+
+## 4.1.1
+
+### Patch Changes
+
+- 4624892: Improved reliability of the tooltip when hovering an item
+
 ## 4.1.0
 
 ### Minor Changes

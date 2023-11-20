@@ -1,76 +1,42 @@
 import * as i from 'types';
 import React from 'react';
-import { useQuery } from 'react-query';
 
 import realms from 'src/constants/realms';
-import time from 'utils/time';
-import api from 'utils/api';
 
-interface UseServerList {
-  serverList: string[][];
-  isLoading: boolean;
-  retailServerData?: i.RetailRealmResult;
-}
-
-function useServerList(region?: i.Regions, version?: i.Versions): UseServerList {
+function useServerList(region?: i.Regions) {
   const [servers, setServers] = React.useState<string[][]>([]);
-  const { data: retailServers, isLoading } = useQuery(
-    ['servers', { region }],
-    () => api.getRetailRealms(region),
-    {
-      retry: false,
-      refetchOnWindowFocus: false, // Generally just annoying, especially when fetch is failing
-      cacheTime: time.hours(24),
-      staleTime: time.hours(24),
-      enabled: region != null,
-    },
-  );
 
   React.useEffect(() => {
     const serverList: string[][] = [];
 
-    if (version === 'classic') {
-      switch (region) {
-        case 'eu':
-          let subregion: keyof typeof realms.eu;
+    switch (region) {
+      case 'eu':
+        let subregion: keyof typeof realms.eu;
 
-          for (subregion in realms[region]) {
-            for (const realm of realms[region][subregion]) {
-              if (typeof realm === 'string') {
-                serverList.push([realm]);
-              }
+        for (subregion in realms[region]) {
+          for (const realm of realms[region][subregion]) {
+            if (typeof realm === 'string') {
+              serverList.push([realm]);
+            }
 
-              if (typeof realm === 'object') {
-                serverList.push([realm.english, realm.russian]);
-              }
+            if (typeof realm === 'object') {
+              serverList.push([realm.english, realm.russian]);
             }
           }
-          break;
-        case 'us':
-          for (const realm of realms[region]) {
-            serverList.push([realm]);
-          }
-          break;
-      }
-    } else {
-      if (retailServers) {
-        const serverNames: string[] = Object.keys(retailServers)
-          .map((key) => key)
-          .sort((a, b) => a.localeCompare(b));
-
-        for (const name of serverNames) {
-          serverList.push([name]);
         }
-      }
+        break;
+      case 'us':
+        for (const realm of realms[region]) {
+          serverList.push([realm]);
+        }
+        break;
     }
 
     setServers(serverList);
-  }, [region, version, retailServers, isLoading]);
+  }, [region]);
 
   return {
     serverList: servers,
-    retailServerData: retailServers,
-    isLoading,
   };
 }
 
