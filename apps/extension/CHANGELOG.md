@@ -1,5 +1,11 @@
 # extension
 
+## 4.1.3
+
+### Patch Changes
+
+- Fixed shift key keybind on item hover tooltip
+
 ## 4.1.2
 
 ### Patch Changes
