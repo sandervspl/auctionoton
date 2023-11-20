@@ -23,9 +23,9 @@ const HoverTooltip = (): React.ReactPortal | null => {
   const { getItemIdFromUrl, getIsAuctionableItem } = useGetItemFromPage();
   const tooltipEl = React.useRef<HTMLElement | null>(null);
   const hoverEl = React.useRef<HTMLAnchorElement | null>(null);
-  const isAuctionableItem = getIsAuctionableItem(tooltipEl.current?.innerHTML);
   const hoverElObserver = React.useRef<MutationObserver | null>(null);
   const containerEl = React.useRef<HTMLElement | null>(null);
+  const isAuctionableItem = getIsAuctionableItem(tooltipEl.current?.innerHTML);
   const uiMutation = useMutation(() => {
     return asyncStorage.set('ui', (draft) => {
       draft!.showTip.shiftKey = false;
@@ -76,12 +76,10 @@ const HoverTooltip = (): React.ReactPortal | null => {
 
   React.useEffect(() => {
     // Remove shift key tip if user has never pressed shift, has pressed shift and we hover an item with an amount shown
-    if (ui?.showTip.shiftKey && shiftKeyPressed && hoverEl.current && getAmount() > 1) {
+    if (ui?.showTip.shiftKey && shiftKeyPressed && hoverEl.current && amount > 1) {
       uiMutation.mutate();
     }
   }, [ui?.showTip.shiftKey, shiftKeyPressed, hoverEl.current]);
-
-  React.useEffect(multiplyValue, [shiftKeyPressed, hoverEl.current]);
 
   // Listen to bubbled events and check if we are targeting a link to an item
   // Event Delegation: https://davidwalsh.name/event-delegate
@@ -96,6 +94,11 @@ const HoverTooltip = (): React.ReactPortal | null => {
         if (target.matches(selector) || parent.matches(selector)) {
           hoverEl.current = target;
 
+          setAmount(
+            target.nextElementSibling?.textContent
+              ? Number(target.nextElementSibling.textContent.trim())
+              : 1,
+          );
           return;
         }
       }
@@ -157,39 +160,13 @@ const HoverTooltip = (): React.ReactPortal | null => {
     return observer;
   }
 
-  function getAmount(): number {
-    const parentEl = hoverEl.current?.parentNode as HTMLElement | undefined;
-    const amtSelector = 'span.glow div:first-child';
-    let amt = 1;
-
-    if (parentEl?.className.includes('icon')) {
-      amt = Number(parentEl.querySelector(amtSelector)?.innerHTML);
-    } else {
-      amt = Number(parentEl?.parentNode?.querySelector(amtSelector)?.innerHTML);
-    }
-
-    if (isNaN(amt)) {
-      amt = 1;
-    }
-
-    return amt;
-  }
-
-  function multiplyValue() {
-    if (!shiftKeyPressed) {
-      return setAmount(1);
-    }
-
-    setAmount(getAmount());
-  }
-
   if (!visible || !itemId || !containerEl.current || !hoverEl.current) {
     return null;
   }
 
   return ReactDOM.createPortal(
-    <Tooltip itemId={itemId} amount={amount}>
-      {ui?.showTip.shiftKey && getAmount() > 1 ? (
+    <Tooltip itemId={itemId} amount={shiftKeyPressed ? amount : 1}>
+      {ui?.showTip.shiftKey && amount > 1 ? (
         <div className="blizzard-blue auc-mt-2">
           Tip: press shift to see the price for the stack!
         </div>

@@ -28,14 +28,22 @@ const App: React.FC = () => {
   const isSpellPage = isClassicWowhead && window.location.pathname.includes('spell=');
   const isItemsPage = isClassicWowhead && window.location.pathname.includes('/items/');
 
-  React.useEffect(() => {
-    window.addEventListener('keydown', (e) => {
-      uiState.keys[e.key as Key] = true;
-    });
+  function onKeyDown(e: KeyboardEvent) {
+    uiState.keys[e.key as Key] = true;
+  }
 
-    document.addEventListener('keyup', (e) => {
-      uiState.keys[e.key as Key] = false;
-    });
+  function onKeyUp(e: KeyboardEvent) {
+    uiState.keys[e.key as Key] = false;
+  }
+
+  React.useEffect(() => {
+    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('keyup', onKeyUp);
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('keyup', onKeyUp);
+    };
   }, []);
 
   return (
