@@ -1,0 +1,27 @@
+{
+  "version": "5",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1700599670800,
+      "tag": "0000_plain_alex_wilder",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1700604490862,
+      "tag": "0001_serious_bucky",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1700607019506,
+      "tag": "0002_illegal_blizzard",
+      "breakpoints": true
+    }
+  ]
+}

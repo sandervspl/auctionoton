@@ -2,6 +2,11 @@ name = "auctionoton"
 main = "src/index.ts"
 compatibility_date = "2023-10-30"
 
+[[d1_databases]]
+binding = "DB"
+database_name = "auctionoton"
+database_id = "3db90f32-9681-40f6-95b7-fc9105d7317e"
+
 # Variable bindings. These are arbitrary, plaintext strings (similar to environment variables)
 # Note: Use secrets to store sensitive data.
 # Docs: https://developers.cloudflare.com/workers/platform/environment-variables
