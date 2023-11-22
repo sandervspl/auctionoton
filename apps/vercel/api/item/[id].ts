@@ -131,8 +131,8 @@ export default async function handler(req: Request) {
   const query = getQueries(req.url);
   const serverSlug = getServerSlug(query.get('server_name')!);
   const factionSlug = getFactionSlug(query.get('faction')!);
-  const key = `item:${serverSlug}:${factionSlug[0]}:${itemId}`;
   const isClassicEraServer = supportedClassicEraServers.includes(serverSlug.toLowerCase());
+  const key = `item${isClassicEraServer ? ':era' : ''}:${serverSlug}:${factionSlug[0]}:${itemId}`;
 
   // const cached = await kv.get<i.NexusHub.ItemsResponse | undefined>(key);
   const cached = null;
