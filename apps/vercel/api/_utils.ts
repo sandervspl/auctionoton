@@ -43,7 +43,6 @@ export function nexushubToItemResponse(data: i.NexusHub.ItemsResponse, amount = 
     ...data,
     tooltip: undefined,
     tags: Array.isArray(data.tags) ? data.tags.join(',') : data.tags,
-    uri: '/items/' + data.itemId,
     stats: {
       current: {
         numAuctions: String(data.stats.current?.numAuctions ?? 0),

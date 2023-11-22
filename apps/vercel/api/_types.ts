@@ -69,7 +69,6 @@ export type PriceSnapshot = {
 };
 
 export type ItemResponse = Omit<NexusHub.ItemsResponse, 'stats' | 'tags' | 'tooltip'> & {
-  uri: string;
   amount: NumberString;
   stats: {
     lastUpdated: Date_ISO_8601;
