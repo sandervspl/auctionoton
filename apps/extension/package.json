@@ -1,5 +1,5 @@
 {
-  "name": "extension",
+  "name": "@auctionoton/extension",
   "version": "4.1.3",
   "description": "Code for auctionoton-extension.",
   "private": true,
