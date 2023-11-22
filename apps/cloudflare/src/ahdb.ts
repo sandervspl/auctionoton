@@ -157,7 +157,24 @@ async function ahDeserializeScanResult(
 
   for await (const chunk of chunks) {
     try {
-      await db.insert(auctions).values(chunk);
+      await db
+        .insert(auctions)
+        .values(chunk)
+        .onConflictDoUpdate({
+          target: [auctions.scanId, auctions.itemId, auctions.buyout],
+          set: {
+            scanId: sql`scanId`,
+            itemId: sql`itemId`,
+            timestamp: sql`ts`,
+            seller: sql`seller`,
+            buyout: sql`buyout`,
+            curBid: sql`curBid`,
+            id: sql`id`,
+            itemCount: sql`itemCount`,
+            minBid: sql`minBid`,
+            timeLeft: sql`timeLeft`,
+          },
+        });
       addedCount += CHUNK_SIZE;
     } catch (err: any) {
       console.error(err.code, err.message);
@@ -263,7 +280,7 @@ async function saveItems(_items: Record<string, any>) {
 
     for await (const chunk of chunks) {
       try {
-        await db.insert(items).values(chunk);
+        await db.insert(items).values(chunk).onConflictDoNothing();
         addedCount += CHUNK_SIZE;
       } catch (err: any) {
         console.error(err.code, err.message);

@@ -64,6 +64,7 @@ export const auctions = sqliteTable(
   (table) => ({
     buyoutidx: index('buyoutidx').on(table.buyout),
     itemididx: index('itemididx').on(table.itemId),
+    scanitemidunq: unique('scan_item_unique').on(table.scanId, table.itemId, table.buyout),
   }),
 );
 
