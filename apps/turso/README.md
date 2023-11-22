@@ -4,6 +4,8 @@ This is the Auctionoton database for servers that are not supported by TSM or Ne
 
 ## Development
 
+Code is a little bit janky because it's mostly the result of AI converting the Go parser from AuctionDB to TypeScript. I tried fixing it up a little bit. It is also 100x faster than the original code when working with an external DB.
+
 - Install the [AHDB addon](https://www.curseforge.com/wow/addons/auction-house-database)
 - Open AH window and scan items (button or `/ahdb scan`)
 - Log out
