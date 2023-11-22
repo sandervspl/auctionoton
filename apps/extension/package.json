@@ -9,7 +9,7 @@
   "scripts": {
     "lint": "eslint ./src --ext .ts,.tsx --fix",
     "build": "npm run css:extension && npm run css:form && cross-env NODE_ENV=production node esbuild.config.js",
-    "dev": "rm -rf ./dist && concurrently 'node esbuild.config.js' 'npm run css'",
+    "start": "rm -rf ./dist && concurrently 'node esbuild.config.js' 'npm run css'",
     "css": "concurrently 'npm run css:extension -- --watch' 'npm run css:form -- --watch'",
     "postbuild": "cd dist; zip -D -r ../auctionoton-$npm_package_version.zip ./*",
     "ci:create-dist": "cd dist; zip -D -r ../auctionoton.zip ./*",
