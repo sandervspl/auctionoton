@@ -55,9 +55,9 @@ export function nexushubToItemResponse(data: i.NexusHub.ItemsResponse, amount = 
       previous: {
         numAuctions: String(data.stats.previous?.numAuctions ?? 0),
         quantity: String(data.stats.previous?.quantity ?? 0),
-        minimumBuyout: convertToCoins(data.stats.current?.minBuyout, amount),
-        historicalValue: convertToCoins(data.stats.current?.historicalValue, amount),
-        marketValue: convertToCoins(data.stats.current?.marketValue, amount),
+        minimumBuyout: convertToCoins(data.stats.previous?.minBuyout, amount),
+        historicalValue: convertToCoins(data.stats.previous?.historicalValue, amount),
+        marketValue: convertToCoins(data.stats.previous?.marketValue, amount),
       },
       lastUpdated: data.stats.lastUpdated,
     },
