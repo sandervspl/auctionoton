@@ -7,6 +7,7 @@ import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
 import validateCache from 'utils/validateCache';
 
 import { fetchItemFromAPI } from 'src/queries/item';
+import { createQueryKey } from 'utils/queryKey';
 import useMemoUser from './useMemoUser';
 
 type Options = UseQueryOptions<
@@ -24,15 +25,7 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
   const { isClassicWowhead, isEra } = useIsClassicWowhead();
 
   const { data, isLoading, isFetching, isError, refetch } = useQuery({
-    queryKey: [
-      'item',
-      {
-        itemId,
-        server: memoUser.server,
-        faction: memoUser.faction,
-        region: memoUser.region,
-      },
-    ] as i.ItemQueryKey,
+    queryKey: createQueryKey(itemId, memoUser),
     queryFn: fetchItem,
     refetchOnWindowFocus: true,
     retry: false, // Let user retry on demand with button
