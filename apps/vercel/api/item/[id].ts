@@ -132,9 +132,9 @@ export default async function handler(req: Request) {
   const query = getQueries(req.url);
   const serverSlug = getServerSlug(query.get('server_name')!);
   const factionSlug = getFactionSlug(query.get('faction')!);
-  const type = query.get('type');
-  const isClassicEraServer = type === 'era';
-  const key = `item${isClassicEraServer ? ':era' : ''}:${serverSlug}:${factionSlug[0]}:${itemId}`;
+  const version = query.get('version');
+  const isClassicEra = version === 'era';
+  const key = `item${isClassicEra ? ':era' : ''}:${serverSlug}:${factionSlug[0]}:${itemId}`;
 
   const cached = await kv.get<i.NexusHub.ItemsResponse | undefined>(key);
   // const cached = null;
@@ -142,7 +142,7 @@ export default async function handler(req: Request) {
   const url = `https://api.nexushub.co/wow-classic/v1/items/${serverSlug}-${factionSlug}/${itemId}`;
 
   let result =
-    cached || isClassicEraServer
+    cached || isClassicEra
       ? await queryItem(Number(itemId), serverSlug, factionSlug as any)
       : await fetchItem(url);
 

@@ -17,7 +17,7 @@ export async function fetchItemFromAPI(
       params: {
         server_name: server,
         faction: faction,
-        type: isEra ? 'era' : 'classic',
+        version: isEra ? 'era' : 'classic',
         amount,
       },
     });
