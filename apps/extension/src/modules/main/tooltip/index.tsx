@@ -26,7 +26,7 @@ dayjs.extend(relativeTime);
 const Tooltip: React.FC<Props> = (props) => {
   const { data: user } = useStorageQuery('user');
   const { error, isFetching, isLoading, item, refetch } = useItemFetcher(props.itemId);
-  const { isClassicWowhead } = useIsClassicWowhead();
+  const { isClassicWowhead, isEra } = useIsClassicWowhead();
   const { data: lastUpdated } = useQuery(
     ['tooltip', 'last-updated', props.itemId, item?.updatedAt],
     () => {
@@ -79,8 +79,8 @@ const Tooltip: React.FC<Props> = (props) => {
               Last updated:&nbsp;
               <span
                 className={cn({
-                  q2: lastUpdated.hours < 3,
-                  q10: lastUpdated.hours >= 3,
+                  q2: lastUpdated.hours < (isEra ? 24 : 3),
+                  q10: lastUpdated.hours >= (isEra ? 24 : 3),
                 })}
               >
                 {lastUpdated.text}
