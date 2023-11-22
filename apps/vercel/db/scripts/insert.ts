@@ -1,4 +1,3 @@
-import * as fs from 'node:fs';
 import { db } from '..';
 import { sql } from 'drizzle-orm';
 import { fromZodError } from 'zod-validation-error';
@@ -301,7 +300,7 @@ async function saveItems(_items: Record<string, any>) {
 }
 
 async function main() {
-  const ahdb = JSON.parse(fs.readFileSync('db.json', 'utf8')) as AHData;
+  const ahdb = JSON.parse(await Bun.file('db.json').text()) as AHData;
 
   await saveItems(ahdb.itemDB_2);
   await saveScans(ahdb.ah, ahdb.itemDB_2);
