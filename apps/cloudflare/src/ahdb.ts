@@ -2,6 +2,8 @@ import fs from 'node:fs';
 import { db } from './db';
 import { sql } from 'drizzle-orm';
 import { fromZodError } from 'zod-validation-error';
+import { z } from 'zod';
+import * as R from 'remeda';
 
 import { auctions, insertAuctionsSchema, insertItemsSchema, items, scanmeta } from './db/schema';
 
@@ -87,29 +89,19 @@ function extractAuctionData(auction: string): AuctionEntry {
   };
 }
 
-async function ahDeserializeScanResult(scan: ScanEntry, scanID: number) {
+async function ahDeserializeScanResult(
+  scan: ScanEntry,
+  scanID: number,
+  items: Record<string, any>,
+) {
   const data = scan.data;
   console.log(`Deserializing data length ${data.length}`);
+
   let numItems = 0;
-  let opCount = 0;
+  let addedCount = 0;
+  const auctionsToAdd: z.infer<typeof insertAuctionsSchema>[] = [];
 
   const itemEntries = data.split(' ');
-
-  // console.log(1);
-  // const res = await db
-  //   .insert(auctions)
-  //   .values({
-  //     buyout: 0,
-  //     curBid: 0,
-  //     itemCount: 0,
-  //     itemId: 'i10001',
-  //     minBid: 0,
-  //     scanId: scanID,
-  //     seller: '',
-  //     timeLeft: 0,
-  //   });
-  // console.log('foo', res);
-
   for await (const itemEntry of itemEntries) {
     numItems += 1;
 
@@ -118,10 +110,14 @@ async function ahDeserializeScanResult(scan: ScanEntry, scanID: number) {
       console.error(`Couldn't split ${itemEntry} into 2 by '!': ${itemSplit}`);
     }
 
-    const item = itemSplit[0];
+    const itemId = itemSplit[0];
     const rest = itemSplit[1];
 
-    console.log(`for ${item} rest is '${rest}'`);
+    if (!items[itemId]) {
+      continue;
+    }
+
+    // console.log(`for ${itemId} rest is '${rest}'`);
 
     const bySellerEntries = rest.split('!');
 
@@ -130,16 +126,14 @@ async function ahDeserializeScanResult(scan: ScanEntry, scanID: number) {
       const seller = sellerAuctionsSplit[0];
       const auctionsBySeller = sellerAuctionsSplit[1].split('&');
 
-      console.log(`seller ${seller} auctions are '${auctionsBySeller}'`);
+      // console.log(`seller ${seller} auctions are '${auctionsBySeller}'`);
 
       for await (const auction of auctionsBySeller) {
         const a = extractAuctionData(auction);
-        console.log(`Auction ${JSON.stringify(a)}`);
-        opCount += 1;
 
         const newAuction = insertAuctionsSchema.safeParse({
           scanId: scanID,
-          itemId: item,
+          itemId: itemId,
           timestamp: new Date(scan.ts * 1000).toISOString(),
           seller,
           timeLeft: a.TimeLeft,
@@ -153,12 +147,24 @@ async function ahDeserializeScanResult(scan: ScanEntry, scanID: number) {
           continue;
         }
 
-        await db.insert(auctions).values(newAuction.data);
+        auctionsToAdd.push(newAuction.data);
       }
     }
   }
 
-  console.log(`Inserted ${opCount} auctions for ${numItems} items for scanId ${scanID}`);
+  const CHUNK_SIZE = 1000;
+  const chunks = R.chunk(auctionsToAdd, CHUNK_SIZE);
+
+  for await (const chunk of chunks) {
+    try {
+      await db.insert(auctions).values(chunk);
+      addedCount += CHUNK_SIZE;
+    } catch (err: any) {
+      console.error(err.code, err.message);
+    }
+  }
+
+  console.log(`Inserted ${addedCount} auctions for ${numItems} items for scanId ${scanID}`);
   if (numItems !== scan.itemsCount) {
     console.error(
       `Mismatch between deserialization item count ${numItems} and saved ${scan.itemsCount}`,
@@ -166,7 +172,7 @@ async function ahDeserializeScanResult(scan: ScanEntry, scanID: number) {
   }
 }
 
-async function saveScans(scans: ScanEntry[]) {
+async function saveScans(scans: ScanEntry[], items: Record<string, any>) {
   for await (const entry of scans) {
     const newscanmeta = await db
       .insert(scanmeta)
@@ -188,13 +194,12 @@ async function saveScans(scans: ScanEntry[]) {
     const newScanId = newscanmeta[0]?.id;
 
     if (!newScanId) {
-      console.log(newscanmeta);
       continue;
     }
 
     try {
       // await db.transaction(async () => {
-      await ahDeserializeScanResult(entry, newScanId);
+      await ahDeserializeScanResult(entry, newScanId, items);
       // });
     } catch (err) {
       console.error(`Can't DB commit auction for scan "${newScanId}": ${err}`);
@@ -203,15 +208,15 @@ async function saveScans(scans: ScanEntry[]) {
 }
 
 async function saveItems(_items: Record<string, any>) {
-  // const countResult = db.queryRow('select count(*) from items');
   const count = await db.run(sql`select count(*) from ${items}`);
 
   console.log(`ItemDB at start has ${count.rows[0][0]} items`);
 
   try {
     const start = Date.now();
-    let n = 0;
     let bytes = 0;
+    let addedCount = 0;
+    const itemsToAdd: z.infer<typeof insertItemsSchema>[] = [];
 
     for (const k in _items) {
       const vi = _items[k];
@@ -250,22 +255,25 @@ async function saveItems(_items: Record<string, any>) {
         continue;
       }
 
-      try {
-        await db.insert(items).values(newItem.data).onConflictDoUpdate({
-          target: items.shortid,
-          set: newItem.data,
-        });
+      itemsToAdd.push(newItem.data);
+    }
 
-        n += 1;
-      } catch (err) {
-        console.error(err);
+    const CHUNK_SIZE = 1000;
+    const chunks = R.chunk(itemsToAdd, CHUNK_SIZE);
+
+    for await (const chunk of chunks) {
+      try {
+        await db.insert(items).values(chunk);
+        addedCount += CHUNK_SIZE;
+      } catch (err: any) {
+        console.error(err.code, err.message);
       }
     }
 
     const elapsed = Date.now() - start;
 
     console.log(
-      `Inserted/updated ${n} items, ${bytes / 1024 / 1024} Mbytes in MySQL DB in ${elapsed}ms`,
+      `Inserted/updated ${addedCount} items, ${bytes / 1024 / 1024} Mbytes in DB in ${elapsed}ms`,
     );
 
     const count = await db.run(sql<number>`select count(*) from ${items}`);
@@ -276,8 +284,8 @@ async function saveItems(_items: Record<string, any>) {
 }
 
 async function saveToDb(ahd: AHData) {
-  // await saveItems(ahd.itemDB_2);
-  await saveScans(ahd.ah);
+  await saveItems(ahd.itemDB_2);
+  await saveScans(ahd.ah, ahd.itemDB_2);
 }
 
 function main() {

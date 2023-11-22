@@ -8,8 +8,7 @@ dotenv.config({
 export default {
   schema: './src/db/schema.ts',
   out: './drizzle',
-  driver: 'better-sqlite',
-  // driver: 'turso',
+  driver: process.env.DB_DRIVER as any,
   dbCredentials: {
     url: process.env.DB_URL!,
     // @ts-ignore

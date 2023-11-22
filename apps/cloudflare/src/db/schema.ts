@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { text, integer, sqliteTable, unique, index, primaryKey } from 'drizzle-orm/sqlite-core';
+import { text, integer, sqliteTable, unique, index } from 'drizzle-orm/sqlite-core';
 import { createInsertSchema } from 'drizzle-zod';
 
 export const items = sqliteTable(
@@ -19,7 +19,6 @@ export const items = sqliteTable(
     timestamp: text('ts').default(sql`CURRENT_TIMESTAMP`),
   },
   (table) => ({
-    shortidunq: unique('shortidunq').on(table.shortid),
     nameidx: index('nameidx').on(table.name),
     rarityidx: index('rarityidx').on(table.rarity),
     sellpriceidx: index('sellpriceidx').on(table.sellPrice),
@@ -47,6 +46,7 @@ export const insertScanmetaSchema = createInsertSchema(scanmeta);
 export const auctions = sqliteTable(
   'auctions',
   {
+    id: integer('id').primaryKey({ autoIncrement: true }),
     scanId: integer('scanId')
       .notNull()
       .references(() => scanmeta.id),
@@ -62,7 +62,6 @@ export const auctions = sqliteTable(
     curBid: integer('curBid').notNull(),
   },
   (table) => ({
-    pk: primaryKey({ columns: [table.scanId, table.itemId] }),
     buyoutidx: index('buyoutidx').on(table.buyout),
     itemididx: index('itemididx').on(table.itemId),
   }),
