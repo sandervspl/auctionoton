@@ -21,7 +21,7 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
   const [error, setError] = React.useState('');
   const [warning, setWarning] = React.useState('');
   const [item, setItem] = React.useState<i.CachedItemDataClassic>();
-  const isClassicWowhead = useIsClassicWowhead();
+  const { isClassicWowhead, isEra } = useIsClassicWowhead();
 
   const { data, isLoading, isFetching, isError, refetch } = useQuery({
     queryKey: [
@@ -65,16 +65,17 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
         return;
       }
 
-      const result = await fetchItemFromAPI(itemId, memoUser.server, memoUser.faction, queryKey);
+      const result = await fetchItemFromAPI(
+        itemId,
+        memoUser.server,
+        memoUser.faction,
+        isEra,
+        queryKey,
+      );
 
       if (result) {
         return result;
       }
-    }
-
-    /** @TODO */
-    if (!isClassicWowhead) {
-      return;
     }
 
     setError('Something went wrong fetching this item. Please try again.');

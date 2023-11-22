@@ -8,6 +8,7 @@ export async function fetchItemFromAPI(
   itemId: number,
   server: string,
   faction: string,
+  isEra: boolean,
   queryKey: i.ItemQueryKeyCtx,
   amount = 1,
 ) {
@@ -16,6 +17,7 @@ export async function fetchItemFromAPI(
       params: {
         server_name: server,
         faction: faction,
+        type: isEra ? 'era' : 'classic',
         amount,
       },
     });

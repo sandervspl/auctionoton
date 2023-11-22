@@ -3,7 +3,7 @@ import useIsClassicWowhead from './useIsClassicWowhead';
 
 function useMemoUser() {
   const { data: user } = useStorageQuery('user');
-  const isClassicWowhead = useIsClassicWowhead();
+  const { isClassicWowhead } = useIsClassicWowhead();
 
   const server = isClassicWowhead ? user?.server.classic?.slug ?? '' : '';
 

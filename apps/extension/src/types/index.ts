@@ -24,3 +24,5 @@ export type PageItem = {
   name: string;
   id: number;
 };
+
+export type Version = 'classic' | 'era';

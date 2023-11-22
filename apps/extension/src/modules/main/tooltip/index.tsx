@@ -26,7 +26,7 @@ dayjs.extend(relativeTime);
 const Tooltip: React.FC<Props> = (props) => {
   const { data: user } = useStorageQuery('user');
   const { error, isFetching, isLoading, item, refetch } = useItemFetcher(props.itemId);
-  const isClassicWowhead = useIsClassicWowhead();
+  const { isClassicWowhead } = useIsClassicWowhead();
   const { data: lastUpdated } = useQuery(
     ['last-updated', props.itemId, item?.updatedAt],
     () => {

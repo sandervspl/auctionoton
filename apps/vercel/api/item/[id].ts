@@ -25,11 +25,11 @@ async function fetchItem(url: string) {
 }
 
 async function queryItem(id: number, server: string, faction: 'Neutral' | 'Alliance' | 'Horde') {
-  const i = alias(items, 'i');
-  const s = alias(scanmeta, 's');
-  const a = alias(auctions, 'a');
-
   try {
+    // const i = alias(items, 'i');
+    // const s = alias(scanmeta, 's');
+    // const a = alias(auctions, 'a');
+
     // Never resolves on dev??? WHYYYYYYYY
     // const item = await db
     //   .select({
@@ -131,7 +131,8 @@ export default async function handler(req: Request) {
   const query = getQueries(req.url);
   const serverSlug = getServerSlug(query.get('server_name')!);
   const factionSlug = getFactionSlug(query.get('faction')!);
-  const isClassicEraServer = supportedClassicEraServers.includes(serverSlug.toLowerCase());
+  const type = query.get('type');
+  const isClassicEraServer = type === 'era';
   const key = `item${isClassicEraServer ? ':era' : ''}:${serverSlug}:${factionSlug[0]}:${itemId}`;
 
   const cached = await kv.get<i.NexusHub.ItemsResponse | undefined>(key);

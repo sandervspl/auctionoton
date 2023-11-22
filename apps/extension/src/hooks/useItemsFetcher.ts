@@ -4,8 +4,10 @@ import asyncStorage from 'utils/asyncStorage';
 import { fetchItemFromAPI } from 'src/queries/item';
 import { createQueryKey } from 'utils/queryKey';
 import useMemoUser from './useMemoUser';
+import useIsClassicWowhead from './useIsClassicWowhead';
 
 export function useItemsFetcher(id: string | number | undefined, itemIds: number[]) {
+  const { isEra } = useIsClassicWowhead();
   const memoUser = useMemoUser();
 
   return useQuery({
@@ -32,8 +34,11 @@ export function useItemsFetcher(id: string | number | undefined, itemIds: number
 
       const result = await Promise.all(
         itemsIdsToFetch.map((itemId) => {
-          const key = { meta: {}, queryKey: createQueryKey(itemId, memoUser) };
-          return fetchItemFromAPI(itemId, memoUser.server, memoUser.faction, key);
+          const key = {
+            meta: {},
+            queryKey: createQueryKey(itemId, memoUser),
+          };
+          return fetchItemFromAPI(itemId, memoUser.server, memoUser.faction, isEra, key);
         }),
       );
 
