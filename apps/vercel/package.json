@@ -3,12 +3,24 @@
   "version": "1.1.0",
   "license": "ISC",
   "scripts": {
-    "start": "vercel dev"
+    "start": "vercel dev",
+    "db:push": "drizzle-kit push:sqlite",
+    "db:gen": "drizzle-kit generate:sqlite",
+    "db:insert": "bun db/scripts/insert.ts",
+    "lua2json": "bun db/scripts/lua2json.ts"
   },
   "devDependencies": {
+    "dotenv": "^16.3.1",
+    "drizzle-kit": "^0.20.4",
     "vercel": "latest"
   },
   "dependencies": {
-    "@vercel/kv": "^1.0.0"
+    "@libsql/client": "0.4.0-pre.2",
+    "@vercel/kv": "^1.0.0",
+    "drizzle-orm": "^0.29.0",
+    "drizzle-zod": "^0.5.1",
+    "remeda": "^1.29.0",
+    "zod": "^3.22.4",
+    "zod-validation-error": "^2.1.0"
   }
 }

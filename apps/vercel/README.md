@@ -1,8 +1,12 @@
-# Database
+# API
 
-This is the Auctionoton database for servers that are not supported by TSM or Nexushub. It is a manual effort for now, so it might not always be up-to-date.
+Edge API hosted on Vercel
 
-## Development
+## Database
+
+The Auctionoton API mainly uses Nexushub to get AH data, but for classic-era servers we have our own database.
+
+### Development
 
 Code is a little bit janky because it's mostly the result of AI converting the Go parser from AuctionDB to TypeScript. I tried fixing it up a little bit. It is also 100x faster than the original code when working with an external DB.
 

@@ -1,11 +1,11 @@
-import fs from 'node:fs';
-import { db } from './db';
+import * as fs from 'node:fs';
+import { db } from '..';
 import { sql } from 'drizzle-orm';
 import { fromZodError } from 'zod-validation-error';
 import { z } from 'zod';
 import * as R from 'remeda';
 
-import { auctions, insertAuctionsSchema, insertItemsSchema, items, scanmeta } from './db/schema';
+import { auctions, insertAuctionsSchema, insertItemsSchema, items, scanmeta } from '../schema';
 
 interface ItemEntry {
   ID: string;
