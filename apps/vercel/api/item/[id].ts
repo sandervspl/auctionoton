@@ -1,6 +1,5 @@
 import { kv } from '@vercel/kv';
 import { sql } from 'drizzle-orm';
-import { alias } from 'drizzle-orm/sqlite-core';
 import slugify from 'slugify';
 
 import * as i from '../_types.js';
@@ -11,10 +10,8 @@ import {
   getServerSlug,
   getURLParam,
   nexushubToItemResponse,
-  supportedClassicEraServers,
 } from '../_utils.js';
 import { db } from '../../db/index.js';
-import { auctions, items, scanmeta, selectAuctionsSchema } from '../../db/schema.js';
 
 export const config = {
   runtime: 'experimental-edge',
@@ -24,6 +21,10 @@ async function fetchItem(url: string) {
   return (await (await fetch(url)).json()) as i.NexusHub.ItemsResponse | i.NexusHub.ErrorResponse;
 }
 
+/**
+ * @TODO Move the subqueries to "db/scripts/insert.ts" and store the results in a new table
+ * to prevent every query from costing 10000s of reads
+ */
 async function queryItem(id: number, server: string, faction: 'Neutral' | 'Alliance' | 'Horde') {
   try {
     // const i = alias(items, 'i');
