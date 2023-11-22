@@ -1,4 +1,6 @@
-import * as i from './_types';
+import * as i from './_types.js';
+
+export const supportedClassicEraServers = ['stitches', 'nek-rosh'];
 
 export function getQueries(url: string): URLSearchParams {
   return new URLSearchParams(url.split('?')[1]);
@@ -16,6 +18,10 @@ export function getServerSlug(name = '') {
 
 export function getFactionSlug(faction = '') {
   return faction.toLowerCase();
+}
+
+export function capitalize(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 export function convertToCoins(rawPrice: number = 0, amount = 1): i.PriceObject {
@@ -36,7 +42,7 @@ export function nexushubToItemResponse(data: i.NexusHub.ItemsResponse, amount = 
   const transformedData: i.ItemResponse = {
     ...data,
     tooltip: undefined,
-    tags: data.tags.join(','),
+    tags: Array.isArray(data.tags) ? data.tags.join(',') : data.tags,
     uri: '/items/' + data.itemId,
     stats: {
       current: {

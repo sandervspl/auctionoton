@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { text, integer, sqliteTable, unique, index } from 'drizzle-orm/sqlite-core';
-import { createInsertSchema } from 'drizzle-zod';
+import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 
 export const items = sqliteTable(
   'items',
@@ -69,3 +69,4 @@ export const auctions = sqliteTable(
 );
 
 export const insertAuctionsSchema = createInsertSchema(auctions);
+export const selectAuctionsSchema = createSelectSchema(auctions);

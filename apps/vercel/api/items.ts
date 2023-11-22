@@ -1,5 +1,5 @@
-import * as i from './_types';
-import { getFactionSlug, getQueries, getServerSlug } from './_utils';
+import * as i from './_types.js';
+import { getFactionSlug, getQueries, getServerSlug } from './_utils.js';
 
 export const config = {
   runtime: 'experimental-edge',

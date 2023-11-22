@@ -306,4 +306,5 @@ async function main() {
   await saveScans(ahdb.ah, ahdb.itemDB_2);
 }
 
+console.log('Starting...');
 main();
