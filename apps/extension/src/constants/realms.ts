@@ -37,6 +37,8 @@ const realms: i.Realms = {
       'Razorgore',
       'Shazzrah',
       'Skullflame',
+      'Stitches',
+      "Nek'Rosh",
       'Stonespine',
       'Sulfuron',
       'Ten Storms',
