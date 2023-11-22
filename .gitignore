@@ -35,3 +35,4 @@ deploy.secrets.sh
 auctionoton-server/
 .vercel
 .secrets
+sqlite.db
