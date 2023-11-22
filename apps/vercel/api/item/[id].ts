@@ -134,8 +134,8 @@ export default async function handler(req: Request) {
   const isClassicEraServer = supportedClassicEraServers.includes(serverSlug.toLowerCase());
   const key = `item${isClassicEraServer ? ':era' : ''}:${serverSlug}:${factionSlug[0]}:${itemId}`;
 
-  // const cached = await kv.get<i.NexusHub.ItemsResponse | undefined>(key);
-  const cached = null;
+  const cached = await kv.get<i.NexusHub.ItemsResponse | undefined>(key);
+  // const cached = null;
 
   const url = `https://api.nexushub.co/wow-classic/v1/items/${serverSlug}-${factionSlug}/${itemId}`;
 
