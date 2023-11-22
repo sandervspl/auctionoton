@@ -5,7 +5,7 @@
 	"scripts": {
 		"db:push": "drizzle-kit push:sqlite",
 		"db:gen": "drizzle-kit generate:sqlite",
-		"db:insert": "bun src/ahdb.ts",
+		"db:insert": "bun src/main.ts",
 		"lua2json": "bun src/lua2json.ts"
 	},
 	"devDependencies": {
