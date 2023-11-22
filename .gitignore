@@ -36,3 +36,5 @@ auctionoton-server/
 .vercel
 .secrets
 sqlite.db
+AuctionDB.lua
+db.json
