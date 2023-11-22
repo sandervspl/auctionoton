@@ -300,14 +300,11 @@ async function saveItems(_items: Record<string, any>) {
   }
 }
 
-async function saveToDb(ahd: AHData) {
-  await saveItems(ahd.itemDB_2);
-  await saveScans(ahd.ah, ahd.itemDB_2);
-}
-
-function main() {
+async function main() {
   const ahdb = JSON.parse(fs.readFileSync('db.json', 'utf8')) as AHData;
-  saveToDb(ahdb);
+
+  await saveItems(ahdb.itemDB_2);
+  await saveScans(ahdb.ah, ahdb.itemDB_2);
 }
 
 main();
