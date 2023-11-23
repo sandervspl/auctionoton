@@ -102,7 +102,7 @@ export const itemsValues = sqliteTable(
     items_values_item_shortid_realm_faction_idx: index(
       'items_values_item_shortid_realm_faction_idx',
     ).on(table.itemShortid, table.realm, table.faction),
-    itemshortid_timestamp_unique: unique(
+    itemsvalues_itemshortid_timestamp_realm_faction_unique: unique(
       'itemsvalues_itemshortid_timestamp_realm_faction_unique',
     ).on(table.itemShortid, table.timestamp, table.realm, table.faction),
   }),
@@ -111,10 +111,17 @@ export const itemsValues = sqliteTable(
 export const insertItemsValuesSchema = createInsertSchema(itemsValues);
 export const selectItemsValuesSchema = createSelectSchema(itemsValues);
 
-export const factions = sqliteTable('factions', {
-  id: integer('id').primaryKey(),
-  name: text('name').notNull(),
-});
+export const factions = sqliteTable(
+  'factions',
+  {
+    id: integer('id').primaryKey(),
+    name: text('name').notNull(),
+  },
+  (table) => ({
+    factions_id_idx: index('factions_id_idx').on(table.id),
+    factions_name_idx: index('factions_name_idx').on(table.name),
+  }),
+);
 
 export const realms = sqliteTable(
   'realms',
@@ -124,5 +131,6 @@ export const realms = sqliteTable(
   },
   (table) => ({
     realms_id_idx: index('realms_id_idx').on(table.id),
+    realms_name_idx: index('realms_name_idx').on(table.name),
   }),
 );
