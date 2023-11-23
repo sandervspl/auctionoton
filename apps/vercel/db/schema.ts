@@ -70,3 +70,27 @@ export const auctions = sqliteTable(
 
 export const insertAuctionsSchema = createInsertSchema(auctions);
 export const selectAuctionsSchema = createSelectSchema(auctions);
+
+export const itemsValues = sqliteTable(
+  'items_values',
+  {
+    id: integer('id').notNull().primaryKey({ autoIncrement: true }),
+    itemShortid: integer('item_shortid').notNull(),
+    minBuyout: integer('min_buyout').notNull(),
+    marketValue: integer('market_value').notNull(),
+    historicalValue: integer('historical_value').notNull(),
+    numAuctions: integer('num_auctions').notNull(),
+    quantity: integer('quantity').notNull(),
+    timestamp: text('ts').default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => ({
+    itemsvalues_itemid_idx: index('itemsvalues_itemid_idx').on(table.itemShortid),
+    itemshortid_timestamp_unique: unique('itemsvalues_itemshortid_timestamp_unique').on(
+      table.itemShortid,
+      table.timestamp,
+    ),
+  }),
+);
+
+export const insertItemsValuesSchema = createInsertSchema(itemsValues);
+export const selectItemsValuesSchema = createSelectSchema(itemsValues);

@@ -155,7 +155,7 @@ importers:
         version: 1.0.0
       drizzle-orm:
         specifier: ^0.29.0
-        version: 0.29.0(@libsql/client@0.4.0-pre.2)(better-sqlite3@9.1.1)(bun-types@1.0.13)
+        version: 0.29.0(@libsql/client@0.4.0-pre.2)(better-sqlite3@9.1.1)(bun-types@1.0.14)
       drizzle-zod:
         specifier: ^0.5.1
         version: 0.5.1(drizzle-orm@0.29.0)(zod@3.22.4)
@@ -176,14 +176,17 @@ importers:
         specifier: ^9.1.1
         version: 9.1.1
       bun-types:
-        specifier: ^1.0.13
-        version: 1.0.13
+        specifier: ^1.0.14
+        version: 1.0.14
       dotenv:
         specifier: ^16.3.1
         version: 16.3.1
       drizzle-kit:
         specifier: ^0.20.4
         version: 0.20.4
+      lua-json:
+        specifier: ^1.0.1
+        version: 1.0.1
       vercel:
         specifier: ^32.5.6
         version: 32.5.6
@@ -3764,8 +3767,8 @@ packages:
       base64-js: 1.5.1
       ieee754: 1.2.1
 
-  /bun-types@1.0.13:
-    resolution: {integrity: sha512-QQH6NLAOU+2tWgQuDSAYBFy+kQwVhPJLB0Q38QLjCmFUZJEYCiiq7tzvU784LAIX2onzO6gr+gIGXt8yCt0cJw==}
+  /bun-types@1.0.14:
+    resolution: {integrity: sha512-hLVfM2fk8xSJeobfuPGilfvxM5gLtEy1bn7RJhrtw3u4OaC0kieXKYFFTVHU8jZ3hj8YyPLIFClIUodkFSrMBQ==}
 
   /bytes@3.1.0:
     resolution: {integrity: sha512-zauLjrfCG+xvoyaqLoV8bLVXXNGC4JqlxFCutSDWA6fJrTo2ZuvLYTqZ7aHBLZSMOopbzwv8f+wZcVzfVTI2Dg==}
@@ -4350,7 +4353,7 @@ packages:
       - utf-8-validate
     dev: true
 
-  /drizzle-orm@0.29.0(@libsql/client@0.4.0-pre.2)(better-sqlite3@9.1.1)(bun-types@1.0.13):
+  /drizzle-orm@0.29.0(@libsql/client@0.4.0-pre.2)(better-sqlite3@9.1.1)(bun-types@1.0.14):
     resolution: {integrity: sha512-AC+CuW4GezVjsZDGU9u9B4HyikudOyYVhjm6he3Xn1D6Kky7bHGKob97MMX2piO+t9b6UuajLzlii/T/lu1qwA==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
@@ -4414,7 +4417,7 @@ packages:
     dependencies:
       '@libsql/client': 0.4.0-pre.2
       better-sqlite3: 9.1.1
-      bun-types: 1.0.13
+      bun-types: 1.0.14
     dev: false
 
   /drizzle-zod@0.5.1(drizzle-orm@0.29.0)(zod@3.22.4):
@@ -4423,7 +4426,7 @@ packages:
       drizzle-orm: '>=0.23.13'
       zod: '*'
     dependencies:
-      drizzle-orm: 0.29.0(@libsql/client@0.4.0-pre.2)(better-sqlite3@9.1.1)(bun-types@1.0.13)
+      drizzle-orm: 0.29.0(@libsql/client@0.4.0-pre.2)(better-sqlite3@9.1.1)(bun-types@1.0.14)
       zod: 3.22.4
     dev: false
 
@@ -6525,6 +6528,18 @@ packages:
     resolution: {integrity: sha512-BpdYkt9EvGl8OfWHDQPISVpcl5xZthb+XPsbELj5AQXxIC8IriDZIQYjBJPEm5rS420sjZ0TLEzRcq5KdBhYrQ==}
     dependencies:
       es5-ext: 0.10.62
+    dev: true
+
+  /lua-json@1.0.1:
+    resolution: {integrity: sha512-KLlpjbEMVmQFBo0eg9gCk9Y7ZCFvyHTZj7+AmDdLO1yiVk8JYS8npPW45vvz5Ay0Vt8EMEqYxY5BNEJWakMTLQ==}
+    dependencies:
+      lodash: 4.17.21
+      luaparse: 0.2.1
+    dev: true
+
+  /luaparse@0.2.1:
+    resolution: {integrity: sha512-VKBcryd5nJte4ZNR29NOk8F/UkMipjeb4yoxcSS51z6QAzg9DXUC2WsfLniS0J1eh3pr/ZL3e9ha6V8fhoLbBQ==}
+    hasBin: true
     dev: true
 
   /magic-string@0.25.9:

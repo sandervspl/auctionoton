@@ -1,6 +1,6 @@
 import { parse } from 'lua-json';
 
-const file = await Bun.file('./src/input/AuctionDB.lua').text();
+const file = await Bun.file('./db/scripts/input/AuctionDB.lua').text();
 
 await Bun.write(
   'db.json',

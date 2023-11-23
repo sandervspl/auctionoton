@@ -1,10 +1,18 @@
-import { db } from '..';
 import { sql } from 'drizzle-orm';
 import { fromZodError } from 'zod-validation-error';
 import { z } from 'zod';
 import * as R from 'remeda';
 
-import { auctions, insertAuctionsSchema, insertItemsSchema, items, scanmeta } from '../schema';
+import {
+  auctions,
+  insertAuctionsSchema,
+  insertItemsSchema,
+  insertItemsValuesSchema,
+  items,
+  itemsValues,
+  scanmeta,
+} from '../schema.js';
+import { db } from '../index.js';
 
 interface ItemEntry {
   ID: string;
@@ -93,14 +101,29 @@ async function ahDeserializeScanResult(
   scanID: number,
   items: Record<string, any>,
 ) {
-  const data = scan.data;
-  console.log(`Deserializing data length ${data.length}`);
+  console.log(`Deserializing data length ${scan.data.length}`);
 
   let numItems = 0;
   let addedCount = 0;
+  const itemValues: {
+    [realm: string]: {
+      [faction: string]: {
+        [itemId: string]: {
+          minBuyout: number;
+          marketValue: number;
+          quantity: number;
+          numAuctions: number;
+          historicalValue: number;
+        };
+      };
+    };
+  } = {
+    Stitches: { Alliance: {}, Horde: {} },
+    "Nek'Rosh": { Alliance: {}, Horde: {} },
+  };
   const auctionsToAdd: z.infer<typeof insertAuctionsSchema>[] = [];
 
-  const itemEntries = data.split(' ');
+  const itemEntries = scan.data.split(' ');
   for await (const itemEntry of itemEntries) {
     numItems += 1;
 
@@ -116,16 +139,25 @@ async function ahDeserializeScanResult(
       continue;
     }
 
+    if (!itemValues[scan.realm][scan.faction][itemId]) {
+      itemValues[scan.realm][scan.faction][itemId] = {
+        minBuyout: 0,
+        marketValue: 0,
+        quantity: 0,
+        numAuctions: 0,
+        historicalValue: 0,
+      };
+    }
+
     // console.log(`for ${itemId} rest is '${rest}'`);
 
     const bySellerEntries = rest.split('!');
-
     for await (const sellerAuctions of bySellerEntries) {
       const sellerAuctionsSplit = sellerAuctions.split('/');
       const seller = sellerAuctionsSplit[0];
       const auctionsBySeller = sellerAuctionsSplit[1].split('&');
 
-      // console.log(`seller ${seller} auctions are '${auctionsBySeller}'`);
+      // console.log(`seller ${seller} auctions are '${auctionsBySeller.length}'`);
 
       for await (const auction of auctionsBySeller) {
         const a = extractAuctionData(auction);
@@ -147,7 +179,35 @@ async function ahDeserializeScanResult(
         }
 
         auctionsToAdd.push(newAuction.data);
+
+        const curItemValues = itemValues[scan.realm][scan.faction][itemId];
+        itemValues[scan.realm][scan.faction][itemId].minBuyout =
+          curItemValues.minBuyout > 0 ? Math.min(curItemValues.minBuyout, a.Buyout) : a.Buyout;
+        itemValues[scan.realm][scan.faction][itemId].numAuctions += 1;
+        itemValues[scan.realm][scan.faction][itemId].quantity += a.ItemCount;
       }
+    }
+
+    const curItemValues = itemValues[scan.realm][scan.faction][itemId];
+    const itemShortId = Number(itemId.slice(1).split('?')[0]);
+
+    const insertValues = insertItemsValuesSchema.safeParse({
+      quantity: curItemValues.quantity,
+      historicalValue: curItemValues.historicalValue,
+      marketValue: curItemValues.marketValue,
+      minBuyout: curItemValues.minBuyout,
+      numAuctions: curItemValues.numAuctions,
+      itemShortid: itemShortId,
+    });
+
+    if (insertValues.success) {
+      await db
+        .insert(itemsValues)
+        .values(insertValues.data)
+        .onConflictDoUpdate({
+          set: insertValues.data,
+          target: [itemsValues.itemShortid, itemsValues.timestamp],
+        });
     }
   }
 
@@ -189,20 +249,20 @@ async function ahDeserializeScanResult(
 }
 
 async function saveScans(scans: ScanEntry[], items: Record<string, any>) {
-  for await (const entry of scans) {
+  for await (const scan of scans) {
     const newscanmeta = await db
       .insert(scanmeta)
       .values({
-        realm: entry.realm,
-        faction: entry.faction as 'Alliance' | 'Horde' | 'Neutral',
-        scanner: entry.char,
-        timestamp: new Date(entry.ts * 1000).toISOString(),
+        realm: scan.realm,
+        faction: scan.faction as 'Alliance' | 'Horde' | 'Neutral',
+        scanner: scan.char,
+        timestamp: new Date(scan.ts * 1000).toISOString(),
       })
       .onConflictDoUpdate({
         target: [scanmeta.timestamp, scanmeta.scanner],
         set: {
-          scanner: entry.char,
-          timestamp: new Date(entry.ts * 1000).toISOString(),
+          scanner: scan.char,
+          timestamp: new Date(scan.ts * 1000).toISOString(),
         },
       })
       .returning({ id: scanmeta.id });
@@ -215,7 +275,7 @@ async function saveScans(scans: ScanEntry[], items: Record<string, any>) {
 
     try {
       // await db.transaction(async () => {
-      await ahDeserializeScanResult(entry, newScanId, items);
+      await ahDeserializeScanResult(scan, newScanId, items);
       // });
     } catch (err) {
       console.error(`Can't DB commit auction for scan "${newScanId}": ${err}`);
