@@ -110,10 +110,8 @@ async function ahDeserializeScanResult(
       [faction: string]: {
         [itemId: string]: {
           minBuyout: number;
-          marketValue: number;
           quantity: number;
           numAuctions: number;
-          historicalValue: number;
         };
       };
     };
@@ -121,6 +119,9 @@ async function ahDeserializeScanResult(
     Stitches: { Alliance: {}, Horde: {} },
     "Nek'Rosh": { Alliance: {}, Horde: {} },
   };
+  const marketValues: {
+    [itemId: string]: number;
+  } = {};
   const auctionsToAdd: z.infer<typeof insertAuctionsSchema>[] = [];
 
   const itemEntries = scan.data.split(' ');
@@ -142,10 +143,8 @@ async function ahDeserializeScanResult(
     if (!itemValues[scan.realm][scan.faction][itemId]) {
       itemValues[scan.realm][scan.faction][itemId] = {
         minBuyout: 0,
-        marketValue: 0,
         quantity: 0,
         numAuctions: 0,
-        historicalValue: 0,
       };
     }
 
@@ -190,14 +189,19 @@ async function ahDeserializeScanResult(
 
     const curItemValues = itemValues[scan.realm][scan.faction][itemId];
     const itemShortId = Number(itemId.slice(1).split('?')[0]);
+    const marketValue =
+      marketValues[itemShortId] > 0
+        ? Math.min(curItemValues.minBuyout, marketValues[itemShortId])
+        : curItemValues.minBuyout;
 
     const insertValues = insertItemsValuesSchema.safeParse({
       quantity: curItemValues.quantity,
-      historicalValue: curItemValues.historicalValue,
-      marketValue: curItemValues.marketValue,
+      historicalValue: 0,
+      marketValue: marketValue,
       minBuyout: curItemValues.minBuyout,
       numAuctions: curItemValues.numAuctions,
       itemShortid: itemShortId,
+      server: scan.realm,
     });
 
     if (insertValues.success) {
@@ -206,7 +210,7 @@ async function ahDeserializeScanResult(
         .values(insertValues.data)
         .onConflictDoUpdate({
           set: insertValues.data,
-          target: [itemsValues.itemShortid, itemsValues.timestamp],
+          target: [itemsValues.itemShortid, itemsValues.timestamp, itemsValues.server],
         });
     }
   }
