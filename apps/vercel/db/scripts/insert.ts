@@ -188,7 +188,7 @@ async function ahDeserializeScanResult(
     }
 
     const curItemValues = itemValues[scan.realm][scan.faction][itemId];
-    const itemShortId = Number(itemId.slice(1).split('?')[0]);
+    const itemShortId = Number(itemId.slice(1).split(/[?:]/)[0]);
     const marketValue =
       marketValues[itemShortId] > 0
         ? Math.min(curItemValues.minBuyout, marketValues[itemShortId])
@@ -201,7 +201,8 @@ async function ahDeserializeScanResult(
       minBuyout: curItemValues.minBuyout,
       numAuctions: curItemValues.numAuctions,
       itemShortid: itemShortId,
-      server: scan.realm,
+      realm: scan.realm,
+      faction: scan.faction,
     });
 
     if (insertValues.success) {
@@ -210,8 +211,15 @@ async function ahDeserializeScanResult(
         .values(insertValues.data)
         .onConflictDoUpdate({
           set: insertValues.data,
-          target: [itemsValues.itemShortid, itemsValues.timestamp, itemsValues.server],
+          target: [
+            itemsValues.itemShortid,
+            itemsValues.timestamp,
+            itemsValues.realm,
+            itemsValues.faction,
+          ],
         });
+    } else {
+      console.error(fromZodError(insertValues.error));
     }
   }
 
