@@ -76,6 +76,7 @@ export const itemsValues = sqliteTable(
   {
     id: integer('id').notNull().primaryKey({ autoIncrement: true }),
     itemShortid: integer('item_shortid').notNull(),
+    server: text('server').notNull(),
     minBuyout: integer('min_buyout').notNull(),
     marketValue: integer('market_value').notNull(),
     historicalValue: integer('historical_value').notNull(),
@@ -84,10 +85,14 @@ export const itemsValues = sqliteTable(
     timestamp: text('ts').default(sql`CURRENT_TIMESTAMP`),
   },
   (table) => ({
-    itemsvalues_itemid_idx: index('itemsvalues_itemid_idx').on(table.itemShortid),
-    itemshortid_timestamp_unique: unique('itemsvalues_itemshortid_timestamp_unique').on(
+    itemsvalues_itemid_idx: index('itemsvalues_itemid_server_idx').on(
+      table.itemShortid,
+      table.server,
+    ),
+    itemshortid_timestamp_unique: unique('itemsvalues_itemshortid_timestamp_server_unique').on(
       table.itemShortid,
       table.timestamp,
+      table.server,
     ),
   }),
 );

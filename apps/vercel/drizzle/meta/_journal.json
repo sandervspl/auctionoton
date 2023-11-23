@@ -1,0 +1,27 @@
+{
+  "version": "5",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1700686715462,
+      "tag": "0000_married_mysterio",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1700776682666,
+      "tag": "0001_slimy_patriot",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1700778971162,
+      "tag": "0002_aspiring_mordo",
+      "breakpoints": true
+    }
+  ]
+}
