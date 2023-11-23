@@ -50,6 +50,48 @@
       "when": 1700780991937,
       "tag": "0006_nostalgic_magma",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1700781356816,
+      "tag": "0007_equal_stephen_strange",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1700781397507,
+      "tag": "0008_talented_jetstream",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1700781433459,
+      "tag": "0009_sticky_loki",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1700781492110,
+      "tag": "0010_little_wendell_rand",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1700781656632,
+      "tag": "0011_overconfident_revanche",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1700781741561,
+      "tag": "0012_colossal_microbe",
+      "breakpoints": true
     }
   ]
 }

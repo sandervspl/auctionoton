@@ -19,9 +19,8 @@ export const items = sqliteTable(
     timestamp: text('ts').default(sql`CURRENT_TIMESTAMP`),
   },
   (table) => ({
-    nameidx: index('nameidx').on(table.name),
-    rarityidx: index('rarityidx').on(table.rarity),
-    sellpriceidx: index('sellpriceidx').on(table.sellPrice),
+    items_id_idx: index('items_id_idx').on(table.id),
+    items_shortid_idx: index('items_shortid_idx').on(table.shortid),
   }),
 );
 
@@ -41,7 +40,12 @@ export const scanmeta = sqliteTable(
     timestamp: text('ts').default(sql`CURRENT_TIMESTAMP`),
   },
   (table) => ({
-    unique_scan: unique('unique_scan').on(table.timestamp, table.scanner),
+    scanmeta_timestamp_scanner_uniq: unique('scanmeta_timestamp_scanner_uniq').on(
+      table.timestamp,
+      table.scanner,
+    ),
+    scanmeta_id_idx: index('scanmeta_id_idx').on(table.id),
+    scanmeta_realm_idx: index('scanmeta_realm_idx').on(table.realm),
   }),
 );
 
@@ -66,9 +70,10 @@ export const auctions = sqliteTable(
     curBid: integer('curBid').notNull(),
   },
   (table) => ({
-    buyoutidx: index('buyoutidx').on(table.buyout),
-    itemididx: index('itemididx').on(table.itemId),
-    scanitemidunq: unique('scan_item_unique').on(table.scanId, table.itemId, table.buyout),
+    auctions_scanid_itemid_buyout_idx: unique('auctions_scanid_itemid_buyout_idx').on(
+      table.scanId,
+      table.itemId,
+    ),
   }),
 );
 
@@ -94,10 +99,9 @@ export const itemsValues = sqliteTable(
     timestamp: text('ts').default(sql`CURRENT_TIMESTAMP`),
   },
   (table) => ({
-    itemsvalues_itemid_idx: index('itemsvalues_itemid_realm_idx').on(
-      table.itemShortid,
-      table.realm,
-    ),
+    items_values_item_shortid_realm_faction_idx: index(
+      'items_values_item_shortid_realm_faction_idx',
+    ).on(table.itemShortid, table.realm, table.faction),
     itemshortid_timestamp_unique: unique(
       'itemsvalues_itemshortid_timestamp_realm_faction_unique',
     ).on(table.itemShortid, table.timestamp, table.realm, table.faction),
@@ -112,7 +116,13 @@ export const factions = sqliteTable('factions', {
   name: text('name').notNull(),
 });
 
-export const realms = sqliteTable('realms', {
-  id: integer('id').primaryKey(),
-  name: text('name').notNull(),
-});
+export const realms = sqliteTable(
+  'realms',
+  {
+    id: integer('id').primaryKey(),
+    name: text('name').notNull(),
+  },
+  (table) => ({
+    realms_id_idx: index('realms_id_idx').on(table.id),
+  }),
+);

@@ -244,7 +244,7 @@ async function ahDeserializeScanResult(
         .insert(auctions)
         .values(chunk)
         .onConflictDoUpdate({
-          target: [auctions.scanId, auctions.itemId, auctions.buyout],
+          target: [auctions.scanId, auctions.itemId],
           set: {
             scanId: sql`scanId`,
             itemId: sql`itemId`,
