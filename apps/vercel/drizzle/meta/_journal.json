@@ -29,6 +29,27 @@
       "when": 1700779315514,
       "tag": "0003_purple_zuras",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1700779969536,
+      "tag": "0004_far_lockjaw",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1700780473333,
+      "tag": "0005_cheerful_ronan",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1700780991937,
+      "tag": "0006_nostalgic_magma",
+      "breakpoints": true
     }
   ]
 }

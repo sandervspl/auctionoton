@@ -31,8 +31,12 @@ export const scanmeta = sqliteTable(
   'scanmeta',
   {
     id: integer('id').primaryKey({ autoIncrement: true }),
-    realm: text('realm').notNull(),
-    faction: text('faction', { enum: ['Neutral', 'Alliance', 'Horde'] }).notNull(),
+    realm: integer('realm')
+      .notNull()
+      .references(() => realms.id),
+    faction: integer('faction')
+      .notNull()
+      .references(() => factions.id),
     scanner: text('scanner').notNull(),
     timestamp: text('ts').default(sql`CURRENT_TIMESTAMP`),
   },
@@ -76,8 +80,12 @@ export const itemsValues = sqliteTable(
   {
     id: integer('id').notNull().primaryKey({ autoIncrement: true }),
     itemShortid: integer('item_shortid').notNull(),
-    realm: text('realm').notNull(),
-    faction: text('faction').notNull(),
+    realm: integer('realm')
+      .notNull()
+      .references(() => realms.id),
+    faction: integer('faction')
+      .notNull()
+      .references(() => factions.id),
     minBuyout: integer('min_buyout').notNull(),
     marketValue: integer('market_value').notNull(),
     historicalValue: integer('historical_value').notNull(),
@@ -98,3 +106,13 @@ export const itemsValues = sqliteTable(
 
 export const insertItemsValuesSchema = createInsertSchema(itemsValues);
 export const selectItemsValuesSchema = createSelectSchema(itemsValues);
+
+export const factions = sqliteTable('factions', {
+  id: integer('id').primaryKey(),
+  name: text('name').notNull(),
+});
+
+export const realms = sqliteTable('realms', {
+  id: integer('id').primaryKey(),
+  name: text('name').notNull(),
+});

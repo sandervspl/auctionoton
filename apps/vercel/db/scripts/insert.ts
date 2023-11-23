@@ -5,11 +5,14 @@ import * as R from 'remeda';
 
 import {
   auctions,
+  factions,
   insertAuctionsSchema,
   insertItemsSchema,
   insertItemsValuesSchema,
+  insertScanmetaSchema,
   items,
   itemsValues,
+  realms,
   scanmeta,
 } from '../schema.js';
 import { db } from '../index.js';
@@ -100,6 +103,8 @@ async function ahDeserializeScanResult(
   scan: ScanEntry,
   scanID: number,
   items: Record<string, any>,
+  factionsData: { id: number; name: string }[],
+  realmsData: { id: number; name: string }[],
 ) {
   console.log(`Deserializing data length ${scan.data.length}`);
 
@@ -173,7 +178,7 @@ async function ahDeserializeScanResult(
           curBid: a.CurBid,
         });
         if (!newAuction.success) {
-          console.error(fromZodError(newAuction.error));
+          console.error(fromZodError(newAuction.error).message);
           continue;
         }
 
@@ -194,6 +199,13 @@ async function ahDeserializeScanResult(
         ? Math.min(curItemValues.minBuyout, marketValues[itemShortId])
         : curItemValues.minBuyout;
 
+    const realmId = realmsData.find(
+      (realm) => realm.name.toLowerCase() === scan.realm.toLowerCase(),
+    )?.id;
+    const factionId = factionsData.find(
+      (faction) => faction.name.toLowerCase() === scan.faction.toLowerCase(),
+    )?.id;
+
     const insertValues = insertItemsValuesSchema.safeParse({
       quantity: curItemValues.quantity,
       historicalValue: 0,
@@ -201,8 +213,8 @@ async function ahDeserializeScanResult(
       minBuyout: curItemValues.minBuyout,
       numAuctions: curItemValues.numAuctions,
       itemShortid: itemShortId,
-      realm: scan.realm,
-      faction: scan.faction,
+      realm: realmId,
+      faction: factionId,
     });
 
     if (insertValues.success) {
@@ -219,7 +231,7 @@ async function ahDeserializeScanResult(
           ],
         });
     } else {
-      console.error(fromZodError(insertValues.error));
+      console.error(fromZodError(insertValues.error).message);
     }
   }
 
@@ -261,15 +273,26 @@ async function ahDeserializeScanResult(
 }
 
 async function saveScans(scans: ScanEntry[], items: Record<string, any>) {
+  const factionsData = await db.select().from(factions).all();
+  const realmsData = await db.select().from(realms).all();
+
   for await (const scan of scans) {
+    const scanmetaValues = insertScanmetaSchema.safeParse({
+      realm: realmsData.find((realm) => realm.name.toLowerCase() === scan.realm.toLowerCase())?.id,
+      faction: factionsData.find(
+        (faction) => faction.name.toLowerCase() === scan.faction.toLowerCase(),
+      )?.id,
+      scanner: scan.char,
+      timestamp: new Date(scan.ts * 1000).toISOString(),
+    });
+
+    if (!scanmetaValues.success) {
+      throw new Error(fromZodError(scanmetaValues.error).message);
+    }
+
     const newscanmeta = await db
       .insert(scanmeta)
-      .values({
-        realm: scan.realm,
-        faction: scan.faction as 'Alliance' | 'Horde' | 'Neutral',
-        scanner: scan.char,
-        timestamp: new Date(scan.ts * 1000).toISOString(),
-      })
+      .values(scanmetaValues.data)
       .onConflictDoUpdate({
         target: [scanmeta.timestamp, scanmeta.scanner],
         set: {
@@ -286,9 +309,7 @@ async function saveScans(scans: ScanEntry[], items: Record<string, any>) {
     }
 
     try {
-      // await db.transaction(async () => {
-      await ahDeserializeScanResult(scan, newScanId, items);
-      // });
+      await ahDeserializeScanResult(scan, newScanId, items, factionsData, realmsData);
     } catch (err) {
       console.error(`Can't DB commit auction for scan "${newScanId}": ${err}`);
     }
@@ -339,7 +360,7 @@ async function saveItems(_items: Record<string, any>) {
       });
 
       if (!newItem.success) {
-        console.error(fromZodError(newItem.error));
+        console.error(fromZodError(newItem.error).message);
         continue;
       }
 
