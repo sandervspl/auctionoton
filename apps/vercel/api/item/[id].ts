@@ -52,46 +52,18 @@ async function queryItem(id: number, server: string, faction: 'Neutral' | 'Allia
     //     return null;
     //   });
 
-    const realm = capitalize(server);
-    const _faction = capitalize(faction);
-
     const result = await db.run(
-      sql`SELECT a.*, i.*, s.realm,
-        (
-          SELECT COUNT(*)
-          FROM auctions a2
-          WHERE a2.itemId = a.itemId
-            AND strftime('%Y-%m-%d', a2.ts) = strftime('%Y-%m-%d', a.ts)
-            AND s.realm = ${realm}
-            AND s.faction = ${_faction}
-        ) as numAuctions,
-        (
-          SELECT a2.buyout / a2.itemCount
-          FROM auctions a2
-          WHERE a2.itemId = a.itemId
-        ) as marketValue,
-        (
-          SELECT MIN(a2.buyout)
-          FROM auctions a2
-          WHERE a2.itemId = a.itemId
-            AND strftime('%Y-%m-%d', a2.ts) = strftime('%Y-%m-%d', a.ts)
-            AND s.realm = ${realm}
-            AND s.faction = ${_faction}
-        ) as minBuyout,
-        (
-          SELECT SUM(a2.itemCount)
-          FROM auctions a2
-          WHERE a2.itemId = a.itemId
-            AND strftime('%Y-%m-%d', a2.ts) = strftime('%Y-%m-%d', a.ts)
-        ) as quantity
-        FROM auctions a
-        JOIN items i ON a.itemId = i.id
-        JOIN scanmeta s ON a.scanId = s.id
-        WHERE i.shortid = ${id}
-          AND s.realm = ${realm}
-          AND s.faction = ${_faction}
-        ORDER BY a.ts DESC
-        LIMIT 1;`,
+      sql`SELECT i.name, iv.*
+      FROM items AS i
+      JOIN items_values AS iv ON i.shortid = iv.item_shortid
+      JOIN scanmeta AS sm ON iv.realm = sm.realm AND iv.faction = sm.faction
+      JOIN realms r ON r.name = ${server}
+      JOIN factions f ON f.name = ${faction}
+      WHERE i.shortid = ${id}
+        AND sm.realm = r.id
+        AND sm.faction = f.id
+      ORDER BY iv.ts DESC
+      LIMIT 1;`,
     );
 
     return result.rows.length > 0
