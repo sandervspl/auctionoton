@@ -273,46 +273,58 @@ async function ahDeserializeScanResult(
 }
 
 async function saveScans(scans: ScanEntry[], items: Record<string, any>) {
-  const factionsData = await db.select().from(factions).all();
-  const realmsData = await db.select().from(realms).all();
+  try {
+    const [factionsData, realmsData, scansData] = await Promise.all([
+      db.select().from(factions).all(),
+      db.select().from(realms).all(),
+      db.select().from(scanmeta).all(),
+    ]);
 
-  for await (const scan of scans) {
-    const scanmetaValues = insertScanmetaSchema.safeParse({
-      realm: realmsData.find((realm) => realm.name.toLowerCase() === scan.realm.toLowerCase())?.id,
-      faction: factionsData.find(
-        (faction) => faction.name.toLowerCase() === scan.faction.toLowerCase(),
-      )?.id,
-      scanner: scan.char,
-      timestamp: new Date(scan.ts * 1000).toISOString(),
-    });
+    for await (const scan of scans) {
+      if (scansData.some((s) => s.timestamp === new Date(scan.ts * 1000).toISOString())) {
+        continue;
+      }
 
-    if (!scanmetaValues.success) {
-      throw new Error(fromZodError(scanmetaValues.error).message);
+      const scanmetaValues = insertScanmetaSchema.safeParse({
+        realm: realmsData.find((realm) => realm.name.toLowerCase() === scan.realm.toLowerCase())
+          ?.id,
+        faction: factionsData.find(
+          (faction) => faction.name.toLowerCase() === scan.faction.toLowerCase(),
+        )?.id,
+        scanner: scan.char,
+        timestamp: new Date(scan.ts * 1000).toISOString(),
+      });
+
+      if (!scanmetaValues.success) {
+        throw new Error(fromZodError(scanmetaValues.error).message);
+      }
+
+      const newscanmeta = await db
+        .insert(scanmeta)
+        .values(scanmetaValues.data)
+        .onConflictDoUpdate({
+          target: [scanmeta.timestamp, scanmeta.scanner],
+          set: {
+            scanner: scan.char,
+            timestamp: new Date(scan.ts * 1000).toISOString(),
+          },
+        })
+        .returning({ id: scanmeta.id });
+
+      const newScanId = newscanmeta[0]?.id;
+
+      if (!newScanId) {
+        continue;
+      }
+
+      try {
+        await ahDeserializeScanResult(scan, newScanId, items, factionsData, realmsData);
+      } catch (err) {
+        console.error(`Can't DB commit auction for scan "${newScanId}": ${err}`);
+      }
     }
-
-    const newscanmeta = await db
-      .insert(scanmeta)
-      .values(scanmetaValues.data)
-      .onConflictDoUpdate({
-        target: [scanmeta.timestamp, scanmeta.scanner],
-        set: {
-          scanner: scan.char,
-          timestamp: new Date(scan.ts * 1000).toISOString(),
-        },
-      })
-      .returning({ id: scanmeta.id });
-
-    const newScanId = newscanmeta[0]?.id;
-
-    if (!newScanId) {
-      continue;
-    }
-
-    try {
-      await ahDeserializeScanResult(scan, newScanId, items, factionsData, realmsData);
-    } catch (err) {
-      console.error(`Can't DB commit auction for scan "${newScanId}": ${err}`);
-    }
+  } catch (err) {
+    console.error(`Error during "saveScans": ${err}`);
   }
 }
 
