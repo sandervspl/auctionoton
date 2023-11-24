@@ -53,7 +53,7 @@ async function queryItem(id: number, server: string, faction: 'Neutral' | 'Allia
     //   });
 
     const result = await db.run(
-      sql`SELECT i.name, iv.*
+      sql`SELECT i.name, i.Link, i.SellPrice, iv.*
       FROM items AS i
       JOIN items_values AS iv ON i.shortid = iv.item_shortid
       JOIN scanmeta AS sm ON iv.realm = sm.realm AND iv.faction = sm.faction
@@ -69,7 +69,7 @@ async function queryItem(id: number, server: string, faction: 'Neutral' | 'Allia
     return result.rows.length > 0
       ? ({
           server: `${(slugify as any)(server).toLowerCase()}-${(slugify as any)(faction)}`,
-          itemId: result.rows[0].shortid,
+          itemId: result.rows[0].item_shortid,
           name: result.rows[0].name,
           sellPrice: result.rows[0].SellPrice,
           vendorPrice: null,
@@ -79,10 +79,10 @@ async function queryItem(id: number, server: string, faction: 'Neutral' | 'Allia
           stats: {
             lastUpdated: result.rows[0].ts,
             current: {
-              numAuctions: result.rows[0].numAuctions,
-              marketValue: Math.round(result.rows[0].marketValue as number),
-              historicalValue: 0,
-              minBuyout: result.rows[0].minBuyout,
+              numAuctions: result.rows[0].num_auctions,
+              marketValue: result.rows[0].market_value,
+              historicalValue: result.rows[0].historical_value,
+              minBuyout: result.rows[0].min_buyout,
               quantity: result.rows[0].quantity,
             },
             previous: null,
