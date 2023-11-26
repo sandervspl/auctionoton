@@ -70,10 +70,7 @@ export const auctions = sqliteTable(
     curBid: integer('curBid').notNull(),
   },
   (table) => ({
-    auctions_scanid_itemid_buyout_idx: unique('auctions_scanid_itemid_buyout_idx').on(
-      table.scanId,
-      table.itemId,
-    ),
+    auctions_scanid_itemid_idx: unique('auctions_scanid_itemid_idx').on(table.scanId, table.itemId),
   }),
 );
 
