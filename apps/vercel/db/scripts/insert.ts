@@ -240,7 +240,7 @@ async function ahDeserializeScanResult(
 
   for await (const chunk of chunks) {
     try {
-      await db.insert(auctions).values(chunk);
+      await db.insert(auctions).values(chunk).onConflictDoNothing();
       addedCount += CHUNK_SIZE;
     } catch (err: any) {
       console.error(err.code, err.message);
