@@ -312,12 +312,6 @@ async function saveScans(scans: ScanEntry[], items: Record<string, any>) {
 }
 
 async function saveItems(_items: Record<string, any>) {
-  const count = await db.run(
-    sql`ANALYZE; select stat from sqlite_stat1 WHERE tbl = 'items' LIMIT 1;`,
-  );
-
-  console.log(`ItemDB at start has ${count.rows[0][0]} items`);
-
   try {
     const start = Date.now();
     let bytes = 0;
@@ -381,11 +375,6 @@ async function saveItems(_items: Record<string, any>) {
     console.log(
       `Inserted/updated ${addedCount} items, ${bytes / 1024 / 1024} Mbytes in DB in ${elapsed}ms`,
     );
-
-    const count = await db.run(
-      sql`ANALYZE; select stat from sqlite_stat1 WHERE tbl = 'items' LIMIT 1;`,
-    );
-    console.log(`ItemDB now has ${count.rows[0][0]} items`);
   } catch (err) {
     console.error(`Error during transaction: ${err}`);
   }
