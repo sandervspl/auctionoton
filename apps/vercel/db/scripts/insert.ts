@@ -56,6 +56,8 @@ interface AHData {
   ah: ScanEntry[];
 }
 
+const CHUNK_SIZE = 2000;
+
 const itemRegex =
   /^([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)(\|[^|]+\|Hitem:([0-9]+)[^|]+\|h\[([^\]]+)\]\|h\|r)$/;
 
@@ -127,147 +129,182 @@ async function ahDeserializeScanResult(
   const marketValues: {
     [itemId: string]: number;
   } = {};
-  const auctionsToAdd: z.infer<typeof insertAuctionsSchema>[] = [];
-
+  const auctionsToAdd = new Set<string>();
+  const itemsValuesToAdd = new Map<number, z.infer<typeof insertItemsValuesSchema>>();
   const itemEntries = scan.data.split(' ');
 
-  await db.transaction(async (tx) => {
-    await tx.run(
-      sql`PRAGMA cache_size = 10000;
-      PRAGMA journal_mode=WAL;`,
-    );
+  console.info('Adding items_values...');
+  console.time('Adding items_values total');
+  for await (const itemEntry of itemEntries) {
+    numItems += 1;
 
-    for await (const itemEntry of itemEntries) {
-      numItems += 1;
+    const itemSplit = itemEntry.split('!');
+    if (itemSplit.length !== 2) {
+      console.error(`Couldn't split ${itemEntry} into 2 by '!': ${itemSplit}`);
+    }
 
-      const itemSplit = itemEntry.split('!');
-      if (itemSplit.length !== 2) {
-        console.error(`Couldn't split ${itemEntry} into 2 by '!': ${itemSplit}`);
-      }
+    const itemId = itemSplit[0];
+    const rest = itemSplit[1];
 
-      const itemId = itemSplit[0];
-      const rest = itemSplit[1];
+    if (!items[itemId]) {
+      continue;
+    }
 
-      if (!items[itemId]) {
-        continue;
-      }
+    if (!itemValues[scan.realm]?.[scan.faction]?.[itemId]) {
+      itemValues[scan.realm] = {
+        ...itemValues[scan.realm],
+        [scan.faction]: {
+          ...itemValues[scan.realm]?.[scan.faction],
+          [itemId]: {
+            minBuyout: 0,
+            quantity: 0,
+            numAuctions: 0,
+          },
+        },
+      };
+    }
 
-      if (!itemValues[scan.realm][scan.faction][itemId]) {
-        itemValues[scan.realm][scan.faction][itemId] = {
-          minBuyout: 0,
-          quantity: 0,
-          numAuctions: 0,
-        };
-      }
+    // console.log(`for ${itemId} rest is '${rest}'`);
 
-      // console.log(`for ${itemId} rest is '${rest}'`);
+    const bySellerEntries = rest.split('!');
+    for await (const sellerAuctions of bySellerEntries) {
+      const sellerAuctionsSplit = sellerAuctions.split('/');
+      const seller = sellerAuctionsSplit[0];
+      const auctionsBySeller = sellerAuctionsSplit[1].split('&');
 
-      const bySellerEntries = rest.split('!');
-      for await (const sellerAuctions of bySellerEntries) {
-        const sellerAuctionsSplit = sellerAuctions.split('/');
-        const seller = sellerAuctionsSplit[0];
-        const auctionsBySeller = sellerAuctionsSplit[1].split('&');
+      // console.log(`seller ${seller} auctions are '${auctionsBySeller.length}'`);
 
-        // console.log(`seller ${seller} auctions are '${auctionsBySeller.length}'`);
+      for await (const auction of auctionsBySeller) {
+        const a = extractAuctionData(auction);
+        const timestamp = new Date(scan.ts * 1000).toISOString();
 
-        for await (const auction of auctionsBySeller) {
-          const a = extractAuctionData(auction);
-
-          const newAuction = insertAuctionsSchema.safeParse({
-            scanId: scanID,
-            itemId: itemId,
-            timestamp: new Date(scan.ts * 1000).toISOString(),
-            seller,
-            timeLeft: a.TimeLeft,
-            itemCount: a.ItemCount,
-            minBid: a.MinBid,
-            buyout: a.Buyout,
-            curBid: a.CurBid,
-          });
-          if (!newAuction.success) {
-            console.error(fromZodError(newAuction.error).message);
-            continue;
-          }
-
-          auctionsToAdd.push(newAuction.data);
-
-          const curItemValues = itemValues[scan.realm][scan.faction][itemId];
-          itemValues[scan.realm][scan.faction][itemId].minBuyout =
-            curItemValues.minBuyout > 0 ? Math.min(curItemValues.minBuyout, a.Buyout) : a.Buyout;
-          itemValues[scan.realm][scan.faction][itemId].numAuctions += 1;
-          itemValues[scan.realm][scan.faction][itemId].quantity += a.ItemCount;
+        const newAuction = insertAuctionsSchema.safeParse({
+          scanId: scanID,
+          itemId: itemId,
+          timestamp,
+          seller,
+          timeLeft: a.TimeLeft,
+          itemCount: a.ItemCount,
+          minBid: a.MinBid,
+          buyout: a.Buyout,
+          curBid: a.CurBid,
+        });
+        if (!newAuction.success) {
+          console.error('items_values::', fromZodError(newAuction.error).message);
+          continue;
         }
+
+        auctionsToAdd.add(
+          `${scanID}_${itemId}_${timestamp}_${seller}_${a.TimeLeft}_${a.ItemCount}_${a.Buyout}_${a.MinBid}_${a.Buyout}_${a.CurBid}`,
+        );
+
+        const curItemValues = itemValues[scan.realm][scan.faction][itemId];
+        itemValues[scan.realm][scan.faction][itemId].minBuyout =
+          curItemValues.minBuyout > 0 ? Math.min(curItemValues.minBuyout, a.Buyout) : a.Buyout;
+        itemValues[scan.realm][scan.faction][itemId].numAuctions += 1;
+        itemValues[scan.realm][scan.faction][itemId].quantity += a.ItemCount;
       }
+    }
 
-      const curItemValues = itemValues[scan.realm][scan.faction][itemId];
-      const itemShortId = Number(itemId.slice(1).split(/[?:]/)[0]);
-      const marketValue =
-        marketValues[itemShortId] > 0
-          ? Math.min(curItemValues.minBuyout, marketValues[itemShortId])
-          : curItemValues.minBuyout;
+    const curItemValues = itemValues[scan.realm][scan.faction][itemId];
+    const itemShortId = Number(itemId.slice(1).split(/[?:]/)[0]);
+    const marketValue =
+      marketValues[itemShortId] > 0
+        ? Math.min(curItemValues.minBuyout, marketValues[itemShortId])
+        : curItemValues.minBuyout;
 
-      const realmId = realmsData.find(
-        (realm) => realm.name.toLowerCase() === scan.realm.toLowerCase(),
-      )?.id;
-      const factionId = factionsData.find(
-        (faction) => faction.name.toLowerCase() === scan.faction.toLowerCase(),
-      )?.id;
+    const realmId = realmsData.find(
+      (realm) => realm.name.toLowerCase() === scan.realm.toLowerCase(),
+    )?.id;
+    const factionId = factionsData.find(
+      (faction) => faction.name.toLowerCase() === scan.faction.toLowerCase(),
+    )?.id;
 
-      const insertValues = insertItemsValuesSchema.safeParse({
-        quantity: curItemValues.quantity,
-        historicalValue: 0,
-        marketValue: marketValue,
-        minBuyout: curItemValues.minBuyout,
-        numAuctions: curItemValues.numAuctions,
-        itemShortid: itemShortId,
-        realm: realmId,
-        faction: factionId,
+    const insertValues = insertItemsValuesSchema.safeParse({
+      quantity: curItemValues.quantity,
+      historicalValue: 0,
+      marketValue: marketValue,
+      minBuyout: curItemValues.minBuyout,
+      numAuctions: curItemValues.numAuctions,
+      itemShortid: itemShortId,
+      realm: realmId,
+      faction: factionId,
+    });
+
+    if (insertValues.success) {
+      itemsValuesToAdd.set(itemShortId, insertValues.data);
+    } else {
+      console.error('items_values::', fromZodError(insertValues.error).message);
+    }
+  }
+
+  // Add items_values
+  const itemsValuesChunks = R.chunk(
+    Array.from(itemsValuesToAdd).map(([, value]) => value),
+    CHUNK_SIZE,
+  );
+  console.log(`Adding ${itemsValuesToAdd.size} items_values in ${itemsValuesChunks.length} chunks`);
+
+  for await (const chunk of itemsValuesChunks) {
+    console.time('Adding items_values...');
+    try {
+      await db.insert(itemsValues).values(chunk).onConflictDoNothing();
+    } catch (err: any) {
+      console.error(err.code, err.message);
+    }
+    console.timeEnd('Adding items_values...');
+  }
+  console.timeEnd('Adding items_values total');
+
+  // Add auctions
+  const uniqueAuctions = Array.from(auctionsToAdd)
+    .map((str) => str.split('_'))
+    .reduce((acc, cur) => {
+      const [scanId, itemId, timestamp, seller, timeLeft, itemCount, minBid, buyout, curBid] = cur;
+      const newAuction = insertAuctionsSchema.safeParse({
+        scanId: Number(scanId),
+        itemId: itemId,
+        timestamp,
+        seller,
+        timeLeft: Number(timeLeft),
+        itemCount: Number(itemCount),
+        minBid: Number(minBid),
+        buyout: Number(buyout),
+        curBid: Number(curBid),
       });
 
-      if (insertValues.success) {
-        await tx
-          .insert(itemsValues)
-          .values(insertValues.data)
-          .onConflictDoUpdate({
-            set: insertValues.data,
-            target: [
-              itemsValues.itemShortid,
-              itemsValues.timestamp,
-              itemsValues.realm,
-              itemsValues.faction,
-            ],
-          });
-      } else {
-        console.error(fromZodError(insertValues.error).message);
+      if (!newAuction.success) {
+        console.error('auctions::', fromZodError(newAuction.error).message);
+        return acc;
       }
+
+      acc.push(newAuction.data);
+
+      return acc;
+    }, [] as z.infer<typeof insertAuctionsSchema>[]);
+  const chunks = R.chunk(uniqueAuctions, CHUNK_SIZE);
+  console.log(`Adding ${uniqueAuctions.length} auctions in ${chunks.length} chunks`);
+
+  console.info('Adding auctions...');
+  console.time('Adding auctions total');
+  for await (const chunk of chunks) {
+    console.time('Adding auctions...');
+    try {
+      await db.insert(auctions).values(chunk).onConflictDoNothing();
+      addedCount += chunk.length;
+    } catch (err: any) {
+      console.error(err.code, err.message);
     }
-  });
+    console.timeEnd('Adding auctions...');
+  }
+  console.timeEnd('Adding auctions total');
 
-  const CHUNK_SIZE = 1000;
-  const chunks = R.chunk(auctionsToAdd, CHUNK_SIZE);
-
-  await db.transaction(async (tx) => {
-    await tx.run(
-      sql`PRAGMA cache_size = 10000;
-      PRAGMA journal_mode=WAL;`,
+  console.log(`Inserted ${addedCount} auctions for ${numItems} items for scanId ${scanID}`);
+  if (numItems !== scan.itemsCount) {
+    console.error(
+      `Mismatch between deserialization item count ${numItems} and saved ${scan.itemsCount}`,
     );
-
-    for await (const chunk of chunks) {
-      try {
-        await tx.insert(auctions).values(chunk).onConflictDoNothing();
-        addedCount += CHUNK_SIZE;
-      } catch (err: any) {
-        console.error(err.code, err.message);
-      }
-    }
-
-    console.log(`Inserted ${addedCount} auctions for ${numItems} items for scanId ${scanID}`);
-    if (numItems !== scan.itemsCount) {
-      console.error(
-        `Mismatch between deserialization item count ${numItems} and saved ${scan.itemsCount}`,
-      );
-    }
-  });
+  }
 }
 
 async function saveScans(scans: ScanEntry[], items: Record<string, any>) {
@@ -280,8 +317,14 @@ async function saveScans(scans: ScanEntry[], items: Record<string, any>) {
 
     for await (const scan of scans) {
       if (scansData.some((s) => s.timestamp === new Date(scan.ts * 1000).toISOString())) {
+        console.log(
+          `Scan for ${scan.realm} ${scan.faction} ${scan.char} ${scan.ts} already exists`,
+        );
+
         continue;
       }
+
+      console.info(`Saving scan for ${scan.realm} ${scan.faction} ${scan.char} ${scan.ts}...`);
 
       const scanmetaValues = insertScanmetaSchema.safeParse({
         realm: realmsData.find((realm) => realm.name.toLowerCase() === scan.realm.toLowerCase())
@@ -315,11 +358,8 @@ async function saveScans(scans: ScanEntry[], items: Record<string, any>) {
         continue;
       }
 
-      try {
-        await ahDeserializeScanResult(scan, newScanId, items, factionsData, realmsData);
-      } catch (err) {
-        console.error(`Can't DB commit auction for scan "${newScanId}": ${err}`);
-      }
+      await ahDeserializeScanResult(scan, newScanId, items, factionsData, realmsData);
+      console.log('\n----------------\n');
     }
   } catch (err) {
     console.error(`Error during "saveScans": ${err}`);
@@ -328,7 +368,6 @@ async function saveScans(scans: ScanEntry[], items: Record<string, any>) {
 
 async function saveItems(_items: Record<string, any>) {
   try {
-    const start = Date.now();
     let bytes = 0;
     let addedCount = 0;
     const itemsToAdd: z.infer<typeof insertItemsSchema>[] = [];
@@ -373,30 +412,23 @@ async function saveItems(_items: Record<string, any>) {
       itemsToAdd.push(newItem.data);
     }
 
-    const CHUNK_SIZE = 1000;
     const chunks = R.chunk(itemsToAdd, CHUNK_SIZE);
+    console.info(`Adding ${itemsToAdd.length} items in ${chunks.length} chunks...`);
+    console.time('Adding items total');
 
-    await db.transaction(async (tx) => {
-      await tx.run(
-        sql`PRAGMA cache_size = 10000;
-        PRAGMA journal_mode=WAL;`,
-      );
-
-      for await (const chunk of chunks) {
-        try {
-          await tx.insert(items).values(chunk).onConflictDoNothing();
-          addedCount += CHUNK_SIZE;
-        } catch (err: any) {
-          console.error(err.code, err.message);
-        }
+    for await (const chunk of chunks) {
+      console.time('Adding items...');
+      try {
+        await db.insert(items).values(chunk).onConflictDoNothing();
+        addedCount += chunk.length;
+      } catch (err: any) {
+        console.error('items::', err.code, err.message);
       }
-    });
+      console.timeEnd('Adding items...');
+    }
+    console.timeEnd('Adding items total');
 
-    const elapsed = Date.now() - start;
-
-    console.log(
-      `Inserted/updated ${addedCount} items, ${bytes / 1024 / 1024} Mbytes in DB in ${elapsed}ms`,
-    );
+    console.log(`Upserted ${addedCount} items, ${bytes / 1024 / 1024} Mbytes in DB`);
   } catch (err) {
     console.error(`Error during transaction: ${err}`);
   }
@@ -406,8 +438,8 @@ async function main() {
   const ahdb = JSON.parse(await Bun.file('db.json').text()) as AHData;
 
   await saveItems(ahdb.itemDB_2);
+  console.log('\n----------------\n');
   await saveScans(ahdb.ah, ahdb.itemDB_2);
 }
 
-console.log('Starting...');
 main();
