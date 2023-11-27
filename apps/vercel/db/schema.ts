@@ -125,6 +125,11 @@ export const realms = sqliteTable(
   {
     id: integer('id').primaryKey(),
     name: text('name').notNull(),
+    region: text('region', { enum: ['us', 'eu'] }).notNull(),
+    version: text('version', { enum: ['classic', 'era'] }).notNull(),
+    tag: text('tag', { enum: ['normal', 'hardcore', 'seasonal'] })
+      .notNull()
+      .default('normal'),
   },
   (table) => ({
     realms_id_idx: index('realms_id_idx').on(table.id),
