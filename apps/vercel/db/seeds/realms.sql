@@ -88,5 +88,5 @@ INSERT INTO "realms" ("id", "name", "version", "region", "tag") VALUES
 (84, 'Westfall', 'classic', 'us', 'normal'),
 (85, 'Whitemane', 'classic', 'us', 'normal'),
 (86, 'Windseeker', 'classic', 'us', 'normal'),
-(87, 'Yojamba', 'classic', 'us', 'normal')
+(87, 'Yojamba', 'classic', 'us', 'normal'),
 (88, 'Firemaw', 'era', 'eu', 'era');
