@@ -133,8 +133,7 @@ async function ahDeserializeScanResult(
 
   await db.transaction(async (tx) => {
     await tx.run(
-      sql`SET CONSTRAINTS ALL DEFERRED;
-      PRAGMA cache_size = 10000;
+      sql`PRAGMA cache_size = 10000;
       PRAGMA journal_mode=WAL;`,
     );
 
@@ -249,8 +248,7 @@ async function ahDeserializeScanResult(
 
   await db.transaction(async (tx) => {
     await tx.run(
-      sql`SET CONSTRAINTS ALL DEFERRED;
-      PRAGMA cache_size = 10000;
+      sql`PRAGMA cache_size = 10000;
       PRAGMA journal_mode=WAL;`,
     );
 
@@ -380,8 +378,7 @@ async function saveItems(_items: Record<string, any>) {
 
     await db.transaction(async (tx) => {
       await tx.run(
-        sql`SET CONSTRAINTS ALL DEFERRED;
-        PRAGMA cache_size = 10000;
+        sql`PRAGMA cache_size = 10000;
         PRAGMA journal_mode=WAL;`,
       );
 
