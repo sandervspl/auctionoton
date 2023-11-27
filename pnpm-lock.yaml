@@ -198,6 +198,9 @@ importers:
       slugify:
         specifier: ^1.6.6
         version: 1.6.6
+      typescript:
+        specifier: ^5.3.2
+        version: 5.3.2
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -9083,7 +9086,6 @@ packages:
     resolution: {integrity: sha512-6l+RyNy7oAHDfxC4FzSJcz9vnjTKxrLpDG5M2Vu4SHRVNg6xzqZp6LYSR9zjqQTu8DU/f5xwxUdADOkbrIX2gQ==}
     engines: {node: '>=14.17'}
     hasBin: true
-    dev: true
 
   /uid-promise@1.0.0:
     resolution: {integrity: sha512-R8375j0qwXyIu/7R0tjdF06/sElHqbmdmWC9M2qQHpEVbvE4I5+38KJI7LUUmQMp7NVq4tKHiBMkT0NFM453Ig==}
