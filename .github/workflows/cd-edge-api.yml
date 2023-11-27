@@ -1,14 +1,14 @@
 name: CD Vercel Edge Api
 
-on:
-  push:
-    branches: '*'
-    paths:
-      - apps/vercel/**
-  pull_request:
-    branches: '*'
-    paths:
-      - apps/vercel/**
+# on:
+#   push:
+#     branches: '*'
+#     paths:
+#       - apps/vercel/**
+#   pull_request:
+#     branches: '*'
+#     paths:
+#       - apps/vercel/**
 
 jobs:
   deploy:
