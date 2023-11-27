@@ -14,7 +14,7 @@ export const TooltipBody: React.FC<Props> = (props) => {
   const { data: user } = useStorageQuery('user');
 
   function getServerName(): string {
-    const serverName = user?.server.classic;
+    const serverName = user?.realms.classic;
     const region = user?.region?.toUpperCase();
 
     if (!serverName) {

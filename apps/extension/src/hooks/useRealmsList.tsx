@@ -10,9 +10,9 @@ type Realm = {
   tag: 'normal' | 'era' | 'hardcore' | 'seasonal';
 };
 
-function useRealmsList(region: i.Regions, version: i.Version) {
+function useRealmsList() {
   const realms = useQuery<Realm[], Error>({
-    queryKey: ['realms', region, version],
+    queryKey: ['realms'],
     queryFn: async () => {
       const { data, status, statusText } = await edgeAPI.get<Realm[]>(EdgeAPI.RealmsUrl);
 
@@ -24,7 +24,6 @@ function useRealmsList(region: i.Regions, version: i.Version) {
     },
     cacheTime: Infinity,
     staleTime: Infinity,
-    enabled: !!region && !!version,
   });
 
   return realms;

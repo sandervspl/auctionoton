@@ -34,12 +34,17 @@ export type UserData = {
   region?: i.Regions;
   faction: Record<ServerSlug, i.Factions>; // server tied with faction
   version: i.Version | undefined;
-  server: {
-    classic?: {
-      name: string;
-      slug: string;
-    };
-  };
+  /** @deprecated use "realms" */
+  server?: never;
+  realms?: Partial<
+    Record<
+      i.Version,
+      {
+        name: string;
+        slug: string;
+      }
+    >
+  >;
 };
 
 export type ItemsData = {

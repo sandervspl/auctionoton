@@ -1,11 +1,13 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: ["class"],
+  darkMode: ['class'],
+  prefix: 'auc-',
+  corePlugins: {
+    preflight: false,
+  },
   content: [
-    './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
+    './src/modules/**/*.{html,ts,tsx,scss}',
+    './src/components/**/*.tsx',
 	],
   theme: {
     container: {
@@ -73,4 +75,4 @@ module.exports = {
     },
   },
   plugins: [require("tailwindcss-animate")],
-}
+};

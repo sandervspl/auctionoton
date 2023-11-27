@@ -16,7 +16,7 @@ export const ItemPriceTooltip = (props: Props) => {
   const { data: user } = useStorageQuery('user');
 
   function createNexushubLink(item: i.CachedItemDataClassic): string | void {
-    const server = user?.server.classic?.slug;
+    const server = user?.realms.classic?.slug;
 
     if (server) {
       const faction = user?.faction[server]?.toLowerCase();

@@ -58,12 +58,12 @@ const Tooltip: React.FC<Props> = (props) => {
     },
   );
 
-  if (!user?.server) {
+  if (!user?.realms) {
     return null;
   }
 
   /** @TODO Show link to change realm, let user know to set realm */
-  if (isClassicWowhead && !user?.server.classic) {
+  if (isClassicWowhead && !user?.realms.classic) {
     return null;
   }
 

@@ -33,8 +33,8 @@ require('esbuild').build({
   target: 'es2020',
   define: {
     'process.env.NODE_ENV': JSON.stringify(env),
-    __DEV__: DEV,
-    __PROD__: PROD,
+    __DEV__: JSON.stringify(DEV),
+    __PROD__: JSON.stringify(PROD),
   },
   banner: {
     js: 'var addon = (chrome || browser);',

@@ -13,7 +13,7 @@ export const ChangeRealmButton: React.FC = () => {
     >
       {/* @ts-ignore */}
       <GlobeSvg className="auc-h-3 auc-pr-1" />
-      <span>{!user?.server?.classic ? 'Add your realm!' : 'Change realm'}</span>
+      <span>{!user?.realms?.classic ? 'Add your realm!' : 'Change realm'}</span>
     </button>
   );
 };

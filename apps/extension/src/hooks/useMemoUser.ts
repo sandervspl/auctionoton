@@ -5,7 +5,7 @@ function useMemoUser() {
   const { data: user } = useStorageQuery('user');
   const { isClassicWowhead } = useIsClassicWowhead();
 
-  const server = isClassicWowhead ? user?.server.classic?.slug ?? '' : '';
+  const server = isClassicWowhead ? user?.realms.classic?.slug ?? '' : '';
 
   return {
     server,
