@@ -125,9 +125,13 @@ export const realms = sqliteTable(
   {
     id: integer('id').primaryKey(),
     name: text('name').notNull(),
-    region: text('region', { enum: ['us', 'eu'] }).notNull(),
-    version: text('version', { enum: ['classic', 'era'] }).notNull(),
-    tag: text('tag', { enum: ['normal', 'hardcore', 'seasonal'] })
+    region: text('region', { enum: ['us', 'eu'] })
+      .notNull()
+      .default('eu'),
+    version: text('version', { enum: ['classic', 'era'] })
+      .notNull()
+      .default('classic'),
+    tag: text('tag', { enum: ['normal', 'era', 'hardcore', 'seasonal'] })
       .notNull()
       .default('normal'),
   },
@@ -136,3 +140,5 @@ export const realms = sqliteTable(
     realms_name_idx: index('realms_name_idx').on(table.name),
   }),
 );
+
+export const selectRealmsSchema = createSelectSchema(realms);

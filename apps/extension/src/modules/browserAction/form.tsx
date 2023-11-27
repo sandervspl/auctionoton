@@ -6,14 +6,16 @@ import { QueryClient, QueryClientProvider, useMutation } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
-import useServerList from 'hooks/useServerList';
+import useRealmsList from 'hooks/useRealmsList';
 import useStorageQuery from 'hooks/useStorageQuery';
 import asyncStorage from 'utils/asyncStorage';
+import slugify from 'slugify';
 
 interface FormInput {
   region: i.Regions;
-  server: string;
+  realm: string;
   faction: i.Factions;
+  version: i.Version;
 }
 
 // Create a client
@@ -23,65 +25,64 @@ export const Form: React.FC = () => {
   const queries = new URLSearchParams(window.location.search);
   const isLarge = queries.has('large');
   const { data: user, isLoading: isUserLoading } = useStorageQuery('user');
-  const userMutation = useMutation(userMutateFn);
+  const userMutation = useMutation({ mutationFn: userMutateFn });
   const { register, handleSubmit, watch, setValue, formState, reset } = useForm<FormInput>({
     mode: 'all',
   });
   const { isValid } = formState;
   const watchRegion = watch('region');
-  const watchServer = watch('server');
-  const { serverList } = useServerList(watchRegion);
+  const watchVersion = watch('version');
+  const watchRealm = watch('realm');
+  const realms = useRealmsList(watchRegion, watchVersion);
 
   React.useLayoutEffect(() => {
     if (user?.server == null) {
       reset({
-        region: 'us',
-        faction: 'Alliance',
-        server: 'Anathema',
+        region: 'eu',
+        faction: 'Horde',
+        realm: 'Gehennas',
+        version: 'classic',
       });
     } else if (!isUserLoading && user != null) {
       reset({
         region: user.region,
-        server: user.server.classic?.name,
+        realm: user.server.classic?.name,
         faction: user.server.classic ? user.faction[user.server.classic.slug] : undefined,
       });
     }
   }, [isUserLoading, reset, user]);
 
   React.useEffect(() => {
-    const storedServer = user?.server.classic?.name;
-    const firstServerInlist = serverList[0]?.[0];
-
-    if (storedServer && serverList.find((arr) => arr[0] === storedServer)) {
-      setValue('server', storedServer);
-    } else {
-      setValue('server', firstServerInlist);
-    }
-  }, [serverList]);
-
-  React.useEffect(() => {
-    if (!watchServer) {
+    if (!realms.data) {
       return;
     }
 
-    const faction = user?.faction[createSlug(watchServer)];
-    setValue('faction', faction || 'Alliance');
-  }, [watchServer]);
+    const storedRealm = user?.server.classic?.name;
+    const firstRealmInlist = realms.data.find((realm) => realm.region === watchRegion)?.name;
 
-  function createSlug(name: string): string {
-    return name.toLowerCase().replace("'", '').replace(' ', '-');
-  }
+    if (
+      storedRealm &&
+      realms.data.find(
+        (realm) =>
+          realm.name.toLowerCase() === storedRealm.toLowerCase() &&
+          realm.region === watchRegion &&
+          realm.version === watchVersion,
+      )
+    ) {
+      setValue('realm', storedRealm);
+    } else if (firstRealmInlist) {
+      setValue('realm', firstRealmInlist);
+    }
+  }, [realms.data, watchRegion, watchVersion]);
 
-  function createValue(realm: string, slug?: string): string {
-    if (typeof realm === 'string') {
-      return JSON.stringify({
-        name: realm,
-        slug: createSlug(slug || realm),
-      });
+  React.useEffect(() => {
+    if (!watchRealm) {
+      return;
     }
 
-    return JSON.stringify(realm);
-  }
+    const faction = user?.faction[slugify(watchRealm)];
+    setValue('faction', faction || 'Alliance');
+  }, [watchRealm]);
 
   const onSubmit: SubmitHandler<FormInput> = async (data, e) => {
     e?.preventDefault();
@@ -89,30 +90,30 @@ export const Form: React.FC = () => {
   };
 
   function userMutateFn(data: FormInput) {
-    return asyncStorage.set('user', (draft) => {
-      const server = serverList.find((names) => names.includes(data.server));
-      if (!server) {
-        throw Error('Could not find server');
-      }
+    if (!realms.data) {
+      throw Error('No realms found');
+    }
 
-      const [english, localized] = server;
-      const serverData = (() => {
-        return createValue(localized || english, english);
-      })();
+    return asyncStorage.set('user', (draft) => {
+      const realm = realms.data.find((realm) =>
+        realm.name.toLowerCase().includes(data.realm.toLowerCase()),
+      );
+      if (!realm) {
+        throw Error('Could not find realm');
+      }
 
       draft.region = data.region;
+      draft.version = data.version;
+      draft.server ||= {};
+      draft.server.classic = {
+        name: realm.name,
+        slug: slugify(realm.name),
+      };
 
-      if (serverData) {
-        draft.server ||= {};
-        draft.server.classic = JSON.parse(serverData);
-
-        draft.faction = {
-          ...user?.faction,
-          [createSlug(data.server)]: data.faction,
-        };
-      } else {
-        console.error('Something went wrong parsing server data', { data, server, serverData });
-      }
+      draft.faction = {
+        ...user?.faction,
+        [slugify(data.realm)]: data.faction,
+      };
     });
   }
 
@@ -138,7 +139,7 @@ export const Form: React.FC = () => {
           {
             <form onSubmit={handleSubmit(onSubmit)}>
               <h2 className="auc-my-5 auc-mx-auto auc-hidden auc-text-lg auc-font-bold md:auc-block">
-                Select your server
+                Select your realm
               </h2>
 
               <label htmlFor="Region">
@@ -149,14 +150,26 @@ export const Form: React.FC = () => {
                 </select>
               </label>
 
-              <label htmlFor="server">
-                Server
-                <select {...register('server', { required: true })}>
-                  {serverList.map(([english, localized]) => (
-                    <option key={english} value={localized || english}>
-                      {localized || english}
-                    </option>
-                  ))}
+              <label htmlFor="Region">
+                Game Version
+                <select {...register('version', { required: true })}>
+                  <option value="classic">Classic</option>
+                  <option value="era">Era</option>
+                </select>
+              </label>
+
+              <label htmlFor="realm">
+                Realm
+                <select {...register('realm', { required: true })}>
+                  {realms.data
+                    ?.filter(
+                      (realm) => realm.region === watchRegion && realm.version === watchVersion,
+                    )
+                    .map((realm) => (
+                      <option key={realm.id} value={realm.name}>
+                        {realm.name}
+                      </option>
+                    ))}
                 </select>
               </label>
 

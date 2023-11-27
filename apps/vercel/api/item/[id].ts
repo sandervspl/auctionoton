@@ -138,7 +138,7 @@ export default async function handler(req: Request) {
     status: 200,
     headers: {
       'Content-Type': 'application/json',
-      'cache-control': 'public, max-age=3600, s-maxage=3600',
+      'cache-control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate',
       'Access-Control-Allow-Origin': '*',
     },
   });

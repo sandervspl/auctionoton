@@ -33,6 +33,7 @@ type ServerSlug = string;
 export type UserData = {
   region?: i.Regions;
   faction: Record<ServerSlug, i.Factions>; // server tied with faction
+  version: i.Version | undefined;
   server: {
     classic?: {
       name: string;
