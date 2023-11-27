@@ -132,6 +132,9 @@ async function ahDeserializeScanResult(
   const itemEntries = scan.data.split(' ');
 
   await db.transaction(async (tx) => {
+    await tx.run(sql`SET CONSTRAINTS ALL DEFERRED`);
+    await tx.run(sql`PRAGMA cache_size = 10000`);
+
     for await (const itemEntry of itemEntries) {
       numItems += 1;
 
@@ -242,6 +245,9 @@ async function ahDeserializeScanResult(
   const chunks = R.chunk(auctionsToAdd, CHUNK_SIZE);
 
   await db.transaction(async (tx) => {
+    await tx.run(sql`SET CONSTRAINTS ALL DEFERRED`);
+    await tx.run(sql`PRAGMA cache_size = 10000`);
+
     for await (const chunk of chunks) {
       try {
         await tx.insert(auctions).values(chunk).onConflictDoNothing();
@@ -367,6 +373,9 @@ async function saveItems(_items: Record<string, any>) {
     const chunks = R.chunk(itemsToAdd, CHUNK_SIZE);
 
     await db.transaction(async (tx) => {
+      await tx.run(sql`SET CONSTRAINTS ALL DEFERRED`);
+      await tx.run(sql`PRAGMA cache_size = 10000`);
+
       for await (const chunk of chunks) {
         try {
           await tx.insert(items).values(chunk).onConflictDoNothing();
