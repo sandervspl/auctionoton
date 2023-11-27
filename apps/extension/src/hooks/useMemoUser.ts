@@ -1,16 +1,18 @@
+import * as i from 'types';
+
 import useStorageQuery from './useStorageQuery';
 import useIsClassicWowhead from './useIsClassicWowhead';
 
 function useMemoUser() {
   const { data: user } = useStorageQuery('user');
-  const { isClassicWowhead } = useIsClassicWowhead();
+  const { isClassicWowhead, version } = useIsClassicWowhead();
 
-  const server = isClassicWowhead ? user?.realms.classic?.slug ?? '' : '';
+  const realm = isClassicWowhead ? user?.realms?.[version]?.slug ?? '' : '';
 
   return {
-    server,
-    faction: user?.faction[server.toLowerCase()]?.toLowerCase() ?? '',
-    region: user?.region ?? '',
+    realm,
+    faction: user?.faction[realm.toLowerCase()]?.toLowerCase() ?? '',
+    region: user?.region ?? ('' as i.Regions),
   };
 }
 

@@ -12,7 +12,7 @@ export function useItemsFetcher(id: string | number | undefined, itemIds: number
 
   return useQuery({
     queryKey: ['items', id],
-    enabled: !!id && !!memoUser.server,
+    enabled: !!id && !!memoUser.realm,
     queryFn: async () => {
       // Check browser storage if item is stored
       const cachedItems = await Promise.all(
@@ -38,7 +38,7 @@ export function useItemsFetcher(id: string | number | undefined, itemIds: number
             meta: {},
             queryKey: createQueryKey(itemId, memoUser),
           };
-          return fetchItemFromAPI(itemId, memoUser.server, memoUser.faction, isEra, key);
+          return fetchItemFromAPI(itemId, memoUser.realm, memoUser.faction, isEra, key);
         }),
       );
 

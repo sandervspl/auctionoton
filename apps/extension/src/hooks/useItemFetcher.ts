@@ -54,13 +54,13 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
 
     // If item from storage is stale, fetch item
     if (isClassicWowhead) {
-      if (!memoUser.server || !memoUser.faction) {
+      if (!memoUser.realm || !memoUser.faction) {
         return;
       }
 
       const result = await fetchItemFromAPI(
         itemId,
-        memoUser.server,
+        memoUser.realm,
         memoUser.faction,
         isEra,
         queryKey,

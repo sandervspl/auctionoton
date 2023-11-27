@@ -3,7 +3,7 @@ import { getVersion } from './version';
 
 export function createQueryKey(
   itemId: number,
-  user: { server: string; faction: string; version?: string; region: string },
+  user: { realm: string; faction: string; version?: i.Version; region: i.Regions },
   version?: i.Version,
 ) {
   return [

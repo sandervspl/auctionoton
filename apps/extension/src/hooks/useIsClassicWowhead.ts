@@ -1,10 +1,14 @@
+import { getVersion } from 'utils/version';
+
 function useIsClassicWowhead() {
   const isWotlk = window.location.href.includes('wowhead.com/wotlk');
   const isEra = window.location.href.includes('wowhead.com/classic');
+  const version = getVersion();
 
   return {
-    isWotlk,
     isEra,
+    isWotlk,
+    version,
     isClassicWowhead: isEra || isWotlk,
   };
 }
