@@ -1,4 +1,5 @@
 import { kv } from '@vercel/kv';
+import { ipAddress } from '@vercel/edge';
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/sqlite-core';
 import slugify from 'slugify';
@@ -13,9 +14,10 @@ import {
 } from '../_utils.js';
 import { db } from '../../db/index.js';
 import { factions, items, itemsValues, realms, scanmeta } from '../../db/schema.js';
+import { rateLimit } from '../_rate-limiter.js';
 
 export const config = {
-  runtime: 'experimental-edge',
+  runtime: 'edge',
 };
 
 async function fetchItem(url: string) {
@@ -86,14 +88,33 @@ async function queryItem(id: number, realm: string, faction: 'Neutral' | 'Allian
       icon: null,
       itemLevel: null,
       requiredLevel: item.minLevel,
-    } satisfies NexusHub.ItemsResponse;
+    } as NexusHub.ItemsResponse;
   } catch (err: any) {
     console.error(err);
     return { error: 'true', reason: err.message } as NexusHub.ErrorResponse;
   }
 }
 
+const MAX_REQUESTS = 100;
+const WINDOW_SECONDS = 60;
+
 export default async function handler(req: Request) {
+  const ip = ipAddress(req);
+  const isAllowed = await rateLimit(`item:${ip}`, MAX_REQUESTS, WINDOW_SECONDS);
+
+  if (!isAllowed) {
+    return new Response('Too many requests', {
+      status: 429,
+      headers: {
+        'content-type': 'text/plain',
+        'cache-control': 'no-store',
+        'ratelimit-limit': MAX_REQUESTS.toString(),
+        // 'ratelimit-remaining': '0',
+        // 'ratelimit-reset': WINDOW_SECONDS.toString(),
+      },
+    });
+  }
+
   const itemId = getURLParam(req);
   const query = getQueries(req.url);
   const serverSlug = getServerSlug(query.get('server_name')!);
@@ -114,7 +135,10 @@ export default async function handler(req: Request) {
 
   if ('error' in result) {
     const code = result.error ? 500 : 404;
-    return new Response(JSON.stringify({ error: 'true', message: result.error }), { status: code });
+    return new Response(JSON.stringify({ error: 'true', message: result.error }), {
+      status: code,
+      headers: { 'cache-control': 'no-store' },
+    });
   }
 
   if (cached == null) {
