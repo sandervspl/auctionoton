@@ -128,8 +128,8 @@ export default async function handler(req: Request) {
       await kv.set(key, JSON.stringify(result), {
         ex: isClassicEra ? 21_600 : 10_800,
       });
-    } catch (error) {
-      console.error('kv error:', error);
+    } catch (error: any) {
+      console.error('kv error:', error.message || 'unknown error');
     }
   }
 
