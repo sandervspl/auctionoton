@@ -1,8 +1,9 @@
-import { NexusHub } from '../_types.js';
 import { kv } from '@vercel/kv';
 import { and, desc, eq, sql } from 'drizzle-orm';
+import { alias } from 'drizzle-orm/sqlite-core';
 import slugify from 'slugify';
 
+import type { NexusHub } from '../_types.js';
 import {
   getFactionSlug,
   getQueries,
@@ -12,7 +13,6 @@ import {
 } from '../_utils.js';
 import { db } from '../../db/index.js';
 import { auctions, factions, items, itemsValues, realms, scanmeta } from '../../db/schema.js';
-import { alias } from 'drizzle-orm/sqlite-core';
 
 export const config = {
   runtime: 'experimental-edge',
