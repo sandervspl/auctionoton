@@ -12,7 +12,7 @@ import {
   nexushubToItemResponse,
 } from '../_utils.js';
 import { db } from '../../db/index.js';
-import { auctions, factions, items, itemsValues, realms, scanmeta } from '../../db/schema.js';
+import { factions, items, itemsValues, realms, scanmeta } from '../../db/schema.js';
 
 export const config = {
   runtime: 'experimental-edge',
@@ -24,7 +24,6 @@ async function fetchItem(url: string) {
 
 const i = alias(items, 'i');
 const s = alias(scanmeta, 's');
-const a = alias(auctions, 'a');
 const iv = alias(itemsValues, 'iv');
 const r = alias(realms, 'r');
 const f = alias(factions, 'f');
