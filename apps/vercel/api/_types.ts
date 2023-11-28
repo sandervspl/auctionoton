@@ -38,7 +38,7 @@ export namespace NexusHub {
     sellPrice: NumberString;
     vendorPrice?: NumberString | null;
     tooltip: Tooltip[];
-    itemLink: string;
+    itemLink?: string | null;
     stats: Stats;
   }
 
@@ -49,7 +49,7 @@ export namespace NexusHub {
 }
 
 export type Date_ISO_8601 = string;
-export type NumberString = string;
+export type NumberString = number | string;
 
 export type PriceObject =
   | string
