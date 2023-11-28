@@ -3,7 +3,7 @@ import * as i from './_types.js';
 export const supportedClassicEraServers = ['stitches', 'nek-rosh'];
 
 export function getQueries(url: string): URLSearchParams {
-  return new URLSearchParams(url.split('?')[1]);
+  return new URL(url).searchParams;
 }
 
 export function getURLParam(req: Request): string {
