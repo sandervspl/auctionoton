@@ -126,7 +126,7 @@ export default async function handler(req: Request) {
   if (cached == null) {
     try {
       await kv.set(key, JSON.stringify(result), {
-        ex: 10_800,
+        ex: isClassicEra ? 21_600 : 10_800,
       });
     } catch (error) {
       console.error('kv error:', error);
