@@ -1,10 +1,7 @@
 import { put } from '@vercel/blob';
+
 import { rateLimit } from './_rate-limiter.js';
 import { getQueries } from './_utils.js';
-
-export const config = {
-  runtime: 'edge',
-};
 
 const MAX_REQUESTS = 1;
 const WINDOW_SECONDS = 60 * 60;
