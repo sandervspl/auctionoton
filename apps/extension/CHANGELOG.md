@@ -1,5 +1,12 @@
 # extension
 
+## 4.2.0
+
+### Minor Changes
+
+- 83e70a6: - Added support for Hardcore realms (EU only)
+  - Updated realm form
+
 ## 4.1.3
 
 ### Patch Changes
