@@ -3,9 +3,18 @@ import * as i from 'types';
 import useStorageQuery from './useStorageQuery';
 import useIsClassicWowhead from './useIsClassicWowhead';
 
-function useMemoUser() {
+function useUser() {
   const { data: user } = useStorageQuery('user');
   const { isClassicWowhead, version } = useIsClassicWowhead();
+
+  // Transfer .server to .realms for backwards compatibility
+  if (user?.server) {
+    if (!user.realms) {
+      user.realms = { ...user.server };
+    }
+
+    delete user.server;
+  }
 
   const realm = isClassicWowhead ? user?.realms?.[version]?.slug ?? '' : '';
 
@@ -16,4 +25,4 @@ function useMemoUser() {
   };
 }
 
-export default useMemoUser;
+export default useUser;

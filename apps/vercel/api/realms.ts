@@ -13,6 +13,7 @@ export async function GET() {
       headers: {
         'content-type': 'application/json',
         'cache-control': 'public, max-age=10800, s-maxage=3600, stale-while-revalidate',
+        'Access-Control-Allow-Origin': '*',
       },
     });
   } catch (error: any) {

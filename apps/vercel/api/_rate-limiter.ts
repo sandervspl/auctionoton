@@ -10,7 +10,8 @@ export async function rateLimit(identifier: string, maxRequests: number, windowS
   const windowEnd = currentTime - windowSeconds;
 
   // Remove older timestamps to keep the set small
-  await kv.zremrangebyscore(key, -Infinity, windowEnd);
+  // @ts-expect-error -inf is valid
+  await kv.zremrangebyscore(key, '-inf', windowEnd);
 
   // Count the number of requests in the specified time window
   const requestCount = await kv.zcard(key);
