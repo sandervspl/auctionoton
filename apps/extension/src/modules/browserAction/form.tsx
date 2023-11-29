@@ -169,7 +169,7 @@ export const RealmForm: React.FC = () => {
                         <SelectValue placeholder="Select game version" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent position="popper">
+                    <SelectContent position="item-aligned">
                       <SelectItem value="classic">Classic</SelectItem>
                       <SelectItem value="era">Era</SelectItem>
                     </SelectContent>
@@ -196,7 +196,7 @@ export const RealmForm: React.FC = () => {
                         <SelectValue placeholder="Select Region" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent position="popper">
+                    <SelectContent position="item-aligned">
                       <SelectItem value="eu">Europe</SelectItem>
                       <SelectItem value="us" disabled={watchVersion === 'era'}>
                         North America {watchVersion === 'era' && '(not supported yet)'}
@@ -225,7 +225,7 @@ export const RealmForm: React.FC = () => {
                         <SelectValue placeholder="Select realm" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent position="popper">
+                    <SelectContent position="item-aligned">
                       {realms.data
                         ?.filter(
                           (realm) => realm.region === watchRegion && realm.version === watchVersion,
@@ -259,7 +259,7 @@ export const RealmForm: React.FC = () => {
                         <SelectValue placeholder="Select faction" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent position="popper">
+                    <SelectContent position="item-aligned">
                       <SelectItem value="Alliance">Alliance</SelectItem>
                       <SelectItem value="Horde">Horde</SelectItem>
                     </SelectContent>
