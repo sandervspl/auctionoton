@@ -6,7 +6,12 @@
   "content_scripts": [
     {
       "matches": [
-        "<all_urls>"
+        "https://tbc.wowhead.com/*",
+        "https://wotlk.wowhead.com/*",
+        "https://wowhead.com/wotlk/*",
+        "https://www.wowhead.com/wotlk/*",
+        "https://wowhead.com/classic/*",
+        "https://www.wowhead.com/classic/*"
       ],
       "js": [
         "index.js"
