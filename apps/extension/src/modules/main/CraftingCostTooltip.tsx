@@ -90,7 +90,6 @@ const ItemIcon = (props: { url: string; itemId: number; slug: string }) => {
     <div className="iconsmall" data-env="wrath" data-tree="wrath" data-game="wow">
       <ins style={{ backgroundImage: `url(${props.url})` }} />
       <del />
-      {/* eslint-disable-next-line jsx-a11y/anchor-has-content */}
       <a
         aria-label="Icon"
         href={`https://www.wowhead.com/wotlk/item=${props.itemId}/${props.slug}`}

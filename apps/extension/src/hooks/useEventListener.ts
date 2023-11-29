@@ -6,7 +6,7 @@ export function useEventListener<K extends keyof HTMLElementEventMap>(
   element: HTMLElement | Window | null = window,
 ): void {
   // Create a ref that stores handler
-  const savedHandler = useRef<any>(); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const savedHandler = useRef<any>();
 
   // Update ref.current value if handler changes.
   // This allows our effect below to always get latest handler
@@ -22,7 +22,6 @@ export function useEventListener<K extends keyof HTMLElementEventMap>(
     if (!isSupported) return;
 
     // Create event listener that calls handler function stored in ref
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const eventListener = (event: any) => savedHandler.current(event);
 
     // Add event listener

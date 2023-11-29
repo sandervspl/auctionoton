@@ -131,7 +131,6 @@ const ItemsPage: React.FC = () => {
       {ReactDOM.createPortal(
         <th id="buyout-header">
           <div>
-            {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
             <a onClick={sortByBuyout}>
               <span
                 className={cn({
