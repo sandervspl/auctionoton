@@ -3,12 +3,12 @@ import { useQuery } from 'react-query';
 import asyncStorage from 'utils/asyncStorage';
 import { fetchItemFromAPI } from 'src/queries/item';
 import { createQueryKey } from 'utils/queryKey';
-import useMemoUser from './useMemoUser';
+import useUser from './useUser';
 import useIsClassicWowhead from './useIsClassicWowhead';
 
 export function useItemsFetcher(id: string | number | undefined, itemIds: number[]) {
   const { isEra } = useIsClassicWowhead();
-  const memoUser = useMemoUser();
+  const memoUser = useUser();
 
   return useQuery({
     queryKey: ['items', id],

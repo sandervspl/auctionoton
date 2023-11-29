@@ -3,7 +3,7 @@ import * as i from 'types';
 import useStorageQuery from './useStorageQuery';
 import useIsClassicWowhead from './useIsClassicWowhead';
 
-function useMemoUser() {
+function useUser() {
   const { data: user } = useStorageQuery('user');
   const { isClassicWowhead, version } = useIsClassicWowhead();
 
@@ -25,4 +25,4 @@ function useMemoUser() {
   };
 }
 
-export default useMemoUser;
+export default useUser;

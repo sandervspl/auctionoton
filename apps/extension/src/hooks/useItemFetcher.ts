@@ -8,7 +8,7 @@ import validateCache from 'utils/validateCache';
 
 import { fetchItemFromAPI } from 'src/queries/item';
 import { createQueryKey } from 'utils/queryKey';
-import useMemoUser from './useMemoUser';
+import useUser from './useUser';
 
 type Options = UseQueryOptions<
   i.CachedItemDataClassic | undefined,
@@ -18,7 +18,7 @@ type Options = UseQueryOptions<
 >;
 
 function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
-  const memoUser = useMemoUser();
+  const memoUser = useUser();
   const [error, setError] = React.useState('');
   const [warning, setWarning] = React.useState('');
   const [item, setItem] = React.useState<i.CachedItemDataClassic>();
