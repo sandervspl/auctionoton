@@ -1,12 +1,17 @@
 import { put } from '@vercel/blob';
 
 import { rateLimit } from './_rate-limiter.js';
-import { getQueries } from './_utils.js';
+import { getQueries, isAuth } from './_utils.js';
 
 const MAX_REQUESTS = 1;
 const WINDOW_SECONDS = 60 * 60;
 
 export async function POST(req: Request) {
+  const response = isAuth(req);
+  if (response instanceof Response) {
+    return response;
+  }
+
   const isAllowed = await rateLimit('ahdb-upload', MAX_REQUESTS, WINDOW_SECONDS);
 
   if (!isAllowed) {
@@ -50,8 +55,14 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
+  const response = isAuth(req);
+  if (response instanceof Response) {
+    return response;
+  }
+
   try {
     const query = getQueries(req.url);
+
     const name = query.get('name') || 'AuctionDB.lua';
     const fileUrl = `${process.env.BLOB_URL}/${name}`;
 

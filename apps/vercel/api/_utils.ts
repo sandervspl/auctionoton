@@ -65,3 +65,19 @@ export function nexushubToItemResponse(data: i.NexusHub.ItemsResponse, amount = 
 
   return transformedData;
 }
+
+export function isAuth(req: Request) {
+  const query = getQueries(req.url);
+
+  if (query.get('secret') !== process.env.AUC_SECRET) {
+    return new Response('Unauthorized', {
+      status: 401,
+      headers: {
+        'content-type': 'text/plain',
+        'cache-control': 'no-store',
+      },
+    });
+  }
+
+  return true;
+}
