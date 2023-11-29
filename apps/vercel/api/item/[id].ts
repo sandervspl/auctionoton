@@ -117,7 +117,7 @@ export default async function handler(req: Request) {
 
   const itemId = getURLParam(req);
   const query = getQueries(req.url);
-  const serverSlug = getServerSlug(query.get('server_name')!);
+  const serverSlug = getServerSlug(query.get('server_name')!).toLowerCase();
   const factionSlug = getFactionSlug(query.get('faction')!);
   const version = query.get('version');
   const isClassicEra = version === 'era';
