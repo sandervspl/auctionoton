@@ -9,9 +9,6 @@
         ".next/**"
       ]
     },
-    "lint": {
-      "outputs": []
-    },
     "start": {
       "cache": false
     }

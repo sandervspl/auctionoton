@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 const svgrPlugin = require('esbuild-plugin-svgr');
 
 const env = process.env.NODE_ENV || 'development';

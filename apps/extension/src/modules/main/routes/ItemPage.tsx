@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
-
 import 'typed-query-selector';
 import React from 'react';
 import ReactDOM from 'react-dom';

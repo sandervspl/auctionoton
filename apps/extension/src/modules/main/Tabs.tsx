@@ -1,5 +1,5 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
 import * as React from 'react';
+
 type Props = {
   tabs: string[];
   onTabChange?: (tab: number) => void;

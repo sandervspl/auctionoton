@@ -7,7 +7,6 @@
     "build": "turbo run build",
     "start": "turbo run start --parallel",
     "dev:ext": "turbo run dev --scope=extension --include-dependencies",
-    "lint": "turbo run lint",
     "prettier": "prettier --write \"**/*.{ts,tsx,md}\"",
     "cs:add": "npx changeset",
     "cs:ver": "npx changeset version",
