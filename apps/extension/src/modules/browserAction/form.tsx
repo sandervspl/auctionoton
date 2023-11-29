@@ -122,17 +122,21 @@ export const RealmForm: React.FC = () => {
         throw Error('Could not find realm');
       }
 
+      const realmSlug = slugify(realm.name, {
+        lower: true,
+      });
+
       draft.region = data.region;
       draft.version = data.version;
       draft.realms ||= {};
       draft.realms[data.version] = {
         name: realm.name,
-        slug: slugify(realm.name),
+        slug: realmSlug,
       };
 
       draft.faction = {
         ...user?.faction,
-        [slugify(data.realm)]: data.faction,
+        [realmSlug]: data.faction,
       };
     });
   }
