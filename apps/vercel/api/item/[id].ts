@@ -21,7 +21,19 @@ export const config = {
 };
 
 async function fetchItem(url: string) {
-  return (await (await fetch(url)).json()) as NexusHub.ItemsResponse | NexusHub.ErrorResponse;
+  const res = await fetch(url);
+
+  if (res.status !== 200) {
+    return {
+      error: true,
+      status: res.status,
+      message: res.statusText,
+    } as const;
+  }
+
+  const data = (await res.json()) as NexusHub.ItemsResponse | NexusHub.ErrorResponse;
+
+  return data;
 }
 
 const i = alias(items, 'i');
@@ -128,14 +140,16 @@ export default async function handler(req: Request) {
 
   const url = `https://api.nexushub.co/wow-classic/v1/items/${serverSlug}-${factionSlug}/${itemId}`;
 
-  let result =
-    cached || isClassicEra
-      ? await queryItem(Number(itemId), serverSlug, factionSlug as any)
-      : await fetchItem(url);
+  let result = cached
+    ? cached
+    : isClassicEra
+    ? await queryItem(Number(itemId), serverSlug, factionSlug as any)
+    : await fetchItem(url);
 
   if ('error' in result) {
-    const code = result.error ? 500 : 404;
-    return new Response(JSON.stringify({ error: 'true', message: result.error }), {
+    const code = 'status' in result ? result.status : 500;
+    const message = 'message' in result ? result.message : result.reason || 'Unknown error';
+    return new Response(JSON.stringify({ error: true, message }), {
       status: code,
       headers: { 'cache-control': 'no-store' },
     });
