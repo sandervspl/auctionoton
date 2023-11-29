@@ -42,5 +42,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Typecheck
+        run: |
+          cd apps/extension
+          pnpm tc
+          cd ../..
+
       - name: Build monorepo
         run: pnpm build
