@@ -1,5 +1,5 @@
 import * as i from 'types';
-import produce from 'immer';
+import { produce } from 'immer';
 import _set from 'lodash/set';
 
 class AsyncStorage {
@@ -43,7 +43,7 @@ class AsyncStorage {
 
   getKeyFromQueryKey = (itemQueryKey: i.ItemQueryKeyCtx) => {
     const [, itemObj] = itemQueryKey.queryKey;
-    return `${itemObj.itemId}-${itemObj.region}-${itemObj.server}-${itemObj.faction}-${itemObj.version}`;
+    return `${itemObj.itemId}-${itemObj.region}-${itemObj.realm}-${itemObj.faction}-${itemObj.version}`;
   };
 
   addItem = async (
@@ -75,7 +75,7 @@ class AsyncStorage {
   init = async (cb?: () => void) => {
     const items: i.ItemsData = {};
     const user: Partial<i.UserData> = {
-      server: {},
+      realms: {},
       faction: {},
     };
     const ui: i.UiData = {

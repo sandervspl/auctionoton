@@ -1,7 +1,9 @@
-import * as i from './_types';
+import * as i from './_types.js';
+
+export const supportedClassicEraServers = ['stitches', 'nek-rosh'];
 
 export function getQueries(url: string): URLSearchParams {
-  return new URLSearchParams(url.split('?')[1]);
+  return new URL(url).searchParams;
 }
 
 export function getURLParam(req: Request): string {
@@ -16,6 +18,10 @@ export function getServerSlug(name = '') {
 
 export function getFactionSlug(faction = '') {
   return faction.toLowerCase();
+}
+
+export function capitalize(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 export function convertToCoins(rawPrice: number = 0, amount = 1): i.PriceObject {
@@ -36,8 +42,7 @@ export function nexushubToItemResponse(data: i.NexusHub.ItemsResponse, amount = 
   const transformedData: i.ItemResponse = {
     ...data,
     tooltip: undefined,
-    tags: data.tags.join(','),
-    uri: '/items/' + data.itemId,
+    tags: Array.isArray(data.tags) ? data.tags.join(',') : data.tags,
     stats: {
       current: {
         numAuctions: String(data.stats.current?.numAuctions ?? 0),
@@ -49,9 +54,9 @@ export function nexushubToItemResponse(data: i.NexusHub.ItemsResponse, amount = 
       previous: {
         numAuctions: String(data.stats.previous?.numAuctions ?? 0),
         quantity: String(data.stats.previous?.quantity ?? 0),
-        minimumBuyout: convertToCoins(data.stats.current?.minBuyout, amount),
-        historicalValue: convertToCoins(data.stats.current?.historicalValue, amount),
-        marketValue: convertToCoins(data.stats.current?.marketValue, amount),
+        minimumBuyout: convertToCoins(data.stats.previous?.minBuyout, amount),
+        historicalValue: convertToCoins(data.stats.previous?.historicalValue, amount),
+        marketValue: convertToCoins(data.stats.previous?.marketValue, amount),
       },
       lastUpdated: data.stats.lastUpdated,
     },
@@ -59,4 +64,20 @@ export function nexushubToItemResponse(data: i.NexusHub.ItemsResponse, amount = 
   };
 
   return transformedData;
+}
+
+export function isAuth(req: Request) {
+  const query = getQueries(req.url);
+
+  if (query.get('secret') !== process.env.AUC_SECRET) {
+    return new Response('Unauthorized', {
+      status: 401,
+      headers: {
+        'content-type': 'text/plain',
+        'cache-control': 'no-store',
+      },
+    });
+  }
+
+  return true;
 }

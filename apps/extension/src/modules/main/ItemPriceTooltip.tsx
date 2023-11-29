@@ -12,11 +12,11 @@ type Props = {
 };
 
 export const ItemPriceTooltip = (props: Props) => {
-  const isClassicWowhead = useIsClassicWowhead();
+  const { isWotlk, version } = useIsClassicWowhead();
   const { data: user } = useStorageQuery('user');
 
   function createNexushubLink(item: i.CachedItemDataClassic): string | void {
-    const server = user?.server.classic?.slug;
+    const server = user?.realms?.[version]?.slug;
 
     if (server) {
       const faction = user?.faction[server]?.toLowerCase();
@@ -41,7 +41,7 @@ export const ItemPriceTooltip = (props: Props) => {
                 </button>
               </div>
             )}
-            {isClassicWowhead && user && item && 'stats' in item && (
+            {isWotlk && user && item && 'stats' in item && (
               <a
                 href={createNexushubLink(item as i.CachedItemDataClassic)!}
                 target="_blank"

@@ -1,7 +1,7 @@
 export namespace NexusHub {
   interface Tooltip {
     label: string;
-    format: string;
+    format?: string;
   }
 
   interface Current {
@@ -31,14 +31,14 @@ export namespace NexusHub {
     itemId: NumberString;
     name: string;
     uniqueName: string;
-    icon: string;
-    tags: string[];
-    requiredLevel: NumberString;
-    itemLevel: NumberString;
+    icon: string | null;
+    tags: string | string[];
+    requiredLevel: NumberString | null;
+    itemLevel: NumberString | null;
     sellPrice: NumberString;
-    vendorPrice?: NumberString;
+    vendorPrice?: NumberString | null;
     tooltip: Tooltip[];
-    itemLink: string;
+    itemLink?: string | null;
     stats: Stats;
   }
 
@@ -49,7 +49,7 @@ export namespace NexusHub {
 }
 
 export type Date_ISO_8601 = string;
-export type NumberString = string;
+export type NumberString = number | string;
 
 export type PriceObject =
   | string
@@ -69,7 +69,6 @@ export type PriceSnapshot = {
 };
 
 export type ItemResponse = Omit<NexusHub.ItemsResponse, 'stats' | 'tags' | 'tooltip'> & {
-  uri: string;
   amount: NumberString;
   stats: {
     lastUpdated: Date_ISO_8601;

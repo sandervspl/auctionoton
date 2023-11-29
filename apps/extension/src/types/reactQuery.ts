@@ -5,10 +5,10 @@ export type ItemQueryKey = [
   string,
   {
     itemId: number;
-    server: string;
+    realm: string;
     faction: i.Factions;
-    version: string;
-    region: string;
+    version: i.Version;
+    region: i.Regions;
   },
 ];
 

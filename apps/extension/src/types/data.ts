@@ -33,12 +33,26 @@ type ServerSlug = string;
 export type UserData = {
   region?: i.Regions;
   faction: Record<ServerSlug, i.Factions>; // server tied with faction
-  server: {
-    classic?: {
-      name: string;
-      slug: string;
-    };
-  };
+  version: i.Version | undefined;
+  /** @deprecated use "realms" */
+  server?: Partial<
+    Record<
+      i.Version,
+      {
+        name: string;
+        slug: string;
+      }
+    >
+  >;
+  realms?: Partial<
+    Record<
+      i.Version,
+      {
+        name: string;
+        slug: string;
+      }
+    >
+  >;
 };
 
 export type ItemsData = {

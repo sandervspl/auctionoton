@@ -1,12 +1,17 @@
 {
   "manifest_version": 3,
   "name": "Auctionoton: Auction House Prices for Wowhead",
-  "version": "4.1.3",
+  "version": "4.2.0",
   "description": "Display current Auction House price data for items on wowhead.com",
   "content_scripts": [
     {
       "matches": [
-        "<all_urls>"
+        "https://tbc.wowhead.com/*",
+        "https://wotlk.wowhead.com/*",
+        "https://wowhead.com/wotlk/*",
+        "https://www.wowhead.com/wotlk/*",
+        "https://wowhead.com/classic/*",
+        "https://www.wowhead.com/classic/*"
       ],
       "js": [
         "index.js"
@@ -17,7 +22,9 @@
         "https://tbc.wowhead.com/*",
         "https://wotlk.wowhead.com/*",
         "https://wowhead.com/wotlk/*",
-        "https://www.wowhead.com/wotlk/*"
+        "https://www.wowhead.com/wotlk/*",
+        "https://wowhead.com/classic/*",
+        "https://www.wowhead.com/classic/*"
       ],
       "css": [
         "style.css"

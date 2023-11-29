@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `scanmeta_timestamp_scanner_uniq` ON `scanmeta` (`ts`,`scanner`);

@@ -23,7 +23,7 @@ class AppContainer extends React.Component {
 }
 
 const App: React.FC = () => {
-  const isClassicWowhead = useIsClassicWowhead();
+  const { isClassicWowhead } = useIsClassicWowhead();
   const isItemPage = isClassicWowhead && window.location.pathname.includes('item=');
   const isSpellPage = isClassicWowhead && window.location.pathname.includes('spell=');
   const isItemsPage = isClassicWowhead && window.location.pathname.includes('/items/');

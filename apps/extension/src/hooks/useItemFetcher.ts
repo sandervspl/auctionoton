@@ -7,7 +7,8 @@ import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
 import validateCache from 'utils/validateCache';
 
 import { fetchItemFromAPI } from 'src/queries/item';
-import useMemoUser from './useMemoUser';
+import { createQueryKey } from 'utils/queryKey';
+import useUser from './useUser';
 
 type Options = UseQueryOptions<
   i.CachedItemDataClassic | undefined,
@@ -17,22 +18,14 @@ type Options = UseQueryOptions<
 >;
 
 function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
-  const memoUser = useMemoUser();
+  const memoUser = useUser();
   const [error, setError] = React.useState('');
   const [warning, setWarning] = React.useState('');
   const [item, setItem] = React.useState<i.CachedItemDataClassic>();
-  const isClassicWowhead = useIsClassicWowhead();
+  const { isClassicWowhead, isEra } = useIsClassicWowhead();
 
   const { data, isLoading, isFetching, isError, refetch } = useQuery({
-    queryKey: [
-      'item',
-      {
-        itemId,
-        server: memoUser.server,
-        faction: memoUser.faction,
-        region: memoUser.region,
-      },
-    ] as i.ItemQueryKey,
+    queryKey: createQueryKey(itemId, memoUser),
     queryFn: fetchItem,
     refetchOnWindowFocus: true,
     retry: false, // Let user retry on demand with button
@@ -61,20 +54,21 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
 
     // If item from storage is stale, fetch item
     if (isClassicWowhead) {
-      if (!memoUser.server || !memoUser.faction) {
+      if (!memoUser.realm || !memoUser.faction) {
         return;
       }
 
-      const result = await fetchItemFromAPI(itemId, memoUser.server, memoUser.faction, queryKey);
+      const result = await fetchItemFromAPI(
+        itemId,
+        memoUser.realm,
+        memoUser.faction,
+        isEra,
+        queryKey,
+      );
 
       if (result) {
         return result;
       }
-    }
-
-    /** @TODO */
-    if (!isClassicWowhead) {
-      return;
     }
 
     setError('Something went wrong fetching this item. Please try again.');
