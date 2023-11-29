@@ -7,6 +7,15 @@ function useMemoUser() {
   const { data: user } = useStorageQuery('user');
   const { isClassicWowhead, version } = useIsClassicWowhead();
 
+  // Transfer .server to .realms for backwards compatibility
+  if (user?.server) {
+    if (!user.realms) {
+      user.realms = { ...user.server };
+    }
+
+    delete user.server;
+  }
+
   const realm = isClassicWowhead ? user?.realms?.[version]?.slug ?? '' : '';
 
   return {

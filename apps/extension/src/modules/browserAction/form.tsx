@@ -122,8 +122,6 @@ export const RealmForm: React.FC = () => {
         throw Error('Could not find realm');
       }
 
-      delete draft.server;
-
       draft.region = data.region;
       draft.version = data.version;
       draft.realms ||= {};

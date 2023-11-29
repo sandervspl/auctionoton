@@ -35,7 +35,15 @@ export type UserData = {
   faction: Record<ServerSlug, i.Factions>; // server tied with faction
   version: i.Version | undefined;
   /** @deprecated use "realms" */
-  server?: never;
+  server?: Partial<
+    Record<
+      i.Version,
+      {
+        name: string;
+        slug: string;
+      }
+    >
+  >;
   realms?: Partial<
     Record<
       i.Version,
