@@ -1,5 +1,11 @@
 # auctionoton-edge-api
 
+## 1.2.1
+
+### Patch Changes
+
+- - Change market value to be the average of all buyout
+
 ## 1.2.0
 
 ### Minor Changes
