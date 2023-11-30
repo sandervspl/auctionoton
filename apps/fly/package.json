@@ -11,7 +11,7 @@
     "docker:push": "docker push registry.fly.io/auctionoton-on-demand:latest"
   },
   "dependencies": {
-    "@auctionoton/db": "workspace:*",
+    "@auctionoton/db": "*",
     "dotenv": "^16.3.1",
     "drizzle-orm": "^0.29.0",
     "lua-json": "^1.0.1",
