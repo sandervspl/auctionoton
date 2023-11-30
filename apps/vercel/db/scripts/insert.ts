@@ -127,7 +127,7 @@ async function ahDeserializeScanResult(
     "Nek'Rosh": { Alliance: {}, Horde: {} },
   };
   const marketValues: {
-    [itemId: string]: number;
+    [itemId: string]: number[];
   } = {};
   const auctionsToAdd = new Set<string>();
   const itemsValuesToAdd = new Map<number, z.infer<typeof insertItemsValuesSchema>>();
@@ -203,15 +203,19 @@ async function ahDeserializeScanResult(
           curItemValues.minBuyout > 0 ? Math.min(curItemValues.minBuyout, a.Buyout) : a.Buyout;
         itemValues[scan.realm][scan.faction][itemId].numAuctions += 1;
         itemValues[scan.realm][scan.faction][itemId].quantity += a.ItemCount;
+
+        marketValues[itemId].push(a.Buyout);
       }
     }
 
     const curItemValues = itemValues[scan.realm][scan.faction][itemId];
     const itemShortId = Number(itemId.slice(1).split(/[?:]/)[0]);
+
     const marketValue =
-      marketValues[itemShortId] > 0
-        ? Math.min(curItemValues.minBuyout, marketValues[itemShortId])
-        : curItemValues.minBuyout;
+      Math.round(
+        marketValues[itemId].reduce((acc, cur) => acc + cur, 0) / marketValues[itemId].length,
+      ) || curItemValues.minBuyout;
+    delete marketValues[itemId];
 
     const realmId = realmsData.find(
       (realm) => realm.name.toLowerCase() === scan.realm.toLowerCase(),
