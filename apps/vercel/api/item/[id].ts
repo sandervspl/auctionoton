@@ -6,15 +6,15 @@ import { and, desc, eq, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/sqlite-core';
 import slugify from 'slugify';
 
-import type { NexusHub } from '../_types.js';
+import type { NexusHub } from '../_types';
 import {
   getFactionSlug,
   getQueries,
   getServerSlug,
   getURLParam,
   nexushubToItemResponse,
-} from '../_utils.js';
-import { rateLimit } from '../_rate-limiter.js';
+} from '../_utils';
+import { rateLimit } from '../_rate-limiter';
 
 async function fetchItem(url: string) {
   const res = await fetch(url);

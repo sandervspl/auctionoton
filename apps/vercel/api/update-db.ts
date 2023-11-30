@@ -1,5 +1,5 @@
-import { Machine } from './_types.js';
-import { getQueries } from './_utils.js';
+import { Machine } from './_types';
+import { getQueries } from './_utils';
 
 const MACHINE_ENV = {
   ...process.env,
