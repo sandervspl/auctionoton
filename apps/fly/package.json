@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "dev": "NODE_ENV=development tsx src/index.ts",
-    "server": "NODE_ENV=production tsx src/index.ts"
+    "server": "NODE_ENV=production tsx src/index.ts",
+    "docker:build": "docker build --no-cache --pull -t registry.fly.io/auctionoton-on-demand:latest --platform linux/amd64 .",
+    "docker:push": "docker push registry.fly.io/auctionoton-on-demand:latest"
   },
   "dependencies": {
     "@auctionoton/db": "workspace:*",
