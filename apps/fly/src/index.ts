@@ -1,7 +1,19 @@
-import { serve } from '@hono/node-server';
-import { Hono } from 'hono';
+import { getAuctionDBFile } from './utils';
 
-const app = new Hono();
-app.get('/', (c) => c.text('Hello Hono!'));
+async function main() {
+  try {
+    const file = await getAuctionDBFile();
+  } catch (err: any) {
+    throw new Error(err.message);
+  }
+}
 
-serve(app);
+main()
+  .then(() => {
+    console.log('done');
+    process.exit();
+  })
+  .catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
