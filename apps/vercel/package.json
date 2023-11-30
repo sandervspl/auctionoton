@@ -5,9 +5,7 @@
   "license": "ISC",
   "type": "module",
   "scripts": {
-    "start": "vercel dev",
-    "db:insert": "bun db/scripts/insert.ts",
-    "lua2json": "bun db/scripts/lua2json.ts"
+    "start": "vercel dev"
   },
   "dependencies": {
     "@auctionoton/db": "*",
