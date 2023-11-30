@@ -16,10 +16,6 @@ import {
 } from '../_utils.js';
 import { rateLimit } from '../_rate-limiter.js';
 
-export const config = {
-  runtime: 'edge',
-};
-
 async function fetchItem(url: string) {
   const res = await fetch(url);
 

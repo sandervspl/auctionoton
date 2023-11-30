@@ -1,10 +1,6 @@
 import { Machine } from './_types.js';
 import { getQueries } from './_utils.js';
 
-export const config = {
-  runtime: 'edge',
-};
-
 const MACHINE_ENV = {
   ...process.env,
   TZ: 'Europe/Amsterdam',
