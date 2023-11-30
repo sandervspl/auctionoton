@@ -5,10 +5,12 @@
   "license": "ISC",
   "type": "module",
   "scripts": {
-    "server": "tsx src/index.ts"
+    "dev": "NODE_ENV=development tsx src/index.ts",
+    "server": "NODE_ENV=production tsx src/index.ts"
   },
   "dependencies": {
     "@auctionoton/db": "workspace:*",
+    "dotenv": "^16.3.1",
     "drizzle-orm": "^0.29.0",
     "lua-json": "^1.0.1",
     "remeda": "^1.29.0",

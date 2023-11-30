@@ -1,11 +1,10 @@
-import { getAuctionDBFile } from './utils';
+import { config } from 'dotenv';
+
+config();
 
 async function main() {
-  try {
-    const file = await getAuctionDBFile();
-  } catch (err: any) {
-    throw new Error(err.message);
-  }
+  const { updateDB } = await import('./update-db');
+  await updateDB();
 }
 
 main()

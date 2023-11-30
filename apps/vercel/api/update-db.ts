@@ -39,7 +39,7 @@ export default async function GET(req: Request) {
           processes: [
             {
               name: 'start',
-              cmd: ['pnpm', 'server'],
+              cmd: ['pnpm', 'run', 'server'],
               env: MACHINE_ENV,
             },
           ],

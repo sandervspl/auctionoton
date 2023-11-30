@@ -11,8 +11,13 @@ export async function getAuctionDBFile() {
     throw new Error('Unauthorized');
   }
 
+  console.info('Downloading AuctionDB file...');
+
+  console.time('Downloaded AuctionDB file');
   const response = await fetch(`${process.env.BLOB_URL}/AuctionDB.lua?secret=${secret}`);
   const data = await response.text();
+  console.timeEnd('Downloaded AuctionDB file');
+
   const json = lua2json(data);
 
   return json;
