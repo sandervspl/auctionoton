@@ -1,4 +1,4 @@
-import { db } from '../db/index.js';
+import { db } from '@auctionoton/db';
 
 export const config = {
   runtime: 'edge',

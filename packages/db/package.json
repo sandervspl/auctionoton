@@ -1,0 +1,38 @@
+{
+  "name": "@auctionoton/db",
+  "version": "1.0.0",
+  "private": true,
+  "license": "ISC",
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./schema": {
+      "import": "./dist/schema.mjs",
+      "require": "./dist/schema.js"
+    }
+  },
+  "scripts": {
+    "build": "cross-env NODE_ENV=production tsup --entry src/index.ts --entry src/schema.ts --dts --format esm",
+    "start": "cross-env NODE_ENV=development tsup src/index.ts --dts --watch",
+    "db:push": "drizzle-kit push:sqlite",
+    "db:gen": "drizzle-kit generate:sqlite"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "better-sqlite3": "^9.1.1",
+    "cross-env": "^7.0.3",
+    "drizzle-kit": "^0.20.4",
+    "tsup": "^8.0.1",
+    "typescript": "latest"
+  },
+  "dependencies": {
+    "@libsql/client": "0.4.0-pre.2",
+    "drizzle-orm": "^0.29.0",
+    "drizzle-zod": "^0.5.1",
+    "zod": "^3.22.4"
+  }
+}

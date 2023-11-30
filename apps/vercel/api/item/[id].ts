@@ -1,3 +1,5 @@
+import { db } from '@auctionoton/db';
+import { factions, items, itemsValues, realms, scanmeta } from '@auctionoton/db/schema';
 import { kv } from '@vercel/kv';
 import { ipAddress } from '@vercel/edge';
 import { and, desc, eq, sql } from 'drizzle-orm';
@@ -12,9 +14,8 @@ import {
   getURLParam,
   nexushubToItemResponse,
 } from '../_utils.js';
-import { db } from '../../db/index.js';
-import { factions, items, itemsValues, realms, scanmeta } from '../../db/schema.js';
 import { rateLimit } from '../_rate-limiter.js';
+// import { factions, items, itemsValues, realms, scanmeta } from '../../../db/src/schema.js';
 
 export const config = {
   runtime: 'edge',
@@ -67,7 +68,7 @@ async function queryItem(id: number, realm: string, faction: 'Neutral' | 'Allian
         realm: realm.toLowerCase(),
         faction,
       })
-      .catch((err) => {
+      .catch((err: any) => {
         console.error(err);
         return null;
       });
