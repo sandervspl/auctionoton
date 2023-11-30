@@ -204,6 +204,11 @@ async function ahDeserializeScanResult(
         itemValues[scan.realm][scan.faction][itemId].numAuctions += 1;
         itemValues[scan.realm][scan.faction][itemId].quantity += a.ItemCount;
 
+        // If the buyout is >=200% of the minBuyout, it's probably a scam auction
+        if (a.Buyout >= curItemValues.minBuyout * 2) {
+          continue;
+        }
+
         marketValues[itemId].push(a.Buyout);
       }
     }
