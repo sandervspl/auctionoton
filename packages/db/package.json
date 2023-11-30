@@ -8,10 +8,16 @@
   "type": "module",
   "exports": {
     ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "node": "./dist/index.js",
       "default": "./dist/index.mjs",
       "types": "./dist/index.d.mts"
     },
     "./schema": {
+      "import": "./dist/schema.mjs",
+      "require": "./dist/schema.js",
+      "node": "./dist/schema.js",
       "default": "./dist/schema.mjs",
       "types": "./dist/schema.d.mts"
     }
