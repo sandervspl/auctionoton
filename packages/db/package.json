@@ -21,6 +21,12 @@
     "db:push": "drizzle-kit push:sqlite",
     "db:gen": "drizzle-kit generate:sqlite"
   },
+  "dependencies": {
+    "@libsql/client": "0.4.0-pre.2",
+    "drizzle-orm": "^0.29.0",
+    "drizzle-zod": "^0.5.1",
+    "zod": "^3.22.4"
+  },
   "devDependencies": {
     "@types/node": "^20.10.0",
     "better-sqlite3": "^9.1.1",
@@ -28,11 +34,5 @@
     "drizzle-kit": "^0.20.4",
     "tsup": "^8.0.1",
     "typescript": "latest"
-  },
-  "dependencies": {
-    "@libsql/client": "0.4.0-pre.2",
-    "drizzle-orm": "^0.29.0",
-    "drizzle-zod": "^0.5.1",
-    "zod": "^3.22.4"
   }
 }

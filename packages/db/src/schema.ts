@@ -1,5 +1,7 @@
+import 'zod';
 import { sql } from 'drizzle-orm';
 import { text, integer, sqliteTable, unique, index } from 'drizzle-orm/sqlite-core';
+import { createInsertSchema } from 'drizzle-zod';
 
 export const items = sqliteTable(
   'items',
@@ -129,3 +131,8 @@ export const realms = sqliteTable(
     realms_name_idx: index('realms_name_idx').on(table.name),
   }),
 );
+
+export const insertAuctionsSchema = createInsertSchema(auctions);
+export const insertItemsSchema = createInsertSchema(items);
+export const insertItemsValuesSchema = createInsertSchema(itemsValues);
+export const insertScanmetaSchema = createInsertSchema(scanmeta);

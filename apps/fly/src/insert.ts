@@ -1,21 +1,19 @@
-import { sql } from 'drizzle-orm';
-import { fromZodError } from 'zod-validation-error';
-import { z } from 'zod';
-import * as R from 'remeda';
-
+import { db } from '@auctionoton/db';
 import {
   auctions,
   factions,
-  insertAuctionsSchema,
-  insertItemsSchema,
-  insertItemsValuesSchema,
-  insertScanmetaSchema,
   items,
   itemsValues,
   realms,
   scanmeta,
-} from '../schema.js';
-import { db } from '../index.js';
+  insertAuctionsSchema,
+  insertItemsSchema,
+  insertItemsValuesSchema,
+  insertScanmetaSchema,
+} from '@auctionoton/db/schema';
+import { fromZodError } from 'zod-validation-error';
+import { z } from 'zod';
+import * as R from 'remeda';
 
 interface ItemEntry {
   ID: string;
