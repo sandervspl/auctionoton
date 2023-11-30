@@ -1,9 +1,5 @@
 import { db } from '@auctionoton/db';
 
-export const config = {
-  runtime: 'edge',
-};
-
 export async function GET() {
   try {
     const realms = await db.query.realms.findMany();
