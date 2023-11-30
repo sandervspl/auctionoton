@@ -1,5 +1,5 @@
-import { Machine } from './_types';
-import { getQueries } from './_utils';
+import { Machine } from './_types.js';
+import { getQueries } from './_utils.js';
 
 export const config = {
   runtime: 'edge',

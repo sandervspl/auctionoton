@@ -1,4 +1,4 @@
-import * as i from './_types';
+import * as i from './_types.js';
 
 export const supportedClassicEraServers = ['stitches', 'nek-rosh'];
 

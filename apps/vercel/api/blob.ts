@@ -1,7 +1,7 @@
 import { put } from '@vercel/blob';
 
-import { rateLimit } from './_rate-limiter';
-import { getQueries, isAuth } from './_utils';
+import { rateLimit } from './_rate-limiter.js';
+import { getQueries, isAuth } from './_utils.js';
 
 const MAX_REQUESTS = 1;
 const WINDOW_SECONDS = 60 * 60;

@@ -6,15 +6,15 @@ import { and, desc, eq, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/sqlite-core';
 import slugify from 'slugify';
 
-import type { NexusHub } from '../_types';
+import type { NexusHub } from '../_types.js';
 import {
   getFactionSlug,
   getQueries,
   getServerSlug,
   getURLParam,
   nexushubToItemResponse,
-} from '../_utils';
-import { rateLimit } from '../_rate-limiter';
+} from '../_utils.js';
+import { rateLimit } from '../_rate-limiter.js';
 
 export const config = {
   runtime: 'edge',
