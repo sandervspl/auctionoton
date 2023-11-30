@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/sandervspl/auctionoton/blob/master/apps/extension/store/promo-440x280.png?raw=true" alt="prime-logo" />
+  <img src="https://github.com/sandervspl/auctionoton/blob/main/apps/extension/store/promo-440x280.png?raw=true" alt="prime-logo" />
 </p>
 
 # Auctionoton: Auction House Prices for Wowhead

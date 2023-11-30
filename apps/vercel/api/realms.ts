@@ -1,8 +1,4 @@
-import { db } from '../db/index.js';
-
-export const config = {
-  runtime: 'edge',
-};
+import { db } from '@auctionoton/db';
 
 export async function GET() {
   try {

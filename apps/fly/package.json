@@ -1,0 +1,26 @@
+{
+  "name": "@auctionoton/on-demand",
+  "version": "1.0.0",
+  "private": true,
+  "license": "ISC",
+  "type": "module",
+  "scripts": {
+    "dev": "NODE_ENV=development tsx src/index.ts",
+    "server": "NODE_ENV=production tsx src/index.ts",
+    "docker:build": "docker build --no-cache --pull -t registry.fly.io/auctionoton-on-demand:latest --platform linux/amd64 .",
+    "docker:push": "docker push registry.fly.io/auctionoton-on-demand:latest"
+  },
+  "dependencies": {
+    "@auctionoton/db": "workspace:*",
+    "dotenv": "^16.3.1",
+    "drizzle-orm": "^0.29.0",
+    "lua-json": "^1.0.1",
+    "remeda": "^1.29.0",
+    "zod": "^3.22.4",
+    "zod-validation-error": "^2.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "tsx": "^3.14.0"
+  }
+}

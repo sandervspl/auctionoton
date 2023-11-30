@@ -1,6 +1,7 @@
+import 'zod';
 import { sql } from 'drizzle-orm';
 import { text, integer, sqliteTable, unique, index } from 'drizzle-orm/sqlite-core';
-import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+import { createInsertSchema } from 'drizzle-zod';
 
 export const items = sqliteTable(
   'items',
@@ -23,8 +24,6 @@ export const items = sqliteTable(
     items_shortid_idx: index('items_shortid_idx').on(table.shortid),
   }),
 );
-
-export const insertItemsSchema = createInsertSchema(items);
 
 export const scanmeta = sqliteTable(
   'scanmeta',
@@ -49,8 +48,6 @@ export const scanmeta = sqliteTable(
   }),
 );
 
-export const insertScanmetaSchema = createInsertSchema(scanmeta);
-
 export const auctions = sqliteTable(
   'auctions',
   {
@@ -73,9 +70,6 @@ export const auctions = sqliteTable(
     auctions_scanid_itemid_idx: unique('auctions_scanid_itemid_idx').on(table.scanId, table.itemId),
   }),
 );
-
-export const insertAuctionsSchema = createInsertSchema(auctions);
-export const selectAuctionsSchema = createSelectSchema(auctions);
 
 export const itemsValues = sqliteTable(
   'items_values',
@@ -104,9 +98,6 @@ export const itemsValues = sqliteTable(
     ).on(table.itemShortid, table.timestamp, table.realm, table.faction),
   }),
 );
-
-export const insertItemsValuesSchema = createInsertSchema(itemsValues);
-export const selectItemsValuesSchema = createSelectSchema(itemsValues);
 
 export const factions = sqliteTable(
   'factions',
@@ -141,4 +132,7 @@ export const realms = sqliteTable(
   }),
 );
 
-export const selectRealmsSchema = createSelectSchema(realms);
+export const insertAuctionsSchema = createInsertSchema(auctions);
+export const insertItemsSchema = createInsertSchema(items);
+export const insertItemsValuesSchema = createInsertSchema(itemsValues);
+export const insertScanmetaSchema = createInsertSchema(scanmeta);

@@ -1,21 +1,19 @@
-import { sql } from 'drizzle-orm';
-import { fromZodError } from 'zod-validation-error';
-import { z } from 'zod';
-import * as R from 'remeda';
-
+import { db } from '@auctionoton/db';
 import {
   auctions,
   factions,
-  insertAuctionsSchema,
-  insertItemsSchema,
-  insertItemsValuesSchema,
-  insertScanmetaSchema,
   items,
   itemsValues,
   realms,
   scanmeta,
-} from '../schema.js';
-import { db } from '../index.js';
+  insertAuctionsSchema,
+  insertItemsSchema,
+  insertItemsValuesSchema,
+  insertScanmetaSchema,
+} from '@auctionoton/db/schema';
+import { fromZodError } from 'zod-validation-error';
+import { z } from 'zod';
+import * as R from 'remeda';
 
 interface ItemEntry {
   ID: string;
@@ -434,12 +432,14 @@ async function saveItems(_items: Record<string, any>) {
   }
 }
 
-async function main() {
-  const ahdb = JSON.parse(await Bun.file('db.json').text()) as AHData;
+export async function insert(ahdbJSON: string) {
+  try {
+    const ahdb = JSON.parse(ahdbJSON) as AHData;
 
-  await saveItems(ahdb.itemDB_2);
-  console.log('\n----------------\n');
-  await saveScans(ahdb.ah, ahdb.itemDB_2);
+    await saveItems(ahdb.itemDB_2);
+    console.log('\n----------------\n');
+    await saveScans(ahdb.ah, ahdb.itemDB_2);
+  } catch (err: any) {
+    throw new Error(err.message);
+  }
 }
-
-main();
