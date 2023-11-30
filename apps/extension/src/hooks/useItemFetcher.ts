@@ -18,14 +18,14 @@ type Options = UseQueryOptions<
 >;
 
 function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
-  const memoUser = useUser();
+  const user = useUser();
   const [error, setError] = React.useState('');
   const [warning, setWarning] = React.useState('');
   const [item, setItem] = React.useState<i.CachedItemDataClassic>();
   const { isClassicWowhead, isEra } = useIsClassicWowhead();
 
   const { data, isLoading, isFetching, isError, refetch } = useQuery({
-    queryKey: createQueryKey(itemId, memoUser),
+    queryKey: createQueryKey(itemId, user),
     queryFn: fetchItem,
     refetchOnWindowFocus: true,
     retry: false, // Let user retry on demand with button
@@ -54,17 +54,11 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
 
     // If item from storage is stale, fetch item
     if (isClassicWowhead) {
-      if (!memoUser.realm || !memoUser.faction) {
+      if (!user.realm || !user.faction) {
         return;
       }
 
-      const result = await fetchItemFromAPI(
-        itemId,
-        memoUser.realm,
-        memoUser.faction,
-        isEra,
-        queryKey,
-      );
+      const result = await fetchItemFromAPI(itemId, user.realm, user.faction, isEra, queryKey);
 
       if (result) {
         return result;

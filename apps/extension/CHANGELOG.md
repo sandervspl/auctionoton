@@ -1,5 +1,11 @@
 # extension
 
+## 4.2.1
+
+### Patch Changes
+
+- 9ebd45e: Fixed realm not saving properly
+
 ## 4.2.0
 
 ### Minor Changes
