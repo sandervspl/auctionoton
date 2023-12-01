@@ -59,6 +59,10 @@ const CHUNK_SIZE = 2000;
 const itemRegex =
   /^([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)(\|[^|]+\|Hitem:([0-9]+)[^|]+\|h\[([^\]]+)\]\|h\|r)$/;
 
+function sanitizeRealmName(name: string) {
+  return name.toLowerCase().replaceAll(' ', '');
+}
+
 function extractItemInfo(id: string, olink: string): ItemEntry {
   const e: ItemEntry = { ID: id, Olink: olink } as ItemEntry;
 
@@ -148,6 +152,8 @@ async function ahDeserializeScanResult(
       continue;
     }
 
+    marketValues[itemId] ||= [];
+
     if (!itemValues[scan.realm]?.[scan.faction]?.[itemId]) {
       itemValues[scan.realm] = {
         ...itemValues[scan.realm],
@@ -221,7 +227,7 @@ async function ahDeserializeScanResult(
     delete marketValues[itemId];
 
     const realmId = realmsData.find(
-      (realm) => realm.name.toLowerCase() === scan.realm.toLowerCase(),
+      (realm) => sanitizeRealmName(realm.name) === sanitizeRealmName(scan.realm),
     )?.id;
     const factionId = factionsData.find(
       (faction) => faction.name.toLowerCase() === scan.faction.toLowerCase(),
@@ -334,8 +340,9 @@ async function saveScans(scans: ScanEntry[], items: Record<string, any>) {
       console.info(`Saving scan for ${scan.realm} ${scan.faction} ${scan.char} ${scan.ts}...`);
 
       const scanmetaValues = insertScanmetaSchema.safeParse({
-        realm: realmsData.find((realm) => realm.name.toLowerCase() === scan.realm.toLowerCase())
-          ?.id,
+        realm: realmsData.find(
+          (realm) => sanitizeRealmName(realm.name) === sanitizeRealmName(scan.realm),
+        )?.id,
         faction: factionsData.find(
           (faction) => faction.name.toLowerCase() === scan.faction.toLowerCase(),
         )?.id,
@@ -445,7 +452,7 @@ export async function insert(ahdbJSON: string) {
   try {
     const ahdb = JSON.parse(ahdbJSON) as AHData;
 
-    await saveItems(ahdb.itemDB_2);
+    // await saveItems(ahdb.itemDB_2);
     console.log('\n----------------\n');
     await saveScans(ahdb.ah, ahdb.itemDB_2);
   } catch (err: any) {
