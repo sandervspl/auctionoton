@@ -18,11 +18,11 @@ export const items = sqliteTable(
   },
   (table) => ({
     items_item_id_auction_house_id_idx: index('items_item_id_auction_house_id_idx').on(
-      table.id,
+      table.itemId,
       table.auctionHouseId,
     ),
     items_item_id_auction_house_id_unq: unique('items_item_id_auction_house_id_unq').on(
-      table.id,
+      table.itemId,
       table.auctionHouseId,
     ),
   }),
