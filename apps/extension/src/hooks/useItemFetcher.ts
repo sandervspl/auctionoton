@@ -58,7 +58,14 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
         return;
       }
 
-      const result = await fetchItemFromAPI(itemId, user.realm, user.faction, isEra, queryKey);
+      const result = await fetchItemFromAPI(
+        itemId,
+        user.realm,
+        user.faction,
+        user.region,
+        isEra,
+        queryKey,
+      );
 
       if (result) {
         return result;

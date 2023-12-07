@@ -1,9 +1,15 @@
-import * as i from './_types';
+import * as i from './_types.js';
 
-export const supportedClassicEraServers = ['stitches', 'nek-rosh'];
+export const versionMap = {
+  era: 'Classic Era',
+  hardcore: 'Classic Era - Hardcore',
+  classic: 'Wrath',
+  seasonal: 'Season of Discovery',
+};
 
 export function getQueries(url: string): URLSearchParams {
-  return new URL(url).searchParams;
+  const fixedUrl = !url.startsWith('http') ? `https://localhost:3000${url}` : url;
+  return new URL(fixedUrl).searchParams;
 }
 
 export function getURLParam(req: Request): string {

@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/libsql';
 import { createClient } from '@libsql/client';
 
-import * as schema from './schema';
+import * as schema from './schema.js';
 
 const PROCESS_DB_URL = process.env.DB_URL!;
 const DB_URL = PROCESS_DB_URL.startsWith('https') ? PROCESS_DB_URL : `file:${PROCESS_DB_URL}`;

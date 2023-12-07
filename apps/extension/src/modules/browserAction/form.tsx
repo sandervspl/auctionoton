@@ -46,7 +46,7 @@ export const RealmForm: React.FC = () => {
   const watchRegion = form.watch('region');
   const watchVersion = form.watch('version');
   const watchRealm = form.watch('realm');
-  const realms = useRealmsList();
+  const realms = useRealmsList(watchRegion, watchVersion);
 
   React.useLayoutEffect(() => {
     if (!user) {
@@ -71,26 +71,18 @@ export const RealmForm: React.FC = () => {
       return;
     }
 
-    const version = user?.version;
-    const storedRealm = version ? user?.realms?.[version]?.name : null;
-    const firstRealmInlist = realms.data.find(
-      (realm) => realm.region === watchRegion && realm.version === watchVersion,
-    )?.name;
+    const storedRealm = watchVersion ? user?.realms?.[watchVersion]?.name : null;
+    const firstRealmInlist = realms.data[0];
 
     if (
       storedRealm &&
-      realms.data.find(
-        (realm) =>
-          realm.name.toLowerCase() === storedRealm.toLowerCase() &&
-          realm.region === watchRegion &&
-          realm.version === watchVersion,
-      )
+      realms.data.find((realm) => realm.name.toLowerCase() === storedRealm.toLowerCase())
     ) {
       form.setValue('realm', storedRealm);
     } else if (firstRealmInlist) {
-      form.setValue('realm', firstRealmInlist);
+      form.setValue('realm', firstRealmInlist.name);
     }
-  }, [user, realms.data, watchRegion, watchVersion, form]);
+  }, [user, realms.data, watchVersion, form]);
 
   React.useEffect(() => {
     if (!watchRealm) {
@@ -113,10 +105,7 @@ export const RealmForm: React.FC = () => {
 
     return asyncStorage.set('user', (draft) => {
       const realm = realms.data.find(
-        (realm) =>
-          realm.name.toLowerCase() === data.realm.toLowerCase() &&
-          realm.region === data.region &&
-          realm.version === data.version,
+        (realm) => realm.name.toLowerCase() === data.realm.toLowerCase(),
       );
       if (!realm) {
         throw Error('Could not find realm');
@@ -202,9 +191,7 @@ export const RealmForm: React.FC = () => {
                     </FormControl>
                     <SelectContent position="item-aligned">
                       <SelectItem value="eu">Europe</SelectItem>
-                      <SelectItem value="us" disabled={watchVersion === 'era'}>
-                        North America {watchVersion === 'era' && '(not supported yet)'}
-                      </SelectItem>
+                      <SelectItem value="us">North America</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -230,15 +217,11 @@ export const RealmForm: React.FC = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent position="item-aligned">
-                      {realms.data
-                        ?.filter(
-                          (realm) => realm.region === watchRegion && realm.version === watchVersion,
-                        )
-                        .map((realm) => (
-                          <SelectItem key={realm.id} value={realm.name}>
-                            {realm.name}
-                          </SelectItem>
-                        ))}
+                      {realms.data?.map((realm) => (
+                        <SelectItem key={realm.realmId} value={realm.name}>
+                          {realm.localizedName}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />

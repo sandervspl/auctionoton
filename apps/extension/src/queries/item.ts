@@ -8,6 +8,7 @@ export async function fetchItemFromAPI(
   itemId: number,
   server: string,
   faction: string,
+  region: string,
   isEra: boolean,
   queryKey: i.ItemQueryKeyCtx,
   amount = 1,
@@ -16,6 +17,7 @@ export async function fetchItemFromAPI(
     const { data } = await edgeAPI.get<i.ItemDataClassicResponse>(`${EdgeAPI.ItemUrl}/${itemId}`, {
       params: {
         server_name: server,
+        region,
         faction: faction,
         version: isEra ? 'era' : 'classic',
         amount,

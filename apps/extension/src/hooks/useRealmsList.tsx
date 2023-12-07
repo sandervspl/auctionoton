@@ -3,18 +3,20 @@ import { useQuery } from 'react-query';
 import { edgeAPI, EdgeAPI } from 'utils/edgeApi';
 
 type Realm = {
-  id: number;
   name: string;
-  region: i.Regions;
-  version: i.Version;
-  tag: 'normal' | 'era' | 'hardcore' | 'seasonal';
+  localizedName: string;
+  realmId: number;
 };
 
-function useRealmsList() {
+function useRealmsList(region: i.Regions, version: i.Version) {
   const realms = useQuery<Realm[], Error>({
-    queryKey: ['realms'],
+    queryKey: ['realms', region, version],
     queryFn: async () => {
-      const { data, status, statusText } = await edgeAPI.get<Realm[]>(EdgeAPI.RealmsUrl);
+      const url = new URL(EdgeAPI.RealmsUrl);
+      url.searchParams.set('region', region);
+      url.searchParams.set('version', version);
+
+      const { data, status, statusText } = await edgeAPI.get<Realm[]>(url.href);
 
       if (status !== 200) {
         throw new Error(statusText);
@@ -22,6 +24,7 @@ function useRealmsList() {
 
       return data;
     },
+    enabled: !!region,
     cacheTime: Infinity,
     staleTime: Infinity,
   });

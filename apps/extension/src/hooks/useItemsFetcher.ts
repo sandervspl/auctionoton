@@ -8,16 +8,16 @@ import useIsClassicWowhead from './useIsClassicWowhead';
 
 export function useItemsFetcher(id: string | number | undefined, itemIds: number[]) {
   const { isEra } = useIsClassicWowhead();
-  const memoUser = useUser();
+  const user = useUser();
 
   return useQuery({
     queryKey: ['items', id],
-    enabled: !!id && !!memoUser.realm,
+    enabled: !!id && !!user.realm,
     queryFn: async () => {
       // Check browser storage if item is stored
       const cachedItems = await Promise.all(
         itemIds.map((itemId) => {
-          const key = createQueryKey(itemId, memoUser);
+          const key = createQueryKey(itemId, user);
           return asyncStorage.getItem({ meta: {}, queryKey: key });
         }),
       );
@@ -36,9 +36,9 @@ export function useItemsFetcher(id: string | number | undefined, itemIds: number
         itemsIdsToFetch.map((itemId) => {
           const key = {
             meta: {},
-            queryKey: createQueryKey(itemId, memoUser),
+            queryKey: createQueryKey(itemId, user),
           };
-          return fetchItemFromAPI(itemId, memoUser.realm, memoUser.faction, isEra, key);
+          return fetchItemFromAPI(itemId, user.realm, user.faction, user.region, isEra, key);
         }),
       );
 

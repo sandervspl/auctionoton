@@ -1,20 +1,24 @@
-import { db } from '@auctionoton/db';
-import { factions, items, itemsValues, realms, scanmeta } from '@auctionoton/db/schema';
 import { kv } from '@vercel/kv';
 import { ipAddress } from '@vercel/edge';
-import { and, desc, eq, sql } from 'drizzle-orm';
-import { alias } from 'drizzle-orm/sqlite-core';
 import slugify from 'slugify';
+import { and, eq, sql } from 'drizzle-orm';
 
-import type { NexusHub } from '../_types';
+import type { NexusHub } from '../_types.js';
 import {
   getFactionSlug,
   getQueries,
   getServerSlug,
   getURLParam,
   nexushubToItemResponse,
-} from '../_utils';
-import { rateLimit } from '../_rate-limiter';
+} from '../_utils.js';
+import { rateLimit } from '../_rate-limiter.js';
+import { getAuctionHouse, getRealms, getRegions } from '../_tsm.js';
+import { db } from '../../db/index.js';
+import { items } from '../../db/schema.js';
+
+export const config = {
+  runtime: 'edge',
+};
 
 async function fetchItem(url: string) {
   const res = await fetch(url);
@@ -32,70 +36,80 @@ async function fetchItem(url: string) {
   return data;
 }
 
-const i = alias(items, 'i');
-const s = alias(scanmeta, 's');
-const iv = alias(itemsValues, 'iv');
-const r = alias(realms, 'r');
-const f = alias(factions, 'f');
 const prepared = db
-  .select({
-    name: i.name,
-    link: i.link,
-    minLevel: i.minLevel,
-    sellPrice: i.sellPrice,
-    itemValues: iv,
-  })
-  .from(i)
-  .fullJoin(iv, eq(iv.itemShortid, i.shortid))
-  .fullJoin(s, and(eq(s.realm, iv.realm), eq(s.faction, iv.faction)))
-  .fullJoin(r, eq(r.name, sql.placeholder('realm')))
-  .fullJoin(f, eq(f.name, sql.placeholder('faction')))
-  .where(and(eq(i.shortid, sql.placeholder('id')), eq(s.realm, r.id), eq(s.faction, f.id)))
-  .orderBy(desc(iv.timestamp))
-  .limit(1)
+  .select()
+  .from(items)
+  .where(
+    and(
+      eq(items.itemId, sql.placeholder('id')),
+      eq(items.auctionHouseId, sql.placeholder('auctionHouseId')),
+    ),
+  )
   .prepare();
 
-async function queryItem(id: number, realm: string, faction: 'Neutral' | 'Alliance' | 'Horde') {
+async function queryItem(
+  id: number,
+  realmSlug: string,
+  faction: 'Neutral' | 'Alliance' | 'Horde',
+  region: string,
+  version: string,
+) {
   try {
-    const item = await prepared
-      .get({
-        id,
-        realm: realm.toLowerCase(),
-        faction,
-      })
-      .catch((err: any) => {
-        console.error(err);
-        return null;
-      });
+    const regions = await getRegions();
+    const regionId = regions?.find((r) => r.regionPrefix === region)?.regionId;
+    if (!regionId) {
+      throw new Error(`Region "${region}" not found`);
+    }
 
-    if (item?.itemValues == null) {
+    const realms = await getRealms(regionId);
+    console.log(realms);
+    const realm = realms?.find((r) => getServerSlug(r.name) === realmSlug);
+    if (!realm) {
+      throw new Error(`Realm "${realmSlug} (${region})" not found`);
+    }
+
+    const auctionHouseId = realm.auctionHouses.find(
+      (ah) => getFactionSlug(ah.type) === faction,
+    )?.auctionHouseId;
+    if (!auctionHouseId) {
+      throw new Error(`Auction house for "${faction}" on "${realmSlug} (${region})" not found`);
+    }
+
+    const ahItems = await getAuctionHouse(auctionHouseId);
+    if (ahItems) {
+      await db.insert(items).values(ahItems).run();
+    }
+
+    const item = await prepared.get({ id, auctionHouseId });
+
+    if (!item) {
       throw new Error('Item not found');
     }
 
     return {
-      server: `${(slugify as any)(realm).toLowerCase()}-${(slugify as any)(faction)}`,
-      itemId: item.itemValues.itemShortid.toString(),
-      name: item.name || '',
-      sellPrice: item.sellPrice || 0,
+      server: `${(slugify as any)(realmSlug).toLowerCase()}-${(slugify as any)(faction)}`,
+      itemId: item.itemId,
+      name: '',
+      sellPrice: 0,
       vendorPrice: null,
-      tooltip: [{ label: item.name || '' }],
-      itemLink: item.link,
-      uniqueName: (slugify as any)(item.name || ''),
+      tooltip: [{ label: '' }],
+      itemLink: '',
+      uniqueName: '',
       stats: {
-        lastUpdated: item.itemValues.timestamp || new Date().toISOString(),
+        lastUpdated: item.timestamp ?? new Date().toISOString(),
         current: {
-          numAuctions: item.itemValues.numAuctions,
-          marketValue: item.itemValues.marketValue,
-          historicalValue: item.itemValues.historicalValue,
-          minBuyout: item.itemValues.minBuyout,
-          quantity: item.itemValues.quantity,
+          numAuctions: item.numAuctions,
+          marketValue: item.marketValue,
+          historicalValue: item.historical,
+          minBuyout: item.minBuyout,
+          quantity: item.quantity,
         },
         previous: null,
       },
       tags: [],
       icon: null,
       itemLevel: null,
-      requiredLevel: item.minLevel,
+      requiredLevel: null,
     } as NexusHub.ItemsResponse;
   } catch (err: any) {
     console.error(err);
@@ -125,8 +139,9 @@ export default async function handler(req: Request) {
 
   const itemId = getURLParam(req);
   const query = getQueries(req.url);
-  const serverSlug = getServerSlug(query.get('server_name')!).toLowerCase();
+  const serverSlug = getServerSlug(query.get('server_name')!);
   const factionSlug = getFactionSlug(query.get('faction')!);
+  const region = query.get('region')!;
   const version = query.get('version');
   const isClassicEra = version === 'era';
   const key = `item${isClassicEra ? ':era' : ''}:${serverSlug}:${factionSlug[0]}:${itemId}`;
@@ -139,7 +154,7 @@ export default async function handler(req: Request) {
   let result = cached
     ? cached
     : isClassicEra
-    ? await queryItem(Number(itemId), serverSlug, factionSlug as any)
+    ? await queryItem(Number(itemId), serverSlug, factionSlug as any, region)
     : await fetchItem(url);
 
   if ('error' in result) {
