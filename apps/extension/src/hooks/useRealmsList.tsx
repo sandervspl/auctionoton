@@ -6,20 +6,35 @@ type Realm = {
   name: string;
   localizedName: string;
   realmId: number;
+  auctionHouses: {
+    auctionHouseId: number;
+    type: 'Alliance' | 'Horde';
+    lastModified: number;
+  }[];
 };
 
 function useRealmsList(region: i.Regions, version: i.Version) {
   const realms = useQuery<Realm[], Error>({
     queryKey: ['realms', region, version],
     queryFn: async () => {
-      const url = new URL(EdgeAPI.RealmsUrl);
-      url.searchParams.set('region', region);
-      url.searchParams.set('version', version);
-
-      const { data, status, statusText } = await edgeAPI.get<Realm[]>(url.href);
+      const { data, status, statusText } = await edgeAPI.get<Realm[]>(EdgeAPI.RealmsUrl, {
+        params: {
+          region,
+          version,
+        },
+      });
 
       if (status !== 200) {
         throw new Error(statusText);
+      }
+
+      if (typeof data === 'string') {
+        try {
+          return JSON.parse(data);
+        } catch (err) {
+          console.error(err);
+          return [];
+        }
       }
 
       return data;

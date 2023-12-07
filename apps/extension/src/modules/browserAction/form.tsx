@@ -17,7 +17,6 @@ import { Button } from 'src/components/ui/button';
 import useRealmsList from 'hooks/useRealmsList';
 import useStorageQuery from 'hooks/useStorageQuery';
 import asyncStorage from 'utils/asyncStorage';
-import slugify from 'slugify';
 import {
   Form,
   FormControl,
@@ -26,6 +25,8 @@ import {
   FormLabel,
   FormMessage,
 } from 'src/components/ui/form';
+import slugify from 'slugify';
+import { Skeleton } from 'src/components/ui/skeleton';
 
 interface FormInput {
   region: i.Regions;
@@ -40,56 +41,52 @@ const queryClient = new QueryClient();
 export const RealmForm: React.FC = () => {
   const { data: user } = useStorageQuery('user');
   const userMutation = useMutation({ mutationFn: userMutateFn });
-  const form = useForm<FormInput>({
-    mode: 'all',
-  });
+  const form = useForm<FormInput>({ mode: 'onSubmit' });
   const watchRegion = form.watch('region');
   const watchVersion = form.watch('version');
   const watchRealm = form.watch('realm');
   const realms = useRealmsList(watchRegion, watchVersion);
 
-  React.useLayoutEffect(() => {
+  React.useEffect(() => {
     if (!user) {
       return;
     }
 
-    const version = user.version;
-    const realmSlug = version ? user.realms?.[version]?.slug : null;
+    const auctionHouseId = user.version ? user.realms?.[user.version]?.auctionHouseId : null;
 
-    if (version && realmSlug) {
+    if (user.version && auctionHouseId) {
+      const realm = user.realms?.[user.version]?.name;
+
       form.reset({
         region: user.region,
-        realm: user.realms?.[version]?.name,
-        faction: user.realms?.[version] && realmSlug ? user.faction[realmSlug] : undefined,
+        realm: realm || '',
+        faction: realm ? user.faction[realm] : undefined,
         version: user.version,
       });
     }
-  }, [form, user]);
+  }, [user]);
 
   React.useEffect(() => {
     if (!realms.data) {
       return;
     }
 
-    const storedRealm = watchVersion ? user?.realms?.[watchVersion]?.name : null;
+    const storedRealm = watchVersion ? user?.realms?.[watchVersion] : null;
     const firstRealmInlist = realms.data[0];
 
-    if (
-      storedRealm &&
-      realms.data.find((realm) => realm.name.toLowerCase() === storedRealm.toLowerCase())
-    ) {
-      form.setValue('realm', storedRealm);
+    if (storedRealm?.auctionHouseId && storedRealm.auctionHouseId > 0) {
+      form.setValue('realm', storedRealm.name);
     } else if (firstRealmInlist) {
       form.setValue('realm', firstRealmInlist.name);
     }
-  }, [user, realms.data, watchVersion, form]);
+  }, [user, realms.data, watchRegion, watchVersion]);
 
   React.useEffect(() => {
     if (!watchRealm) {
       return;
     }
 
-    const faction = user?.faction[slugify(watchRealm)];
+    const faction = user?.faction[watchRealm];
     form.setValue('faction', faction || 'Alliance');
   }, [watchRealm]);
 
@@ -104,28 +101,26 @@ export const RealmForm: React.FC = () => {
     }
 
     return asyncStorage.set('user', (draft) => {
-      const realm = realms.data.find(
-        (realm) => realm.name.toLowerCase() === data.realm.toLowerCase(),
-      );
-      if (!realm) {
-        throw Error('Could not find realm');
-      }
-
-      const realmSlug = slugify(realm.name, {
-        lower: true,
-      });
+      const realm = realms.data.find((realm) => realm.name === data.realm);
 
       draft.region = data.region;
       draft.version = data.version;
       draft.realms ||= {};
       draft.realms[data.version] = {
-        name: realm.name,
-        slug: realmSlug,
+        name: realm?.name || '',
+        // localizedName: realm?.localizedName,
+        slug: slugify(realm?.name || ''),
+        auctionHouseId:
+          realm?.auctionHouses.find((ah) => ah.type === data.faction)?.auctionHouseId || -1,
+      };
+      draft.isActive = {
+        classic: 'classic',
+        era: data.version,
       };
 
       draft.faction = {
         ...user?.faction,
-        [realmSlug]: data.faction,
+        [data.realm]: data.faction,
       };
     });
   }
@@ -208,24 +203,28 @@ export const RealmForm: React.FC = () => {
               render={({ field }) => (
                 <FormItem className="auc-space-y-1">
                   <FormLabel>Realm</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger id="realm">
-                        <SelectValue placeholder="Select realm" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent position="item-aligned">
-                      {realms.data?.map((realm) => (
-                        <SelectItem key={realm.realmId} value={realm.name}>
-                          {realm.localizedName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  {realms.isLoading ? (
+                    <Skeleton className="auc-h-[40px]" />
+                  ) : (
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger id="realm">
+                          <SelectValue placeholder="Select realm" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent position="item-aligned">
+                        {realms.data?.map((realm) => (
+                          <SelectItem key={realm.localizedName} value={realm.name}>
+                            {realm.localizedName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
@@ -238,21 +237,25 @@ export const RealmForm: React.FC = () => {
               render={({ field }) => (
                 <FormItem className="auc-space-y-1">
                   <FormLabel>Faction</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger id="faction">
-                        <SelectValue placeholder="Select faction" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent position="item-aligned">
-                      <SelectItem value="Alliance">Alliance</SelectItem>
-                      <SelectItem value="Horde">Horde</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  {realms.isLoading ? (
+                    <Skeleton className="auc-h-[40px]" />
+                  ) : (
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger id="faction">
+                          <SelectValue placeholder="Select faction" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent position="item-aligned">
+                        <SelectItem value="Alliance">Alliance</SelectItem>
+                        <SelectItem value="Horde">Horde</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}

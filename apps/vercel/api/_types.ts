@@ -63,7 +63,7 @@ export type PriceObject =
 export type PriceSnapshot = {
   marketValue: PriceObject;
   historicalValue: PriceObject;
-  minimumBuyout: PriceObject;
+  minBuyout: PriceObject;
   numAuctions: NumberString;
   quantity: NumberString;
 };

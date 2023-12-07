@@ -96,7 +96,7 @@ const Tooltip: React.FC<Props> = (props) => {
             {(() => {
               // Support for older versions
               if (!('__version' in item) || item.__version === 'classic') {
-                if (!item?.stats?.current?.minimumBuyout) {
+                if (!item?.stats?.current?.minBuyout) {
                   return 'No data is available for this realm.';
                 }
 
@@ -115,7 +115,7 @@ const Tooltip: React.FC<Props> = (props) => {
                     <SellPrice
                       heading="Minimum Buyout"
                       amount={props.amount}
-                      value={item.stats.current.minimumBuyout}
+                      value={item.stats.current.minBuyout}
                     />
                     <SellPrice
                       heading="Quantity"

@@ -2,12 +2,9 @@ import * as i from 'types';
 import { useQuery } from 'react-query';
 import asyncStorage from 'utils/asyncStorage';
 import { fetchItemFromAPI } from 'src/queries/item';
-import { createQueryKey } from 'utils/queryKey';
 import useUser from './useUser';
-import useIsClassicWowhead from './useIsClassicWowhead';
 
 export function useItemsFetcher(id: string | number | undefined, itemIds: number[]) {
-  const { isEra } = useIsClassicWowhead();
   const user = useUser();
 
   return useQuery({
@@ -17,8 +14,8 @@ export function useItemsFetcher(id: string | number | undefined, itemIds: number
       // Check browser storage if item is stored
       const cachedItems = await Promise.all(
         itemIds.map((itemId) => {
-          const key = createQueryKey(itemId, user);
-          return asyncStorage.getItem({ meta: {}, queryKey: key });
+          const key = [user.realm!.auctionHouseId, itemId];
+          return asyncStorage.getItem([user.realm!.auctionHouseId, itemId]);
         }),
       );
 
@@ -34,11 +31,11 @@ export function useItemsFetcher(id: string | number | undefined, itemIds: number
 
       const result = await Promise.all(
         itemsIdsToFetch.map((itemId) => {
-          const key = {
-            meta: {},
-            queryKey: createQueryKey(itemId, user),
-          };
-          return fetchItemFromAPI(itemId, user.realm, user.faction, user.region, isEra, key);
+          if (!user.realm || !user.faction) {
+            return;
+          }
+
+          return fetchItemFromAPI(itemId, user.realm.auctionHouseId);
         }),
       );
 

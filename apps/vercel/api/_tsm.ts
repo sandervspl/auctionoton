@@ -36,7 +36,7 @@ type Item = {
 };
 
 const headers = {
-  'content-type': 'application/json',
+  Accept: 'application/json',
   Authorization: `Bearer ${process.env.TSM_API_KEY}`,
 };
 
@@ -59,7 +59,11 @@ export async function getRegions() {
     items: Region[];
   };
 
-  await kv.set(KV_KEY, regions.items, { ex: 60 * 60 * 24 });
+  try {
+    await kv.set(KV_KEY, regions.items, { ex: 60 * 60 * 24 });
+  } catch (error: any) {
+    console.error('kv error:', error.message || 'unknown error');
+  }
 
   return regions.items;
 }
@@ -83,7 +87,11 @@ export async function getRealms(regionId: number) {
     items: Realm[];
   };
 
-  await kv.set(KV_KEY, realms.items, { ex: 60 * 60 * 24 });
+  try {
+    await kv.set(KV_KEY, realms.items, { ex: 60 * 60 * 24 });
+  } catch (error: any) {
+    console.error('kv error:', error.message || 'unknown error');
+  }
 
   return realms.items;
 }
@@ -96,16 +104,32 @@ export async function getAuctionHouse(auctionHouseId: number) {
     return;
   }
 
-  const response = await fetch(`https://pricing-api.tradeskillmaster.com/ah/${auctionHouseId}`, {
-    headers,
-  });
-  if (response.status !== 200) {
+  // Temporarily lock the key to prevent multiple requests
+  await kv.set(KV_KEY, new Date().toISOString(), { ex: 5 });
+
+  console.log(`fetching auction house "${auctionHouseId}"...`);
+
+  // TSM needs to resolve in less than 20 seconds or else we cancel the request
+  const response = await Promise.race<null | Response>([
+    new Promise((resolve) => setTimeout(() => resolve(null), 20_000)),
+    fetch(`https://pricing-api.tradeskillmaster.com/ah/${auctionHouseId}`, {
+      headers,
+    }),
+  ]);
+
+  if (response?.status !== 200) {
     throw new Error(`Failed to fetch auction house "${auctionHouseId}"`);
   }
 
   const auctionHouse = (await response.json()) as Item[];
 
-  await kv.set(KV_KEY, new Date().toISOString(), { ex: 60 * 60 * 12 });
+  if (Array.isArray(auctionHouse) && auctionHouse.length > 0) {
+    try {
+      await kv.set(KV_KEY, new Date().toISOString(), { ex: 60 * 60 * 6 });
+    } catch (error: any) {
+      console.error('kv error:', error.message || 'unknown error');
+    }
+  }
 
   return auctionHouse;
 }

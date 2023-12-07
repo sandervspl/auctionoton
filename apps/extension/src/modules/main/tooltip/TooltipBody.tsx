@@ -16,14 +16,19 @@ export const TooltipBody: React.FC<Props> = (props) => {
   const { version } = useIsClassicWowhead();
 
   function getServerName(): string {
-    const serverName = user?.realms?.[version];
-    const region = user?.region?.toUpperCase();
-
-    if (!serverName) {
+    if (!user) {
       return 'Unknown';
     }
 
-    const faction = user.faction[serverName.slug];
+    const activeVersion = user.isActive?.[version] || version;
+    const serverName = user.realms?.[activeVersion];
+    const region = user.region?.toUpperCase();
+
+    if (!serverName || !region) {
+      return 'Unknown';
+    }
+
+    const faction = user.faction[serverName.name];
 
     return `${serverName.name} ${region}-${faction}`;
   }

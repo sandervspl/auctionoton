@@ -4,22 +4,11 @@ import dayjs from 'dayjs';
 import asyncStorage from 'utils/asyncStorage';
 import { EdgeAPI, edgeAPI } from 'utils/edgeApi';
 
-export async function fetchItemFromAPI(
-  itemId: number,
-  server: string,
-  faction: string,
-  region: string,
-  isEra: boolean,
-  queryKey: i.ItemQueryKeyCtx,
-  amount = 1,
-) {
+export async function fetchItemFromAPI(itemId: number, auctionHouseId: number, amount = 1) {
   try {
     const { data } = await edgeAPI.get<i.ItemDataClassicResponse>(`${EdgeAPI.ItemUrl}/${itemId}`, {
       params: {
-        server_name: server,
-        region,
-        faction: faction,
-        version: isEra ? 'era' : 'classic',
+        ah_id: auctionHouseId,
         amount,
       },
     });
@@ -31,7 +20,7 @@ export async function fetchItemFromAPI(
     };
 
     // Store in browser storage
-    await asyncStorage.addItem(queryKey, localData);
+    await asyncStorage.addItem([auctionHouseId, itemId], localData);
 
     return localData;
   } catch (err) {

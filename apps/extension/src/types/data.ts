@@ -3,7 +3,7 @@ import * as i from 'types';
 export type ItemDataClassicPrices = {
   marketValue: i.ValueObject;
   historicalValue: i.ValueObject;
-  minimumBuyout: i.ValueObject;
+  minBuyout: i.ValueObject;
 };
 
 export type Cache = {
@@ -34,6 +34,10 @@ export type UserData = {
   region?: i.Regions;
   faction: Record<ServerSlug, i.Factions>; // server tied with faction
   version: i.Version | undefined;
+  isActive?: {
+    classic?: 'classic';
+    era?: i.Version;
+  };
   /** @deprecated use "realms" */
   server?: Partial<
     Record<
@@ -50,6 +54,7 @@ export type UserData = {
       {
         name: string;
         slug: string;
+        auctionHouseId: number;
       }
     >
   >;

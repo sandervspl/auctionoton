@@ -25,4 +25,4 @@ export type PageItem = {
   id: number;
 };
 
-export type Version = 'classic' | 'era';
+export type Version = 'classic' | 'era' | 'hardcore' | 'seasonal';

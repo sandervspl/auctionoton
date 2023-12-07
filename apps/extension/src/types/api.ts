@@ -19,9 +19,9 @@ export type PriceObjectV2 =
     };
 
 export type PriceSnapshotV2 = {
-  marketValue: PriceObjectV2;
-  historicalValue: PriceObjectV2;
-  minimumBuyout: PriceObjectV2;
+  marketValue: number;
+  historicalValue: number;
+  minBuyout: number;
   numAuctions: number;
   quantity: number;
 };

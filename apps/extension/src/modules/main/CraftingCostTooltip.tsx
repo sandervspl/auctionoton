@@ -1,7 +1,6 @@
 import * as i from 'types';
 import * as React from 'react';
 import { ELEMENT_ID } from 'src/constants';
-import { convertToGSCv2 } from 'utils/items';
 import LoadingSvg from 'static/loading.svg';
 import { TooltipBody } from './tooltip/TooltipBody';
 import { Value } from './tooltip/Value';
@@ -18,8 +17,8 @@ export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
   const total =
     props.items?.reduce((acc, item) => {
       const reagentAmount = props.reagentAmountMap.get(item.itemId) ?? 1;
-      const { minimumBuyout } = item.stats.current;
-      const value = typeof minimumBuyout === 'string' ? Number(minimumBuyout) : minimumBuyout.raw;
+      const { minBuyout } = item.stats.current;
+      const value = typeof minBuyout === 'string' ? Number(minBuyout) : minBuyout;
 
       if (isNaN(value)) {
         return acc;
@@ -65,7 +64,7 @@ export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
               </div>
               <div className="auc-flex auc-items-center auc-justify-end">
                 <Value
-                  value={item.stats.current.minimumBuyout}
+                  value={item.stats.current.minBuyout}
                   amount={(props.reagentAmountMap.get(item.itemId) || 1) * craftAmount}
                 />
               </div>
@@ -77,7 +76,7 @@ export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
           <div className="auc-flex auc-items-center auc-font-bold">Total</div>
           <div />
           <div className="auc-flex auc-justify-end auc-items-center">
-            <Value value={convertToGSCv2(total)} />
+            <Value value={total} />
           </div>
         </div>
       </TooltipBody>

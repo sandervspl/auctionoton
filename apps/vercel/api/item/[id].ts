@@ -1,40 +1,18 @@
 import { kv } from '@vercel/kv';
 import { ipAddress } from '@vercel/edge';
-import slugify from 'slugify';
 import { and, eq, sql } from 'drizzle-orm';
+import * as R from 'remeda';
 
 import type { NexusHub } from '../_types.js';
-import {
-  getFactionSlug,
-  getQueries,
-  getServerSlug,
-  getURLParam,
-  nexushubToItemResponse,
-} from '../_utils.js';
+import { getQueries, getURLParam, nexushubToItemResponse } from '../_utils.js';
 import { rateLimit } from '../_rate-limiter.js';
-import { getAuctionHouse, getRealms, getRegions } from '../_tsm.js';
+import { getAuctionHouse } from '../_tsm.js';
 import { db } from '../../db/index.js';
 import { items } from '../../db/schema.js';
 
 export const config = {
   runtime: 'edge',
 };
-
-async function fetchItem(url: string) {
-  const res = await fetch(url);
-
-  if (res.status !== 200) {
-    return {
-      error: true,
-      status: res.status,
-      message: res.statusText,
-    } as const;
-  }
-
-  const data = (await res.json()) as NexusHub.ItemsResponse | NexusHub.ErrorResponse;
-
-  return data;
-}
 
 const prepared = db
   .select()
@@ -47,37 +25,43 @@ const prepared = db
   )
   .prepare();
 
-async function queryItem(
-  id: number,
-  realmSlug: string,
-  faction: 'Neutral' | 'Alliance' | 'Horde',
-  region: string,
-  version: string,
-) {
+async function queryItem(id: string | number, auctionHouseId: string | number) {
   try {
-    const regions = await getRegions();
-    const regionId = regions?.find((r) => r.regionPrefix === region)?.regionId;
-    if (!regionId) {
-      throw new Error(`Region "${region}" not found`);
-    }
-
-    const realms = await getRealms(regionId);
-    console.log(realms);
-    const realm = realms?.find((r) => getServerSlug(r.name) === realmSlug);
-    if (!realm) {
-      throw new Error(`Realm "${realmSlug} (${region})" not found`);
-    }
-
-    const auctionHouseId = realm.auctionHouses.find(
-      (ah) => getFactionSlug(ah.type) === faction,
-    )?.auctionHouseId;
-    if (!auctionHouseId) {
-      throw new Error(`Auction house for "${faction}" on "${realmSlug} (${region})" not found`);
-    }
-
-    const ahItems = await getAuctionHouse(auctionHouseId);
+    const ahItems = await getAuctionHouse(Number(auctionHouseId));
     if (ahItems) {
-      await db.insert(items).values(ahItems).run();
+      try {
+        const chunks = R.chunk(ahItems, 2000);
+
+        for await (const chunk of chunks) {
+          await db
+            .insert(items)
+            .values(
+              chunk.map((item) => ({
+                auctionHouseId: Number(auctionHouseId),
+                itemId: item.itemId,
+                numAuctions: item.numAuctions,
+                marketValue: item.marketValue,
+                historical: item.historical,
+                minBuyout: item.minBuyout,
+                quantity: item.quantity,
+                timestamp: new Date().toISOString(),
+              })),
+            )
+            .onConflictDoUpdate({
+              target: [items.itemId, items.auctionHouseId],
+              set: {
+                numAuctions: sql`excluded.num_auctions`,
+                marketValue: sql`excluded.market_value`,
+                historical: sql`excluded.historical`,
+                minBuyout: sql`excluded.min_buyout`,
+                quantity: sql`excluded.quantity`,
+                timestamp: sql`excluded.timestamp`,
+              },
+            });
+        }
+      } catch (err: any) {
+        console.error(err.message);
+      }
     }
 
     const item = await prepared.get({ id, auctionHouseId });
@@ -87,7 +71,7 @@ async function queryItem(
     }
 
     return {
-      server: `${(slugify as any)(realmSlug).toLowerCase()}-${(slugify as any)(faction)}`,
+      server: '',
       itemId: item.itemId,
       name: '',
       sellPrice: 0,
@@ -119,6 +103,11 @@ async function queryItem(
 
 const MAX_REQUESTS = 100;
 const WINDOW_SECONDS = 60;
+const headers = {
+  'Content-Type': 'application/json',
+  'cache-control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate',
+  'Access-Control-Allow-Origin': '*',
+};
 
 export default async function handler(req: Request) {
   const ip = ipAddress(req);
@@ -139,38 +128,65 @@ export default async function handler(req: Request) {
 
   const itemId = getURLParam(req);
   const query = getQueries(req.url);
-  const serverSlug = getServerSlug(query.get('server_name')!);
-  const factionSlug = getFactionSlug(query.get('faction')!);
-  const region = query.get('region')!;
-  const version = query.get('version');
-  const isClassicEra = version === 'era';
-  const key = `item${isClassicEra ? ':era' : ''}:${serverSlug}:${factionSlug[0]}:${itemId}`;
+  const auctionHouseId = query.get('ah_id');
 
-  const cached = await kv.get<NexusHub.ItemsResponse | undefined>(key);
+  if (!itemId) {
+    return new Response(JSON.stringify({ error: true, message: 'Item ID is required' }), {
+      status: 400,
+      headers: {
+        'content-type': 'application/json',
+        'cache-control': 'no-store',
+      },
+    });
+  }
+
+  if (!auctionHouseId) {
+    return new Response(JSON.stringify({ error: true, message: 'Auction house ID is required' }), {
+      status: 400,
+      headers: {
+        'content-type': 'application/json',
+        'cache-control': 'no-store',
+      },
+    });
+  }
+
+  const key = `item:${auctionHouseId}:${itemId}`;
+
+  const cached = await kv.get<string>(key);
   // const cached = null;
 
-  const url = `https://api.nexushub.co/wow-classic/v1/items/${serverSlug}-${factionSlug}/${itemId}`;
+  if (cached) {
+    return new Response(JSON.stringify(cached), {
+      status: 200,
+      headers,
+    });
+  }
 
-  let result = cached
-    ? cached
-    : isClassicEra
-    ? await queryItem(Number(itemId), serverSlug, factionSlug as any, region)
-    : await fetchItem(url);
+  const result = await queryItem(itemId, auctionHouseId);
 
   if ('error' in result) {
-    const code = 'status' in result ? result.status : 500;
+    const code = (() => {
+      if ('reason' in result) {
+        if (result.reason.includes('not found')) {
+          return 404;
+        }
+      }
+
+      return 500;
+    })();
     const message = 'message' in result ? result.message : result.reason || 'Unknown error';
     return new Response(JSON.stringify({ error: true, message }), {
       status: code,
-      headers: { 'cache-control': 'no-store' },
+      headers: {
+        'content-type': 'application/json',
+        'cache-control': 'no-store',
+      },
     });
   }
 
   if (cached == null) {
     try {
-      await kv.set(key, JSON.stringify(result), {
-        ex: isClassicEra ? 21_600 : 10_800,
-      });
+      await kv.set(key, JSON.stringify(result), { ex: 60 * 60 * 6 });
     } catch (error: any) {
       console.error('kv error:', error.message || 'unknown error');
     }
@@ -179,10 +195,6 @@ export default async function handler(req: Request) {
   const data = nexushubToItemResponse(result, Number(query.get('amount') || 1));
   return new Response(JSON.stringify(data), {
     status: 200,
-    headers: {
-      'Content-Type': 'application/json',
-      'cache-control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate',
-      'Access-Control-Allow-Origin': '*',
-    },
+    headers,
   });
 }

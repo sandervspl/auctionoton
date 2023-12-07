@@ -69,7 +69,11 @@ export default async function handler(req: Request) {
       })),
     );
 
-    await kv.set(KV_KEY, JSON.stringify(data), { ex: 60 * 60 * 24 });
+    try {
+      await kv.set(KV_KEY, JSON.stringify(data), { ex: 60 * 60 * 24 });
+    } catch (error: any) {
+      console.error('kv error:', error.message || 'unknown error');
+    }
 
     return new Response(JSON.stringify(data), {
       status: 200,

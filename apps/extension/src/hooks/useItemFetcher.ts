@@ -1,42 +1,37 @@
 import * as i from 'types';
 import React from 'react';
-import { useQuery, UseQueryOptions } from 'react-query';
+import { useQuery, useQueryClient, UseQueryOptions } from 'react-query';
 
 import asyncStorage from 'utils/asyncStorage';
 import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
 import validateCache from 'utils/validateCache';
 
 import { fetchItemFromAPI } from 'src/queries/item';
-import { createQueryKey } from 'utils/queryKey';
 import useUser from './useUser';
 
 type Options = UseQueryOptions<
   i.CachedItemDataClassic | undefined,
   unknown,
-  i.CachedItemDataClassic,
-  i.ItemQueryKey
+  i.CachedItemDataClassic
 >;
 
 function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
   const user = useUser();
+  const queryClient = useQueryClient();
   const [error, setError] = React.useState('');
   const [warning, setWarning] = React.useState('');
-  const [item, setItem] = React.useState<i.CachedItemDataClassic>();
-  const { isClassicWowhead, isEra } = useIsClassicWowhead();
-
+  const { isClassicWowhead } = useIsClassicWowhead();
+  const queryKey: i.ItemQueryKey = [user.realm?.auctionHouseId || 0, itemId];
   const { data, isLoading, isFetching, isError, refetch } = useQuery({
-    queryKey: createQueryKey(itemId, user),
+    queryKey: ['item', ...queryKey],
     queryFn: fetchItem,
     refetchOnWindowFocus: true,
     retry: false, // Let user retry on demand with button
+    enabled: !!user.realm?.auctionHouseId && !!itemId,
     ...options,
   });
 
-  React.useEffect(() => {
-    setItem(data);
-  }, [data]);
-
-  async function fetchItem(queryKey: i.ItemQueryKeyCtx) {
+  async function fetchItem() {
     setError('');
     setWarning('');
 
@@ -44,8 +39,8 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
     const itemFromStorage = await asyncStorage.getItem(queryKey);
 
     // If found, set it as the item
-    if (itemFromStorage) {
-      setItem(itemFromStorage);
+    if (itemFromStorage && user.realm?.auctionHouseId) {
+      queryClient.setQueryData(['item', ...queryKey], itemFromStorage);
 
       if (validateCache(itemFromStorage)) {
         return itemFromStorage;
@@ -58,14 +53,7 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
         return;
       }
 
-      const result = await fetchItemFromAPI(
-        itemId,
-        user.realm,
-        user.faction,
-        user.region,
-        isEra,
-        queryKey,
-      );
+      const result = await fetchItemFromAPI(itemId, user.realm.auctionHouseId);
 
       if (result) {
         return result;
@@ -77,7 +65,7 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
   }
 
   return {
-    item,
+    item: data,
     isLoading,
     isFetching,
     isError,
