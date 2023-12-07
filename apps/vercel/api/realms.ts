@@ -1,3 +1,5 @@
+import { kv } from '@vercel/kv';
+
 import { getRealms, getRegions } from './_tsm.js';
 import { getQueries } from './_utils.js';
 
@@ -12,12 +14,27 @@ const versionMap = {
   seasonal: 'Season of Discovery',
 };
 
+const headers = {
+  'content-type': 'application/json',
+  'cache-control': 'public, max-age=10800, s-maxage=3600, stale-while-revalidate',
+  'Access-Control-Allow-Origin': '*',
+};
+
 export default async function handler(req: Request) {
   const query = getQueries(req.url);
   const regionq = query.get('region')!;
   const versionq = query.get('version')! as keyof typeof versionMap;
+  const KV_KEY = `tsm:realms:${regionq}:${versionq}`;
 
   try {
+    const cached = await kv.get<string>(KV_KEY);
+    if (cached) {
+      return new Response(cached, {
+        status: 200,
+        headers,
+      });
+    }
+
     const regions = await getRegions();
     const region = regions.find(
       (r) => r.gameVersion === versionMap[versionq] && r.regionPrefix === regionq,
@@ -43,23 +60,21 @@ export default async function handler(req: Request) {
       a.localizedName.localeCompare(b.localizedName),
     );
 
-    return new Response(
-      JSON.stringify(
-        realms.map((realm) => ({
-          name: realm.name,
-          localizedName: realm.localizedName,
-          realmId: realm.realmId,
-        })),
-      ),
-      {
-        status: 200,
-        headers: {
-          'content-type': 'application/json',
-          'cache-control': 'public, max-age=10800, s-maxage=3600, stale-while-revalidate',
-          'Access-Control-Allow-Origin': '*',
-        },
-      },
+    const data = JSON.stringify(
+      realms.map((realm) => ({
+        name: realm.name,
+        localizedName: realm.localizedName,
+        realmId: realm.realmId,
+        auctionHouses: realm.auctionHouses,
+      })),
     );
+
+    await kv.set(KV_KEY, JSON.stringify(data), { ex: 60 * 60 * 24 });
+
+    return new Response(JSON.stringify(data), {
+      status: 200,
+      headers,
+    });
   } catch (error: any) {
     return new Response(
       JSON.stringify({ error: true, message: error.message || 'Unknown error' }),
