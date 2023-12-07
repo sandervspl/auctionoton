@@ -18,7 +18,7 @@ export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
     props.items?.reduce((acc, item) => {
       const reagentAmount = props.reagentAmountMap.get(item.itemId) ?? 1;
       const { minBuyout } = item.stats.current;
-      const value = typeof minBuyout === 'string' ? Number(minBuyout) : minBuyout;
+      const value = typeof minBuyout !== 'object' ? Number(minBuyout) : minBuyout.raw;
 
       if (isNaN(value)) {
         return acc;

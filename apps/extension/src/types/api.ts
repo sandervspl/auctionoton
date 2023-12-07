@@ -21,7 +21,7 @@ export type PriceObjectV2 =
 export type PriceSnapshotV2 = {
   marketValue: number;
   historicalValue: number;
-  minBuyout: number;
+  minBuyout: PriceObjectV2 | number;
   numAuctions: number;
   quantity: number;
 };
