@@ -163,8 +163,10 @@ export const RealmForm: React.FC = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent position="item-aligned">
-                      <SelectItem value="classic">Classic</SelectItem>
+                      <SelectItem value="classic">Wrath of the Lich King</SelectItem>
                       <SelectItem value="era">Era</SelectItem>
+                      <SelectItem value="hardcore">Hardcore</SelectItem>
+                      <SelectItem value="seasonal">Season of Discovery</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

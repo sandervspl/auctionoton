@@ -39,26 +39,9 @@ export default async function handler(req: Request) {
       );
     }
 
-    const realmsRequests = [];
-
-    realmsRequests.push(getRealms(region.regionId));
-
-    if (versionq === 'era') {
-      const hcRegion = regions.find(
-        (r) => r.gameVersion === versionMap.hardcore && r.regionPrefix === regionq,
-      );
-      realmsRequests.push(getRealms(hcRegion!.regionId));
-
-      const seasonalRegion = regions.find(
-        (r) => r.gameVersion === versionMap.seasonal && r.regionPrefix === regionq,
-      );
-      realmsRequests.push(getRealms(seasonalRegion!.regionId));
-    }
-
-    const realmsResult = await Promise.all(realmsRequests);
-    const realms = [...realmsResult]
-      .flat()
-      .sort((a, b) => a.localizedName.localeCompare(b.localizedName));
+    const realms = (await getRealms(region.regionId)).sort((a, b) =>
+      a.localizedName.localeCompare(b.localizedName),
+    );
 
     return new Response(
       JSON.stringify(
