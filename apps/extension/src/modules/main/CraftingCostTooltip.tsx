@@ -4,6 +4,7 @@ import { ELEMENT_ID } from 'src/constants';
 import LoadingSvg from 'static/loading.svg';
 import { TooltipBody } from './tooltip/TooltipBody';
 import { Value } from './tooltip/Value';
+import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
 
 type Props = {
   items: i.CachedItemDataClassic[] | undefined;
@@ -14,6 +15,8 @@ type Props = {
 };
 
 export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
+  const { wowheadBaseUrl } = useIsClassicWowhead();
+
   const total =
     props.items?.reduce((acc, item) => {
       const reagentAmount = props.reagentAmountMap.get(item.itemId) ?? 1;
@@ -51,7 +54,7 @@ export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
           {props.items?.map((item) => (
             <React.Fragment key={item.itemId}>
               <a
-                href={`https://www.wowhead.com/wotlk/item=${item.itemId}/${item.uniqueName}`}
+                href={`${wowheadBaseUrl}/item=${item.itemId}`}
                 className={`auc-flex auc-gap-1 auc-items-center ${getQualityClassFromTags(
                   item.tags,
                 )}`}
@@ -85,14 +88,13 @@ export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
 };
 
 const ItemIcon = (props: { url: string; itemId: number; slug: string }) => {
+  const { wowheadBaseUrl } = useIsClassicWowhead();
+
   return (
     <div className="iconsmall" data-env="wrath" data-tree="wrath" data-game="wow">
       <ins style={{ backgroundImage: `url(${props.url})` }} />
       <del />
-      <a
-        aria-label="Icon"
-        href={`https://www.wowhead.com/wotlk/item=${props.itemId}/${props.slug}`}
-      />
+      <a aria-label="Icon" href={`${wowheadBaseUrl}/item=${props.itemId}`} />
     </div>
   );
 };
