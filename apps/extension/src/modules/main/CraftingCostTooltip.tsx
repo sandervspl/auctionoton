@@ -6,9 +6,11 @@ import { TooltipBody } from './tooltip/TooltipBody';
 import { Value } from './tooltip/Value';
 import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
 
+type Item = { id: number; amount: number; icon: string };
+
 type Props = {
   items: i.CachedItemDataClassic[] | undefined;
-  reagentAmountMap: Map<number, number>;
+  reagentItems: Item[];
   isLoading?: boolean;
   reagents?: Map<number, number>;
   craftAmount?: number;
@@ -17,9 +19,17 @@ type Props = {
 export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
   const { wowheadBaseUrl } = useIsClassicWowhead();
 
+  function getReagentAmount(id: number) {
+    return props.reagentItems.find((reagentItem) => reagentItem.id === id)?.amount ?? 1;
+  }
+
+  function getReagentIcon(id: number) {
+    return props.reagentItems.find((reagentItem) => reagentItem.id === id)?.icon ?? '';
+  }
+
   const total =
     props.items?.reduce((acc, item) => {
-      const reagentAmount = props.reagentAmountMap.get(item.itemId) ?? 1;
+      const reagentAmount = getReagentAmount(item.itemId);
       const { minBuyout } = item.stats.current;
       const value = typeof minBuyout !== 'object' ? Number(minBuyout) : minBuyout.raw;
 
@@ -59,16 +69,20 @@ export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
                   item.tags,
                 )}`}
               >
-                <ItemIcon url={item.icon} itemId={item.itemId} slug={item.uniqueName} />
+                <ItemIcon
+                  url={getReagentIcon(item.itemId)}
+                  itemId={item.itemId}
+                  slug={item.uniqueName}
+                />
                 <span className="auc-flex-1">{item.name}</span>
               </a>
               <div className="auc-flex auc-items-center auc-justify-end">
-                {(props.reagentAmountMap.get(item.itemId) || 1) * craftAmount}
+                {getReagentAmount(item.itemId) * craftAmount}
               </div>
               <div className="auc-flex auc-items-center auc-justify-end">
                 <Value
                   value={item.stats.current.minBuyout}
-                  amount={(props.reagentAmountMap.get(item.itemId) || 1) * craftAmount}
+                  amount={getReagentAmount(item.itemId) * craftAmount}
                 />
               </div>
             </React.Fragment>
@@ -100,15 +114,9 @@ const ItemIcon = (props: { url: string; itemId: number; slug: string }) => {
 };
 
 function getQualityClassFromTags(tags: string | string[]) {
-  const map = new Map([
-    ['common', 1],
-    ['uncommon', 2],
-    ['rare', 3],
-    ['epic', 4],
-    ['legendary', 5],
-  ]);
-  const tag = (Array.isArray(tags) ? tags : tags.split(','))[0]?.toLowerCase();
-  const q = map.get(tag);
+  const map = { common: 1, uncommon: 2, rare: 3, epic: 4, legendary: 5 };
+  const tag = (Array.isArray(tags) ? tags : tags.split(','))[0]?.toLowerCase() as keyof typeof map;
+  const q = map[tag];
 
   return `q${q}`;
 }

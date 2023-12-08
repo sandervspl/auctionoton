@@ -20,8 +20,8 @@ export const ItemPage = (): React.ReactPortal | null => {
   const isAuctionableItem = getIsAuctionableItem(tooltipElement?.innerHTML);
   const showTabs = isCraftableItem && isAuctionableItem;
   const [activeTab, setActiveTab] = React.useState(isAuctionableItem ? 0 : 1);
-  const { reagentItemIds, reagentsAmountMap } = useGetReagentItemIds();
-  const { items } = useCraftableItemPage(reagentItemIds);
+  const { reagentItems } = useGetReagentItemIds();
+  const { items } = useCraftableItemPage(reagentItems.map((item) => item.id));
 
   if (!tooltipElement) {
     return null;
@@ -48,7 +48,7 @@ export const ItemPage = (): React.ReactPortal | null => {
       {activeTab === 0 && <ItemPriceTooltip itemId={pageItem.id} />}
       {activeTab === 1 && (
         <CraftingCostTooltip
-          reagentAmountMap={reagentsAmountMap}
+          reagentItems={reagentItems}
           items={items.data}
           isLoading={items.isLoading}
         />
@@ -61,9 +61,14 @@ export const ItemPage = (): React.ReactPortal | null => {
   );
 };
 
+type Item = {
+  id: number;
+  icon: string;
+  amount: number;
+};
+
 function useGetReagentItemIds() {
-  const [reagentsAmountMap, setReagentsAmountMap] = React.useState<Map<number, number>>(new Map());
-  const reagentItemIds: number[] = React.useMemo(() => {
+  const reagentItems: Item[] = React.useMemo(() => {
     const createdByTabEl = document.querySelector('#tab-created-by-spell');
     if (!createdByTabEl) {
       if (__DEV__) {
@@ -84,7 +89,7 @@ function useGetReagentItemIds() {
       return [];
     }
 
-    const reagentItemIds = Array.from(reagentAnchors)
+    const reagentItems = Array.from(reagentAnchors)
       .map((anchor) => {
         const href = anchor.getAttribute('href');
         if (!href) {
@@ -100,29 +105,33 @@ function useGetReagentItemIds() {
 
         const id = Number(match[1]);
 
+        let amount = 1;
         const amountEl = anchor.nextElementSibling;
         if (amountEl) {
-          const amount = amountEl.textContent;
+          const amountFromEl = amountEl.textContent;
 
-          if (amount) {
-            setReagentsAmountMap((map) => {
-              map.set(id, Number(amount));
-              return map;
-            });
+          if (amountFromEl) {
+            amount = Number(amountFromEl);
           }
         }
 
-        return id;
+        let icon = '';
+        const iconEl = anchor.parentElement?.querySelector('ins');
+        if (iconEl) {
+          // get url from style background-image
+          icon = iconEl.style.backgroundImage.replace(/url\("(.*)"\)/, '$1');
+        }
+
+        return { id, icon, amount };
       })
-      .filter((id): id is number => !!id);
+      .filter((item): item is Item => !!item?.id);
 
-    const uniqueItemIds = new Set(reagentItemIds);
+    // const uniqueItemIds = new Set(reagentItemIds);
 
-    return Array.from(uniqueItemIds);
+    return reagentItems;
   }, []);
 
   return {
-    reagentItemIds,
-    reagentsAmountMap,
+    reagentItems,
   };
 }
