@@ -4,11 +4,14 @@ import { and, eq, sql } from 'drizzle-orm';
 import * as R from 'remeda';
 
 import type { NexusHub } from '../_types.js';
-import { getQueries, getURLParam, nexushubToItemResponse } from '../_utils.js';
+import { getQueries, getURLParam, nexushubToItemResponse, qualityMap } from '../_utils.js';
 import { rateLimit } from '../_rate-limiter.js';
 import { getAuctionHouse } from '../_tsm.js';
 import { db } from '../../db/index.js';
-import { items } from '../../db/schema.js';
+import { items, itemsMetadata } from '../../db/schema.js';
+import { getItemFromBnet } from '../_blizzard/index.ts.js';
+import slugify from '@sindresorhus/slugify';
+import { GameItem } from '../_blizzard/types.js';
 
 export const config = {
   runtime: 'edge',
@@ -23,6 +26,7 @@ const prepared = db
       eq(items.auctionHouseId, sql.placeholder('auctionHouseId')),
     ),
   )
+  .fullJoin(itemsMetadata, eq(items.itemId, itemsMetadata.id))
   .prepare();
 
 async function queryItem(id: string | number, auctionHouseId: string | number) {
@@ -64,21 +68,53 @@ async function queryItem(id: string | number, auctionHouseId: string | number) {
       }
     }
 
-    const item = await prepared.get({ id, auctionHouseId });
+    const queryResult = await prepared.get({ id, auctionHouseId });
 
-    if (!item) {
+    if (!queryResult) {
       throw new Error('Item not found');
+    }
+
+    const { items: item, items_metadata: metadata } = queryResult;
+    console.log(metadata);
+
+    if (item == null) {
+      throw new Error('Item not found');
+    }
+
+    let itemFromBnet: GameItem | null = null;
+    let itemFromBnetSlug = '';
+    if (!metadata) {
+      try {
+        itemFromBnet = await getItemFromBnet(item.itemId);
+
+        if (itemFromBnet) {
+          itemFromBnetSlug = slugify(itemFromBnet.name, { lowercase: true, decamelize: true });
+          await db
+            .insert(itemsMetadata)
+            .values({
+              id: itemFromBnet.id,
+              itemLevel: itemFromBnet.level,
+              name: itemFromBnet.name,
+              quality: qualityMap[itemFromBnet.quality.type] ?? 1,
+              requiredLevel: itemFromBnet.required_level,
+              slug: itemFromBnetSlug,
+            })
+            .onConflictDoNothing();
+        }
+      } catch (err: any) {
+        console.error('getItemFromBnet:', err.message);
+      }
     }
 
     return {
       server: '',
       itemId: item.itemId,
-      name: '',
+      name: metadata?.name ?? itemFromBnet?.name ?? '',
       sellPrice: 0,
-      vendorPrice: null,
-      tooltip: [{ label: '' }],
+      vendorPrice: 0,
+      tooltip: [{ label: metadata?.name ?? itemFromBnet?.name ?? '' }],
       itemLink: '',
-      uniqueName: '',
+      uniqueName: itemFromBnetSlug,
       stats: {
         lastUpdated: item.timestamp ?? new Date().toISOString(),
         current: {
@@ -92,8 +128,8 @@ async function queryItem(id: string | number, auctionHouseId: string | number) {
       },
       tags: [],
       icon: null,
-      itemLevel: null,
-      requiredLevel: null,
+      itemLevel: metadata?.itemLevel ?? itemFromBnet?.level ?? 0,
+      requiredLevel: metadata?.requiredLevel ?? itemFromBnet?.required_level ?? 0,
     } as NexusHub.ItemsResponse;
   } catch (err: any) {
     console.error(err);

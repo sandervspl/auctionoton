@@ -87,3 +87,12 @@ export function isAuth(req: Request) {
 
   return true;
 }
+
+export const qualityMap = {
+  COMMON: 1,
+  UNCOMMON: 2,
+  RARE: 3,
+  EPIC: 4,
+  LEGENDARY: 5,
+  ARTIFACT: 6,
+};

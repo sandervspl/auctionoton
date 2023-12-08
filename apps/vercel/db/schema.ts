@@ -17,11 +17,11 @@ export const items = sqliteTable(
     timestamp: text('timestamp').default(sql`CURRENT_TIMESTAMP`),
   },
   (table) => ({
-    items_item_id_auction_house_id_idx: index('items_item_id_auction_house_id_idx').on(
+    auction_house_id_idx: index('items_item_id_auction_house_id_idx').on(
       table.itemId,
       table.auctionHouseId,
     ),
-    items_item_id_auction_house_id_unq: unique('items_item_id_auction_house_id_unq').on(
+    auction_house_id_unq: unique('items_item_id_auction_house_id_unq').on(
       table.itemId,
       table.auctionHouseId,
     ),
@@ -29,3 +29,24 @@ export const items = sqliteTable(
 );
 
 export const insertItemsSchema = createInsertSchema(items);
+
+export const itemsMetadata = sqliteTable(
+  'items_metadata',
+  {
+    id: integer('id').notNull(),
+    name: text('name').default(''),
+    slug: text('slug').default(''),
+    locale: text('locale').default('en_US'),
+    quality: integer('quality').default(1),
+    tags: text('tags').default(''),
+    itemLevel: integer('item_level').default(0),
+    requiredLevel: integer('required_level').default(0),
+  },
+  (table) => ({
+    id_idx: index('items_metadata_id_idx').on(table.id),
+    id_locale_idx: index('items_metadata_id_locale_idx').on(table.id, table.locale),
+    id_unq: unique('items_metadata_id_unq').on(table.id),
+  }),
+);
+
+export const insertItemsMetadataSchema = createInsertSchema(itemsMetadata);
