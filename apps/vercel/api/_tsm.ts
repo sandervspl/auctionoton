@@ -1,5 +1,4 @@
 import { kv } from '@vercel/kv';
-import { versionMap } from './_utils.js';
 
 type Region = {
   regionId: number;
@@ -35,9 +34,55 @@ type Item = {
   numAuctions: number;
 };
 
-const headers = {
-  Accept: 'application/json',
-  Authorization: `Bearer ${process.env.TSM_API_KEY}`,
+async function getAccessToken() {
+  const KV_KEY = 'tsm:access-token';
+
+  const cached = await kv.get<string>(KV_KEY);
+  if (cached) {
+    return cached;
+  }
+
+  const response = await fetch('https://auth.tradeskillmaster.com/oauth2/token', {
+    method: 'POST',
+    body: JSON.stringify({
+      client_id: process.env.TSM_CLIENT_ID,
+      grant_type: 'api_token',
+      scope: 'app:realm-api app:pricing-api',
+      token: process.env.TSM_API_KEY,
+    }),
+  });
+
+  if (response.status !== 200) {
+    throw new Error('Failed to fetch access token');
+  }
+
+  const { access_token } = (await response.json()) as {
+    access_token: string;
+    expires_at: number;
+    refresh_expires_in: number;
+    refresh_token: string;
+    token_type: 'Bearer';
+    'not-before-policy': number;
+    session_state: string;
+    scope: 'profile email';
+  };
+
+  try {
+    await kv.set(KV_KEY, access_token, { ex: 60 * 60 * 24 });
+  } catch (error: any) {
+    console.error('kv error:', error.message || 'unknown error');
+  }
+
+  return access_token;
+}
+
+const headers = async () => {
+  const token = await getAccessToken();
+
+  return {
+    Accept: 'application/json',
+    Authorization: `Bearer ${token}`,
+  };
 };
 
 export async function getRegions() {
@@ -49,7 +94,7 @@ export async function getRegions() {
   }
 
   const response = await fetch('https://realm-api.tradeskillmaster.com/regions', {
-    headers,
+    headers: await headers(),
   });
   if (response.status !== 200) {
     throw new Error('Failed to fetch regions');
@@ -77,7 +122,9 @@ export async function getRealms(regionId: number) {
 
   const response = await fetch(
     `https://realm-api.tradeskillmaster.com/regions/${regionId}/realms`,
-    { headers },
+    {
+      headers: await headers(),
+    },
   );
   if (response.status !== 200) {
     throw new Error(`Failed to fetch realms for region "${regionId}"`);
@@ -113,7 +160,7 @@ export async function getAuctionHouse(auctionHouseId: number) {
   const response = await Promise.race<Error | Response>([
     new Promise((resolve) => setTimeout(() => resolve(new Error('timeout')), 20_000)),
     fetch(`https://pricing-api.tradeskillmaster.com/ah/${auctionHouseId}`, {
-      headers,
+      headers: await headers(),
     }),
   ]);
 
