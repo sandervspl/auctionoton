@@ -77,6 +77,23 @@ function useGetReagentItemIds() {
       return [];
     }
 
+    // Click the tab to load the reagents
+    const createdByTabAnchor = document.querySelector(
+      'a[href="#created-by-spell"',
+    ) as HTMLAnchorElement;
+    if (!createdByTabAnchor) {
+      if (__DEV__) {
+        console.error('Could not find "created by" tab anchor');
+      }
+      return [];
+    }
+
+    // Click "created by" to load reagents into DOM and then click back to first tab
+    createdByTabAnchor.click();
+    Promise.resolve().then(() =>
+      createdByTabAnchor.parentNode?.parentNode?.querySelector('li a')?.click(),
+    );
+
     const reagentsListEl = createdByTabEl.querySelector('.listview-row')?.querySelectorAll('td')[2];
     if (!reagentsListEl) {
       console.error('Could not find reagents list');

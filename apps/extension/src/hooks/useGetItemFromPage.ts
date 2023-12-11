@@ -5,7 +5,7 @@ function useGetItemFromPage(): UseGetItemFromPage {
   const pathname = React.useRef(window.location.pathname);
   const itemName = getItemNameFromUrl(pathname.current);
   const itemIdSearch = getItemIdFromUrl(pathname.current);
-  const isCraftableItem = !!document.querySelector('#tab-created-by-spell a[href*="spell="]');
+  const isCraftableItem = !!document.querySelector('#tab-created-by-spell');
 
   function getItemNameFromUrl(url?: string): string | undefined {
     const match = url?.match(/item=\d+\/([\w\d-]+)/);
