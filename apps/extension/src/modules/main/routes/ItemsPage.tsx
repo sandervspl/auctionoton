@@ -144,7 +144,7 @@ const ItemsPage: React.FC = () => {
           </div>
         </th>,
         document.querySelector(
-          '#lv-items > div.listview-scroller-horizontal > div > table > thead > tr',
+          '[data-template="item"] > div.listview-scroller-horizontal > div > table > thead > tr',
         )!,
       )}
       {Array.from(document.querySelectorAll('.listview-row')).map((rowEl, i) => {
