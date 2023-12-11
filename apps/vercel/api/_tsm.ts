@@ -50,10 +50,13 @@ async function getAccessToken() {
       scope: 'app:realm-api app:pricing-api',
       token: process.env.TSM_API_KEY,
     }),
+    headers: {
+      'content-type': 'application/json',
+    },
   });
 
-  if (response.status !== 200) {
-    throw new Error('Failed to fetch access token');
+  if (!response.ok) {
+    throw new Error(`Failed to fetch access token: (${response.status}) ${response.statusText}`);
   }
 
   const { access_token } = (await response.json()) as {
