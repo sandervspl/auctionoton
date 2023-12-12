@@ -1,6 +1,6 @@
 import React from 'react';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { ReactQueryDevtools } from 'react-query/devtools';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Key } from 'w3c-keys';
 
 import time from 'utils/time';
@@ -59,9 +59,8 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: time.minutes(30),
-      cacheTime: time.hours(5),
+      gcTime: time.hours(1),
       retryOnMount: false,
-      notifyOnChangeProps: 'tracked',
     },
   },
 });

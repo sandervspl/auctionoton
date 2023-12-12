@@ -2,8 +2,8 @@ import 'typed-query-selector';
 import * as i from 'types';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { QueryClient, QueryClientProvider, useMutation } from 'react-query';
-import { ReactQueryDevtools } from 'react-query/devtools';
+import { QueryClient, QueryClientProvider, useMutation } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
 import {

@@ -1,6 +1,6 @@
 import * as i from 'types';
 import * as React from 'react';
-import { useQuery, useQueryClient, UseQueryResult } from 'react-query';
+import { useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 
 import asyncStorage from 'utils/asyncStorage';
 
@@ -13,7 +13,7 @@ function useStorageQuery<K extends i.StorageKeys>(key: K): UseQueryResult<i.Brow
 
   React.useEffect(() => {
     addon.storage.onChanged.addListener(() => {
-      queryClient.invalidateQueries(['storage', key]);
+      queryClient.invalidateQueries({ queryKey: ['storage', key] });
     });
   }, []);
 

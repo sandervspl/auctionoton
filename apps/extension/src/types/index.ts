@@ -26,3 +26,9 @@ export type PageItem = {
 };
 
 export type Version = 'classic' | 'era' | 'hardcore' | 'seasonal';
+
+export type ReagentItem = {
+  id: number;
+  icon: string;
+  amount: number;
+};

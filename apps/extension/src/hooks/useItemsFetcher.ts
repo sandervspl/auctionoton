@@ -1,5 +1,5 @@
 import * as i from 'types';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 import asyncStorage from 'utils/asyncStorage';
 import { fetchItemFromAPI } from 'src/queries/item';
 import useUser from './useUser';

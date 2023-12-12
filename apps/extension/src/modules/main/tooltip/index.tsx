@@ -3,7 +3,7 @@ import React from 'react';
 import dayjs from 'dayjs';
 import cn from 'classnames';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 
 import LoadingSvg from 'static/loading.svg';
 // import WarningSvg from 'static/exclamation-circle-regular.svg';

@@ -1,5 +1,6 @@
 import * as i from 'types';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
+
 import { edgeAPI, EdgeAPI } from 'utils/edgeApi';
 
 type Realm = {
@@ -40,7 +41,7 @@ function useRealmsList(region: i.Regions, version: i.Version) {
       return data;
     },
     enabled: !!region,
-    cacheTime: Infinity,
+    gcTime: Infinity,
     staleTime: Infinity,
   });
 

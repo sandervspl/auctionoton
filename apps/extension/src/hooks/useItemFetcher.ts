@@ -1,6 +1,6 @@
 import * as i from 'types';
 import React from 'react';
-import { useQuery, useQueryClient, UseQueryOptions } from 'react-query';
+import { useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 
 import asyncStorage from 'utils/asyncStorage';
 import validateCache from 'utils/validateCache';
@@ -8,10 +8,9 @@ import validateCache from 'utils/validateCache';
 import { fetchItemFromAPI } from 'src/queries/item';
 import useUser from './useUser';
 
-type Options = UseQueryOptions<
-  i.CachedItemDataClassic | undefined,
-  unknown,
-  i.CachedItemDataClassic
+type Options = Omit<
+  UseQueryOptions<i.CachedItemDataClassic | undefined, unknown, i.CachedItemDataClassic>,
+  'queryKey' | 'queryFn'
 >;
 
 function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {

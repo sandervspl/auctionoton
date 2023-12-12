@@ -6,11 +6,9 @@ import { TooltipBody } from './tooltip/TooltipBody';
 import { Value } from './tooltip/Value';
 import { useWowhead } from 'hooks/useWowhead';
 
-type Item = { id: number; amount: number; icon: string };
-
 type Props = {
   items: i.CachedItemDataClassic[] | undefined;
-  reagentItems: Item[];
+  reagentItems: i.ReagentItem[];
   isLoading?: boolean;
   reagents?: Map<number, number>;
   craftAmount?: number;

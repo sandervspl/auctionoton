@@ -1,5 +1,5 @@
 import * as i from 'types';
-import { QueryObserverResult, RefetchOptions } from 'react-query';
+import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
 
 export type ItemQueryKey = [auctionHouseId: number, itemId: number];
 

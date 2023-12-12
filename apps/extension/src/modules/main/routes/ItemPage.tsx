@@ -1,4 +1,5 @@
 import 'typed-query-selector';
+import * as i from 'types';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -20,7 +21,7 @@ export const ItemPage = (): React.ReactPortal | null => {
   const isAuctionableItem = getIsAuctionableItem(tooltipElement?.innerHTML);
   const showTabs = isCraftableItem && isAuctionableItem;
   const [activeTab, setActiveTab] = React.useState(isAuctionableItem ? 0 : 1);
-  const { reagentItems } = useGetReagentItemIds();
+  const { reagentItems } = useGetReagentItems();
   const { items } = useCraftableItemPage(reagentItems.map((item) => item.id));
 
   if (!tooltipElement) {
@@ -61,14 +62,8 @@ export const ItemPage = (): React.ReactPortal | null => {
   );
 };
 
-type Item = {
-  id: number;
-  icon: string;
-  amount: number;
-};
-
-function useGetReagentItemIds() {
-  const reagentItems: Item[] = React.useMemo(() => {
+function useGetReagentItems() {
+  const reagentItems: i.ReagentItem[] = React.useMemo(() => {
     const createdByTabEl = document.querySelector('#tab-created-by-spell');
     if (!createdByTabEl) {
       if (__DEV__) {
@@ -141,9 +136,7 @@ function useGetReagentItemIds() {
 
         return { id, icon, amount };
       })
-      .filter((item): item is Item => !!item?.id);
-
-    // const uniqueItemIds = new Set(reagentItemIds);
+      .filter((item): item is i.ReagentItem => !!item?.id);
 
     return reagentItems;
   }, []);
