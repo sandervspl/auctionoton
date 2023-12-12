@@ -14,6 +14,7 @@ import {
   Select,
 } from 'src/components/ui/select';
 import { Button } from 'src/components/ui/button';
+import { Tabs, TabsList, TabsTrigger } from 'src/components/ui/tabs';
 import useRealmsList from 'hooks/useRealmsList';
 import useStorageQuery from 'hooks/useStorageQuery';
 import asyncStorage from 'utils/asyncStorage';
@@ -42,26 +43,36 @@ const queryClient = new QueryClient();
 export const RealmForm: React.FC = () => {
   const { data: user } = useStorageQuery('user');
   const userMutation = useMutation({ mutationFn: userMutateFn });
-  const form = useForm<FormInput>({ mode: 'onSubmit' });
+  const form = useForm<FormInput>({
+    mode: 'onSubmit',
+    defaultValues: {
+      version: 'classic',
+    },
+  });
   const watchRegion = form.watch('region');
   const watchVersion = form.watch('version');
   const watchRealm = form.watch('realm');
   const realms = useRealmsList(watchRegion, watchVersion);
   const auctionHouseId = useAuctionHouse();
+  const [versionTab, setVersionTab] = React.useState<'classic' | 'era'>('classic');
 
   React.useEffect(() => {
+    if (form.formState.isDirty) {
+      return;
+    }
+
     if (!user) {
       return;
     }
 
     if (user.version && auctionHouseId) {
-      const realm = user.realms?.[user.version]?.name;
+      const realm = user.realms?.classic?.name;
 
       form.reset({
         region: user.region,
         realm: realm || '',
         faction: realm ? user.faction[realm] : undefined,
-        version: user.version,
+        version: 'classic',
       });
     }
   }, [user]);
@@ -89,6 +100,14 @@ export const RealmForm: React.FC = () => {
     const faction = user?.faction[watchRealm];
     form.setValue('faction', faction || 'Alliance');
   }, [watchRealm]);
+
+  React.useEffect(() => {
+    if (versionTab === 'classic') {
+      form.setValue('version', 'classic');
+    } else {
+      form.setValue('version', 'seasonal');
+    }
+  }, [versionTab]);
 
   const onSubmit: SubmitHandler<FormInput> = async (data, e) => {
     e?.preventDefault();
@@ -140,6 +159,22 @@ export const RealmForm: React.FC = () => {
           </p>
         </div>
         <div className="auc-space-y-6 auc-w-full">
+          <Tabs
+            defaultValue="classic"
+            className="auc-w-full"
+            value={versionTab}
+            onValueChange={(value) => setVersionTab(value as 'classic' | 'era')}
+          >
+            <TabsList className="auc-w-full">
+              <TabsTrigger value="classic" className="auc-w-full">
+                Classic
+              </TabsTrigger>
+              <TabsTrigger value="era" className="auc-w-full">
+                Era
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+
           <div>
             <FormField
               control={form.control}
@@ -150,7 +185,7 @@ export const RealmForm: React.FC = () => {
                   <Select
                     onValueChange={field.onChange}
                     value={field.value}
-                    defaultValue={field.value}
+                    disabled={versionTab === 'classic'}
                   >
                     <FormControl>
                       <SelectTrigger id="version">
