@@ -60,17 +60,15 @@ export default async function handler(req: Request) {
       a.localizedName.localeCompare(b.localizedName),
     );
 
-    const data = JSON.stringify(
-      realms.map((realm) => ({
-        name: realm.name,
-        localizedName: realm.localizedName,
-        realmId: realm.realmId,
-        auctionHouses: realm.auctionHouses,
-      })),
-    );
+    const data = realms.map((realm) => ({
+      name: realm.name,
+      localizedName: realm.localizedName,
+      realmId: realm.realmId,
+      auctionHouses: realm.auctionHouses,
+    }));
 
     try {
-      await kv.set(KV_KEY, JSON.stringify(data), { ex: 60 * 60 * 24 });
+      await kv.set(KV_KEY, data, { ex: 60 * 60 * 24 });
     } catch (error: any) {
       console.error('kv error:', error.message || 'unknown error');
     }

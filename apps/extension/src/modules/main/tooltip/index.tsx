@@ -14,6 +14,7 @@ import useStorageQuery from 'hooks/useStorageQuery';
 
 import { SellPrice } from './SellPrice';
 import { TooltipBody } from './TooltipBody';
+import { useRealm } from 'hooks/useRealm';
 
 dayjs.extend(relativeTime);
 
@@ -26,7 +27,8 @@ dayjs.extend(relativeTime);
 const Tooltip: React.FC<Props> = (props) => {
   const { data: user } = useStorageQuery('user');
   const { error, isFetching, isLoading, item, refetch } = useItemFetcher(props.itemId);
-  const { isClassicWowhead, isEra } = useIsClassicWowhead();
+  const { isEra } = useIsClassicWowhead();
+  const { activeRealm } = useRealm();
   const { data: lastUpdated } = useQuery(
     ['tooltip', 'last-updated', props.itemId, item?.updatedAt],
     () => {
@@ -63,7 +65,8 @@ const Tooltip: React.FC<Props> = (props) => {
   }
 
   /** @TODO Show link to change realm, let user know to set realm */
-  if (isClassicWowhead && !user?.realms.classic) {
+
+  if (!activeRealm) {
     return null;
   }
 
