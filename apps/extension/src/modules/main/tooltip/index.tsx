@@ -32,25 +32,18 @@ const Tooltip: React.FC<Props> = (props) => {
   const { data: lastUpdated } = useQuery({
     queryKey: ['tooltip', 'last-updated', props.itemId, item?.updatedAt],
     queryFn: async () => {
-      if (item?.__version === 'classic') {
-        if (!item?.stats.lastUpdated) {
-          return {
-            hours: -1,
-            text: 'N/A',
-          };
-        }
-
-        const time = dayjs(item.stats.lastUpdated);
-
+      if (!item?.stats.lastUpdated) {
         return {
-          hours: Math.abs(time.diff(dayjs(), 'hour')),
-          text: time.fromNow(),
+          hours: -1,
+          text: 'N/A',
         };
       }
 
+      const time = dayjs(item.stats.lastUpdated);
+
       return {
-        hours: -1,
-        text: 'N/A',
+        hours: Math.abs(time.diff(dayjs(), 'hour')),
+        text: time.fromNow(),
       };
     },
     enabled: !!item,
@@ -94,41 +87,34 @@ const Tooltip: React.FC<Props> = (props) => {
       {item ? (
         <tr className="auc-block auc-w-full">
           <td className="auc-block auc-w-full">
-            {(() => {
-              // Support for older versions
-              if (!('__version' in item) || item.__version === 'classic') {
-                if (!item?.stats?.current?.minBuyout) {
-                  return 'No data is available for this realm.';
-                }
-
-                return (
-                  <>
-                    <SellPrice
-                      heading="Market Value"
-                      amount={props.amount}
-                      value={item.stats.current.marketValue}
-                    />
-                    <SellPrice
-                      heading="Historical Value"
-                      amount={props.amount}
-                      value={item.stats.current.historicalValue}
-                    />
-                    <SellPrice
-                      heading="Minimum Buyout"
-                      amount={props.amount}
-                      value={item.stats.current.minBuyout}
-                    />
-                    <SellPrice
-                      heading="Quantity"
-                      amount={props.amount}
-                      value={`${item.stats.current.quantity} auction${
-                        item.stats.current.quantity === 1 ? '' : 's'
-                      }`}
-                    />
-                  </>
-                );
-              }
-            })()}
+            {!item?.stats?.current?.minBuyout ? (
+              'No data is available for this realm.'
+            ) : (
+              <>
+                <SellPrice
+                  heading="Market Value"
+                  amount={props.amount}
+                  value={item.stats.current.marketValue}
+                />
+                <SellPrice
+                  heading="Historical Value"
+                  amount={props.amount}
+                  value={item.stats.current.historicalValue}
+                />
+                <SellPrice
+                  heading="Minimum Buyout"
+                  amount={props.amount}
+                  value={item.stats.current.minBuyout}
+                />
+                <SellPrice
+                  heading="Quantity"
+                  amount={props.amount}
+                  value={`${item.stats.current.quantity} auction${
+                    item.stats.current.quantity === 1 ? '' : 's'
+                  }`}
+                />
+              </>
+            )}
 
             {/* Only show this loading indicator if we can show a cached item */}
             {item && (isLoading || isFetching) ? (

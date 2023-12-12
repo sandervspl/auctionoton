@@ -7,7 +7,6 @@ export type ItemDataClassicPrices = {
 };
 
 export type Cache = {
-  __version: 'classic';
   updatedAt: i.Date_ISO_8601;
 };
 

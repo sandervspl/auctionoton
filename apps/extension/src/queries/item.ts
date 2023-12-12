@@ -15,7 +15,6 @@ export async function fetchItemFromAPI(itemId: number, auctionHouseId: number, a
 
     const localData: i.CachedItemDataClassic = {
       ...data,
-      __version: 'classic',
       updatedAt: dayjs().toISOString(),
     };
 
