@@ -37,7 +37,7 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
 
     // If found, set it as the item
     if (itemFromStorage && user.realm?.auctionHouseId) {
-      queryClient.setQueryData(['item', ...queryKey], itemFromStorage);
+      queryClient.setQueryData<i.CachedItemDataClassic>(['item', ...queryKey], itemFromStorage);
 
       if (validateCache(itemFromStorage)) {
         return itemFromStorage;

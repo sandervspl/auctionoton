@@ -1,10 +1,11 @@
 import * as i from 'types';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import asyncStorage from 'utils/asyncStorage';
 import { fetchItemFromAPI } from 'src/queries/item';
 import useUser from './useUser';
 
 export function useItemsFetcher(id: string | number | undefined, itemIds: number[]) {
+  const queryClient = useQueryClient();
   const user = useUser();
 
   return useQuery({
@@ -14,7 +15,6 @@ export function useItemsFetcher(id: string | number | undefined, itemIds: number
       // Check browser storage if item is stored
       const cachedItems = await Promise.all(
         itemIds.map((itemId) => {
-          const key = [user.realm!.auctionHouseId, itemId];
           return asyncStorage.getItem([user.realm!.auctionHouseId, itemId]);
         }),
       );
@@ -39,7 +39,18 @@ export function useItemsFetcher(id: string | number | undefined, itemIds: number
         }),
       );
 
-      return [...cachedItems, ...result].filter((item): item is i.CachedItemDataClassic => !!item);
+      const allItems = [...cachedItems, ...result];
+
+      for (const item of allItems) {
+        if (!item || !user.realm) {
+          continue;
+        }
+
+        const itemQueryKey: i.ItemQueryKey = [user.realm.auctionHouseId, item.itemId];
+        queryClient.setQueryData<i.CachedItemDataClassic>(['item', ...itemQueryKey], item);
+      }
+
+      return allItems.filter((item): item is i.CachedItemDataClassic => !!item);
     },
   });
 }
