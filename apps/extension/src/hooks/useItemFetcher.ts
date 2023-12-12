@@ -3,7 +3,6 @@ import React from 'react';
 import { useQuery, useQueryClient, UseQueryOptions } from 'react-query';
 
 import asyncStorage from 'utils/asyncStorage';
-import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
 import validateCache from 'utils/validateCache';
 
 import { fetchItemFromAPI } from 'src/queries/item';
@@ -20,7 +19,6 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
   const queryClient = useQueryClient();
   const [error, setError] = React.useState('');
   const [warning, setWarning] = React.useState('');
-  const { isClassicWowhead } = useIsClassicWowhead();
   const queryKey: i.ItemQueryKey = [user.realm?.auctionHouseId || 0, itemId];
   const { data, isLoading, isFetching, isError, refetch } = useQuery({
     queryKey: ['item', ...queryKey],
@@ -48,16 +46,14 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
     }
 
     // If item from storage is stale, fetch item
-    if (isClassicWowhead) {
-      if (!user.realm || !user.faction) {
-        return;
-      }
+    if (!user.realm || !user.faction) {
+      return;
+    }
 
-      const result = await fetchItemFromAPI(itemId, user.realm.auctionHouseId);
+    const result = await fetchItemFromAPI(itemId, user.realm.auctionHouseId);
 
-      if (result) {
-        return result;
-      }
+    if (result) {
+      return result;
     }
 
     setError('Something went wrong fetching this item. Please try again.');

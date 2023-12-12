@@ -9,7 +9,7 @@ import LoadingSvg from 'static/loading.svg';
 // import WarningSvg from 'static/exclamation-circle-regular.svg';
 import { ELEMENT_ID } from 'src/constants';
 import useItemFetcher from 'hooks/useItemFetcher';
-import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
+import { useWowhead } from 'hooks/useWowhead';
 import useStorageQuery from 'hooks/useStorageQuery';
 
 import { SellPrice } from './SellPrice';
@@ -27,7 +27,7 @@ dayjs.extend(relativeTime);
 const Tooltip: React.FC<Props> = (props) => {
   const { data: user } = useStorageQuery('user');
   const { error, isFetching, isLoading, item, refetch } = useItemFetcher(props.itemId);
-  const { isEra } = useIsClassicWowhead();
+  const { isEra } = useWowhead();
   const { activeRealm } = useRealm();
   const { data: lastUpdated } = useQuery(
     ['tooltip', 'last-updated', props.itemId, item?.updatedAt],

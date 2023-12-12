@@ -1,9 +1,9 @@
 import useStorageQuery from './useStorageQuery';
-import useIsClassicWowhead from './useIsClassicWowhead';
+import { useWowhead } from './useWowhead';
 
 function useUser() {
   const { data: user } = useStorageQuery('user');
-  const { version } = useIsClassicWowhead();
+  const { version } = useWowhead();
   const activeVersion = user?.isActive?.[version] || version;
 
   // Transfer .server to .realms for backwards compatibility

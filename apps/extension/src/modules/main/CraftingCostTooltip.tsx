@@ -4,7 +4,7 @@ import { ELEMENT_ID } from 'src/constants';
 import LoadingSvg from 'static/loading.svg';
 import { TooltipBody } from './tooltip/TooltipBody';
 import { Value } from './tooltip/Value';
-import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
+import { useWowhead } from 'hooks/useWowhead';
 
 type Item = { id: number; amount: number; icon: string };
 
@@ -17,7 +17,7 @@ type Props = {
 };
 
 export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
-  const { wowheadBaseUrl } = useIsClassicWowhead();
+  const { wowheadBaseUrl } = useWowhead();
 
   function getReagentAmount(id: number) {
     return props.reagentItems.find((reagentItem) => reagentItem.id === id)?.amount ?? 1;
@@ -102,7 +102,7 @@ export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
 };
 
 const ItemIcon = (props: { url: string; itemId: number; slug: string }) => {
-  const { wowheadBaseUrl } = useIsClassicWowhead();
+  const { wowheadBaseUrl } = useWowhead();
 
   return (
     <div className="iconsmall" data-env="wrath" data-tree="wrath" data-game="wow">

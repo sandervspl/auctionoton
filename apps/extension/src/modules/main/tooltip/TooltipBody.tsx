@@ -1,4 +1,4 @@
-import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
+import { useWowhead } from 'hooks/useWowhead';
 import useStorageQuery from 'hooks/useStorageQuery';
 import React from 'react';
 
@@ -13,7 +13,7 @@ type Props = {
 
 export const TooltipBody: React.FC<Props> = (props) => {
   const { data: user } = useStorageQuery('user');
-  const { version } = useIsClassicWowhead();
+  const { version } = useWowhead();
 
   function getServerName(): string {
     if (!user) {
