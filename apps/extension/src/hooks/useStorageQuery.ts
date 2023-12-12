@@ -6,7 +6,10 @@ import asyncStorage from 'utils/asyncStorage';
 
 function useStorageQuery<K extends i.StorageKeys>(key: K): UseQueryResult<i.BrowserStorage[K]> {
   const queryClient = useQueryClient();
-  const query = useQuery(['storage', key], () => asyncStorage.get(key));
+  const query = useQuery({
+    queryKey: ['storage', key],
+    queryFn: async () => asyncStorage.get(key),
+  });
 
   React.useEffect(() => {
     addon.storage.onChanged.addListener(() => {

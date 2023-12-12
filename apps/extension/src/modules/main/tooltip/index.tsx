@@ -29,9 +29,9 @@ const Tooltip: React.FC<Props> = (props) => {
   const { error, isFetching, isLoading, item, refetch } = useItemFetcher(props.itemId);
   const { isEra } = useWowhead();
   const { activeRealm } = useRealm();
-  const { data: lastUpdated } = useQuery(
-    ['tooltip', 'last-updated', props.itemId, item?.updatedAt],
-    () => {
+  const { data: lastUpdated } = useQuery({
+    queryKey: ['tooltip', 'last-updated', props.itemId, item?.updatedAt],
+    queryFn: async () => {
       if (item?.__version === 'classic') {
         if (!item?.stats.lastUpdated) {
           return {
@@ -53,12 +53,10 @@ const Tooltip: React.FC<Props> = (props) => {
         text: 'N/A',
       };
     },
-    {
-      enabled: !!item,
-      refetchOnWindowFocus: true,
-      refetchInterval: 60 * 1000,
-    },
-  );
+    enabled: !!item,
+    refetchOnWindowFocus: true,
+    refetchInterval: 60 * 1000,
+  });
 
   if (!user?.realms) {
     return null;
