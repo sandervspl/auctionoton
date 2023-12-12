@@ -27,6 +27,7 @@ import {
 } from 'src/components/ui/form';
 import slugify from 'slugify';
 import { Skeleton } from 'src/components/ui/skeleton';
+import { useAuctionHouse } from 'hooks/useAuctionHouse';
 
 interface FormInput {
   region: i.Regions;
@@ -46,13 +47,12 @@ export const RealmForm: React.FC = () => {
   const watchVersion = form.watch('version');
   const watchRealm = form.watch('realm');
   const realms = useRealmsList(watchRegion, watchVersion);
+  const auctionHouseId = useAuctionHouse();
 
   React.useEffect(() => {
     if (!user) {
       return;
     }
-
-    const auctionHouseId = user.version ? user.realms?.[user.version]?.auctionHouseId : null;
 
     if (user.version && auctionHouseId) {
       const realm = user.realms?.[user.version]?.name;

@@ -18,6 +18,7 @@ function useUser() {
   const realm = user?.realms?.[activeVersion];
 
   return {
+    ...user,
     realm: realm,
     faction: realm?.name ? user?.faction[realm.name]?.toLowerCase() : '',
     region: user?.region ?? 'eu',

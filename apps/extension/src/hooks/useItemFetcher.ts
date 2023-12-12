@@ -6,7 +6,7 @@ import asyncStorage from 'utils/asyncStorage';
 import validateCache from 'utils/validateCache';
 
 import { fetchItemFromAPI } from 'src/queries/item';
-import useUser from './useUser';
+import { useAuctionHouse } from './useAuctionHouse';
 
 type Options = Omit<
   UseQueryOptions<i.CachedItemDataClassic | undefined, unknown, i.CachedItemDataClassic>,
@@ -14,21 +14,27 @@ type Options = Omit<
 >;
 
 function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
-  const user = useUser();
+  const auctionHouseId = useAuctionHouse();
   const queryClient = useQueryClient();
   const [error, setError] = React.useState('');
   const [warning, setWarning] = React.useState('');
-  const queryKey: i.ItemQueryKey = [user.realm?.auctionHouseId || 0, itemId];
+
+  const queryKey: i.ItemQueryKey = [auctionHouseId!, itemId];
+
   const { data, isLoading, isFetching, isError, refetch } = useQuery({
     queryKey: ['item', ...queryKey],
     queryFn: fetchItem,
     refetchOnWindowFocus: true,
     retry: false, // Let user retry on demand with button
-    enabled: !!user.realm?.auctionHouseId && !!itemId,
+    enabled: !!auctionHouseId && !!itemId,
     ...options,
   });
 
   async function fetchItem() {
+    if (auctionHouseId == null || auctionHouseId <= 0) {
+      return;
+    }
+
     setError('');
     setWarning('');
 
@@ -36,7 +42,7 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
     const itemFromStorage = await asyncStorage.getItem(queryKey);
 
     // If found, set it as the item
-    if (itemFromStorage && user.realm?.auctionHouseId) {
+    if (itemFromStorage) {
       queryClient.setQueryData<i.CachedItemDataClassic>(['item', ...queryKey], itemFromStorage);
 
       if (validateCache(itemFromStorage)) {
@@ -44,12 +50,7 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
       }
     }
 
-    // If item from storage is stale, fetch item
-    if (!user.realm || !user.faction) {
-      return;
-    }
-
-    const result = await fetchItemFromAPI(itemId, user.realm.auctionHouseId);
+    const result = await fetchItemFromAPI(itemId, auctionHouseId!);
 
     if (result) {
       return result;

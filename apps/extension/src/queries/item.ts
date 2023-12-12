@@ -6,6 +6,16 @@ import { EdgeAPI, edgeAPI } from 'utils/edgeApi';
 
 export async function fetchItemFromAPI(itemId: number, auctionHouseId: number, amount = 1) {
   try {
+    if (!auctionHouseId) {
+      if (__DEV__) {
+        throw new Error(
+          `Invalid auction house id provided ("${auctionHouseId}") for item "${itemId}"`,
+        );
+      }
+
+      return;
+    }
+
     const { data } = await edgeAPI.get<i.ItemDataClassicResponse>(`${EdgeAPI.ItemUrl}/${itemId}`, {
       params: {
         ah_id: auctionHouseId,

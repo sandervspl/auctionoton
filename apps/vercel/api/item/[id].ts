@@ -21,8 +21,13 @@ const CACHE_EXPIRATION = 60 * 60 * 6;
 const MAX_REQUESTS = 100;
 const WINDOW_SECONDS = 60;
 const headers = {
-  'Content-Type': 'application/json',
+  'content-type': 'application/json',
   'cache-control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate',
+  'Access-Control-Allow-Origin': '*',
+};
+const errorHeaders = {
+  'content-type': 'application/json',
+  'cache-control': 'no-store',
   'Access-Control-Allow-Origin': '*',
 };
 
@@ -172,8 +177,8 @@ export default async function handler(req: Request, context: RequestContext) {
     return new Response('Too many requests', {
       status: 429,
       headers: {
+        ...errorHeaders,
         'content-type': 'text/plain',
-        'cache-control': 'no-store',
         'ratelimit-limit': MAX_REQUESTS.toString(),
         // 'ratelimit-remaining': '0',
         // 'ratelimit-reset': WINDOW_SECONDS.toString(),
@@ -188,20 +193,14 @@ export default async function handler(req: Request, context: RequestContext) {
   if (!itemId) {
     return new Response(JSON.stringify({ error: true, message: 'Item ID is required' }), {
       status: 400,
-      headers: {
-        'content-type': 'application/json',
-        'cache-control': 'no-store',
-      },
+      headers: errorHeaders,
     });
   }
 
   if (!auctionHouseId) {
     return new Response(JSON.stringify({ error: true, message: 'Auction house ID is required' }), {
       status: 400,
-      headers: {
-        'content-type': 'application/json',
-        'cache-control': 'no-store',
-      },
+      headers: errorHeaders,
     });
   }
 
@@ -238,10 +237,7 @@ export default async function handler(req: Request, context: RequestContext) {
 
       return new Response(JSON.stringify({ error: true, message }), {
         status: code,
-        headers: {
-          'content-type': 'application/json',
-          'cache-control': 'no-store',
-        },
+        headers: errorHeaders,
       });
     }
   }
