@@ -1,3 +1,4 @@
+import * as i from 'types';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -14,8 +15,8 @@ export const SpellPage: React.FC = (props) => {
   const container = React.useMemo(() => {
     return tooltipElement ? generateContainer(tooltipElement, 'page') : null;
   }, [tooltipElement]);
-  const { reagentItemIds, reagentsAmountMap } = useGetReagentItemIds();
-  const { items, craftAmount, setCraftAmount } = useCraftableItemPage(reagentItemIds);
+  const { reagentItems } = useGetReagentItems();
+  const { items, setCraftAmount } = useCraftableItemPage(reagentItems.map((item) => item.id));
   useWowheadAmountInput(setCraftAmount);
 
   if (!container) {
@@ -23,7 +24,7 @@ export const SpellPage: React.FC = (props) => {
   }
 
   // If there are no reagents, don't show the tooltip
-  if (reagentItemIds.length === 0) {
+  if (reagentItems.length === 0) {
     return null;
   }
 
@@ -35,10 +36,9 @@ export const SpellPage: React.FC = (props) => {
       </p>
 
       <CraftingCostTooltip
+        reagentItems={reagentItems}
         items={items.data}
         isLoading={items.isLoading}
-        reagentAmountMap={reagentsAmountMap}
-        craftAmount={craftAmount}
       />
 
       <div className="auc-h-1" />
@@ -48,9 +48,8 @@ export const SpellPage: React.FC = (props) => {
   );
 };
 
-function useGetReagentItemIds() {
-  const [reagentsAmountMap, setReagentsAmountMap] = React.useState<Map<number, number>>(new Map());
-  const reagentItemIds = React.useMemo(() => {
+function useGetReagentItems() {
+  const reagentItems = React.useMemo(() => {
     const reagentsHeaderEl = document.querySelector('#icon-list-heading-reagents');
     if (!reagentsHeaderEl) {
       console.error('Could not find reagents header element');
@@ -71,7 +70,7 @@ function useGetReagentItemIds() {
       'tr:not([style*="display:none"]) a[href*="item="][class^="q"]',
     );
 
-    const reagentItemIds = Array.from(reagentAnchors)
+    const reagentItems = Array.from(reagentAnchors)
       .map((anchor) => {
         const href = anchor.getAttribute('href');
         if (!href) {
@@ -87,21 +86,26 @@ function useGetReagentItemIds() {
 
         const id = Number(match[1]);
 
+        let amount = 1;
         const amountEl = anchor.nextElementSibling;
         if (amountEl) {
-          const amount = amountEl.querySelector('span')?.textContent;
+          const amountFromEl = amountEl.querySelector('span')?.textContent;
 
           if (amount) {
-            setReagentsAmountMap((map) => {
-              map.set(id, Number(amount));
-              return map;
-            });
+            amount = Number(amountFromEl);
           }
         }
 
-        return id;
+        let icon = '';
+        const iconEl = anchor.parentElement?.parentElement?.querySelector('ins');
+        if (iconEl) {
+          // get url from style background-image
+          icon = iconEl.style.backgroundImage.replace(/url\("(.*)"\)/, '$1');
+        }
+
+        return { id, icon, amount };
       })
-      .filter((id): id is number => !!id);
+      .filter((item): item is i.ReagentItem => !!item?.id);
 
     if (reagentAnchors.length === 0) {
       if (__DEV__) {
@@ -111,14 +115,11 @@ function useGetReagentItemIds() {
       return [];
     }
 
-    const uniqueItemIds = new Set(reagentItemIds);
-
-    return Array.from(uniqueItemIds);
+    return reagentItems;
   }, []);
 
   return {
-    reagentItemIds,
-    reagentsAmountMap,
+    reagentItems,
   };
 }
 
