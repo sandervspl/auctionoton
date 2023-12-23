@@ -1,7 +1,7 @@
 import * as i from 'types';
 import React from 'react';
 
-function useGetSpellFromPage(): UseGetSpellFromPage {
+function useSpellFromPage(): UseGetSpellFromPage {
   const [spell, setSpell] = React.useState<i.PageItem>();
   const pathname = React.useRef(window.location.pathname);
 
@@ -43,4 +43,4 @@ interface UseGetSpellFromPage {
   getSpellIdFromUrl(url?: string): number | undefined;
 }
 
-export default useGetSpellFromPage;
+export default useSpellFromPage;

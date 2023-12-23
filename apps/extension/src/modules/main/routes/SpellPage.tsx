@@ -2,14 +2,14 @@ import * as i from 'types';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import useGetSpellFromPage from 'hooks/useGetSpellFromPage';
+import useSpellFromPage from 'hooks/useSpellFromPage';
 import { useCraftableItemPage } from 'hooks/useCraftableItemPage';
 import generateContainer from '../generateContainer';
 import { ChangeRealmButton } from '../ChangeRealmButton';
 import { CraftingCostTooltip } from '../CraftingCostTooltip';
 
 export const SpellPage: React.FC = (props) => {
-  const { spell: pageSpell } = useGetSpellFromPage();
+  const { spell: pageSpell } = useSpellFromPage();
   const tooltipElementId = `tt${pageSpell?.id}`;
   const tooltipElement = document.querySelector(`div#${tooltipElementId}`);
   const container = React.useMemo(() => {

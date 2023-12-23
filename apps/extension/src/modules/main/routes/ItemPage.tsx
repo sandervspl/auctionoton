@@ -3,7 +3,7 @@ import * as i from 'types';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import useGetItemFromPage from 'hooks/useGetItemFromPage';
+import useItemFromPage from 'hooks/useItemFromPage';
 
 import { useCraftableItemPage } from 'hooks/useCraftableItemPage';
 import generateContainer from '../generateContainer';
@@ -15,7 +15,7 @@ import { CraftingCostTooltip } from '../CraftingCostTooltip';
 const tabs = ['Item price', 'Crafting price'];
 
 export const ItemPage = (): React.ReactPortal | null => {
-  const { item: pageItem, getIsAuctionableItem, isCraftableItem } = useGetItemFromPage();
+  const { item: pageItem, getIsAuctionableItem, isCraftableItem } = useItemFromPage();
   const tooltipElementId = `tt${pageItem?.id}`;
   const tooltipElement = document.querySelector(`div#${tooltipElementId}`);
   const isAuctionableItem = getIsAuctionableItem(tooltipElement?.innerHTML);

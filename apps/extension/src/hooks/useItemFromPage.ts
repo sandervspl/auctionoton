@@ -1,7 +1,7 @@
 import * as i from 'types';
 import React from 'react';
 
-function useGetItemFromPage(): UseGetItemFromPage {
+function useItemFromPage(): UseGetItemFromPage {
   const pathname = React.useRef(window.location.pathname);
   const itemName = getItemNameFromUrl(pathname.current);
   const itemIdSearch = getItemIdFromUrl(pathname.current);
@@ -51,4 +51,4 @@ interface UseGetItemFromPage {
   isCraftableItem: boolean;
 }
 
-export default useGetItemFromPage;
+export default useItemFromPage;

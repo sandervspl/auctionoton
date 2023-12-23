@@ -114,7 +114,7 @@ async function queryItem(id: string | number, auctionHouseId: string | number) {
   }
 }
 
-async function updateAuctionHouseData(
+function updateAuctionHouseData(
   auctionHouseId: string | number,
   itemId: string | number,
   KV_KEY: string,
