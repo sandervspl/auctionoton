@@ -1,9 +1,15 @@
-import * as i from './_types';
+import * as i from './_types.js';
 
-export const supportedClassicEraServers = ['stitches', 'nek-rosh'];
+export const versionMap = {
+  era: 'Classic Era',
+  hardcore: 'Classic Era - Hardcore',
+  classic: 'Wrath',
+  seasonal: 'Season of Discovery',
+};
 
 export function getQueries(url: string): URLSearchParams {
-  return new URL(url).searchParams;
+  const fixedUrl = !url.startsWith('http') ? `https://localhost:3000${url}` : url;
+  return new URL(fixedUrl).searchParams;
 }
 
 export function getURLParam(req: Request): string {
@@ -47,14 +53,14 @@ export function nexushubToItemResponse(data: i.NexusHub.ItemsResponse, amount = 
       current: {
         numAuctions: String(data.stats.current?.numAuctions ?? 0),
         quantity: String(data.stats.current?.quantity ?? 0),
-        minimumBuyout: convertToCoins(data.stats.current?.minBuyout, amount),
+        minBuyout: convertToCoins(data.stats.current?.minBuyout, amount),
         historicalValue: convertToCoins(data.stats.current?.historicalValue, amount),
         marketValue: convertToCoins(data.stats.current?.marketValue, amount),
       },
       previous: {
         numAuctions: String(data.stats.previous?.numAuctions ?? 0),
         quantity: String(data.stats.previous?.quantity ?? 0),
-        minimumBuyout: convertToCoins(data.stats.previous?.minBuyout, amount),
+        minBuyout: convertToCoins(data.stats.previous?.minBuyout, amount),
         historicalValue: convertToCoins(data.stats.previous?.historicalValue, amount),
         marketValue: convertToCoins(data.stats.previous?.marketValue, amount),
       },
@@ -81,3 +87,12 @@ export function isAuth(req: Request) {
 
   return true;
 }
+
+export const qualityMap = {
+  COMMON: 1,
+  UNCOMMON: 2,
+  RARE: 3,
+  EPIC: 4,
+  LEGENDARY: 5,
+  ARTIFACT: 6,
+};

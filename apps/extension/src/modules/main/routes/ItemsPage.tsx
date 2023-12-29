@@ -144,7 +144,7 @@ const ItemsPage: React.FC = () => {
           </div>
         </th>,
         document.querySelector(
-          '#lv-items > div.listview-scroller-horizontal > div > table > thead > tr',
+          '[data-template="item"] > div.listview-scroller-horizontal > div > table > thead > tr',
         )!,
       )}
       {Array.from(document.querySelectorAll('.listview-row')).map((rowEl, i) => {
@@ -174,24 +174,23 @@ const TableCell: React.FC<Props> = (props) => {
     retryOnMount: false,
   });
   const isFetchingItem = !item || isLoading;
-  const buyout = item?.stats.current.minimumBuyout;
-  const raw = typeof buyout === 'string' ? buyout : buyout?.raw;
+  const buyout = item?.stats.current.minBuyout;
 
   React.useEffect(() => {
     let val = null;
 
-    if (raw == null || raw.toString() === '0') {
+    if (buyout == null || buyout.toString() === '0') {
       if (props.sorting !== 'desc') {
         val = '999999999999999999';
       } else {
         val = '0';
       }
     } else {
-      val = raw.toString();
+      val = buyout.toString();
     }
 
     props.rowEl.setAttribute('data-buyout-raw', val);
-  }, [props.rowEl, raw, props.sorting]);
+  }, [props.rowEl, buyout, props.sorting]);
 
   return (
     <td ref={cellRef} className="auc-text-left">
@@ -200,10 +199,10 @@ const TableCell: React.FC<Props> = (props) => {
       ) : item && (isLoading || isFetching) ? (
         <div className="auc-flex auc-gap-2">
           <LoadingSvg style={{ width: '15px' }} />
-          <Value value={item.stats.current.minimumBuyout} />
+          <Value value={item.stats.current.minBuyout} />
         </div>
       ) : item ? (
-        <Value value={item.stats.current.minimumBuyout} />
+        <Value value={item.stats.current.minBuyout} />
       ) : isFetchingItem && isVisible ? (
         <LoadingSvg />
       ) : (

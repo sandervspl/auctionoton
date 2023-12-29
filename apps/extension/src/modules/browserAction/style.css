@@ -411,7 +411,6 @@ Constrain images and videos to the parent width and preserve their intrinsic asp
 }
 
 /* shadcn-ui */
-
 @layer base {
   :root {
     --background: 0 0% 100%;

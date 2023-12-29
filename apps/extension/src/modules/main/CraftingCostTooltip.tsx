@@ -1,25 +1,35 @@
 import * as i from 'types';
 import * as React from 'react';
 import { ELEMENT_ID } from 'src/constants';
-import { convertToGSCv2 } from 'utils/items';
 import LoadingSvg from 'static/loading.svg';
 import { TooltipBody } from './tooltip/TooltipBody';
 import { Value } from './tooltip/Value';
+import { useWowhead } from 'hooks/useWowhead';
 
 type Props = {
   items: i.CachedItemDataClassic[] | undefined;
-  reagentAmountMap: Map<number, number>;
+  reagentItems: i.ReagentItem[];
   isLoading?: boolean;
   reagents?: Map<number, number>;
   craftAmount?: number;
 };
 
 export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
+  const { wowheadBaseUrl } = useWowhead();
+
+  function getReagentAmount(id: number) {
+    return props.reagentItems.find((reagentItem) => reagentItem.id === id)?.amount ?? 1;
+  }
+
+  function getReagentIcon(id: number) {
+    return props.reagentItems.find((reagentItem) => reagentItem.id === id)?.icon ?? '';
+  }
+
   const total =
     props.items?.reduce((acc, item) => {
-      const reagentAmount = props.reagentAmountMap.get(item.itemId) ?? 1;
-      const { minimumBuyout } = item.stats.current;
-      const value = typeof minimumBuyout === 'string' ? Number(minimumBuyout) : minimumBuyout.raw;
+      const reagentAmount = getReagentAmount(item.itemId);
+      const { minBuyout } = item.stats.current;
+      const value = typeof minBuyout !== 'object' ? Number(minBuyout) : minBuyout.raw;
 
       if (isNaN(value)) {
         return acc;
@@ -52,21 +62,25 @@ export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
           {props.items?.map((item) => (
             <React.Fragment key={item.itemId}>
               <a
-                href={`https://www.wowhead.com/wotlk/item=${item.itemId}/${item.uniqueName}`}
+                href={`${wowheadBaseUrl}/item=${item.itemId}`}
                 className={`auc-flex auc-gap-1 auc-items-center ${getQualityClassFromTags(
                   item.tags,
                 )}`}
               >
-                <ItemIcon url={item.icon} itemId={item.itemId} slug={item.uniqueName} />
+                <ItemIcon
+                  url={getReagentIcon(item.itemId)}
+                  itemId={item.itemId}
+                  slug={item.uniqueName}
+                />
                 <span className="auc-flex-1">{item.name}</span>
               </a>
               <div className="auc-flex auc-items-center auc-justify-end">
-                {(props.reagentAmountMap.get(item.itemId) || 1) * craftAmount}
+                {getReagentAmount(item.itemId) * craftAmount}
               </div>
               <div className="auc-flex auc-items-center auc-justify-end">
                 <Value
-                  value={item.stats.current.minimumBuyout}
-                  amount={(props.reagentAmountMap.get(item.itemId) || 1) * craftAmount}
+                  value={item.stats.current.minBuyout}
+                  amount={getReagentAmount(item.itemId) * craftAmount}
                 />
               </div>
             </React.Fragment>
@@ -77,7 +91,7 @@ export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
           <div className="auc-flex auc-items-center auc-font-bold">Total</div>
           <div />
           <div className="auc-flex auc-justify-end auc-items-center">
-            <Value value={convertToGSCv2(total)} />
+            <Value value={total} />
           </div>
         </div>
       </TooltipBody>
@@ -86,28 +100,21 @@ export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
 };
 
 const ItemIcon = (props: { url: string; itemId: number; slug: string }) => {
+  const { wowheadBaseUrl } = useWowhead();
+
   return (
     <div className="iconsmall" data-env="wrath" data-tree="wrath" data-game="wow">
       <ins style={{ backgroundImage: `url(${props.url})` }} />
       <del />
-      <a
-        aria-label="Icon"
-        href={`https://www.wowhead.com/wotlk/item=${props.itemId}/${props.slug}`}
-      />
+      <a aria-label="Icon" href={`${wowheadBaseUrl}/item=${props.itemId}`} />
     </div>
   );
 };
 
 function getQualityClassFromTags(tags: string | string[]) {
-  const map = new Map([
-    ['common', 1],
-    ['uncommon', 2],
-    ['rare', 3],
-    ['epic', 4],
-    ['legendary', 5],
-  ]);
-  const tag = (Array.isArray(tags) ? tags : tags.split(','))[0]?.toLowerCase();
-  const q = map.get(tag);
+  const map = { common: 1, uncommon: 2, rare: 3, epic: 4, legendary: 5 };
+  const tag = (Array.isArray(tags) ? tags : tags.split(','))[0]?.toLowerCase() as keyof typeof map;
+  const q = map[tag];
 
   return `q${q}`;
 }

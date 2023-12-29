@@ -1,13 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { Key } from 'w3c-keys';
 import { useSnapshot } from 'valtio';
 
 import getBodyElement from 'utils/getBodyElement';
 import asyncStorage from 'utils/asyncStorage';
 import useStorageQuery from 'hooks/useStorageQuery';
-import useGetItemFromPage from 'hooks/useGetItemFromPage';
+import useItemFromPage from 'hooks/useItemFromPage';
 
 import { useEventListener } from 'hooks/useEventListener';
 import Tooltip from './tooltip';
@@ -20,16 +20,17 @@ const HoverTooltip = (): React.ReactPortal | null => {
   const [amount, setAmount] = React.useState(1);
   const uiSnap = useSnapshot(uiState);
   const { data: ui } = useStorageQuery('ui');
-  const { getItemIdFromUrl, getIsAuctionableItem } = useGetItemFromPage();
+  const { getItemIdFromUrl, getIsAuctionableItem } = useItemFromPage();
   const tooltipEl = React.useRef<HTMLElement | null>(null);
   const hoverEl = React.useRef<HTMLAnchorElement | null>(null);
   const hoverElObserver = React.useRef<MutationObserver | null>(null);
   const containerEl = React.useRef<HTMLElement | null>(null);
   const isAuctionableItem = getIsAuctionableItem(tooltipEl.current?.innerHTML);
-  const uiMutation = useMutation(() => {
-    return asyncStorage.set('ui', (draft) => {
-      draft!.showTip.shiftKey = false;
-    });
+  const uiMutation = useMutation({
+    mutationFn: async () =>
+      asyncStorage.set('ui', (draft) => {
+        draft!.showTip.shiftKey = false;
+      }),
   });
 
   const shiftKeyPressed = uiSnap.keys[Key.Shift];

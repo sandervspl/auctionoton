@@ -1,101 +1,112 @@
-import { db } from '@auctionoton/db';
-import { factions, items, itemsValues, realms, scanmeta } from '@auctionoton/db/schema';
 import { kv } from '@vercel/kv';
-import { ipAddress } from '@vercel/edge';
-import { and, desc, eq, sql } from 'drizzle-orm';
-import { alias } from 'drizzle-orm/sqlite-core';
-import slugify from 'slugify';
+import { ipAddress, RequestContext } from '@vercel/edge';
+import { and, eq, sql } from 'drizzle-orm';
+import * as R from 'remeda';
 
-import type { NexusHub } from '../_types';
-import {
-  getFactionSlug,
-  getQueries,
-  getServerSlug,
-  getURLParam,
-  nexushubToItemResponse,
-} from '../_utils';
-import { rateLimit } from '../_rate-limiter';
+import type { NexusHub } from '../_types.js';
+import { getQueries, getURLParam, nexushubToItemResponse, qualityMap } from '../_utils.js';
+import { rateLimit } from '../_rate-limiter.js';
+import { getAuctionHouse } from '../_tsm.js';
+import { db } from '../../db/index.js';
+import { items, itemsMetadata } from '../../db/schema.js';
+import { getItemFromBnet } from '../_blizzard/index.ts.js';
+import slugify from '@sindresorhus/slugify';
+import { GameItem } from '../_blizzard/types.js';
 
-async function fetchItem(url: string) {
-  const res = await fetch(url);
+export const config = {
+  runtime: 'edge',
+};
 
-  if (res.status !== 200) {
-    return {
-      error: true,
-      status: res.status,
-      message: res.statusText,
-    } as const;
-  }
+const CACHE_EXPIRATION = 60 * 60 * 6;
+const MAX_REQUESTS = 100;
+const WINDOW_SECONDS = 60;
+const headers = {
+  'content-type': 'application/json',
+  'cache-control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate',
+  'Access-Control-Allow-Origin': '*',
+};
+const errorHeaders = {
+  'content-type': 'application/json',
+  'cache-control': 'no-store',
+  'Access-Control-Allow-Origin': '*',
+};
 
-  const data = (await res.json()) as NexusHub.ItemsResponse | NexusHub.ErrorResponse;
-
-  return data;
-}
-
-const i = alias(items, 'i');
-const s = alias(scanmeta, 's');
-const iv = alias(itemsValues, 'iv');
-const r = alias(realms, 'r');
-const f = alias(factions, 'f');
 const prepared = db
-  .select({
-    name: i.name,
-    link: i.link,
-    minLevel: i.minLevel,
-    sellPrice: i.sellPrice,
-    itemValues: iv,
-  })
-  .from(i)
-  .fullJoin(iv, eq(iv.itemShortid, i.shortid))
-  .fullJoin(s, and(eq(s.realm, iv.realm), eq(s.faction, iv.faction)))
-  .fullJoin(r, eq(r.name, sql.placeholder('realm')))
-  .fullJoin(f, eq(f.name, sql.placeholder('faction')))
-  .where(and(eq(i.shortid, sql.placeholder('id')), eq(s.realm, r.id), eq(s.faction, f.id)))
-  .orderBy(desc(iv.timestamp))
-  .limit(1)
+  .select()
+  .from(items)
+  .where(
+    and(
+      eq(items.itemId, sql.placeholder('id')),
+      eq(items.auctionHouseId, sql.placeholder('auctionHouseId')),
+    ),
+  )
+  .fullJoin(itemsMetadata, eq(items.itemId, itemsMetadata.id))
   .prepare();
 
-async function queryItem(id: number, realm: string, faction: 'Neutral' | 'Alliance' | 'Horde') {
+async function queryItem(id: string | number, auctionHouseId: string | number) {
   try {
-    const item = await prepared
-      .get({
-        id,
-        realm: realm.toLowerCase(),
-        faction,
-      })
-      .catch((err: any) => {
-        console.error(err);
-        return null;
-      });
+    const queryResult = await prepared.get({ id, auctionHouseId });
 
-    if (item?.itemValues == null) {
+    if (!queryResult) {
       throw new Error('Item not found');
     }
 
+    const { items: item, items_metadata: metadata } = queryResult;
+    console.log(metadata);
+
+    if (item == null) {
+      throw new Error('Item not found');
+    }
+
+    let itemFromBnet: GameItem | null = null;
+    let itemFromBnetSlug = '';
+    if (!metadata) {
+      try {
+        itemFromBnet = await getItemFromBnet(item.itemId);
+
+        if (itemFromBnet) {
+          itemFromBnetSlug = slugify(itemFromBnet.name, { lowercase: true, decamelize: true });
+          await db
+            .insert(itemsMetadata)
+            .values({
+              id: itemFromBnet.id,
+              itemLevel: itemFromBnet.level,
+              name: itemFromBnet.name,
+              quality: qualityMap[itemFromBnet.quality.type] ?? 1,
+              requiredLevel: itemFromBnet.required_level,
+              slug: itemFromBnetSlug,
+            })
+            .onConflictDoNothing();
+        }
+      } catch (err: any) {
+        console.error('getItemFromBnet:', err.message);
+      }
+    }
+
     return {
-      server: `${(slugify as any)(realm).toLowerCase()}-${(slugify as any)(faction)}`,
-      itemId: item.itemValues.itemShortid.toString(),
-      name: item.name || '',
-      sellPrice: item.sellPrice || 0,
-      vendorPrice: null,
-      tooltip: [{ label: item.name || '' }],
-      itemLink: item.link,
-      uniqueName: (slugify as any)(item.name || ''),
+      server: '',
+      itemId: item.itemId,
+      name: metadata?.name ?? itemFromBnet?.name ?? '',
+      sellPrice: 0,
+      vendorPrice: 0,
+      tooltip: [{ label: metadata?.name ?? itemFromBnet?.name ?? '' }],
+      itemLink: '',
+      uniqueName: itemFromBnetSlug,
       stats: {
-        lastUpdated: item.itemValues.timestamp || new Date().toISOString(),
+        lastUpdated: item.timestamp ?? new Date().toISOString(),
         current: {
-          numAuctions: item.itemValues.numAuctions,
-          marketValue: item.itemValues.marketValue,
-          historicalValue: item.itemValues.historicalValue,
-          minBuyout: item.itemValues.minBuyout,
-          quantity: item.itemValues.quantity,
+          numAuctions: item.numAuctions,
+          marketValue: item.marketValue,
+          historicalValue: item.historical,
+          minBuyout: item.minBuyout,
+          quantity: item.quantity,
         },
         previous: null,
       },
       tags: [],
       icon: null,
-      itemLevel: null,
-      requiredLevel: item.minLevel,
+      itemLevel: metadata?.itemLevel ?? itemFromBnet?.level ?? 0,
+      requiredLevel: metadata?.requiredLevel ?? itemFromBnet?.required_level ?? 0,
     } as NexusHub.ItemsResponse;
   } catch (err: any) {
     console.error(err);
@@ -103,10 +114,62 @@ async function queryItem(id: number, realm: string, faction: 'Neutral' | 'Allian
   }
 }
 
-const MAX_REQUESTS = 100;
-const WINDOW_SECONDS = 60;
+function updateAuctionHouseData(
+  auctionHouseId: string | number,
+  itemId: string | number,
+  KV_KEY: string,
+) {
+  return new Promise(async (resolve, reject) => {
+    const ahItems = await getAuctionHouse(Number(auctionHouseId));
 
-export default async function handler(req: Request) {
+    if (ahItems) {
+      try {
+        const chunks = R.chunk(ahItems, 2000);
+
+        for await (const chunk of chunks) {
+          await db
+            .insert(items)
+            .values(
+              chunk.map((item) => ({
+                auctionHouseId: Number(auctionHouseId),
+                itemId: item.itemId,
+                numAuctions: item.numAuctions,
+                marketValue: item.marketValue,
+                historical: item.historical,
+                minBuyout: item.minBuyout,
+                quantity: item.quantity,
+                timestamp: new Date().toISOString(),
+              })),
+            )
+            .onConflictDoUpdate({
+              target: [items.itemId, items.auctionHouseId],
+              set: {
+                numAuctions: sql`excluded.num_auctions`,
+                marketValue: sql`excluded.market_value`,
+                historical: sql`excluded.historical`,
+                minBuyout: sql`excluded.min_buyout`,
+                quantity: sql`excluded.quantity`,
+                timestamp: sql`excluded.timestamp`,
+              },
+            });
+        }
+
+        // Update KV
+        const result = await queryItem(itemId, auctionHouseId);
+        if ('itemId' in result) {
+          await kv.set(KV_KEY, JSON.stringify(result), { ex: CACHE_EXPIRATION });
+        }
+      } catch (err: any) {
+        console.error(err.message);
+        reject(err.message);
+      }
+    }
+
+    resolve(null);
+  });
+}
+
+export default async function handler(req: Request, context: RequestContext) {
   const ip = ipAddress(req);
   const isAllowed = await rateLimit(`item:${ip}`, MAX_REQUESTS, WINDOW_SECONDS);
 
@@ -114,8 +177,8 @@ export default async function handler(req: Request) {
     return new Response('Too many requests', {
       status: 429,
       headers: {
+        ...errorHeaders,
         'content-type': 'text/plain',
-        'cache-control': 'no-store',
         'ratelimit-limit': MAX_REQUESTS.toString(),
         // 'ratelimit-remaining': '0',
         // 'ratelimit-reset': WINDOW_SECONDS.toString(),
@@ -125,49 +188,75 @@ export default async function handler(req: Request) {
 
   const itemId = getURLParam(req);
   const query = getQueries(req.url);
-  const serverSlug = getServerSlug(query.get('server_name')!).toLowerCase();
-  const factionSlug = getFactionSlug(query.get('faction')!);
-  const version = query.get('version');
-  const isClassicEra = version === 'era';
-  const key = `item${isClassicEra ? ':era' : ''}:${serverSlug}:${factionSlug[0]}:${itemId}`;
+  const auctionHouseId = query.get('ah_id');
 
-  const cached = await kv.get<NexusHub.ItemsResponse | undefined>(key);
+  if (!itemId) {
+    return new Response(JSON.stringify({ error: true, message: 'Item ID is required' }), {
+      status: 400,
+      headers: errorHeaders,
+    });
+  }
+
+  if (!auctionHouseId) {
+    return new Response(JSON.stringify({ error: true, message: 'Auction house ID is required' }), {
+      status: 400,
+      headers: errorHeaders,
+    });
+  }
+
+  const KV_KEY = `item:${auctionHouseId}:${itemId}`;
+
+  const cached = await kv.get<string>(KV_KEY);
   // const cached = null;
 
-  const url = `https://api.nexushub.co/wow-classic/v1/items/${serverSlug}-${factionSlug}/${itemId}`;
+  if (cached) {
+    return new Response(JSON.stringify(cached), { status: 200, headers });
+  }
 
-  let result = cached
-    ? cached
-    : isClassicEra
-    ? await queryItem(Number(itemId), serverSlug, factionSlug as any)
-    : await fetchItem(url);
+  let result = await queryItem(itemId, auctionHouseId);
 
   if ('error' in result) {
-    const code = 'status' in result ? result.status : 500;
-    const message = 'message' in result ? result.message : result.reason || 'Unknown error';
-    return new Response(JSON.stringify({ error: true, message }), {
-      status: code,
-      headers: { 'cache-control': 'no-store' },
-    });
+    // Fetch auction house data
+    await updateAuctionHouseData(auctionHouseId, itemId, KV_KEY);
+
+    // Try again
+    result = await queryItem(itemId, auctionHouseId);
+
+    // Still failed, return error
+    if ('error' in result) {
+      const code = (() => {
+        if ('reason' in result) {
+          if (result.reason.includes('not found')) {
+            return 404;
+          }
+        }
+
+        return 500;
+      })();
+      const message = 'message' in result ? result.message : result.reason || 'Unknown error';
+
+      return new Response(JSON.stringify({ error: true, message }), {
+        status: code,
+        headers: errorHeaders,
+      });
+    }
   }
 
   if (cached == null) {
     try {
-      await kv.set(key, JSON.stringify(result), {
-        ex: isClassicEra ? 21_600 : 10_800,
-      });
+      await kv.set(KV_KEY, JSON.stringify(result), { ex: CACHE_EXPIRATION });
     } catch (error: any) {
       console.error('kv error:', error.message || 'unknown error');
     }
   }
 
   const data = nexushubToItemResponse(result, Number(query.get('amount') || 1));
+
+  // Update database in the background
+  context.waitUntil(updateAuctionHouseData(auctionHouseId, itemId, KV_KEY));
+
   return new Response(JSON.stringify(data), {
     status: 200,
-    headers: {
-      'Content-Type': 'application/json',
-      'cache-control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate',
-      'Access-Control-Allow-Origin': '*',
-    },
+    headers,
   });
 }

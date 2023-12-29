@@ -1,24 +1,21 @@
 import * as i from 'types';
-import { useQuery } from 'react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import asyncStorage from 'utils/asyncStorage';
 import { fetchItemFromAPI } from 'src/queries/item';
-import { createQueryKey } from 'utils/queryKey';
 import useUser from './useUser';
-import useIsClassicWowhead from './useIsClassicWowhead';
 
 export function useItemsFetcher(id: string | number | undefined, itemIds: number[]) {
-  const { isEra } = useIsClassicWowhead();
-  const memoUser = useUser();
+  const queryClient = useQueryClient();
+  const user = useUser();
 
   return useQuery({
     queryKey: ['items', id],
-    enabled: !!id && !!memoUser.realm,
+    enabled: !!id && !!user.realm,
     queryFn: async () => {
       // Check browser storage if item is stored
       const cachedItems = await Promise.all(
         itemIds.map((itemId) => {
-          const key = createQueryKey(itemId, memoUser);
-          return asyncStorage.getItem({ meta: {}, queryKey: key });
+          return asyncStorage.getItem([user.realm!.auctionHouseId, itemId]);
         }),
       );
 
@@ -34,15 +31,26 @@ export function useItemsFetcher(id: string | number | undefined, itemIds: number
 
       const result = await Promise.all(
         itemsIdsToFetch.map((itemId) => {
-          const key = {
-            meta: {},
-            queryKey: createQueryKey(itemId, memoUser),
-          };
-          return fetchItemFromAPI(itemId, memoUser.realm, memoUser.faction, isEra, key);
+          if (!user.realm || !user.faction) {
+            return;
+          }
+
+          return fetchItemFromAPI(itemId, user.realm.auctionHouseId);
         }),
       );
 
-      return [...cachedItems, ...result].filter((item): item is i.CachedItemDataClassic => !!item);
+      const allItems = [...cachedItems, ...result];
+
+      for (const item of allItems) {
+        if (!item || !user.realm) {
+          continue;
+        }
+
+        const itemQueryKey: i.ItemQueryKey = [user.realm.auctionHouseId, item.itemId];
+        queryClient.setQueryData<i.CachedItemDataClassic>(['item', ...itemQueryKey], item);
+      }
+
+      return allItems.filter((item): item is i.CachedItemDataClassic => !!item);
     },
   });
 }

@@ -1,42 +1,40 @@
 import * as i from 'types';
 import React from 'react';
-import { useQuery, UseQueryOptions } from 'react-query';
+import { useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 
 import asyncStorage from 'utils/asyncStorage';
-import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
 import validateCache from 'utils/validateCache';
 
 import { fetchItemFromAPI } from 'src/queries/item';
-import { createQueryKey } from 'utils/queryKey';
-import useUser from './useUser';
+import { useAuctionHouse } from './useAuctionHouse';
 
-type Options = UseQueryOptions<
-  i.CachedItemDataClassic | undefined,
-  unknown,
-  i.CachedItemDataClassic,
-  i.ItemQueryKey
+type Options = Omit<
+  UseQueryOptions<i.CachedItemDataClassic | undefined, unknown, i.CachedItemDataClassic>,
+  'queryKey' | 'queryFn'
 >;
 
 function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
-  const user = useUser();
+  const auctionHouseId = useAuctionHouse();
+  const queryClient = useQueryClient();
   const [error, setError] = React.useState('');
   const [warning, setWarning] = React.useState('');
-  const [item, setItem] = React.useState<i.CachedItemDataClassic>();
-  const { isClassicWowhead, isEra } = useIsClassicWowhead();
+
+  const queryKey: i.ItemQueryKey = [auctionHouseId!, itemId];
 
   const { data, isLoading, isFetching, isError, refetch } = useQuery({
-    queryKey: createQueryKey(itemId, user),
+    queryKey: ['item', ...queryKey],
     queryFn: fetchItem,
     refetchOnWindowFocus: true,
     retry: false, // Let user retry on demand with button
+    enabled: !!auctionHouseId && !!itemId,
     ...options,
   });
 
-  React.useEffect(() => {
-    setItem(data);
-  }, [data]);
+  async function fetchItem() {
+    if (auctionHouseId == null || auctionHouseId <= 0) {
+      return;
+    }
 
-  async function fetchItem(queryKey: i.ItemQueryKeyCtx) {
     setError('');
     setWarning('');
 
@@ -45,24 +43,17 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
 
     // If found, set it as the item
     if (itemFromStorage) {
-      setItem(itemFromStorage);
+      queryClient.setQueryData<i.CachedItemDataClassic>(['item', ...queryKey], itemFromStorage);
 
       if (validateCache(itemFromStorage)) {
         return itemFromStorage;
       }
     }
 
-    // If item from storage is stale, fetch item
-    if (isClassicWowhead) {
-      if (!user.realm || !user.faction) {
-        return;
-      }
+    const result = await fetchItemFromAPI(itemId, auctionHouseId!);
 
-      const result = await fetchItemFromAPI(itemId, user.realm, user.faction, isEra, queryKey);
-
-      if (result) {
-        return result;
-      }
+    if (result) {
+      return result;
     }
 
     setError('Something went wrong fetching this item. Please try again.');
@@ -70,7 +61,7 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
   }
 
   return {
-    item,
+    item: data,
     isLoading,
     isFetching,
     isError,

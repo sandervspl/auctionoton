@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Auctionoton: Auction House Prices for Wowhead",
-  "version": "4.2.1",
+  "version": "5.0.0",
   "description": "Display current Auction House price data for items on wowhead.com",
   "content_scripts": [
     {
@@ -65,7 +65,9 @@
     "https://*.ngrok.io/*",
     "https://5d9b-82-168-31-31.ngrok.io/*",
     "https://auctionoton-edge-api-sandervspl.vercel.app/api/*",
-    "https://auctionoton-edge-api.vercel.app/api/*"
+    "https://auctionoton-edge-api.vercel.app/api/*",
+    "https://auctionoton-api-valor.vercel.app/api/*",
+    "https://auctionoton-api.vercel.app/api/*"
   ],
   "browser_specific_settings": {
     "gecko": {

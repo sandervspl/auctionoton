@@ -1,8 +1,9 @@
 import 'typed-query-selector';
+import * as i from 'types';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import useGetItemFromPage from 'hooks/useGetItemFromPage';
+import useItemFromPage from 'hooks/useItemFromPage';
 
 import { useCraftableItemPage } from 'hooks/useCraftableItemPage';
 import generateContainer from '../generateContainer';
@@ -14,14 +15,14 @@ import { CraftingCostTooltip } from '../CraftingCostTooltip';
 const tabs = ['Item price', 'Crafting price'];
 
 export const ItemPage = (): React.ReactPortal | null => {
-  const { item: pageItem, getIsAuctionableItem, isCraftableItem } = useGetItemFromPage();
+  const { item: pageItem, getIsAuctionableItem, isCraftableItem } = useItemFromPage();
   const tooltipElementId = `tt${pageItem?.id}`;
   const tooltipElement = document.querySelector(`div#${tooltipElementId}`);
   const isAuctionableItem = getIsAuctionableItem(tooltipElement?.innerHTML);
   const showTabs = isCraftableItem && isAuctionableItem;
   const [activeTab, setActiveTab] = React.useState(isAuctionableItem ? 0 : 1);
-  const { reagentItemIds, reagentsAmountMap } = useGetReagentItemIds();
-  const { items } = useCraftableItemPage(reagentItemIds);
+  const { reagentItems } = useGetReagentItems();
+  const { items } = useCraftableItemPage(reagentItems.map((item) => item.id));
 
   if (!tooltipElement) {
     return null;
@@ -48,7 +49,7 @@ export const ItemPage = (): React.ReactPortal | null => {
       {activeTab === 0 && <ItemPriceTooltip itemId={pageItem.id} />}
       {activeTab === 1 && (
         <CraftingCostTooltip
-          reagentAmountMap={reagentsAmountMap}
+          reagentItems={reagentItems}
           items={items.data}
           isLoading={items.isLoading}
         />
@@ -61,9 +62,8 @@ export const ItemPage = (): React.ReactPortal | null => {
   );
 };
 
-function useGetReagentItemIds() {
-  const [reagentsAmountMap, setReagentsAmountMap] = React.useState<Map<number, number>>(new Map());
-  const reagentItemIds: number[] = React.useMemo(() => {
+function useGetReagentItems() {
+  const reagentItems: i.ReagentItem[] = React.useMemo(() => {
     const createdByTabEl = document.querySelector('#tab-created-by-spell');
     if (!createdByTabEl) {
       if (__DEV__) {
@@ -71,6 +71,23 @@ function useGetReagentItemIds() {
       }
       return [];
     }
+
+    // Click the tab to load the reagents
+    const createdByTabAnchor = document.querySelector(
+      'a[href="#created-by-spell"',
+    ) as HTMLAnchorElement;
+    if (!createdByTabAnchor) {
+      if (__DEV__) {
+        console.error('Could not find "created by" tab anchor');
+      }
+      return [];
+    }
+
+    // Click "created by" to load reagents into DOM and then click back to first tab
+    createdByTabAnchor.click();
+    Promise.resolve().then(() =>
+      createdByTabAnchor.parentNode?.parentNode?.querySelector('li a')?.click(),
+    );
 
     const reagentsListEl = createdByTabEl.querySelector('.listview-row')?.querySelectorAll('td')[2];
     if (!reagentsListEl) {
@@ -84,7 +101,7 @@ function useGetReagentItemIds() {
       return [];
     }
 
-    const reagentItemIds = Array.from(reagentAnchors)
+    const reagentItems = Array.from(reagentAnchors)
       .map((anchor) => {
         const href = anchor.getAttribute('href');
         if (!href) {
@@ -100,29 +117,31 @@ function useGetReagentItemIds() {
 
         const id = Number(match[1]);
 
+        let amount = 1;
         const amountEl = anchor.nextElementSibling;
         if (amountEl) {
-          const amount = amountEl.textContent;
+          const amountFromEl = amountEl.textContent;
 
-          if (amount) {
-            setReagentsAmountMap((map) => {
-              map.set(id, Number(amount));
-              return map;
-            });
+          if (amountFromEl) {
+            amount = Number(amountFromEl);
           }
         }
 
-        return id;
+        let icon = '';
+        const iconEl = anchor.parentElement?.querySelector('ins');
+        if (iconEl) {
+          // get url from style background-image
+          icon = iconEl.style.backgroundImage.replace(/url\("(.*)"\)/, '$1');
+        }
+
+        return { id, icon, amount };
       })
-      .filter((id): id is number => !!id);
+      .filter((item): item is i.ReagentItem => !!item?.id);
 
-    const uniqueItemIds = new Set(reagentItemIds);
-
-    return Array.from(uniqueItemIds);
+    return reagentItems;
   }, []);
 
   return {
-    reagentItemIds,
-    reagentsAmountMap,
+    reagentItems,
   };
 }

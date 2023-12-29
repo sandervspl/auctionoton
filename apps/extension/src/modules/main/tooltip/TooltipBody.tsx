@@ -1,4 +1,4 @@
-import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
+import { useWowhead } from 'hooks/useWowhead';
 import useStorageQuery from 'hooks/useStorageQuery';
 import React from 'react';
 
@@ -13,17 +13,22 @@ type Props = {
 
 export const TooltipBody: React.FC<Props> = (props) => {
   const { data: user } = useStorageQuery('user');
-  const { version } = useIsClassicWowhead();
+  const { version } = useWowhead();
 
   function getServerName(): string {
-    const serverName = user?.realms?.[version];
-    const region = user?.region?.toUpperCase();
-
-    if (!serverName) {
+    if (!user) {
       return 'Unknown';
     }
 
-    const faction = user.faction[serverName.slug];
+    const activeVersion = user.isActive?.[version] || version;
+    const serverName = user.realms?.[activeVersion];
+    const region = user.region?.toUpperCase();
+
+    if (!serverName || !region) {
+      return 'Unknown';
+    }
+
+    const faction = user.faction[serverName.name];
 
     return `${serverName.name} ${region}-${faction}`;
   }

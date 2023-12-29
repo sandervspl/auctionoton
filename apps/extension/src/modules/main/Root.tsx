@@ -1,11 +1,10 @@
 import React from 'react';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { ReactQueryDevtools } from 'react-query/devtools';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Key } from 'w3c-keys';
 
 import time from 'utils/time';
 
-import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
 import { ItemPage } from './routes/ItemPage';
 import { SpellPage } from './routes/SpellPage';
 import ItemsPage from './routes/ItemsPage';
@@ -23,10 +22,9 @@ class AppContainer extends React.Component {
 }
 
 const App: React.FC = () => {
-  const { isClassicWowhead } = useIsClassicWowhead();
-  const isItemPage = isClassicWowhead && window.location.pathname.includes('item=');
-  const isSpellPage = isClassicWowhead && window.location.pathname.includes('spell=');
-  const isItemsPage = isClassicWowhead && window.location.pathname.includes('/items/');
+  const isItemPage = window.location.pathname.includes('item=');
+  const isSpellPage = window.location.pathname.includes('spell=');
+  const isItemsPage = window.location.pathname.includes('/items/');
 
   function onKeyDown(e: KeyboardEvent) {
     uiState.keys[e.key as Key] = true;
@@ -61,9 +59,8 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: time.minutes(30),
-      cacheTime: time.hours(5),
+      gcTime: time.hours(1),
       retryOnMount: false,
-      notifyOnChangeProps: 'tracked',
     },
   },
 });

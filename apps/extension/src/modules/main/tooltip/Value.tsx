@@ -5,7 +5,7 @@ import { convertToGSCv2 } from 'utils/items';
 
 export type Props = {
   amount?: number;
-  value: string | i.PriceObjectV2;
+  value: string | number | i.PriceObjectV2;
 };
 
 export const Value: React.FC<Props> = (props) => {
@@ -13,12 +13,13 @@ export const Value: React.FC<Props> = (props) => {
     if (typeof props.value === 'string') {
       return props.value;
     }
+    const raw = typeof props.value === 'number' ? props.value : props.value.raw;
 
     const amount = props.amount ?? 1;
-    const coins = convertToGSCv2(props.value.raw * amount);
+    const coins = convertToGSCv2(raw * amount);
     const coinComponents: JSX.Element[] = [];
 
-    if (typeof coins === 'string' || Number(props.value.raw) === 0) {
+    if (typeof coins === 'string' || raw === 0) {
       return 'N/A';
     }
 

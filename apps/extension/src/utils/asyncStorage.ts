@@ -41,15 +41,12 @@ class AsyncStorage {
     });
   };
 
-  getKeyFromQueryKey = (itemQueryKey: i.ItemQueryKeyCtx) => {
-    const [, itemObj] = itemQueryKey.queryKey;
-    return `${itemObj.itemId}-${itemObj.region}-${itemObj.realm}-${itemObj.faction}-${itemObj.version}`;
+  getKeyFromQueryKey = (itemQueryKey: i.ItemQueryKey) => {
+    const [auctionHouseId, itemId] = itemQueryKey;
+    return `${auctionHouseId}:${itemId}`;
   };
 
-  addItem = async (
-    itemQueryKey: i.ItemQueryKeyCtx,
-    data: i.CachedItemDataClassic,
-  ): Promise<void> => {
+  addItem = async (itemQueryKey: i.ItemQueryKey, data: i.CachedItemDataClassic): Promise<void> => {
     await this.set('items', (draftState) => {
       if (draftState != null) {
         _set(draftState, this.getKeyFromQueryKey(itemQueryKey), data);
@@ -58,7 +55,7 @@ class AsyncStorage {
   };
 
   getItem = async (
-    itemQueryKey: i.ItemQueryKeyCtx,
+    itemQueryKey: i.ItemQueryKey,
     cb?: (item: i.CachedItemDataClassic | undefined) => void,
   ): Promise<i.CachedItemDataClassic> => {
     const items = await this.get('items');

@@ -21,5 +21,5 @@ export const SellPrice: React.FC<Props> = (props) => {
 export type Props = {
   heading: string;
   amount?: number;
-  value: string | i.PriceObjectV2;
+  value: string | number | i.PriceObjectV2;
 };

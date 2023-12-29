@@ -1,5 +1,11 @@
 # auctionoton-edge-api
 
+## 2.0.0
+
+### Major Changes
+
+- Switch to Tradeskillmaster API
+
 ## 1.2.1
 
 ### Patch Changes

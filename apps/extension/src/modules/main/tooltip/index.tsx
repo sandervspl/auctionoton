@@ -3,17 +3,18 @@ import React from 'react';
 import dayjs from 'dayjs';
 import cn from 'classnames';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { useQuery } from 'react-query';
+import { useQuery } from '@tanstack/react-query';
 
 import LoadingSvg from 'static/loading.svg';
 // import WarningSvg from 'static/exclamation-circle-regular.svg';
 import { ELEMENT_ID } from 'src/constants';
 import useItemFetcher from 'hooks/useItemFetcher';
-import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
+import { useWowhead } from 'hooks/useWowhead';
 import useStorageQuery from 'hooks/useStorageQuery';
 
 import { SellPrice } from './SellPrice';
 import { TooltipBody } from './TooltipBody';
+import { useRealm } from 'hooks/useRealm';
 
 dayjs.extend(relativeTime);
 
@@ -26,44 +27,37 @@ dayjs.extend(relativeTime);
 const Tooltip: React.FC<Props> = (props) => {
   const { data: user } = useStorageQuery('user');
   const { error, isFetching, isLoading, item, refetch } = useItemFetcher(props.itemId);
-  const { isClassicWowhead, isEra } = useIsClassicWowhead();
-  const { data: lastUpdated } = useQuery(
-    ['tooltip', 'last-updated', props.itemId, item?.updatedAt],
-    () => {
-      if (item?.__version === 'classic') {
-        if (!item?.stats.lastUpdated) {
-          return {
-            hours: -1,
-            text: 'N/A',
-          };
-        }
-
-        const time = dayjs(item.stats.lastUpdated);
-
+  const { isEra } = useWowhead();
+  const { activeRealm } = useRealm();
+  const { data: lastUpdated } = useQuery({
+    queryKey: ['tooltip', 'last-updated', props.itemId, item?.updatedAt],
+    queryFn: async () => {
+      if (!item?.stats.lastUpdated) {
         return {
-          hours: Math.abs(time.diff(dayjs(), 'hour')),
-          text: time.fromNow(),
+          hours: -1,
+          text: 'N/A',
         };
       }
 
+      const time = dayjs(item.stats.lastUpdated);
+
       return {
-        hours: -1,
-        text: 'N/A',
+        hours: Math.abs(time.diff(dayjs(), 'hour')),
+        text: time.fromNow(),
       };
     },
-    {
-      enabled: !!item,
-      refetchOnWindowFocus: true,
-      refetchInterval: 60 * 1000,
-    },
-  );
+    enabled: !!item,
+    refetchOnWindowFocus: true,
+    refetchInterval: 60 * 1000,
+  });
 
   if (!user?.realms) {
     return null;
   }
 
   /** @TODO Show link to change realm, let user know to set realm */
-  if (isClassicWowhead && !user?.realms.classic) {
+
+  if (!activeRealm) {
     return null;
   }
 
@@ -93,41 +87,34 @@ const Tooltip: React.FC<Props> = (props) => {
       {item ? (
         <tr className="auc-block auc-w-full">
           <td className="auc-block auc-w-full">
-            {(() => {
-              // Support for older versions
-              if (!('__version' in item) || item.__version === 'classic') {
-                if (!item?.stats?.current?.minimumBuyout) {
-                  return 'No data is available for this realm.';
-                }
-
-                return (
-                  <>
-                    <SellPrice
-                      heading="Market Value"
-                      amount={props.amount}
-                      value={item.stats.current.marketValue}
-                    />
-                    <SellPrice
-                      heading="Historical Value"
-                      amount={props.amount}
-                      value={item.stats.current.historicalValue}
-                    />
-                    <SellPrice
-                      heading="Minimum Buyout"
-                      amount={props.amount}
-                      value={item.stats.current.minimumBuyout}
-                    />
-                    <SellPrice
-                      heading="Quantity"
-                      amount={props.amount}
-                      value={`${item.stats.current.quantity} auction${
-                        item.stats.current.quantity === 1 ? '' : 's'
-                      }`}
-                    />
-                  </>
-                );
-              }
-            })()}
+            {!item?.stats?.current?.minBuyout ? (
+              'No data is available for this realm.'
+            ) : (
+              <>
+                <SellPrice
+                  heading="Market Value"
+                  amount={props.amount}
+                  value={item.stats.current.marketValue}
+                />
+                <SellPrice
+                  heading="Historical Value"
+                  amount={props.amount}
+                  value={item.stats.current.historicalValue}
+                />
+                <SellPrice
+                  heading="Minimum Buyout"
+                  amount={props.amount}
+                  value={item.stats.current.minBuyout}
+                />
+                <SellPrice
+                  heading="Quantity"
+                  amount={props.amount}
+                  value={`${item.stats.current.quantity} auction${
+                    item.stats.current.quantity === 1 ? '' : 's'
+                  }`}
+                />
+              </>
+            )}
 
             {/* Only show this loading indicator if we can show a cached item */}
             {item && (isLoading || isFetching) ? (

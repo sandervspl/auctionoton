@@ -4,7 +4,7 @@ import useStorageQuery from 'hooks/useStorageQuery';
 
 import ExternalLinkSvg from 'static/external-link.svg';
 import RedoSvg from 'static/redo-solid.svg';
-import useIsClassicWowhead from 'hooks/useIsClassicWowhead';
+import { useWowhead } from 'hooks/useWowhead';
 import Tooltip from './tooltip';
 
 type Props = {
@@ -12,7 +12,7 @@ type Props = {
 };
 
 export const ItemPriceTooltip = (props: Props) => {
-  const { isWotlk, version } = useIsClassicWowhead();
+  const { isWotlk, version } = useWowhead();
   const { data: user } = useStorageQuery('user');
 
   function createNexushubLink(item: i.CachedItemDataClassic): string | void {

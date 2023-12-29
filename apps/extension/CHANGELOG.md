@@ -1,5 +1,11 @@
 # extension
 
+## 5.0.0
+
+### Major Changes
+
+- Switch to Tradeskillmaster API
+
 ## 4.2.1
 
 ### Patch Changes

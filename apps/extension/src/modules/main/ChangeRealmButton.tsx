@@ -1,19 +1,19 @@
-import useStorageQuery from 'hooks/useStorageQuery';
+import { useRealm } from 'hooks/useRealm';
 import * as React from 'react';
 import GlobeSvg from 'static/globe-americas-regular.svg';
 
 export const ChangeRealmButton: React.FC = () => {
-  const { data: user } = useStorageQuery('user');
+  const { activeRealm } = useRealm();
 
   return (
     <button
-      className="btn btn-small auc-btn"
+      className="btn btn-small auc-btn !auc-flex auc-items-center"
       onClick={() => window.open(`${addon.runtime.getURL('form.html')}?large=true`)}
       title="Change server for Auctionoton"
     >
       {/* @ts-ignore */}
       <GlobeSvg className="auc-h-3 auc-pr-1" />
-      <span>{!user?.realms?.classic ? 'Add your realm!' : 'Change realm'}</span>
+      <span>{activeRealm ? 'Change realm' : 'Add your realm!'}</span>
     </button>
   );
 };
