@@ -144,12 +144,12 @@ function updateAuctionHouseData(
             .onConflictDoUpdate({
               target: [items.itemId, items.auctionHouseId],
               set: {
-                numAuctions: sql`excluded.num_auctions`,
-                marketValue: sql`excluded.market_value`,
-                historical: sql`excluded.historical`,
-                minBuyout: sql`excluded.min_buyout`,
-                quantity: sql`excluded.quantity`,
-                timestamp: sql`excluded.timestamp`,
+                numAuctions: item.numAuctions,
+                marketValue: item.marketValue,
+                historical: item.historical,
+                minBuyout: item.minBuyout,
+                quantity: item.quantity,
+                timestamp: new Date().toISOString(),
               },
             });
         }
