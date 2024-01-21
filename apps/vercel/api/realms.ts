@@ -5,7 +5,7 @@ import { getQueries } from './_utils.js';
 
 export const config = {
   runtime: 'edge',
-  preferredRegion: 'sfo1',
+  regions: ['sfo1'],
 };
 
 const versionMap = {
