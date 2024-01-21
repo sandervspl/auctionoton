@@ -181,3 +181,20 @@ export async function getAuctionHouse(auctionHouseId: number) {
 
   return auctionHouse;
 }
+
+export async function getItem(itemId: number, auctionHouseId: number) {
+  const response = await fetch(
+    `https://pricing-api.tradeskillmaster.com/item/${auctionHouseId}/${itemId}`,
+    {
+      headers: await headers(),
+    },
+  );
+  if (response.status !== 200) {
+    console.error(`Failed to fetch item "${itemId}": ${response.status} ${response.statusText}`);
+    return null;
+  }
+
+  const item = (await response.json()) as Item;
+
+  return item;
+}
