@@ -4,9 +4,6 @@
   "private": true,
   "license": "ISC",
   "scripts": {
-    "build": "turbo run build",
-    "start": "turbo run start --parallel",
-    "dev:ext": "turbo run dev --scope=extension --include-dependencies",
     "prettier": "prettier --write \"**/*.{ts,tsx,md}\"",
     "cs:add": "npx changeset",
     "cs:ver": "npx changeset version",
@@ -17,7 +14,6 @@
     "concurrently": "^7.5.0",
     "cross-env": "^7.0.3",
     "prettier": "^2.7.1",
-    "turbo": "^1.6.1",
     "typescript": "^5.3.3"
   }
 }
