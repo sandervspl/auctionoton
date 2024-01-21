@@ -184,7 +184,7 @@ export async function getAuctionHouse(auctionHouseId: number) {
 
 export async function getItem(itemId: number, auctionHouseId: number) {
   const response = await fetch(
-    `https://pricing-api.tradeskillmaster.com/item/${auctionHouseId}/${itemId}`,
+    `https://pricing-api.tradeskillmaster.com/ah/${auctionHouseId}/item/${itemId}`,
     {
       headers: await headers(),
     },
