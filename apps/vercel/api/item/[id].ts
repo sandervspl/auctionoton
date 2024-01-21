@@ -1,10 +1,11 @@
 import { ipAddress, RequestContext } from '@vercel/edge';
 import { and, eq, sql } from 'drizzle-orm';
 import * as R from 'remeda';
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
 
 import type { NexusHub } from '../_types.js';
 import { getQueries, getURLParam, qualityMap } from '../_utils.js';
-import { rateLimit } from '../_rate-limiter.js';
 import { getAuctionHouse, getItem } from '../_tsm.js';
 import { db } from '../../db/index.js';
 import { items, itemsMetadata } from '../../db/schema.js';
@@ -14,10 +15,9 @@ import { GameItem } from '../_blizzard/types.js';
 
 export const config = {
   runtime: 'edge',
+  preferredRegion: 'sfo1',
 };
 
-const MAX_REQUESTS = 100;
-const WINDOW_SECONDS = 60;
 const headers = {
   'content-type': 'application/json',
   'cache-control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate',
@@ -28,6 +28,11 @@ const errorHeaders = {
   'cache-control': 'no-store',
   'Access-Control-Allow-Origin': '*',
 };
+const ratelimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(10, '10 s'),
+  prefix: 'auctionoton:item',
+});
 
 const prepared = db
   .select()
@@ -196,17 +201,21 @@ async function updateAuctionHouseData(auctionHouseId: string | number, itemId: s
 
 export default async function handler(req: Request, context: RequestContext) {
   const ip = ipAddress(req);
-  const isAllowed = await rateLimit(`item:${ip}`, MAX_REQUESTS, WINDOW_SECONDS);
 
-  if (!isAllowed) {
+  // Prevent spamming
+  const { success, remaining, reset, limit, pending } = await ratelimit.limit(ip || 'anon');
+
+  context.waitUntil(pending);
+
+  if (!success) {
     return new Response('Too many requests', {
       status: 429,
       headers: {
         ...errorHeaders,
         'content-type': 'text/plain',
-        'ratelimit-limit': MAX_REQUESTS.toString(),
-        // 'ratelimit-remaining': '0',
-        // 'ratelimit-reset': WINDOW_SECONDS.toString(),
+        'ratelimit-limit': limit.toString(),
+        'ratelimit-remaining': remaining.toString(),
+        'ratelimit-reset': reset.toString(),
       },
     });
   }
