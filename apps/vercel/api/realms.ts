@@ -27,9 +27,9 @@ export default async function handler(req: Request) {
   const KV_KEY = `tsm:realms:${regionq}:${versionq}`;
 
   try {
-    const cached = await kv.get<string>(KV_KEY);
+    const cached = await kv.get<object[]>(KV_KEY);
     if (cached) {
-      return new Response(cached, {
+      return new Response(JSON.stringify(cached), {
         status: 200,
         headers,
       });
@@ -68,7 +68,7 @@ export default async function handler(req: Request) {
     }));
 
     try {
-      await kv.set(KV_KEY, data, { ex: 60 * 60 * 24 });
+      await kv.set(KV_KEY, JSON.stringify(data), { ex: 60 * 60 * 24 });
     } catch (error: any) {
       console.error('kv error:', error.message || 'unknown error');
     }

@@ -159,17 +159,11 @@ export async function getAuctionHouse(auctionHouseId: number) {
 
   console.log(`fetching auction house "${auctionHouseId}"...`);
 
-  // TSM needs to resolve in less than 20 seconds or else we cancel the request
-  const response = await Promise.race<Error | Response>([
-    new Promise((resolve) => setTimeout(() => resolve(new Error('timeout')), 20_000)),
-    fetch(`https://pricing-api.tradeskillmaster.com/ah/${auctionHouseId}`, {
-      headers: await headers(),
-    }),
-  ]);
+  const response = await fetch(`https://pricing-api.tradeskillmaster.com/ah/${auctionHouseId}`, {
+    headers: await headers(),
+  });
 
-  if (response instanceof Error) {
-    throw new Error(`Failed to fetch auction house "${auctionHouseId}": ${response.message}`);
-  }
+  console.log(`fetched auction house "${auctionHouseId}": ${response.status}`);
 
   if (response.status !== 200) {
     throw new Error(`Failed to fetch auction house "${auctionHouseId}": ${response.statusText}`);
