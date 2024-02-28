@@ -1,16 +1,16 @@
 import { sql, and, eq } from 'drizzle-orm';
 import slugify from '@sindresorhus/slugify';
 
-import * as i from '../types';
-import { db } from '../db';
-import { items, itemsMetadata } from '../db/schema';
+import * as i from '../../types';
+import { db } from '../../db';
+import { items, itemsMetadata } from '../../db/schema';
+import { getItemFromBnet } from '../../utils/blizzard/index.ts';
+import { qualityMap } from '../../utils';
+import { getItem } from '../../utils/tsm';
 import { updateAuctionHouseData } from './auction-house';
-import { getItemFromBnet } from '../utils/blizzard/index.ts';
-import { qualityMap } from '../utils';
-import { getItem } from '../utils/tsm';
 
-export async function getItemFromId(itemId: number, auctionHouseId: number) {
-  updateAuctionHouseData(auctionHouseId, itemId);
+export async function itemService(itemId: number, auctionHouseId: number) {
+  updateAuctionHouseData(auctionHouseId);
 
   const item = await queryItem(itemId, auctionHouseId);
 

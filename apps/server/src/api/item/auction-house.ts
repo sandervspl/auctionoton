@@ -1,14 +1,11 @@
 import * as R from 'remeda';
 import { sql } from 'drizzle-orm';
 
-import { getAuctionHouse } from '../utils/tsm';
-import { db } from '../db';
-import { items } from '../db/schema';
+import { getAuctionHouse } from '../../utils/tsm';
+import { db } from '../../db';
+import { items } from '../../db/schema';
 
-export async function updateAuctionHouseData(
-  auctionHouseId: string | number,
-  itemId: string | number,
-) {
+export async function updateAuctionHouseData(auctionHouseId: string | number) {
   const ahItems = await getAuctionHouse(Number(auctionHouseId));
 
   if (ahItems) {

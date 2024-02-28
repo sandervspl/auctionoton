@@ -44,10 +44,8 @@ export async function checkRateLimit(rateLimit: Ratelimit, request: Request) {
   const { success, remaining, reset, limit, pending } = await rateLimit.limit(fingerprint);
 
   if (!success) {
-    throw { remaining, reset, limit, pending };
+    return { remaining, reset, limit, pending };
   }
-
-  return true;
 }
 
 export const versionMap = {

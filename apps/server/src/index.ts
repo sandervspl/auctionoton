@@ -2,8 +2,9 @@ import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import { Elysia, t } from 'elysia';
 
-import { getItemFromId } from './item';
+import { itemService } from './api/item';
 import { checkRateLimit, errorHeaders, successHeaders } from './utils';
+import { realmService } from './api/realms';
 
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
@@ -12,32 +13,46 @@ const ratelimit = new Ratelimit({
 });
 
 const app = new Elysia()
+  .onRequest(async ({ request, set }) => {
+    const result = await checkRateLimit(ratelimit, request);
+
+    if (result) {
+      set.status = 429;
+      set.headers = {
+        ...errorHeaders,
+        'content-type': 'text/plain',
+        'ratelimit-limit': result.limit.toString(),
+        'ratelimit-remaining': result.remaining.toString(),
+        'ratelimit-reset': result.reset.toString(),
+      };
+
+      return 'Too many requests';
+    }
+  })
   .get(
-    '/item/:id/ah/:ah_id',
-    async ({ params: { id, ah_id }, request, set }) => {
-      try {
-        await checkRateLimit(ratelimit, request);
-      } catch (response: any) {
-        const { remaining, reset, limit } = response as {
-          remaining: number;
-          reset: number;
-          limit: number;
-          pending: number;
-        };
+    '/realms/:region/:version',
+    async ({ request, set, params: { region, version } }) => {
+      const realms = await realmService(request, region, version);
 
-        set.status = 429;
-        set.headers = {
-          ...errorHeaders,
-          'content-type': 'text/plain',
-          'ratelimit-limit': limit.toString(),
-          'ratelimit-remaining': remaining.toString(),
-          'ratelimit-reset': reset.toString(),
-        };
-
-        return 'Too many requests';
+      if ('error' in realms) {
+        set.status = realms.status;
+        set.headers = errorHeaders;
+        return realms.message;
       }
 
-      const item = await getItemFromId(id, ah_id);
+      return realms;
+    },
+    {
+      params: t.Object({
+        region: t.String(),
+        version: t.String(),
+      }),
+    },
+  )
+  .get(
+    '/item/:id/ah/:ah_id',
+    async ({ params: { id, ah_id }, set }) => {
+      const item = await itemService(id, ah_id);
 
       if ('error' in item) {
         set.status = 404;
