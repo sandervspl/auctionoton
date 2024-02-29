@@ -18,12 +18,9 @@ function useRealmsList(region: i.Regions, version: i.Version) {
   const realms = useQuery<Realm[], Error>({
     queryKey: ['realms', region, version],
     queryFn: async () => {
-      const { data, status, statusText } = await edgeAPI.get<Realm[]>(EdgeAPI.RealmsUrl, {
-        params: {
-          region,
-          version,
-        },
-      });
+      const { data, status, statusText } = await edgeAPI.get<Realm[]>(
+        `${EdgeAPI.Url}/realms/${region}/${version}`,
+      );
 
       if (status !== 200) {
         throw new Error(statusText);

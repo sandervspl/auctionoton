@@ -16,12 +16,9 @@ export async function fetchItemFromAPI(itemId: number, auctionHouseId: number, a
       return;
     }
 
-    const { data } = await edgeAPI.get<i.ItemDataClassicResponse>(`${EdgeAPI.ItemUrl}/${itemId}`, {
-      params: {
-        ah_id: auctionHouseId,
-        amount,
-      },
-    });
+    const { data } = await edgeAPI.get<i.ItemDataClassicResponse>(
+      `${EdgeAPI.Url}/item/${itemId}/ah/${auctionHouseId}`,
+    );
 
     const localData: i.CachedItemDataClassic = {
       ...data,
