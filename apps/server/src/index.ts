@@ -29,6 +29,9 @@ const app = new Elysia()
       return 'Too many requests';
     }
   })
+  .get('/health', async () => {
+    return 'OK';
+  })
   .get(
     '/realms/:region/:version',
     async ({ request, set, params: { region, version } }) => {
