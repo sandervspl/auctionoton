@@ -1,6 +1,7 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import { Elysia, t } from 'elysia';
+import { cors } from '@elysiajs/cors';
 
 import { itemService } from './api/item';
 import { checkRateLimit, errorHeaders, successHeaders } from './utils';
@@ -13,6 +14,7 @@ const ratelimit = new Ratelimit({
 });
 
 const app = new Elysia()
+  .use(cors())
   .onRequest(async ({ request, set }) => {
     const result = await checkRateLimit(ratelimit, request);
 

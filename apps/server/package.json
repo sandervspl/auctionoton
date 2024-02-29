@@ -6,6 +6,7 @@
     "dev": "bun run --watch src/index.ts"
   },
   "dependencies": {
+    "@elysiajs/cors": "^0.8.0",
     "@sindresorhus/slugify": "^2.2.1",
     "@upstash/ratelimit": "^1.0.1",
     "@upstash/redis": "^1.28.4",
