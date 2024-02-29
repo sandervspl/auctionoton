@@ -21,13 +21,12 @@ const headers = {
 };
 
 export async function realmService(req: Request, regionq: string, version: string) {
-  const query = getQueries(req.url);
   const KV_KEY = `tsm:realms:${regionq}:${version}`;
 
   try {
-    const cached = await kv.get<object[]>(KV_KEY);
+    const cached = await kv.get(KV_KEY);
     if (cached) {
-      return cached;
+      return JSON.parse(cached) as object[];
     }
 
     const regions = await getRegions();
@@ -57,7 +56,7 @@ export async function realmService(req: Request, regionq: string, version: strin
     }));
 
     try {
-      await kv.set(KV_KEY, data, { ex: 60 * 60 * 24 });
+      await kv.set(KV_KEY, JSON.stringify(data), { EX: 60 * 60 * 24 });
     } catch (error: any) {
       console.error('kv error:', error.message || 'unknown error');
     }

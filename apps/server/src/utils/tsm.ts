@@ -37,7 +37,7 @@ type Item = {
 async function getAccessToken() {
   const KV_KEY = 'tsm:access-token';
 
-  const cached = await kv.get<string>(KV_KEY);
+  const cached = await kv.get(KV_KEY);
   if (cached) {
     return cached;
   }
@@ -77,7 +77,7 @@ async function getAccessToken() {
   };
 
   try {
-    await kv.set(KV_KEY, access_token, { ex: 60 * 60 * 24 });
+    await kv.set(KV_KEY, access_token, { EX: 60 * 60 * 24 });
   } catch (error: any) {
     console.error('kv error:', error.message || 'unknown error');
   }
@@ -97,9 +97,9 @@ const headers = async () => {
 export async function getRegions() {
   const KV_KEY = 'tsm:regions';
 
-  const cached = await kv.get<Region[]>(KV_KEY);
+  const cached = await kv.get(KV_KEY);
   if (cached) {
-    return cached;
+    return JSON.parse(cached) as Region[];
   }
 
   const response = await fetch('https://realm-api.tradeskillmaster.com/regions', {
@@ -114,7 +114,7 @@ export async function getRegions() {
   };
 
   try {
-    await kv.set(KV_KEY, regions.items, { ex: 60 * 60 * 24 });
+    await kv.set(KV_KEY, JSON.stringify(regions.items), { EX: 60 * 60 * 24 });
   } catch (error: any) {
     console.error('kv error:', error.message || 'unknown error');
   }
@@ -124,9 +124,9 @@ export async function getRegions() {
 
 export async function getRealms(regionId: number) {
   const KV_KEY = `tsm:realms:${regionId}`;
-  const cached = await kv.get<Realm[]>(KV_KEY);
+  const cached = await kv.get(KV_KEY);
   if (cached) {
-    return cached;
+    return JSON.parse(cached) as Realm[];
   }
 
   const response = await fetch(
@@ -144,7 +144,7 @@ export async function getRealms(regionId: number) {
   };
 
   try {
-    await kv.set(KV_KEY, realms.items, { ex: 60 * 60 * 24 });
+    await kv.set(KV_KEY, JSON.stringify(realms.items), { EX: 60 * 60 * 24 });
   } catch (error: any) {
     console.error('kv error:', error.message || 'unknown error');
   }
@@ -154,14 +154,14 @@ export async function getRealms(regionId: number) {
 
 export async function getAuctionHouse(auctionHouseId: number) {
   const KV_KEY = `tsm:ah:${auctionHouseId}`;
-  const recentlyUpdated = await kv.get<string>(KV_KEY);
+  const recentlyUpdated = await kv.get(KV_KEY);
 
   if (recentlyUpdated) {
     return;
   }
 
   // Temporarily lock the key to prevent multiple requests
-  await kv.set(KV_KEY, new Date().toISOString(), { ex: 5 });
+  await kv.set(KV_KEY, new Date().toISOString(), { EX: 5 });
 
   console.log(`fetching auction house "${auctionHouseId}"...`);
 
@@ -182,7 +182,7 @@ export async function getAuctionHouse(auctionHouseId: number) {
 
   if (Array.isArray(auctionHouse) && auctionHouse.length > 0) {
     try {
-      await kv.set(KV_KEY, new Date().toISOString(), { ex: 60 * 60 * 6 });
+      await kv.set(KV_KEY, new Date().toISOString(), { EX: 60 * 60 * 6 });
     } catch (error: any) {
       console.error('kv error:', error.message || 'unknown error');
     }

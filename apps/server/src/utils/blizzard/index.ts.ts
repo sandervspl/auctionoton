@@ -8,7 +8,7 @@ export async function getAccessToken() {
 
   const KV_KEY = 'bnet:access_token';
 
-  const cached = await kv.get<string>(KV_KEY);
+  const cached = await kv.get(KV_KEY);
   if (cached) {
     return cached;
   }
@@ -36,7 +36,7 @@ export async function getAccessToken() {
 
   try {
     await kv.set('bnet:access_token', data.access_token, {
-      ex: 60 * 60 * 3,
+      EX: 60 * 60 * 3,
     });
   } catch (error: any) {
     console.error('kv error:', error.message || 'unknown error');
