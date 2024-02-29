@@ -24,7 +24,6 @@ export async function updateAuctionHouseData(auctionHouseId: string | number) {
               historical: item.historical,
               minBuyout: item.minBuyout,
               quantity: item.quantity,
-              timestamp: new Date().toISOString(),
             })),
           )
           .onConflictDoUpdate({
@@ -35,7 +34,6 @@ export async function updateAuctionHouseData(auctionHouseId: string | number) {
               historical: sql`excluded.historical`,
               minBuyout: sql`excluded.min_buyout`,
               quantity: sql`excluded.quantity`,
-              timestamp: new Date().toISOString(),
             },
           });
       }

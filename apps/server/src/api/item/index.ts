@@ -23,17 +23,11 @@ async function queryItem(id: number, auctionHouseId: number) {
     const queryResult = await db
       .select()
       .from(items)
-      .where(
-        and(
-          eq(items.itemId, sql.placeholder('id')),
-          eq(items.auctionHouseId, sql.placeholder('auctionHouseId')),
-        ),
-      )
-      .fullJoin(itemsMetadata, eq(items.itemId, itemsMetadata.id))
-      .get({ id, auctionHouseId });
+      .where(and(eq(items.itemId, id), eq(items.auctionHouseId, auctionHouseId)))
+      .fullJoin(itemsMetadata, eq(items.itemId, itemsMetadata.id));
 
     // If not in DB, fetch item from TSM
-    if (queryResult == null || queryResult.items == null) {
+    if (queryResult == null || queryResult.length === 0 || queryResult[0].items == null) {
       const item = await getItem(id, auctionHouseId);
 
       if (!item) {
@@ -83,7 +77,7 @@ async function queryItem(id: number, auctionHouseId: number) {
       } as i.NexusHub.ItemsResponse;
     }
 
-    const { items: item, items_metadata: metadata } = queryResult;
+    const { items: item, items_metadata: metadata } = queryResult[0];
     let itemFromBnet: i.GameItem | null = null;
     let itemFromBnetSlug = '';
     if (!metadata) {
