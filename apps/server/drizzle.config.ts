@@ -3,9 +3,10 @@ import { defineConfig } from 'drizzle-kit';
 export default defineConfig({
   schema: './src/db/schema.ts',
   out: './src/db/drizzle',
-  driver: 'libsql',
+  driver: 'pg',
   dbCredentials: {
-    url: 'file:sqlite.db',
+    connectionString: process.env.DB_URL!,
+    database: 'postgres',
   },
   verbose: true,
   strict: true,

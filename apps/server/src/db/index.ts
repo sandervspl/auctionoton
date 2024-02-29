@@ -1,11 +1,11 @@
-import { drizzle } from 'drizzle-orm/libsql';
-import { createClient } from '@libsql/client';
-// import { migrate } from 'drizzle-orm/libsql/migrator';
+import { drizzle } from 'drizzle-orm/postgres-js';
+// import { migrate } from 'drizzle-orm/postgres-js/migrator';
+import postgres from 'postgres';
 
 import * as schema from './schema';
 
-const client = createClient({ url: 'file:sqlite.db' });
+// const migrationClient = postgres(process.env.DB_URL!, { max: 1 });
+// migrate(drizzle(migrationClient), { migrationsFolder: './src/db/migrations' });
 
-export const db = drizzle(client, { schema });
-
-// migrate(db, { migrationsFolder: 'src/db/drizzle' });
+const queryClient = postgres(process.env.DB_URL!);
+export const db = drizzle(queryClient, { schema });

@@ -1,82 +1,73 @@
 {
-  "version": "5",
-  "dialect": "sqlite",
-  "id": "8dd06648-a9e3-4729-b033-b4f69f87322d",
+  "id": "fc3ac108-d576-44a9-a1bb-95c61c4cb449",
   "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "5",
+  "dialect": "pg",
   "tables": {
     "items": {
       "name": "items",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "bigserial",
           "primaryKey": true,
-          "notNull": true,
-          "autoincrement": true
+          "notNull": true
         },
         "auction_house_id": {
           "name": "auction_house_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "item_id": {
           "name": "item_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "pet_species_id": {
           "name": "pet_species_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "min_buyout": {
           "name": "min_buyout",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "quantity": {
           "name": "quantity",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "market_value": {
           "name": "market_value",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "historical": {
           "name": "historical",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "num_auctions": {
           "name": "num_auctions",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "timestamp": {
           "name": "timestamp",
-          "type": "text",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
+          "default": "now()"
         }
       },
       "indexes": {
@@ -87,36 +78,36 @@
             "auction_house_id"
           ],
           "isUnique": false
-        },
-        "items_item_id_auction_house_id_unq": {
-          "name": "items_item_id_auction_house_id_unq",
-          "columns": [
-            "item_id",
-            "auction_house_id"
-          ],
-          "isUnique": true
         }
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {
+        "items_item_id_auction_house_id_unq": {
+          "name": "items_item_id_auction_house_id_unq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "item_id",
+            "auction_house_id"
+          ]
+        }
+      }
     },
     "items_metadata": {
       "name": "items_metadata",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "bigserial",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
           "default": "''"
         },
         "slug": {
@@ -124,7 +115,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
           "default": "''"
         },
         "locale": {
@@ -132,7 +122,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
           "default": "'en_US'"
         },
         "quality": {
@@ -140,7 +129,6 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
           "default": 1
         },
         "tags": {
@@ -148,7 +136,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
           "default": "''"
         },
         "item_level": {
@@ -156,7 +143,6 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
           "default": 0
         },
         "required_level": {
@@ -164,7 +150,6 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
           "default": 0
         }
       },
@@ -183,24 +168,26 @@
             "locale"
           ],
           "isUnique": false
-        },
-        "items_metadata_id_unq": {
-          "name": "items_metadata_id_unq",
-          "columns": [
-            "id"
-          ],
-          "isUnique": true
         }
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {
+        "items_metadata_id_unq": {
+          "name": "items_metadata_id_unq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
+          ]
+        }
+      }
     }
   },
   "enums": {},
+  "schemas": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
+    "tables": {}
   }
 }

@@ -1,11 +1,10 @@
-import { sql } from 'drizzle-orm';
-import { text, integer, sqliteTable, unique, index } from 'drizzle-orm/sqlite-core';
+import { text, integer, pgTable, unique, index, bigserial, timestamp } from 'drizzle-orm/pg-core';
 import { createInsertSchema } from 'drizzle-zod';
 
-export const items = sqliteTable(
+export const items = pgTable(
   'items',
   {
-    id: integer('id').primaryKey({ autoIncrement: true }),
+    id: bigserial('id', { mode: 'number' }).primaryKey(),
     auctionHouseId: integer('auction_house_id').notNull(),
     itemId: integer('item_id').notNull(),
     petSpeciesId: integer('pet_species_id'),
@@ -14,7 +13,7 @@ export const items = sqliteTable(
     marketValue: integer('market_value').notNull(),
     historical: integer('historical').notNull(),
     numAuctions: integer('num_auctions').notNull(),
-    timestamp: text('timestamp').default(sql`CURRENT_TIMESTAMP`),
+    timestamp: timestamp('timestamp').defaultNow(),
   },
   (table) => ({
     auction_house_id_idx: index('items_item_id_auction_house_id_idx').on(
@@ -30,10 +29,10 @@ export const items = sqliteTable(
 
 export const insertItemsSchema = createInsertSchema(items);
 
-export const itemsMetadata = sqliteTable(
+export const itemsMetadata = pgTable(
   'items_metadata',
   {
-    id: integer('id').notNull(),
+    id: bigserial('id', { mode: 'number' }).notNull(),
     name: text('name').default(''),
     slug: text('slug').default(''),
     locale: text('locale').default('en_US'),
