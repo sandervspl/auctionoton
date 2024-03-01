@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "license": "ISC",
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
     "prettier": "prettier --write \"**/*.{ts,tsx,md}\"",
     "cs:add": "npx changeset",
