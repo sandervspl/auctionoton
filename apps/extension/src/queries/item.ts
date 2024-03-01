@@ -16,7 +16,7 @@ export async function fetchItemFromAPI(itemId: number, auctionHouseId: number, a
       return;
     }
 
-    const { data } = await auctionotonAPI.get<i.ItemDataClassicResponse>(
+    const { data, status } = await auctionotonAPI.get<i.ItemDataClassicResponse>(
       `${auctionotonAPIUrl}/item/${itemId}/ah/${auctionHouseId}`,
     );
 
@@ -29,7 +29,11 @@ export async function fetchItemFromAPI(itemId: number, auctionHouseId: number, a
     await asyncStorage.addItem([auctionHouseId, itemId], localData);
 
     return localData;
-  } catch (err) {
-    console.error(err);
+  } catch (err: any) {
+    console.error('fetchItemFromAPI', err.response?.status, err);
+
+    if (err.response?.status === 404) {
+      return 'NOT_FOUND';
+    }
   }
 }

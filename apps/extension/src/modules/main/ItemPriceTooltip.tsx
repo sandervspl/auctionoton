@@ -15,7 +15,7 @@ export const ItemPriceTooltip = (props: Props) => {
   const { isWotlk, version } = useWowhead();
   const { data: user } = useStorageQuery('user');
 
-  function createNexushubLink(item: i.CachedItemDataClassic): string | void {
+  function createNexushubLink(item: i.CachedItemDataClassic) {
     const server = user?.realms?.[version]?.slug;
 
     if (server) {
