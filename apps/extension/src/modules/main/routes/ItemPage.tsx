@@ -89,7 +89,10 @@ function useGetReagentItems() {
       createdByTabAnchor.parentNode?.parentNode?.querySelector('li a')?.click(),
     );
 
-    const reagentsListEl = createdByTabEl.querySelector('.listview-row')?.querySelectorAll('td')[2];
+    // Super scuffed selector
+    const reagentsListEl = createdByTabEl
+      .querySelector('.listview-row')
+      ?.querySelector('td[style="padding: 0px;"]');
     if (!reagentsListEl) {
       console.error('Could not find reagents list');
       return [];
