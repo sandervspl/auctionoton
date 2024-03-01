@@ -1,0 +1,25 @@
+{
+  "name": "@auctionoton/server",
+  "version": "1.0.0",
+  "module": "src/index.js",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts"
+  },
+  "dependencies": {
+    "@elysiajs/cors": "^0.8.0",
+    "@sindresorhus/slugify": "^2.2.1",
+    "@upstash/ratelimit": "^1.0.1",
+    "@upstash/redis": "^1.28.4",
+    "buffer-polyfill": "^6.0.3",
+    "drizzle-orm": "^0.29.4",
+    "drizzle-zod": "^0.5.1",
+    "elysia": "^0.8.17",
+    "postgres": "^3.4.3",
+    "redis": "^4.6.13",
+    "remeda": "^1.45.2"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "drizzle-kit": "^0.20.14"
+  }
+}

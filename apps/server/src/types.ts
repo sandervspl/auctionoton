@@ -1,3 +1,5 @@
+export * from './utils/blizzard/types';
+
 export namespace NexusHub {
   interface Tooltip {
     label: string;

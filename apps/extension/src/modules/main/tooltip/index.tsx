@@ -30,7 +30,7 @@ const Tooltip: React.FC<Props> = (props) => {
   const { isEra } = useWowhead();
   const { activeRealm } = useRealm();
   const { data: lastUpdated } = useQuery({
-    queryKey: ['tooltip', 'last-updated', props.itemId, item?.updatedAt],
+    queryKey: ['tooltip', props.itemId, item?.updatedAt],
     queryFn: async () => {
       if (!item?.stats.lastUpdated) {
         return {

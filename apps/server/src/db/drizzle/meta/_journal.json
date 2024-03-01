@@ -1,0 +1,13 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1709243452404,
+      "tag": "0000_aromatic_mole_man",
+      "breakpoints": true
+    }
+  ]
+}

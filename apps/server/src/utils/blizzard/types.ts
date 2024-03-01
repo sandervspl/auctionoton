@@ -1,4 +1,4 @@
-import { qualityMap } from '../_utils.js';
+import { qualityMap } from '..';
 
 export type AccessToken = {
   access_token: string;

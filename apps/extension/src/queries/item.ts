@@ -2,7 +2,7 @@ import * as i from 'types';
 import dayjs from 'dayjs';
 
 import asyncStorage from 'utils/asyncStorage';
-import { EdgeAPI, edgeAPI } from 'utils/edgeApi';
+import { auctionotonAPIUrl, auctionotonAPI } from 'utils/auctionotonApi';
 
 export async function fetchItemFromAPI(itemId: number, auctionHouseId: number, amount = 1) {
   try {
@@ -16,12 +16,9 @@ export async function fetchItemFromAPI(itemId: number, auctionHouseId: number, a
       return;
     }
 
-    const { data } = await edgeAPI.get<i.ItemDataClassicResponse>(`${EdgeAPI.ItemUrl}/${itemId}`, {
-      params: {
-        ah_id: auctionHouseId,
-        amount,
-      },
-    });
+    const { data, status } = await auctionotonAPI.get<i.ItemDataClassicResponse>(
+      `${auctionotonAPIUrl}/item/${itemId}/ah/${auctionHouseId}`,
+    );
 
     const localData: i.CachedItemDataClassic = {
       ...data,
@@ -32,7 +29,11 @@ export async function fetchItemFromAPI(itemId: number, auctionHouseId: number, a
     await asyncStorage.addItem([auctionHouseId, itemId], localData);
 
     return localData;
-  } catch (err) {
-    console.error(err);
+  } catch (err: any) {
+    console.error('fetchItemFromAPI', err.response?.status, err);
+
+    if (err.response?.status === 404) {
+      return 'NOT_FOUND';
+    }
   }
 }

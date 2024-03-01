@@ -3,11 +3,15 @@
   "version": "0.0.0",
   "private": true,
   "license": "ISC",
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
+    "build": "cd apps/extension && bun run build",
     "prettier": "prettier --write \"**/*.{ts,tsx,md}\"",
     "cs:add": "npx changeset",
     "cs:ver": "npx changeset version",
-    "e:version": "npm run build && cd apps/extension && npm run version"
+    "e:version": "bun run build && cd apps/extension && npm run version"
   },
   "devDependencies": {
     "@changesets/cli": "2.25.0",

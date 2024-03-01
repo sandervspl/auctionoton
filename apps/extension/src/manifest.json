@@ -67,7 +67,8 @@
     "https://auctionoton-edge-api-sandervspl.vercel.app/api/*",
     "https://auctionoton-edge-api.vercel.app/api/*",
     "https://auctionoton-api-valor.vercel.app/api/*",
-    "https://auctionoton-api.vercel.app/api/*"
+    "https://auctionoton-api.vercel.app/api/*",
+    "https://auctionoton-api.sandervspl.dev/*"
   ],
   "browser_specific_settings": {
     "gecko": {

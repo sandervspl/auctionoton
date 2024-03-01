@@ -1,4 +1,52 @@
-import * as i from './_types.js';
+import { Ratelimit } from '@upstash/ratelimit';
+import crypto from 'node:crypto';
+
+import * as i from '../types';
+
+export const successHeaders = {
+  'content-type': 'application/json',
+  'cache-control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate',
+  'Access-Control-Allow-Origin': '*',
+};
+
+export const errorHeaders = {
+  'content-type': 'application/json',
+  'cache-control': 'no-store',
+  'Access-Control-Allow-Origin': '*',
+};
+
+export function getFingerprint(req: Request) {
+  const cleaned = {} as Record<keyof Request, any>;
+  const prefix = 'acl:';
+
+  const keys = Object.keys(req).sort() as Array<keyof Request>;
+
+  keys.forEach((k) => {
+    const _k = k.toLowerCase() as keyof Request;
+    cleaned[_k] = req[_k];
+  });
+
+  if (cleaned.method) {
+    cleaned.method = cleaned.method.toUpperCase();
+  }
+
+  if ('ttl' in cleaned) {
+    delete cleaned.ttl;
+  }
+
+  const hash = crypto.createHash('md5').update(JSON.stringify(cleaned)).digest('hex');
+
+  return prefix + hash;
+}
+
+export async function checkRateLimit(rateLimit: Ratelimit, request: Request) {
+  const fingerprint = getFingerprint(request);
+  const { success, remaining, reset, limit, pending } = await rateLimit.limit(fingerprint);
+
+  if (!success) {
+    return { remaining, reset, limit, pending };
+  }
+}
 
 export const versionMap = {
   era: 'Classic Era',
@@ -95,4 +143,4 @@ export const qualityMap = {
   EPIC: 4,
   LEGENDARY: 5,
   ARTIFACT: 6,
-};
+} as const;

@@ -42,7 +42,7 @@ export function useItemsFetcher(id: string | number | undefined, itemIds: number
       const allItems = [...cachedItems, ...result];
 
       for (const item of allItems) {
-        if (!item || !user.realm) {
+        if (!item || !user.realm || typeof item === 'string') {
           continue;
         }
 

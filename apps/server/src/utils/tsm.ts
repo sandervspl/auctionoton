@@ -1,4 +1,4 @@
-import { kv } from '@vercel/kv';
+import { kv } from '../kv';
 
 type Region = {
   regionId: number;
@@ -37,7 +37,7 @@ type Item = {
 async function getAccessToken() {
   const KV_KEY = 'tsm:access-token';
 
-  const cached = await kv.get<string>(KV_KEY);
+  const cached = await kv.get(KV_KEY);
   if (cached) {
     return cached;
   }
@@ -56,7 +56,13 @@ async function getAccessToken() {
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch access token: (${response.status}) ${response.statusText}`);
+    try {
+      await response.body?.cancel?.();
+    } catch (err) {}
+
+    throw new Error(
+      `Failed to fetch TSM access token: (${response.status}) ${response.statusText}`,
+    );
   }
 
   const { access_token } = (await response.json()) as {
@@ -71,7 +77,7 @@ async function getAccessToken() {
   };
 
   try {
-    await kv.set(KV_KEY, access_token, { ex: 60 * 60 * 24 });
+    await kv.set(KV_KEY, access_token, { EX: 60 * 60 * 24 });
   } catch (error: any) {
     console.error('kv error:', error.message || 'unknown error');
   }
@@ -91,9 +97,9 @@ const headers = async () => {
 export async function getRegions() {
   const KV_KEY = 'tsm:regions';
 
-  const cached = await kv.get<Region[]>(KV_KEY);
+  const cached = await kv.get(KV_KEY);
   if (cached) {
-    return cached;
+    return JSON.parse(cached) as Region[];
   }
 
   const response = await fetch('https://realm-api.tradeskillmaster.com/regions', {
@@ -108,7 +114,7 @@ export async function getRegions() {
   };
 
   try {
-    await kv.set(KV_KEY, regions.items, { ex: 60 * 60 * 24 });
+    await kv.set(KV_KEY, JSON.stringify(regions.items), { EX: 60 * 60 * 24 });
   } catch (error: any) {
     console.error('kv error:', error.message || 'unknown error');
   }
@@ -118,9 +124,9 @@ export async function getRegions() {
 
 export async function getRealms(regionId: number) {
   const KV_KEY = `tsm:realms:${regionId}`;
-  const cached = await kv.get<Realm[]>(KV_KEY);
+  const cached = await kv.get(KV_KEY);
   if (cached) {
-    return cached;
+    return JSON.parse(cached) as Realm[];
   }
 
   const response = await fetch(
@@ -138,7 +144,7 @@ export async function getRealms(regionId: number) {
   };
 
   try {
-    await kv.set(KV_KEY, realms.items, { ex: 60 * 60 * 24 });
+    await kv.set(KV_KEY, JSON.stringify(realms.items), { EX: 60 * 60 * 24 });
   } catch (error: any) {
     console.error('kv error:', error.message || 'unknown error');
   }
@@ -148,14 +154,14 @@ export async function getRealms(regionId: number) {
 
 export async function getAuctionHouse(auctionHouseId: number) {
   const KV_KEY = `tsm:ah:${auctionHouseId}`;
-  const recentlyUpdated = await kv.get<string>(KV_KEY);
+  const recentlyUpdated = await kv.get(KV_KEY);
 
   if (recentlyUpdated) {
     return;
   }
 
   // Temporarily lock the key to prevent multiple requests
-  await kv.set(KV_KEY, new Date().toISOString(), { ex: 5 });
+  await kv.set(KV_KEY, new Date().toISOString(), { EX: 5 });
 
   console.log(`fetching auction house "${auctionHouseId}"...`);
 
@@ -166,6 +172,9 @@ export async function getAuctionHouse(auctionHouseId: number) {
   console.log(`fetched auction house "${auctionHouseId}": ${response.status}`);
 
   if (response.status !== 200) {
+    try {
+      await response.body?.cancel?.();
+    } catch (err) {}
     throw new Error(`Failed to fetch auction house "${auctionHouseId}": ${response.statusText}`);
   }
 
@@ -173,7 +182,7 @@ export async function getAuctionHouse(auctionHouseId: number) {
 
   if (Array.isArray(auctionHouse) && auctionHouse.length > 0) {
     try {
-      await kv.set(KV_KEY, new Date().toISOString(), { ex: 60 * 60 * 6 });
+      await kv.set(KV_KEY, new Date().toISOString(), { EX: 60 * 60 * 6 });
     } catch (error: any) {
       console.error('kv error:', error.message || 'unknown error');
     }
@@ -190,6 +199,9 @@ export async function getItem(itemId: number, auctionHouseId: number) {
     },
   );
   if (response.status !== 200) {
+    try {
+      await response.body?.cancel?.();
+    } catch (err) {}
     console.error(`Failed to fetch item "${itemId}": ${response.status} ${response.statusText}`);
     return null;
   }

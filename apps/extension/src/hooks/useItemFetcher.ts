@@ -52,12 +52,17 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
 
     const result = await fetchItemFromAPI(itemId, auctionHouseId!);
 
-    if (result) {
-      return result;
+    if (result == null) {
+      setError('Something went wrong fetching this item. Please try again.');
+      throw new Error('Something went wrong fetching this item. Please try again.');
     }
 
-    setError('Something went wrong fetching this item. Please try again.');
-    throw new Error('Something went wrong fetching this item. Please try again.');
+    if (result === 'NOT_FOUND') {
+      setError('Item not found! This item might not be available on this realm.');
+      throw new Error('Item not found. This item might not be available on this realm.');
+    }
+
+    return result;
   }
 
   return {
