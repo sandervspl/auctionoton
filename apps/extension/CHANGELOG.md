@@ -1,5 +1,13 @@
 # extension
 
+## 5.1.0
+
+### Minor Changes
+
+- 63d0716: Add support for new server
+  Fix crafting price
+  Improve error for item not found
+
 ## 5.0.0
 
 ### Major Changes

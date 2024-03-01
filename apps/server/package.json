@@ -1,6 +1,6 @@
 {
   "name": "@auctionoton/server",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0",
   "module": "src/index.js",
   "scripts": {
     "dev": "bun run --watch src/index.ts"
