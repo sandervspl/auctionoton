@@ -2,7 +2,7 @@ import * as i from 'types';
 import dayjs from 'dayjs';
 
 import asyncStorage from 'utils/asyncStorage';
-import { EdgeAPI, edgeAPI } from 'utils/edgeApi';
+import { auctionotonAPIUrl, auctionotonAPI } from 'utils/auctionotonApi';
 
 export async function fetchItemFromAPI(itemId: number, auctionHouseId: number, amount = 1) {
   try {
@@ -16,8 +16,8 @@ export async function fetchItemFromAPI(itemId: number, auctionHouseId: number, a
       return;
     }
 
-    const { data } = await edgeAPI.get<i.ItemDataClassicResponse>(
-      `${EdgeAPI.Url}/item/${itemId}/ah/${auctionHouseId}`,
+    const { data } = await auctionotonAPI.get<i.ItemDataClassicResponse>(
+      `${auctionotonAPIUrl}/item/${itemId}/ah/${auctionHouseId}`,
     );
 
     const localData: i.CachedItemDataClassic = {
