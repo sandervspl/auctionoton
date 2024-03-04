@@ -8,10 +8,7 @@ import { checkRateLimit, errorHeaders, successHeaders } from './utils';
 import { realmService } from './api/realms';
 
 const ratelimit = new Ratelimit({
-  redis: new Redis({
-    url: process.env.REDIS_URL!,
-    token: '',
-  }),
+  redis: Redis.fromEnv(),
   limiter: Ratelimit.slidingWindow(10, '10 s'),
   prefix: 'auctionoton:item',
 });
