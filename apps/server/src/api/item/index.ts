@@ -99,7 +99,10 @@ async function queryItem(id: number, auctionHouseId: number) {
             .onConflictDoNothing();
         }
       } catch (err: any) {
-        console.error('getItemFromBnet:', err.message);
+        console.error('[getItemFromBnet]', err.message, {
+          itemId: item.itemId,
+          ahId: item.auctionHouseId,
+        });
       }
     }
 
