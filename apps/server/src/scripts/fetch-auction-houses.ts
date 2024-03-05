@@ -1,9 +1,13 @@
 import { updateAuctionHouseData } from '../api/item/auction-house';
 import { realmService } from '../api/realms';
+import * as i from '../types';
 
-for (const region of ['eu', 'us']) {
-  // 'classic' has too many realms for the free TSM API
-  for (const version of ['seasonal']) {
+let errors = 0;
+const MAX_ERRORS = 3;
+
+for (const region of ['eu', 'us'] as i.Region[]) {
+  // Too many realms to fetch them all, so we'll only fetch seasonal periodically
+  for (const version of ['seasonal'] as i.GameVersion[]) {
     console.log(`Fetching realms for "${region}-${version}"...`);
     const realms = await realmService(region, version);
 
@@ -23,6 +27,11 @@ for (const region of ['eu', 'us']) {
             `Failed to update AH for "${realm.name}" (${region}-${version})...`,
             err.message,
           );
+
+          if (++errors >= MAX_ERRORS) {
+            console.error('Too many errors. Exiting.');
+            process.exit(1);
+          }
         }
       }
     }
