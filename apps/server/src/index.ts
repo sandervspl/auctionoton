@@ -61,8 +61,8 @@ const app = new Elysia()
   )
   .get(
     '/realms/:region/:version',
-    async ({ request, set, params: { region, version } }) => {
-      const realms = await realmService(request, region, version);
+    async ({ set, params: { region, version } }) => {
+      const realms = await realmService(region, version);
 
       if ('error' in realms) {
         set.status = realms.status;
