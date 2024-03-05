@@ -1,7 +1,7 @@
 import * as i from 'types';
 
 export function useWowhead() {
-  let version: i.Version = 'classic';
+  let version: i.GameVersion = 'classic';
   if (window.location.href.includes('wowhead.com/classic')) {
     version = 'era';
   }

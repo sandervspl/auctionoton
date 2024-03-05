@@ -14,7 +14,7 @@ type Realm = {
   }[];
 };
 
-function useRealmsList(region: i.Regions, version: i.Version) {
+function useRealmsList(region: i.Regions, version: i.GameVersion) {
   const realms = useQuery<Realm[], Error>({
     queryKey: ['realms', region, version],
     queryFn: async () => {

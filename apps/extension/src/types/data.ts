@@ -32,15 +32,15 @@ type ServerSlug = string;
 export type UserData = {
   region?: i.Regions;
   faction: Record<ServerSlug, i.Factions>; // server tied with faction
-  version: i.Version | undefined;
+  version: i.GameVersion | undefined;
   isActive?: {
     classic?: 'classic';
-    era?: i.Version;
+    era?: i.GameVersion;
   };
   /** @deprecated use "realms" */
   server?: Partial<
     Record<
-      i.Version,
+      i.GameVersion,
       {
         name: string;
         slug: string;
@@ -49,7 +49,7 @@ export type UserData = {
   >;
   realms?: Partial<
     Record<
-      i.Version,
+      i.GameVersion,
       {
         name: string;
         slug: string;

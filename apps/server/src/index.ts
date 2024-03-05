@@ -77,13 +77,23 @@ const app = new Elysia()
     },
     {
       params: t.Object({
-        region: t.String(),
-        version: t.String(),
+        region: t.Union([t.Literal('eu'), t.Literal('us')]),
+        version: t.Union([
+          t.Literal('classic'),
+          t.Literal('seasonal'),
+          t.Literal('era'),
+          t.Literal('hardcore'),
+        ]),
       }),
       detail: {
         summary: 'Get Realms',
         tags: ['Realms'],
-        description: 'Get all realms and its auction houses for a specific region and game version',
+        description:
+          'Get all realms and its auction houses for a specific region and game version. Region can be "eu" or "us" and version can be "classic", "seasonal", "era" or "hardcore".',
+        parameters: [
+          { name: 'region', in: 'path', required: true, schema: { type: 'string' } },
+          { name: 'version', in: 'path', required: true, schema: { type: 'string' } },
+        ],
       },
     },
   )

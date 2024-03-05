@@ -1,6 +1,6 @@
 import { kv } from '../kv';
-import { getQueries } from '../utils';
 import { getRealms, getRegions } from '../utils/tsm';
+import * as i from '../types';
 
 export const config = {
   runtime: 'edge',
@@ -31,7 +31,7 @@ type Realm = {
   }[];
 };
 
-export async function realmService(regionq: string, version: string) {
+export async function realmService(regionq: i.Region, version: i.GameVersion) {
   const KV_KEY = `tsm:realms:${regionq}:${version}`;
 
   try {

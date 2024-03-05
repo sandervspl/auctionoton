@@ -199,3 +199,7 @@ export type RateLimit = {
   remaining: number;
   reset: number;
 };
+
+export type GameVersion = 'classic' | 'seasonal' | 'era' | 'hardcore';
+
+export type Region = 'eu' | 'us';
