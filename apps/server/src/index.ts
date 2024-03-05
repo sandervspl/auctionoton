@@ -83,6 +83,7 @@ const app = new Elysia()
       detail: {
         summary: 'Get Realms',
         tags: ['Realms'],
+        description: 'Get all realms and its auction houses for a specific region and game version',
       },
     },
   )
@@ -110,6 +111,7 @@ const app = new Elysia()
       detail: {
         summary: 'Get Item',
         tags: ['Items'],
+        description: "Get an item's auction house data from a specific auction house",
       },
     },
   )
