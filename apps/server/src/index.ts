@@ -44,6 +44,8 @@ const app = new Elysia()
         'ratelimit-reset': result.reset.toString(),
       };
 
+      console.info('Rate limit exceeded');
+
       return 'Too many requests';
     }
   })
@@ -62,6 +64,7 @@ const app = new Elysia()
   .get(
     '/realms/:region/:version',
     async ({ set, params: { region, version } }) => {
+      console.info('GET /realms/:region/:version', { region, version });
       const realms = await realmService(region, version);
 
       if ('error' in realms) {
@@ -86,6 +89,7 @@ const app = new Elysia()
   .get(
     '/item/:id/ah/:ah_id',
     async ({ params: { id, ah_id }, set }) => {
+      console.info('GET /item/:id/ah/:ah_id', { id, ah_id });
       const item = await itemService(id, ah_id);
 
       if ('error' in item) {
