@@ -2,10 +2,15 @@ import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import { Elysia, t } from 'elysia';
 import { cors } from '@elysiajs/cors';
+import { swagger } from '@elysiajs/swagger';
 
 import { itemService } from './api/item';
 import { checkRateLimit, errorHeaders, successHeaders } from './utils';
 import { realmService } from './api/realms';
+
+const version = await Bun.file('package.json')
+  .json()
+  .then((pkg) => pkg.version);
 
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
@@ -15,6 +20,24 @@ const ratelimit = new Ratelimit({
 
 const app = new Elysia()
   .use(cors())
+  .use(
+    swagger({
+      documentation: {
+        info: {
+          title: 'Auctionoton API',
+          version,
+          description: 'API documentation for Auctionoton',
+        },
+        servers: [
+          {
+            url: 'https://auctionoton-api.sandervspl.dev',
+            description: 'Production',
+          },
+        ],
+      },
+      version,
+    }),
+  )
   .onRequest(async ({ request, set }) => {
     const result = await checkRateLimit(ratelimit, request);
 
@@ -31,9 +54,18 @@ const app = new Elysia()
       return 'Too many requests';
     }
   })
-  .get('/health', async () => {
-    return 'OK';
-  })
+  .get(
+    '/health',
+    async () => {
+      return 'OK';
+    },
+    {
+      detail: {
+        summary: 'Health Check',
+        tags: ['System'],
+      },
+    },
+  )
   .get(
     '/realms/:region/:version',
     async ({ request, set, params: { region, version } }) => {
@@ -52,6 +84,10 @@ const app = new Elysia()
         region: t.String(),
         version: t.String(),
       }),
+      detail: {
+        summary: 'Get Realms',
+        tags: ['Realms'],
+      },
     },
   )
   .get(
@@ -74,6 +110,10 @@ const app = new Elysia()
         id: t.Numeric(),
         ah_id: t.Numeric(),
       }),
+      detail: {
+        summary: 'Get Item',
+        tags: ['Items'],
+      },
     },
   )
   .listen(3000);
