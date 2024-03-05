@@ -1,5 +1,3 @@
-import { Ratelimit } from '@upstash/ratelimit';
-import { Redis } from '@upstash/redis';
 import { Elysia, t } from 'elysia';
 import { cors } from '@elysiajs/cors';
 import { swagger } from '@elysiajs/swagger';
@@ -11,12 +9,6 @@ import { realmService } from './api/realms';
 const version = await Bun.file('package.json')
   .json()
   .then((pkg) => pkg.version);
-
-const ratelimit = new Ratelimit({
-  redis: Redis.fromEnv(),
-  limiter: Ratelimit.slidingWindow(10, '10 s'),
-  prefix: 'auctionoton:item',
-});
 
 const app = new Elysia()
   .use(cors())
@@ -38,8 +30,9 @@ const app = new Elysia()
       version,
     }),
   )
-  .onRequest(async ({ request, set }) => {
-    const result = await checkRateLimit(ratelimit, request);
+  .state('ratelimit', new Map())
+  .onRequest(async ({ request, set, store: { ratelimit } }) => {
+    const result = await checkRateLimit(ratelimit, 30, 10, request);
 
     if (result) {
       set.status = 429;

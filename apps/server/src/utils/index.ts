@@ -1,4 +1,3 @@
-import { Ratelimit } from '@upstash/ratelimit';
 import crypto from 'node:crypto';
 
 import * as i from '../types';
@@ -39,13 +38,43 @@ export function getFingerprint(req: Request) {
   return prefix + hash;
 }
 
-export async function checkRateLimit(rateLimit: Ratelimit, request: Request) {
+export async function checkRateLimit(
+  rateLimit: Map<string, i.RateLimit>,
+  window: number,
+  windowTime: number,
+  request: Request,
+) {
   const fingerprint = getFingerprint(request);
-  const { success, remaining, reset, limit, pending } = await rateLimit.limit(fingerprint);
+  const rateLimitData = rateLimit.get(fingerprint);
 
-  if (!success) {
-    return { remaining, reset, limit, pending };
+  const init = {
+    // Time remaining in seconds
+    remaining: window,
+    reset: Date.now() + windowTime * 1000,
+    limit: window,
+  };
+
+  if (rateLimitData == null) {
+    rateLimit.set(fingerprint, init);
+
+    return false;
   }
+
+  if (rateLimitData.reset < Date.now()) {
+    rateLimit.set(fingerprint, init);
+
+    return false;
+  }
+
+  if (rateLimitData.remaining <= 0) {
+    return rateLimitData;
+  }
+
+  rateLimitData.remaining--;
+
+  rateLimit.set(fingerprint, rateLimitData);
+
+  return false;
 }
 
 export const versionMap = {

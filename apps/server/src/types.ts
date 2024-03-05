@@ -193,3 +193,9 @@ export interface ExitEvent {
   oom_killed: boolean;
   exited_at: string;
 }
+
+export type RateLimit = {
+  limit: number;
+  remaining: number;
+  reset: number;
+};
