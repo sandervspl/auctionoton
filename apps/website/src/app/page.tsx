@@ -1,10 +1,10 @@
 import * as i from 'types';
 import * as React from 'react';
 import { Metadata } from 'next';
-import Image from 'next/image';
-import Link from 'next/link';
 
-import { fetchUser } from 'queries/user';
+import { db } from 'src/db';
+import { items, itemsMetadata } from 'src/db/schema';
+import { and, eq, desc } from 'drizzle-orm';
 
 type Props = i.NextPageProps;
 
@@ -13,7 +13,15 @@ export const metadata: Metadata = {
 };
 
 const Page: React.FC<Props> = async () => {
-	const user = await fetchUser('123-456-789');
+	const itemresult = await db
+		.select()
+		.from(items)
+		.where(and(eq(items.itemId, 3356), eq(items.auctionHouseId, 513)))
+		.leftJoin(itemsMetadata, eq(items.itemId, itemsMetadata.id))
+		.orderBy(desc(items.timestamp))
+		.limit(1);
+
+	const item = itemresult[0];
 
 	return (
 		<main>
@@ -24,6 +32,48 @@ const Page: React.FC<Props> = async () => {
 				>
 					Auctionoton
 				</button>
+
+				{/* Item auction house stats */}
+				<div>
+					<h2 className="text-2xl font-bold">Auction House Stats</h2>
+					<p>Items: 1,000</p>
+					<p>Gold: 1,000,000</p>
+					<p>Silver: 1,000,000</p>
+					<p>Copper: 1,000,000</p>
+				</div>
+
+				{/* Items */}
+				<div>
+					<h2 className="text-2xl font-bold">Items</h2>
+					<table className="table-auto">
+						<thead>
+							<tr>
+								<th>Item</th>
+								<th>Auction House</th>
+								<th>Min Buyout</th>
+								<th>Quantity</th>
+								<th>Market Value</th>
+								<th>Historical Value</th>
+								<th>Num Auctions</th>
+								<th>Timestamp</th>
+							</tr>
+						</thead>
+						<tbody>
+							{item && (
+								<tr>
+									<td>{item.items_metadata?.name}</td>
+									<td>{item.items.auctionHouseId}</td>
+									<td>{item.items.minBuyout}</td>
+									<td>{item.items.quantity}</td>
+									<td>{item.items.marketValue}</td>
+									<td>{item.items.historical}</td>
+									<td>{item.items.numAuctions}</td>
+									<td>{item.items.timestamp?.toISOString()}</td>
+								</tr>
+							)}
+						</tbody>
+					</table>
+				</div>
 			</section>
 		</main>
 	);
