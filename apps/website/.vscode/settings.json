@@ -1,0 +1,9 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  // Disables auto import suggestions for the pages useRouter hook
+  "typescript.preferences.autoImportFileExcludePatterns": [
+    "next/router.d.ts",
+    "next/dist/client/router.d.ts"
+  ]
+}

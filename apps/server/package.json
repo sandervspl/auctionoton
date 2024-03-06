@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "@elysiajs/cors": "^0.8.0",
+    "@elysiajs/swagger": "^0.8.5",
     "@sindresorhus/slugify": "^2.2.1",
     "buffer-polyfill": "^6.0.3",
     "drizzle-orm": "^0.29.4",
