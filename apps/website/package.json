@@ -11,18 +11,25 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@nivo/bar": "^0.84.0",
+    "@nivo/core": "^0.84.0",
+    "@nivo/line": "^0.84.0",
+    "@radix-ui/react-slot": "^1.0.2",
     "@tanstack/react-query": "^5.17.15",
     "@tanstack/react-query-next-experimental": "^5.17.15",
+    "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "drizzle-orm": "^0.29.4",
     "drizzle-zod": "^0.5.1",
+    "lucide-react": "^0.346.0",
     "next": "^14.1.0",
     "ofetch": "^1.3.3",
     "pg": "^8.11.3",
     "postgres": "^3.4.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "tailwind-merge": "^2.2.0"
+    "tailwind-merge": "^2.2.1",
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^4.1.1",
