@@ -1,16 +1,24 @@
 import * as i from 'types';
 import * as React from 'react';
 import { Metadata } from 'next';
+import { and, eq, desc } from 'drizzle-orm';
 
 import { db } from 'src/db';
 import { items, itemsMetadata } from 'src/db/schema';
-import { and, eq, desc } from 'drizzle-orm';
 
 type Props = i.NextPageProps;
 
 export const metadata: Metadata = {
   title: 'Home',
 };
+
+console.log(
+  'page.tsx',
+  process.env.DB_URL,
+  process.env.DB_HOST,
+  process.env.DB_NAME,
+  process.env.DB_PORT,
+);
 
 const Page: React.FC<Props> = async () => {
   const itemHistory = await db
