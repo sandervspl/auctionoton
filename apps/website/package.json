@@ -3,12 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "next dev",
-    "dev": "npm run start",
+    "dev": "next dev",
+    "start": "next start",
     "build": "next build",
     "postbuild": "next-sitemap",
-    "server": "next start",
-    "prettier": "prettier --write '**/*.{js,ts,tsx}'",
     "analyze": "ANALYZE=true npm run build",
     "typecheck": "tsc --noEmit"
   },
