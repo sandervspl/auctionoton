@@ -6,7 +6,9 @@ export default defineConfig({
   driver: 'pg',
   dbCredentials: {
     connectionString: process.env.DB_URL!,
-    database: 'postgres',
+    host: process.env.DB_HOST!,
+    database: process.env.DB_NAME!,
+    port: Number(process.env.DB_PORT!),
   },
   verbose: true,
   strict: true,
