@@ -47,7 +47,15 @@ for await (const [offset, limit] of sets) {
       continue;
     }
 
-    const itemFromBnet = await getItemFromBnet(item.itemId);
+    const itemFromBnet = await getItemFromBnet(item.itemId).catch((error) => {
+      console.error(error.message);
+      return null;
+    });
+
+    if (itemFromBnet == null) {
+      continue;
+    }
+
     const itemFromBnetSlug = slugify(itemFromBnet.name, { lowercase: true, decamelize: true });
 
     console.info(`Adding metadata for "${itemFromBnet.name}" (${offset}-${limit} ${item.itemId})`);
