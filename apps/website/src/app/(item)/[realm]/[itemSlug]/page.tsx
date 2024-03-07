@@ -52,19 +52,24 @@ const Page: React.FC<Props> = async ({ params }) => {
     .leftJoin(itemsMetadata, eq(items.itemId, itemsMetadata.id))
     .orderBy(desc(items.timestamp));
 
-  console.log(itemHistory);
-
   async function search(formdata: FormData) {
     'use server';
 
-    const fuzzySearch = sql`
-      SELECT id, name, slug, quality
-      FROM items_metadata
-      WHERE similarity(name, ${formdata.get('search')}) > 0.3;
-    `;
+    const search = formdata.get('search') as string;
 
-    const results: RowList<{ id: number; name: string; slug: string; quality: number }[]> =
-      await db.execute(fuzzySearch);
+    const results = await db
+      .select({
+        id: itemsMetadata.id,
+        name: itemsMetadata.name,
+        slug: itemsMetadata.slug,
+        quality: itemsMetadata.quality,
+      })
+      .from(itemsMetadata)
+      .where(sql`similarity(name, ${search}) > 0.3`)
+      .orderBy(sql`similarity(name, ${search}) DESC`)
+      .limit(10);
+
+    console.log(results);
 
     return results;
   }
