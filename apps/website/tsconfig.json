@@ -42,7 +42,8 @@
     "**/*.ts",
     "**/*.tsx",
     "src/**/*.d.ts",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "../server/src/migrate.ts"
   ],
   "exclude": ["dist", ".next", "out", "next.config.js", "node_modules"]
 }
