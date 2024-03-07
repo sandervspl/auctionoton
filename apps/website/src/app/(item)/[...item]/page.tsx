@@ -24,6 +24,8 @@ export const metadata: Metadata = {
   title: 'Home',
 };
 
+export const revalidate = 300;
+
 const Page = async ({ params }: Props) => {
   const [realmSlug, region, faction, itemSlug] = params.item;
   const auctionHouseId = {
