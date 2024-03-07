@@ -1,5 +1,4 @@
 import { text, integer, pgTable, unique, index, bigserial, timestamp } from 'drizzle-orm/pg-core';
-import { createInsertSchema } from 'drizzle-zod';
 
 export const items = pgTable(
   'items',
@@ -24,19 +23,18 @@ export const items = pgTable(
   }),
 );
 
-export const insertItemsSchema = createInsertSchema(items);
-
 export const itemsMetadata = pgTable(
   'items_metadata',
   {
     id: bigserial('id', { mode: 'number' }).notNull(),
-    name: text('name').default(''),
-    slug: text('slug').default(''),
+    name: text('name').notNull(),
+    slug: text('slug').notNull(),
     locale: text('locale').default('en_US'),
     quality: integer('quality').default(1),
-    tags: text('tags').default(''),
+    tags: text('tags'),
     itemLevel: integer('item_level').default(0),
     requiredLevel: integer('required_level').default(0),
+    icon: text('icon').notNull(),
   },
   (table) => ({
     id_idx: index('items_metadata_id_idx').on(table.id),
@@ -44,5 +42,3 @@ export const itemsMetadata = pgTable(
     id_unq: unique('items_metadata_id_unq').on(table.id),
   }),
 );
-
-export const insertItemsMetadataSchema = createInsertSchema(itemsMetadata);

@@ -1,9 +1,10 @@
 import * as i from 'types';
 import * as React from 'react';
 import { Metadata } from 'next';
+import Image from 'next/image';
 import { and, eq, desc, sql } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
-import { ActivityIcon, CreditCardIcon, SearchIcon, UsersIcon } from 'lucide-react';
+import { ActivityIcon, CreditCardIcon, SearchIcon } from 'lucide-react';
 
 import { db } from 'db';
 import { items, itemsMetadata } from 'db/schema';
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
   title: 'Home',
 };
 
-const Page: React.FC<Props> = async ({ params }) => {
+const Page = async ({ params }: Props) => {
   const itemSlug = params.itemSlug as string;
   const [realmSlug, faction, region] = (params.realm as string).split('-');
   const auctionHouseId = {
@@ -46,11 +47,18 @@ const Page: React.FC<Props> = async ({ params }) => {
       historical: items.historical,
       numAuctions: items.numAuctions,
       timestamp: items.timestamp,
+      icon: itemsMetadata.icon,
+      name: itemsMetadata.name,
+      quality: itemsMetadata.quality,
     })
     .from(items)
     .where(and(eq(itemsMetadata.slug, itemSlug), eq(items.auctionHouseId, auctionHouseId)))
     .leftJoin(itemsMetadata, eq(items.itemId, itemsMetadata.id))
     .orderBy(desc(items.timestamp));
+
+  if (itemHistory.length === 0) {
+    notFound();
+  }
 
   async function search(formdata: FormData) {
     'use server';
@@ -85,7 +93,20 @@ const Page: React.FC<Props> = async ({ params }) => {
           </div>
         </form>
       </header>
+
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-10">
+        <div className="flex gap-2 items-center">
+          <Image
+            src={itemHistory[0]!.icon!}
+            alt={itemHistory[0]!.name!}
+            width={40}
+            height={40}
+            className="rounded-lg overflow-hidden bg-black"
+            priority
+          />
+          <h1 className="font-bold text-2xl">{itemHistory[0]?.name}</h1>
+        </div>
+
         <div className="grid gap-4 md:grid-cols-2">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
