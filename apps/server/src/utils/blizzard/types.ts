@@ -7,7 +7,7 @@ export type AccessToken = {
   scope?: string;
 };
 
-export type GameItem = {
+export type BattlenetItemResponse = {
   _links: Links;
   id: number;
   name: string;
@@ -248,4 +248,14 @@ export type Level = {
 export type Durability = {
   value: number;
   display_string: string;
+};
+
+export type BattlenetItemMediaResponse = {
+  _links: Links;
+  assets: {
+    key: 'icon';
+    value: string;
+    file_data_id: number;
+  }[];
+  id: number;
 };
