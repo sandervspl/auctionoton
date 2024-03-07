@@ -39,3 +39,5 @@ await pMap(
   },
   { concurrency: 3 },
 );
+
+process.exit();
