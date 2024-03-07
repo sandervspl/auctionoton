@@ -18,7 +18,6 @@ type Props = i.NextPageProps<{
   params: {
     itemSlug: string;
     realm: string;
-    faction: 'alliance' | 'horde';
   };
 }>;
 
@@ -104,7 +103,14 @@ const Page = async ({ params }: Props) => {
             className="rounded-lg overflow-hidden bg-black"
             priority
           />
-          <h1 className="font-bold text-2xl">{itemHistory[0]?.name}</h1>
+
+          <div className="flex flex-col justify-start">
+            <h1 className="font-bold text-2xl">{itemHistory[0]?.name}</h1>
+            <p className="text-sm">
+              <span className="capitalize">{realmSlug?.replaceAll('_', ' ')}</span> (
+              {region?.toUpperCase()}) <span className="capitalize">- {faction}</span>
+            </p>
+          </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
