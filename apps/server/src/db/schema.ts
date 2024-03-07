@@ -37,6 +37,9 @@ export const itemsMetadata = pgTable(
     tags: text('tags').default(''),
     itemLevel: integer('item_level').default(0),
     requiredLevel: integer('required_level').default(0),
+    icon: text('icon').default(
+      'https://wow.zamimg.com/images/wow/icons/large/inv_misc_questionmark.jpg',
+    ),
   },
   (table) => ({
     id_idx: index('items_metadata_id_idx').on(table.id),
