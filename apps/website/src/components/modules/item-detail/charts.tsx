@@ -56,7 +56,7 @@ export function BarChart(props) {
   );
 }
 
-export function CurvedlineChart(props: { className?: string; data: { x: number; y: number }[] }) {
+export function CurvedlineChart(props: { className?: string; data: { x: string; y: number }[] }) {
   return (
     <div {...props}>
       <ResponsiveLine

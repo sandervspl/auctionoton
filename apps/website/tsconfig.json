@@ -21,11 +21,10 @@
     "baseUrl": ".",
     "paths": {
       "common/*": ["src/components/common/*"],
-      "components/*": ["src/components/*"],
       "db": ["src/db/index.ts"],
       "db/*": ["src/db/*"],
       "shadcn-ui/*": ["src/components/ui/*"],
-      "hooks/*": ["src/services/hooks/*"],
+      "hooks/*": ["src/hooks/*"],
       "images/*": ["public/images/*"],
       "modules/*": ["src/components/modules/*"],
       "queries/*": ["src/queries/*"],

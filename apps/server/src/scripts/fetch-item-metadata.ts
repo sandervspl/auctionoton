@@ -1,4 +1,4 @@
-import { asc, eq, isNull, not } from 'drizzle-orm';
+import { asc, eq, isNull } from 'drizzle-orm';
 import slugify from '@sindresorhus/slugify';
 
 import { db } from '../db';
