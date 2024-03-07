@@ -63,8 +63,8 @@ const Page = async ({ params }: Props) => {
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-10">
       <div className="flex gap-2 items-center">
         <Image
-          src={itemHistory[0]!.icon!}
-          alt={itemHistory[0]!.name!}
+          src={itemHistory?.[0]!.icon!}
+          alt={itemHistory?.[0]!.name!}
           width={40}
           height={40}
           className="rounded-lg overflow-hidden bg-black"

@@ -20,7 +20,7 @@ type Props = {
 };
 
 export function DropdownRadio(props: Props) {
-  const [option, setOption] = React.useState(props.options[0]!.value);
+  const [option, setOption] = React.useState(props.options[0]?.value);
   const selectedLabel = props.options.find((o) => o.value === option)?.label;
 
   return (

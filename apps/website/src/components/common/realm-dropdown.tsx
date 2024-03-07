@@ -28,7 +28,7 @@ export function RealmDropdown() {
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button variant="outline" className="w-[150px] justify-start capitalize">
-            {params.item[0].replaceAll('-', ' ')} ({params.item[1].toUpperCase()})
+            {params.item[0]?.replaceAll('-', ' ')} ({params.item[1].toUpperCase()})
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[200px] p-0" align="start">
