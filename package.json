@@ -8,7 +8,6 @@
   ],
   "scripts": {
     "build": "cd apps/extension && bun run build",
-    "prettier": "prettier --write \"**/*.{ts,tsx,md}\"",
     "cs:add": "npx changeset",
     "cs:ver": "npx changeset version",
     "e:version": "bun run build && cd apps/extension && npm run version"
@@ -18,7 +17,6 @@
     "@changesets/cli": "2.25.0",
     "concurrently": "^7.5.0",
     "cross-env": "^7.0.3",
-    "prettier": "^2.7.1",
     "typescript": "^5.3.3"
   }
 }
