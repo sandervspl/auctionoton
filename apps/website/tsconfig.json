@@ -20,6 +20,7 @@
     "lib": ["dom", "esnext"],
     "baseUrl": ".",
     "paths": {
+      "actions/*": ["src/actions/*"],
       "common/*": ["src/components/common/*"],
       "db": ["src/db/index.ts"],
       "db/*": ["src/db/*"],
