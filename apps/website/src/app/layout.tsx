@@ -58,7 +58,7 @@ const RootLayout = (props: Props) => {
       <body className={cn('h-full min-h-full', inter.className)}>
         <Providers>
           <div className="flex flex-col w-full min-h-screen">
-            <header className="flex items-center h-16 px-4 border-b shrink-0 md:px-6">
+            <header className="flex items-center h-16 px-4 border-b shrink-0 md:px-6 gap-4">
               <form className="flex-1 ml-4 md:ml-6" action={search}>
                 <div className="relative w-full max-w-md flex gap-4">
                   <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
@@ -68,7 +68,9 @@ const RootLayout = (props: Props) => {
                     type="search"
                     name="search"
                   />
-                  <Button type="submit">Search</Button>
+                  <Button type="submit" className="hidden md:flex">
+                    Search
+                  </Button>
                 </div>
               </form>
 

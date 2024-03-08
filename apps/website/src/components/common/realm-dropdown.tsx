@@ -31,7 +31,7 @@ export function RealmDropdown() {
             {params.item[0]?.replaceAll('-', ' ')} ({params.item[1]?.toUpperCase()})
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0" align="start">
+        <PopoverContent className="w-[200px] p-0" align="end">
           <StatusList setOpen={setOpen} />
         </PopoverContent>
       </Popover>
@@ -41,8 +41,8 @@ export function RealmDropdown() {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button variant="outline" className="w-[150px] justify-start">
-          {params.item?.[0]}
+        <Button variant="outline" className="justify-start">
+          Realm
         </Button>
       </DrawerTrigger>
       <DrawerContent>
