@@ -11,14 +11,18 @@ import { items, itemsMetadata } from 'db/schema';
 import { Card, CardHeader, CardTitle, CardContent } from 'shadcn-ui/card';
 import { CurvedlineChart } from 'modules/item-detail/charts';
 import { getAuctionHouseIds, seasonalRealmsEU, seasonalRealmsUS } from 'services/realms';
+import { getActiveFaction } from 'services/search-params';
 
 type Props = i.NextPageProps<{
   params: {
     item: ItemParam;
   };
+  searchParams: {
+    faction?: string;
+  };
 }>;
 
-export type ItemParam = [realmSlug: string, region: string, faction: string, itemSlug: string];
+export type ItemParam = [realmSlug: string, region: string, itemSlug: string];
 
 export const metadata: Metadata = {
   title: 'Home',
@@ -26,8 +30,9 @@ export const metadata: Metadata = {
 
 export const revalidate = 300;
 
-const Page = async ({ params }: Props) => {
-  const [realmSlug, region, faction, itemSlug] = params.item;
+const Page = async ({ params, searchParams }: Props) => {
+  const [realmSlug, region, itemSlug] = params.item;
+  const faction = getActiveFaction(searchParams);
   const auctionHouseId = {
     eu: getAuctionHouseIds(seasonalRealmsEU),
     us: getAuctionHouseIds(seasonalRealmsUS),

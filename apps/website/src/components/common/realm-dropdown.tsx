@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 
 import { useMediaQuery } from 'hooks/use-media-query';
 import { Button } from 'shadcn-ui/button';
@@ -16,7 +16,8 @@ import {
 import { Drawer, DrawerContent, DrawerTrigger } from 'shadcn-ui/drawer';
 import { Popover, PopoverContent, PopoverTrigger } from 'shadcn-ui/popover';
 import { realmDropdownValues } from 'services/realms';
-import { ItemParam } from 'src/app/(item)/[...item]/page';
+import { ItemParam } from 'src/app/item/[...item]/page';
+import { getActiveFaction } from 'services/search-params';
 
 export function RealmDropdown() {
   const params = useParams() as { item: ItemParam };
@@ -57,6 +58,7 @@ export function RealmDropdown() {
 function RealmList(props: { setOpen: (open: boolean) => void }) {
   const router = useRouter();
   const params = useParams() as { item: ItemParam };
+  const faction = getActiveFaction(useSearchParams());
   const [, startTransition] = React.useTransition();
 
   return (
@@ -72,9 +74,8 @@ function RealmList(props: { setOpen: (open: boolean) => void }) {
               onSelect={(value) => {
                 startTransition(() => {
                   props.setOpen(false);
-
                   const [realm, region] = value.split('_');
-                  router.push(`/${realm}/${region}/${params.item[2]}/${params.item[3]}`);
+                  router.push(`/${realm}/${region}/${params.item[2]}/${faction}`);
                 });
               }}
             >
