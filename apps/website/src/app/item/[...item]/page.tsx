@@ -12,6 +12,8 @@ import { Card, CardHeader, CardTitle, CardContent } from 'shadcn-ui/card';
 import { CurvedlineChart } from 'modules/item-detail/charts';
 import { getAuctionHouseIds, seasonalRealmsEU, seasonalRealmsUS } from 'services/realms';
 import { getActiveFaction } from 'services/search-params';
+import { Button } from 'shadcn-ui/button';
+import Link from 'next/link';
 
 type Props = i.NextPageProps<{
   params: {
@@ -22,7 +24,7 @@ type Props = i.NextPageProps<{
   };
 }>;
 
-export type ItemParam = [realmSlug: string, region: string, itemSlug: string];
+export type ItemParam = [realmSlug: string, region: string, faction: string, itemSlug: string];
 
 export const metadata: Metadata = {
   title: 'Home',
@@ -31,8 +33,7 @@ export const metadata: Metadata = {
 export const revalidate = 300;
 
 const Page = async ({ params, searchParams }: Props) => {
-  const [realmSlug, region, itemSlug] = params.item;
-  const faction = getActiveFaction(searchParams);
+  const [realmSlug, region, faction, itemSlug] = params.item;
   const auctionHouseId = {
     eu: getAuctionHouseIds(seasonalRealmsEU),
     us: getAuctionHouseIds(seasonalRealmsUS),
@@ -66,7 +67,7 @@ const Page = async ({ params, searchParams }: Props) => {
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-10">
-      <div className="flex gap-2 items-center">
+      <header className="flex gap-2 items-center">
         <Image
           src={itemHistory[0]!.icon!}
           alt={itemHistory[0]!.name!}
@@ -83,6 +84,15 @@ const Page = async ({ params, searchParams }: Props) => {
             {region?.toUpperCase()}) <span className="capitalize">- {faction}</span>
           </p>
         </div>
+      </header>
+
+      <div className="flex gap-2 items-center">
+        <Button variant={faction === 'alliance' ? 'default' : 'outline'}>
+          <Link href={`/item/${realmSlug}/${region}/alliance/${itemSlug}`}>Alliance</Link>
+        </Button>
+        <Button variant={faction === 'horde' ? 'default' : 'outline'}>
+          <Link href={`/item/${realmSlug}/${region}/horde/${itemSlug}`}>Horde</Link>
+        </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
