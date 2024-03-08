@@ -31,8 +31,8 @@ export function RealmDropdown() {
             {params.item[0]?.replaceAll('-', ' ')} ({params.item[1]?.toUpperCase()})
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0" align="end">
-          <StatusList setOpen={setOpen} />
+        <PopoverContent className="w-[200px] p-0" align="start">
+          <RealmList setOpen={setOpen} />
         </PopoverContent>
       </Popover>
     );
@@ -47,16 +47,14 @@ export function RealmDropdown() {
       </DrawerTrigger>
       <DrawerContent>
         <div className="mt-4 border-t">
-          <StatusList setOpen={setOpen} />
+          <RealmList setOpen={setOpen} />
         </div>
       </DrawerContent>
     </Drawer>
   );
 }
 
-function StatusList(props: {
-  setOpen: (open: boolean) => void;
-}) {
+function RealmList(props: { setOpen: (open: boolean) => void }) {
   const router = useRouter();
   const params = useParams() as { item: ItemParam };
   const [, startTransition] = React.useTransition();
