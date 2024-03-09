@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 
-import { ItemParam } from 'src/app/(item)/[...item]/page';
+import { ItemParam } from 'src/app/item/[...item]/page';
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from 'shadcn-ui/command';
 import { cn } from 'services/cn';
 import { useSearchQuery } from 'queries/search';
@@ -16,7 +16,6 @@ export const ItemSearchInput = () => {
   const params = useParams() as { item: ItemParam };
   const [realmSlug, region, faction] = params.item;
   const router = useRouter();
-  const [, startTransition] = React.useTransition();
   const [inputValue, setValue] = React.useState('');
   const [isFocused, setIsFocused] = React.useState(false);
   const [value] = useDebounce(inputValue, 500);

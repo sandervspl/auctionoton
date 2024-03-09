@@ -1,4 +1,4 @@
-import slugify from 'slugify';
+import slugify from '@sindresorhus/slugify';
 
 export const seasonalRealmsUS = [
   {
@@ -247,7 +247,7 @@ export const seasonalRealmsEU = [
 export function getAuctionHouseIds(realms: typeof seasonalRealmsUS | typeof seasonalRealmsEU) {
   return realms.reduce(
     (acc, realm) => {
-      const slug = slugify(realm.localizedName, { lower: true });
+      const slug = slugify(realm.localizedName, { lowercase: true });
 
       acc[slug] = realm.auctionHouses.reduce(
         (acc, ah) => {
@@ -267,21 +267,21 @@ export function getAuctionHouseIds(realms: typeof seasonalRealmsUS | typeof seas
 export const realmDropdownValues = [
   seasonalRealmsEU
     .map((realm) => ({
-      value: `${slugify(realm.localizedName, { lower: true })}_eu`,
+      value: `${slugify(realm.localizedName, { lowercase: true })}_eu`,
       label: `${realm.localizedName} (EU)`,
     }))
     .sort((a, b) => a.label.localeCompare(b.label)),
   seasonalRealmsUS
     .filter((realm) => !realm.localizedName.includes('(AU)'))
     .map((realm) => ({
-      value: `${slugify(realm.localizedName, { lower: true })}_us`,
+      value: `${slugify(realm.localizedName, { lowercase: true })}_us`,
       label: `${realm.localizedName} (US)`,
     }))
     .sort((a, b) => a.label.localeCompare(b.label)),
   seasonalRealmsUS
     .filter((realm) => realm.localizedName.includes('(AU)'))
     .map((realm) => ({
-      value: `${slugify(realm.localizedName, { lower: true })}_us`,
+      value: `${slugify(realm.localizedName, { lowercase: true })}_us`,
       label: realm.localizedName,
     }))
     .sort((a, b) => a.label.localeCompare(b.label)),

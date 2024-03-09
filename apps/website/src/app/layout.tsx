@@ -7,8 +7,6 @@ import { Inter } from 'next/font/google';
 import { cn } from 'services/cn';
 import { SITE_URL } from 'services/utils';
 import { SizeIndicator } from 'common/SizeIndicator';
-import { RealmDropdown } from 'common/realm-dropdown';
-import { ItemSearchInput } from 'common/item-search-input';
 
 import { Providers } from './Providers';
 
@@ -31,14 +29,14 @@ const RootLayout = (props: Props) => {
       <body className={cn('h-full min-h-full', inter.className)}>
         <Providers>
           <div className="flex flex-col w-full min-h-screen">
-            <header className="relative flex justify-between h-16 px-4 border-b shrink-0 md:px-6 gap-4">
+            {/* <header className="relative flex justify-between h-16 px-4 border-b shrink-0 md:px-6 gap-4">
               <div className="absolute top-3 w-48 sm:w-full max-w-96 flex-grow flex-shrink">
                 <ItemSearchInput />
               </div>
               <div className="ml-auto self-center">
                 <RealmDropdown />
-              </div>
-            </header>
+                </div>
+            </header> */}
             {props.children}
             {process.env.NODE_ENV !== 'production' && <SizeIndicator />}
           </div>
