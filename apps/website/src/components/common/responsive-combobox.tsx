@@ -1,6 +1,8 @@
 'use client';
 
 import * as React from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { $path } from 'next-typesafe-url';
 
 import { useMediaQuery } from 'hooks/use-media-query';
 import { Button } from 'shadcn-ui/button';
@@ -14,7 +16,7 @@ import {
 } from 'shadcn-ui/command';
 import { Drawer, DrawerContent, DrawerTrigger } from 'shadcn-ui/drawer';
 import { Popover, PopoverContent, PopoverTrigger } from 'shadcn-ui/popover';
-import { useRouter } from 'next/navigation';
+import { ItemParam } from 'src/app/item/[...item]/page';
 
 type Props = {
   options: Option[];
@@ -72,7 +74,7 @@ function StatusList(props: {
   options: Option[];
 }) {
   const router = useRouter();
-  const [, startTransition] = React.useTransition();
+  const params = useParams() as { item: ItemParam };
 
   return (
     <Command>
@@ -85,18 +87,16 @@ function StatusList(props: {
               key={option.value}
               value={option.value}
               onSelect={(value) => {
-                // props.setSelectedRealm(
-                //   props.options.find((priority) => priority.value === value) || null,
-                // );
+                props.setOpen(false);
 
-                startTransition(() => {
-                  props.setOpen(false);
+                const [realm, region] = value.split('_');
 
-                  console.log('go');
-
-                  const [realm, region] = value.split('_');
-                  router.push(`/${realm}/${region}/alliance/grime-encrusted-salvage`);
-                });
+                router.push(
+                  $path({
+                    route: '/item/[...item]',
+                    routeParams: { item: [realm!, region!, params.item[2], params.item[3]] },
+                  }),
+                );
               }}
             >
               {option.label}

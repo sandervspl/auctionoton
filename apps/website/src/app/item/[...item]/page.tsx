@@ -5,15 +5,15 @@ import { and, eq, asc } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { ActivityIcon } from 'lucide-react';
 import dayjs from 'dayjs';
+import Link from 'next/link';
+import { $path } from 'next-typesafe-url';
 
 import { db } from 'db';
 import { items, itemsMetadata } from 'db/schema';
 import { Card, CardHeader, CardTitle, CardContent } from 'shadcn-ui/card';
 import { CurvedlineChart } from 'modules/item-detail/charts';
 import { getAuctionHouseIds, seasonalRealmsEU, seasonalRealmsUS } from 'services/realms';
-import { getActiveFaction } from 'services/search-params';
 import { Button } from 'shadcn-ui/button';
-import Link from 'next/link';
 
 type Props = i.NextPageProps<{
   params: {
@@ -88,10 +88,24 @@ const Page = async ({ params, searchParams }: Props) => {
 
       <div className="flex gap-2 items-center">
         <Button variant={faction === 'alliance' ? 'default' : 'outline'}>
-          <Link href={`/item/${realmSlug}/${region}/alliance/${itemSlug}`}>Alliance</Link>
+          <Link
+            href={$path({
+              route: '/item/[...item]',
+              routeParams: { item: [realmSlug!, region!, 'alliance', itemSlug!] },
+            })}
+          >
+            Alliance
+          </Link>
         </Button>
         <Button variant={faction === 'horde' ? 'default' : 'outline'}>
-          <Link href={`/item/${realmSlug}/${region}/horde/${itemSlug}`}>Horde</Link>
+          <Link
+            href={$path({
+              route: '/item/[...item]',
+              routeParams: { item: [realmSlug!, region!, 'horde', itemSlug!] },
+            })}
+          >
+            Horde
+          </Link>
         </Button>
       </div>
 

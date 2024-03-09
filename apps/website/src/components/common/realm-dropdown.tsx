@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { $path } from 'next-typesafe-url';
 
 import { useMediaQuery } from 'hooks/use-media-query';
 import { Button } from 'shadcn-ui/button';
@@ -73,7 +74,12 @@ function RealmList(props: { setOpen: (open: boolean) => void }) {
                 startTransition(() => {
                   props.setOpen(false);
                   const [realm, region] = value.split('_');
-                  router.push(`/${realm}/${region}/${params.item[2]}/${params.item[3]}`);
+                  router.push(
+                    $path({
+                      route: '/item/[...item]',
+                      routeParams: { item: [realm!, region!, params.item[2], params.item[3]] },
+                    }),
+                  );
                 });
               }}
             >

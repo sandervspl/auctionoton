@@ -5,6 +5,7 @@ import { useDebounce } from 'use-debounce';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
+import { $path } from 'next-typesafe-url';
 
 import { ItemParam } from 'src/app/item/[...item]/page';
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from 'shadcn-ui/command';
@@ -22,6 +23,10 @@ export const ItemSearchInput = () => {
   const searchQuery = useSearchQuery(value);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const isResultsOpen = isFocused && inputValue;
+
+  function getItemUrl(slug: string) {
+    return `/item/${realmSlug}/${region}/${faction}/${slug}`;
+  }
 
   return (
     <Command
@@ -64,13 +69,22 @@ export const ItemSearchInput = () => {
                   key={result.id}
                   asChild
                   onSelect={() => {
-                    router.push(`/${realmSlug}/${region}/${faction}/${result.slug}`);
+                    router.push(
+                      $path({
+                        route: '/item/[...item]',
+                        routeParams: { item: [realmSlug, region, faction, result.slug] },
+                      }),
+                    );
+
                     inputRef.current?.blur();
                     setValue('');
                   }}
                 >
                   <Link
-                    href={`/${realmSlug}/${region}/${faction}/${result.slug}`}
+                    href={$path({
+                      route: '/item/[...item]',
+                      routeParams: { item: [realmSlug, region, faction, result.slug] },
+                    })}
                     className="flex items-center justify-start w-full gap-2"
                     onClick={() => {
                       setValue('');
