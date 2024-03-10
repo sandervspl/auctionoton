@@ -17,7 +17,7 @@ type Props = {
 export const PriceChart = ({ lineProps, ...props }: Props) => {
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium">{props.title}</CardTitle>
         <ActivityIcon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
       </CardHeader>

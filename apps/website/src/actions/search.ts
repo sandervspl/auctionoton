@@ -49,26 +49,31 @@ export async function getRecentSearches() {
     .leftJoin(itemsMetadata, eq(recentSearches.itemId, itemsMetadata.id))
     .limit(10);
 
-  const itemsFromSearches = await db
-    .select({
-      itemId: items.itemId,
-      minBuyout: items.minBuyout,
-      marketValue: items.marketValue,
-      lastUpdated: items.timestamp,
-    })
-    .from(items)
-    .where(
-      inArray(
-        items.itemId,
-        searches.map((search) => search.itemId),
-      ),
-    )
-    .orderBy(desc(items.timestamp))
-    .limit(10);
+  const itemsFromSearches = await Promise.all(
+    searches.map((item) => {
+      return db
+        .select({
+          itemId: items.itemId,
+          minBuyout: items.minBuyout,
+          marketValue: items.marketValue,
+          lastUpdated: items.timestamp,
+        })
+        .from(items)
+        .where(eq(items.itemId, item.itemId))
+        .orderBy(desc(items.timestamp))
+        .limit(2);
+    }),
+  );
+
+  const compoundItems = itemsFromSearches.map((items) => ({
+    ...items[0],
+    diffMinBuyout: (items[0]?.minBuyout ?? 0) - (items[1]?.minBuyout ?? 0),
+    diffMarketValue: (items[0]?.marketValue ?? 0) - (items[1]?.marketValue ?? 0),
+  }));
 
   // combine the searches with the items
   const results = searches.map((search) => {
-    const item = itemsFromSearches.find((item) => item.itemId === search.itemId);
+    const item = compoundItems.find((item) => item.itemId === search.itemId);
     return { ...search, ...item };
   });
 

@@ -1,12 +1,9 @@
-import * as React from 'react';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 
 import { FactionButtons } from 'common/faction-buttons';
 import { ItemSearch } from 'common/item-search';
-import { Button } from 'shadcn-ui/button';
-import { SearchIcon } from 'lucide-react';
-import { getRecentSearches } from 'actions/search';
+import { RecentSearchSection } from 'modules/home/recent-search-section';
 
 type Props = {
   params: Record<string, string>;
@@ -18,8 +15,6 @@ export const metadata: Metadata = {
 };
 
 export default async function Page(props: Props) {
-  const recentSearches = await getRecentSearches();
-
   return (
     <main className="h-dvh">
       <section className="grid grid-cols-1 sm:grid-cols-2 gap-10 px-10 pt-10 sm:pt-20 sm:h-[50%] max-w-screen-xl mx-auto">
@@ -49,23 +44,7 @@ export default async function Page(props: Props) {
         </div>
       </section>
 
-      <section className="px-10">
-        <h2 className="text-2xl font-bold">Recent Searches</h2>
-        {recentSearches.map((search) => (
-          <div key={search.id}>
-            <Button variant="ghost" className="flex items-center gap-2">
-              <Image
-                src={search.icon ?? '/images/questionmark.webp'}
-                alt={search.name!}
-                className="h-6 w-6 rounded-md"
-                width={24}
-                height={24}
-              />
-              {search.name}
-            </Button>
-          </div>
-        ))}
-      </section>
+      <RecentSearchSection />
     </main>
   );
 }
