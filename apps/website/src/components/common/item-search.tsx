@@ -48,7 +48,7 @@ export const ItemSearch = () => {
           <Combobox.ItemGroup id="items">
             {searchQuery.data?.map((item) => (
               <Combobox.Item key={item.id} item={item.slug}>
-                <Combobox.ItemText>
+                <Combobox.ItemText asChild>
                   <Link
                     href={$path({
                       route: '/item/[...item]',
@@ -56,7 +56,7 @@ export const ItemSearch = () => {
                         item: [settings.realm, settings.region, settings.faction, item.slug],
                       },
                     })}
-                    className="flex items-center justify-start w-full gap-2"
+                    className="flex items-center justify-start w-full gap-2 h-full"
                     onClick={() => {
                       setValue('');
                       inputRef.current?.blur();
