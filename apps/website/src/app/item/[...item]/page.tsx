@@ -1,14 +1,13 @@
 import type * as i from 'types';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { ActivityIcon } from 'lucide-react';
 import dayjs from 'dayjs';
 
-import { Card, CardHeader, CardTitle, CardContent } from 'shadcn-ui/card';
-import { CurvedlineChart } from 'modules/item-detail/charts';
 import { getItemHistory } from 'queries/items';
 import { getAuctionHouseId } from 'queries/auction-house';
 import { PriceChart } from 'modules/item-detail/price-chart';
+import { ResponsiveLine } from '@nivo/line';
+import { ItemCharts } from 'modules/item-detail/item-charts';
 
 type Props = i.NextPageProps<{
   params: {
@@ -41,32 +40,9 @@ const Page = async (props: Props) => {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      <PriceChart
-        data={itemHistory.map((item) => ({
-          x: dayjs(item.timestamp).format('YYYY-MM-DD HH:mm'),
-          y: item.minBuyout,
-        }))}
-      />
-      <PriceChart
-        data={itemHistory.map((item) => ({
-          x: dayjs(item.timestamp).format('YYYY-MM-DD HH:mm'),
-          y: item.marketValue,
-        }))}
-      />
-      <PriceChart
-        data={itemHistory.map((item) => ({
-          x: dayjs(item.timestamp).format('YYYY-MM-DD HH:mm'),
-          y: item.historical,
-        }))}
-      />
-      <PriceChart
-        data={itemHistory.map((item) => ({
-          x: dayjs(item.timestamp).format('YYYY-MM-DD HH:mm'),
-          y: item.quantity,
-        }))}
-      />
-    </div>
+    <>
+      <ItemCharts itemHistory={itemHistory} />
+    </>
   );
 };
 

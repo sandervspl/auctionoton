@@ -1,6 +1,8 @@
 'use client';
 
-import { ResponsiveLine } from '@nivo/line';
+import { type LineSvgProps, ResponsiveLine } from '@nivo/line';
+import { CoinValue } from 'common/coin-value';
+import { useId } from 'react';
 // import { ResponsiveBar } from '@nivo/bar';
 
 // export function BarChart(props) {
@@ -56,13 +58,22 @@ import { ResponsiveLine } from '@nivo/line';
 //   );
 // }
 
-export function CurvedlineChart(props: { className?: string; data: { x: string; y: number }[] }) {
+export function CurvedlineChart({
+  lineProps,
+  ...props
+}: {
+  className?: string;
+  data: { x: string; y: number }[];
+  lineProps?: Omit<LineSvgProps, 'data'>;
+}) {
+  const id = useId();
+
   return (
     <div {...props}>
       <ResponsiveLine
         data={[
           {
-            id: 'Min Buyout',
+            id,
             data: props.data,
           },
         ]}
@@ -75,11 +86,11 @@ export function CurvedlineChart(props: { className?: string; data: { x: string; 
           min: 0,
           max: 'auto',
         }}
-        curve="monotoneX"
-        axisTop={null}
-        axisRight={null}
+        //@ts-ignore
+        yFormat={(value) => <CoinValue value={value as number} />}
+        curve="linear"
         axisBottom={{
-          tickSize: 0,
+          tickSize: 1,
           tickPadding: 16,
         }}
         axisLeft={{
@@ -87,7 +98,7 @@ export function CurvedlineChart(props: { className?: string; data: { x: string; 
           tickValues: 5,
           tickPadding: 16,
         }}
-        colors={['#2563eb']}
+        colors={['#FFD700']}
         pointSize={6}
         useMesh={true}
         gridYValues={6}
@@ -95,20 +106,37 @@ export function CurvedlineChart(props: { className?: string; data: { x: string; 
           tooltip: {
             chip: {
               borderRadius: '9999px',
+              color: '#000',
             },
             container: {
               fontSize: '12px',
               textTransform: 'capitalize',
               borderRadius: '6px',
+              background: '#000',
+              color: '#FFF',
+              border: '1px solid #848484',
             },
           },
           grid: {
             line: {
-              stroke: '#f3f4f6',
+              stroke: '#585858',
+            },
+          },
+          axis: {
+            ticks: {
+              text: {
+                fill: '#828282',
+              },
+            },
+          },
+          crosshair: {
+            line: {
+              stroke: '#FFF',
             },
           },
         }}
         role="application"
+        {...lineProps}
       />
     </div>
   );
