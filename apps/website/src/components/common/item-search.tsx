@@ -63,7 +63,7 @@ export const ItemSearch = () => {
                     }}
                   >
                     <Image
-                      src={item.icon}
+                      src={item.icon ?? '/images/questionmark.webp'}
                       alt={item.name}
                       className="h-6 w-6 rounded-md"
                       width={24}
