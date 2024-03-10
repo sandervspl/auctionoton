@@ -1,3 +1,4 @@
+import { relations } from 'drizzle-orm';
 import { text, integer, pgTable, unique, index, bigserial, timestamp } from 'drizzle-orm/pg-core';
 
 export const items = pgTable(

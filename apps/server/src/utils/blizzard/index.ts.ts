@@ -1,7 +1,5 @@
-// import { Buffer } from 'buffer-polyfill';
-
-import { AccessToken, BattlenetItemMediaResponse, BattlenetItemResponse } from './types';
 import { kv } from '../../kv';
+import type { AccessToken, BattlenetItemMediaResponse, BattlenetItemResponse } from './types';
 
 export async function getAccessToken() {
   const { BNET_CLIENT_ID, BNET_CLIENT_SECRET } = process.env;

@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 
 const RootLayout = (props: Props) => {
   return (
-    <html lang="en" className="h-dvh bg-white antialiased">
+    <html lang="en" className="dark h-dvh min-h-full antialiased">
       <body className={cn('h-full min-h-full', inter.className)}>
         <Providers>
           <div className="flex flex-col w-full min-h-screen">
