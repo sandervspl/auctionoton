@@ -11,6 +11,7 @@ import * as Combobox from 'park-ui/combobox';
 import { Input } from 'park-ui/input';
 import { useSettings } from 'hooks/use-settings';
 import { useSearchQuery } from 'queries/search';
+import { addRecentSearch } from 'actions/search';
 
 export const ItemSearch = () => {
   // const [items, setItems] = React.useState(data);
@@ -60,6 +61,7 @@ export const ItemSearch = () => {
                     onClick={() => {
                       setValue('');
                       inputRef.current?.blur();
+                      addRecentSearch(inputValue, item.id);
                     }}
                   >
                     <Image
