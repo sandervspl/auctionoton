@@ -25,6 +25,7 @@
       "db": ["src/db/index.ts"],
       "db/*": ["src/db/*"],
       "shadcn-ui/*": ["src/components/ui/*"],
+      "park-ui/*": ["src/components/park-ui/*"],
       "hooks/*": ["src/hooks/*"],
       "images/*": ["public/images/*"],
       "modules/*": ["src/components/modules/*"],
