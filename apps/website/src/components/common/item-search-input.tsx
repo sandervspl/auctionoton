@@ -4,18 +4,17 @@ import * as React from 'react';
 import { useDebounce } from 'use-debounce';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { $path } from 'next-typesafe-url';
+import { Loader2Icon } from 'lucide-react';
 
-import { ItemParam } from 'src/app/item/[...item]/page';
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from 'shadcn-ui/command';
 import { cn } from 'services/cn';
 import { useSearchQuery } from 'queries/search';
-import { Loader2Icon } from 'lucide-react';
+import { useSettings } from 'hooks/use-settings';
 
 export const ItemSearchInput = () => {
-  const params = useParams() as { item: ItemParam };
-  const [realmSlug, region, faction] = params.item;
+  const { settings } = useSettings();
   const router = useRouter();
   const [inputValue, setValue] = React.useState('');
   const [isFocused, setIsFocused] = React.useState(false);
@@ -23,10 +22,6 @@ export const ItemSearchInput = () => {
   const searchQuery = useSearchQuery(value);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const isResultsOpen = isFocused && inputValue;
-
-  function getItemUrl(slug: string) {
-    return `/item/${realmSlug}/${region}/${faction}/${slug}`;
-  }
 
   return (
     <Command
@@ -72,7 +67,9 @@ export const ItemSearchInput = () => {
                     router.push(
                       $path({
                         route: '/item/[...item]',
-                        routeParams: { item: [realmSlug, region, faction, result.slug] },
+                        routeParams: {
+                          item: [settings.realm, settings.region, settings.faction, result.slug],
+                        },
                       }),
                     );
 
@@ -83,7 +80,9 @@ export const ItemSearchInput = () => {
                   <Link
                     href={$path({
                       route: '/item/[...item]',
-                      routeParams: { item: [realmSlug, region, faction, result.slug] },
+                      routeParams: {
+                        item: [settings.realm, settings.region, settings.faction, result.slug],
+                      },
                     })}
                     className="flex items-center justify-start w-full gap-2"
                     onClick={() => {
