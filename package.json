@@ -13,10 +13,8 @@
     "e:version": "bun run build && cd apps/extension && npm run version"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.5.3",
-    "@changesets/cli": "2.25.0",
-    "concurrently": "^7.5.0",
-    "cross-env": "^7.0.3",
-    "typescript": "^5.3.3"
+    "@biomejs/biome": "^1.6.0",
+    "@changesets/cli": "^2.27.1",
+    "typescript": "^5.4.2"
   }
 }

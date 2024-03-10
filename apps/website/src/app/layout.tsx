@@ -1,7 +1,7 @@
 import 'styles/globals.css';
 
-import * as i from 'types';
-import { Metadata } from 'next';
+import type * as i from 'types';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Inter } from 'next/font/google';
 import { $path } from 'next-typesafe-url';

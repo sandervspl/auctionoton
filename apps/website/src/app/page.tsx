@@ -1,6 +1,8 @@
 import * as React from 'react';
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
+
 import { ItemSearchInput } from 'common/item-search-input';
+import { FactionButtons } from 'common/faction-buttons';
 
 type Props = {
   params: Record<string, string>;
@@ -16,6 +18,7 @@ export default function Page(props: Props) {
     <>
       <h1>Auctionoton</h1>
       <ItemSearchInput />
+      <FactionButtons />
     </>
   );
 }

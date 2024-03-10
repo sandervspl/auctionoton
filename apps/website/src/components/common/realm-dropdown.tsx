@@ -1,6 +1,8 @@
 'use client';
 
 import * as React from 'react';
+import { useParams, usePathname, useRouter } from 'next/navigation';
+import { $path } from 'next-typesafe-url';
 
 import { useMediaQuery } from 'hooks/use-media-query';
 import { Button } from 'shadcn-ui/button';
@@ -16,9 +18,7 @@ import { Drawer, DrawerContent, DrawerTrigger } from 'shadcn-ui/drawer';
 import { Popover, PopoverContent, PopoverTrigger } from 'shadcn-ui/popover';
 import { realmDropdownValues } from 'services/realms';
 import { useSettings } from 'hooks/use-settings';
-import { useParams, usePathname, useRouter } from 'next/navigation';
-import { $path } from 'next-typesafe-url';
-import { ItemParam } from 'src/app/item/[...item]/page';
+import type { ItemParam } from 'src/app/item/[...item]/page';
 
 export function RealmDropdown() {
   const { settings } = useSettings();

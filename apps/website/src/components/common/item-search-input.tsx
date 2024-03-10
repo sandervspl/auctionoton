@@ -23,6 +23,20 @@ export const ItemSearchInput = () => {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const isResultsOpen = isFocused && inputValue;
 
+  function onItemSelect(itemSlug: string) {
+    router.push(
+      $path({
+        route: '/item/[...item]',
+        routeParams: {
+          item: [settings.realm, settings.region, settings.faction, itemSlug],
+        },
+      }),
+    );
+
+    inputRef.current?.blur();
+    setValue('');
+  }
+
   return (
     <Command
       className={cn('rounded-lg border relative z-10', {
@@ -60,23 +74,7 @@ export const ItemSearchInput = () => {
               className={cn({ 'p-0': searchQuery.data == null || searchQuery.data.length === 0 })}
             >
               {searchQuery.data?.map((result) => (
-                <CommandItem
-                  key={result.id}
-                  asChild
-                  onSelect={() => {
-                    router.push(
-                      $path({
-                        route: '/item/[...item]',
-                        routeParams: {
-                          item: [settings.realm, settings.region, settings.faction, result.slug],
-                        },
-                      }),
-                    );
-
-                    inputRef.current?.blur();
-                    setValue('');
-                  }}
-                >
+                <CommandItem key={result.id} asChild onSelect={() => onItemSelect(result.slug)}>
                   <Link
                     href={$path({
                       route: '/item/[...item]',
