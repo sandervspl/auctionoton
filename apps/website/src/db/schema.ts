@@ -42,3 +42,16 @@ export const itemsMetadata = pgTable(
     id_unq: unique('items_metadata_id_unq').on(table.id),
   }),
 );
+
+export const recentSearches = pgTable(
+  'recent_searches',
+  {
+    id: bigserial('id', { mode: 'number' }).primaryKey(),
+    itemId: integer('item_id').notNull(),
+    search: text('search').notNull(),
+    timestamp: timestamp('timestamp').defaultNow(),
+  },
+  (table) => ({
+    search_timestamp_idx: index('recent_searches_timestamp_idx').on(table.timestamp),
+  }),
+);
