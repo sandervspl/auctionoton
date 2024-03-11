@@ -47,6 +47,10 @@ export const RecentSearchItem = (props: Props) => {
             className="h-6 w-6 rounded-md"
             width={24}
             height={24}
+            onError={(e) => {
+              (e.target as any).src = '/images/questionmark.webp';
+              (e.target as any).removeAttribute('srcset');
+            }}
           />
           {props.item.name}
         </CardHeader>

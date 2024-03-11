@@ -70,6 +70,10 @@ export const ItemSearch = () => {
                       className="h-6 w-6 rounded-md"
                       width={24}
                       height={24}
+                      onError={(e) => {
+                        (e.target as any).src = '/images/questionmark.webp';
+                        (e.target as any).removeAttribute('srcset');
+                      }}
                     />
                     <span>{item.name}</span>
                   </Link>
