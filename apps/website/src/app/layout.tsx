@@ -13,6 +13,7 @@ import { RealmDropdown } from 'common/realm-dropdown';
 import { ItemSearch } from 'common/item-search';
 
 import { Providers } from './Providers';
+import Script from 'next/script';
 
 type Props = i.NextLayoutProps;
 
@@ -21,7 +22,7 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: {
     default: 'Auctionoton',
-    template: '%s | Auctionoton',
+    template: '%s · Auctionoton',
   },
   metadataBase: new URL(SITE_URL || 'http://localhost:3000'),
   manifest: '/manifest.json',
@@ -48,6 +49,10 @@ const RootLayout = (props: Props) => {
                   <RealmDropdown />
                 </div>
               </div>
+              <Script
+                src="http://umami-f4oc848.168.119.167.208.sslip.io/script.js"
+                data-website-id="047847e3-ba46-4960-a0fd-9eae75c8ba96"
+              />
             </header>
             {props.children}
             {process.env.NODE_ENV !== 'production' && <SizeIndicator />}
