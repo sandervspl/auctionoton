@@ -45,6 +45,7 @@ export const itemsMetadata = pgTable(
     id_idx: index('items_metadata_id_idx').on(table.id),
     id_locale_idx: index('items_metadata_id_locale_idx').on(table.id, table.locale),
     id_unq: unique('items_metadata_id_unq').on(table.id),
+    slug_idx: index('items_metadata_slug_idx').on(table.slug),
   }),
 );
 
