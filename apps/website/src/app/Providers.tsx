@@ -4,6 +4,7 @@ import * as React from 'react';
 import dynamic from 'next/dynamic';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryStreamedHydration } from '@tanstack/react-query-next-experimental';
+import { ClerkProvider } from '@clerk/nextjs';
 
 const ReactQueryDevtools = dynamic(
   () => import('@tanstack/react-query-devtools').then((m) => m.ReactQueryDevtools),
@@ -29,9 +30,11 @@ export const Providers = (props: Props) => {
   );
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ReactQueryStreamedHydration>{props.children}</ReactQueryStreamedHydration>
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
+    <ClerkProvider>
+      <QueryClientProvider client={queryClient}>
+        <ReactQueryStreamedHydration>{props.children}</ReactQueryStreamedHydration>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
+    </ClerkProvider>
   );
 };
