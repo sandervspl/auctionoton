@@ -1,5 +1,5 @@
 import type * as i from 'types';
-import type { Metadata } from 'next';
+import type { Metadata, ResolvingMetadata } from 'next';
 import { notFound } from 'next/navigation';
 import dayjs from 'dayjs';
 
@@ -8,6 +8,7 @@ import { getAuctionHouseId } from 'queries/auction-house';
 import { PriceChart } from 'modules/item-detail/price-chart';
 import { ResponsiveLine } from '@nivo/line';
 import { ItemCharts } from 'modules/item-detail/item-charts';
+import { db } from 'db';
 
 type Props = i.NextPageProps<{
   params: {
@@ -20,8 +21,20 @@ type Props = i.NextPageProps<{
 
 export type ItemParam = [realmSlug: string, region: string, faction: string, itemSlug: string];
 
-export const metadata: Metadata = {
-  title: 'Home',
+export const generateMetadata = async (
+  { params, searchParams }: Props,
+  parent: ResolvingMetadata,
+): Promise<Metadata> => {
+  const [, , , itemSlug] = params.item;
+
+  const item = await db.query.itemsMetadata.findFirst({
+    where: (itemsMetadata, { eq }) => eq(itemsMetadata.slug, itemSlug!),
+    columns: { name: true },
+  });
+
+  return {
+    title: item?.name,
+  };
 };
 
 export const revalidate = 300;
