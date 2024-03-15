@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { auth } from '@clerk/nextjs';
-import { toast } from 'sonner';
 import { redirect } from 'next/navigation';
 
 import { CreateSectionModal } from 'modules/user/dashboard/create-section-modal';
@@ -20,8 +19,7 @@ export default async function Page(props: Props) {
   const { userId } = auth();
 
   if (!userId) {
-    toast.error('You must be logged in');
-    redirect('/');
+    redirect('/?error=unauthorized');
   }
 
   const sections = await getDashboardSections();

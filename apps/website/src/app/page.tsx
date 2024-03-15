@@ -1,9 +1,11 @@
+import * as React from 'react';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 
 import { FactionButtons } from 'common/faction-buttons';
 import { ItemSearch } from 'common/item-search';
 import { RecentSearchSection } from 'modules/home/recent-search-section';
+import { ErrorToast } from 'modules/home/error-toast';
 
 type Props = {
   params: Record<string, string>;
@@ -45,6 +47,10 @@ export default async function Page(props: Props) {
       </section>
 
       <RecentSearchSection />
+
+      <React.Suspense fallback={null}>
+        <ErrorToast />
+      </React.Suspense>
     </main>
   );
 }
