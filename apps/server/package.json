@@ -10,13 +10,13 @@
     "@elysiajs/swagger": "^0.8.5",
     "@sindresorhus/slugify": "^2.2.1",
     "buffer-polyfill": "^6.0.3",
-    "drizzle-orm": "^0.29.4",
+    "drizzle-orm": "^0.30.2",
     "drizzle-zod": "^0.5.1",
     "elysia": "^0.8.17",
     "p-map": "^7.0.1",
     "postgres": "^3.4.3",
     "redis": "^4.6.13",
-    "remeda": "^1.45.2"
+    "remeda": "^1.50.1"
   },
   "devDependencies": {
     "bun-types": "latest",
