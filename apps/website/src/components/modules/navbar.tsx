@@ -23,11 +23,16 @@ export const Navbar = () => {
             <ItemSearch />
           </div>
         </div>
-        <div className="flex ml-auto self-center gap-4">
+        <div className="flex ml-auto self-center gap-2">
           <RealmDropdown />
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
             {userId ? (
-              <UserButton />
+              <>
+                <Button asChild variant="outline">
+                  <Link href={$path({ route: '/user/dashboard' })}>Dashboard</Link>
+                </Button>
+                <UserButton />
+              </>
             ) : (
               <Button asChild variant="outline">
                 <SignInButton />

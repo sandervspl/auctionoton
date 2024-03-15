@@ -36,6 +36,48 @@
       "when": 1710454683205,
       "tag": "0004_striped_loa",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1710458102252,
+      "tag": "0005_brainy_sheva_callister",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1710458280325,
+      "tag": "0006_sad_cassandra_nova",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1710458369424,
+      "tag": "0007_mature_franklin_richards",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1710458813779,
+      "tag": "0008_solid_lake",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1710459770727,
+      "tag": "0009_clear_cargill",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1710460072691,
+      "tag": "0010_groovy_spectrum",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,6 @@
 'use server';
 
-import { and, desc, eq, inArray, isNotNull, like, or, sql } from 'drizzle-orm';
+import { and, desc, eq, isNotNull, like, or, sql } from 'drizzle-orm';
 
 import { db } from 'db';
 import { itemsMetadata, recentSearches, items } from 'db/schema';

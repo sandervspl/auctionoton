@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryStreamedHydration } from '@tanstack/react-query-next-experimental';
 import { ClerkProvider } from '@clerk/nextjs';
+import { Toaster } from 'sonner';
 
 const ReactQueryDevtools = dynamic(
   () => import('@tanstack/react-query-devtools').then((m) => m.ReactQueryDevtools),
@@ -32,7 +33,10 @@ export const Providers = (props: Props) => {
   return (
     <ClerkProvider>
       <QueryClientProvider client={queryClient}>
-        <ReactQueryStreamedHydration>{props.children}</ReactQueryStreamedHydration>
+        <ReactQueryStreamedHydration>
+          {props.children}
+          <Toaster richColors />
+        </ReactQueryStreamedHydration>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </ClerkProvider>

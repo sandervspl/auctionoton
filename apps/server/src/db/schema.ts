@@ -1,4 +1,14 @@
-import { text, integer, pgTable, unique, index, bigserial, timestamp } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
+import {
+  text,
+  integer,
+  pgTable,
+  unique,
+  index,
+  bigserial,
+  timestamp,
+  primaryKey,
+} from 'drizzle-orm/pg-core';
 import { createInsertSchema } from 'drizzle-zod';
 
 export const items = pgTable(
@@ -61,5 +71,55 @@ export const recentSearches = pgTable(
   },
   (table) => ({
     search_timestamp_idx: index('recent_searches_timestamp_idx').on(table.timestamp),
+  }),
+);
+
+export const dashboardSections = pgTable('dashboard_sections', {
+  id: bigserial('id', { mode: 'number' }).primaryKey(),
+  name: text('name').notNull(),
+  order: integer('order').notNull(),
+  userId: text('user_id').notNull(),
+});
+
+export const dashboardSectionRelations = relations(dashboardSections, ({ many }) => ({
+  items: many(dashboardSectionsSectionItems),
+}));
+
+export const dashboardSectionItems = pgTable('dashboard_section_items', {
+  id: bigserial('id', { mode: 'number' }).primaryKey(),
+  itemId: integer('item_id').notNull(),
+  order: integer('order').notNull(),
+});
+
+export const dashboardSectionItemsRelations = relations(dashboardSectionItems, ({ many }) => ({
+  items: many(dashboardSectionsSectionItems),
+}));
+
+export const dashboardSectionsSectionItems = pgTable(
+  'dashboard_sections_section_items',
+  {
+    dashboardSectionId: integer('dashboard_section_id')
+      .notNull()
+      .references(() => dashboardSections.id),
+    dashboardSectionItemId: integer('dashboard_section_item_id')
+      .notNull()
+      .references(() => dashboardSectionItems.id),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.dashboardSectionId, table.dashboardSectionItemId] }),
+  }),
+);
+
+export const dashboardSectionsToSectionItemsRelations = relations(
+  dashboardSectionsSectionItems,
+  ({ one }) => ({
+    dashboardSection: one(dashboardSections, {
+      fields: [dashboardSectionsSectionItems.dashboardSectionId],
+      references: [dashboardSections.id],
+    }),
+    dashboardSectionItem: one(dashboardSectionItems, {
+      fields: [dashboardSectionsSectionItems.dashboardSectionItemId],
+      references: [dashboardSectionItems.id],
+    }),
   }),
 );

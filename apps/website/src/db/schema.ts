@@ -1,5 +1,15 @@
 import { relations } from 'drizzle-orm';
-import { text, integer, pgTable, unique, index, bigserial, timestamp } from 'drizzle-orm/pg-core';
+import {
+  text,
+  integer,
+  pgTable,
+  unique,
+  index,
+  bigserial,
+  timestamp,
+  primaryKey,
+} from 'drizzle-orm/pg-core';
+import { createInsertSchema } from 'drizzle-zod';
 
 export const items = pgTable(
   'items',
@@ -24,25 +34,32 @@ export const items = pgTable(
   }),
 );
 
+export const insertItemsSchema = createInsertSchema(items);
+
 export const itemsMetadata = pgTable(
   'items_metadata',
   {
     id: bigserial('id', { mode: 'number' }).notNull(),
-    name: text('name').notNull(),
-    slug: text('slug').notNull(),
+    name: text('name').default(''),
+    slug: text('slug').default(''),
     locale: text('locale').default('en_US'),
     quality: integer('quality').default(1),
-    tags: text('tags'),
+    tags: text('tags').default(''),
     itemLevel: integer('item_level').default(0),
     requiredLevel: integer('required_level').default(0),
-    icon: text('icon').notNull(),
+    icon: text('icon').default(
+      'https://wow.zamimg.com/images/wow/icons/large/inv_misc_questionmark.jpg',
+    ),
   },
   (table) => ({
     id_idx: index('items_metadata_id_idx').on(table.id),
     id_locale_idx: index('items_metadata_id_locale_idx').on(table.id, table.locale),
     id_unq: unique('items_metadata_id_unq').on(table.id),
+    slug_idx: index('items_metadata_slug_idx').on(table.slug),
   }),
 );
+
+export const insertItemsMetadataSchema = createInsertSchema(itemsMetadata);
 
 export const recentSearches = pgTable(
   'recent_searches',
@@ -54,5 +71,55 @@ export const recentSearches = pgTable(
   },
   (table) => ({
     search_timestamp_idx: index('recent_searches_timestamp_idx').on(table.timestamp),
+  }),
+);
+
+export const dashboardSections = pgTable('dashboard_sections', {
+  id: bigserial('id', { mode: 'number' }).primaryKey(),
+  name: text('name').notNull(),
+  order: integer('order').notNull(),
+  userId: text('user_id').notNull(),
+});
+
+export const dashboardSectionRelations = relations(dashboardSections, ({ many }) => ({
+  items: many(dashboardSectionsSectionItems),
+}));
+
+export const dashboardSectionItems = pgTable('dashboard_section_items', {
+  id: bigserial('id', { mode: 'number' }).primaryKey(),
+  itemId: integer('item_id').notNull(),
+  order: integer('order').notNull(),
+});
+
+export const dashboardSectionItemsRelations = relations(dashboardSectionItems, ({ many }) => ({
+  items: many(dashboardSectionsSectionItems),
+}));
+
+export const dashboardSectionsSectionItems = pgTable(
+  'dashboard_sections_section_items',
+  {
+    dashboardSectionId: integer('dashboard_section_id')
+      .notNull()
+      .references(() => dashboardSections.id),
+    dashboardSectionItemId: integer('dashboard_section_item_id')
+      .notNull()
+      .references(() => dashboardSectionItems.id),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.dashboardSectionId, table.dashboardSectionItemId] }),
+  }),
+);
+
+export const dashboardSectionsToSectionItemsRelations = relations(
+  dashboardSectionsSectionItems,
+  ({ one }) => ({
+    dashboardSection: one(dashboardSections, {
+      fields: [dashboardSectionsSectionItems.dashboardSectionId],
+      references: [dashboardSections.id],
+    }),
+    dashboardSectionItem: one(dashboardSectionItems, {
+      fields: [dashboardSectionsSectionItems.dashboardSectionItemId],
+      references: [dashboardSectionItems.id],
+    }),
   }),
 );
