@@ -4,17 +4,18 @@ import * as React from 'react';
 import { Loader2Icon } from 'lucide-react';
 import { $path } from 'next-typesafe-url';
 import { useDebounce } from 'use-debounce';
-import Image from 'next/image';
 import Link from 'next/link';
-
 import * as Combobox from 'park-ui/combobox';
 import { Input } from 'park-ui/input';
+
 import { useSettings } from 'hooks/use-settings';
 import { useSearchQuery } from 'queries/search';
 import { addRecentSearch } from 'actions/search';
 
+import { ItemImage } from './item-image';
+import { getTextQualityColor } from 'services/colors';
+
 export const ItemSearch = () => {
-  // const [items, setItems] = React.useState(data);
   const { settings } = useSettings();
   const [inputValue, setValue] = React.useState('');
   const [value] = useDebounce(inputValue, 500);
@@ -54,7 +55,7 @@ export const ItemSearch = () => {
                     href={$path({
                       route: '/item/[...item]',
                       routeParams: {
-                        item: [settings.realm, settings.region, settings.faction, item.slug],
+                        item: [settings.realm, settings.region, settings.faction, item.slug!],
                       },
                     })}
                     className="flex items-center justify-start w-full gap-2 h-full"
@@ -64,18 +65,15 @@ export const ItemSearch = () => {
                       addRecentSearch(inputValue, item.id);
                     }}
                   >
-                    <Image
-                      src={item.icon ?? '/images/questionmark.webp'}
-                      alt={item.name}
-                      className="h-6 w-6 rounded-md"
-                      width={24}
-                      height={24}
-                      onError={(e) => {
-                        (e.target as any).src = '/images/questionmark.webp';
-                        (e.target as any).removeAttribute('srcset');
+                    <ItemImage item={item} width={24} height={24} />
+                    <span
+                      className="truncate"
+                      style={{
+                        ...getTextQualityColor(item.quality),
                       }}
-                    />
-                    <span>{item.name}</span>
+                    >
+                      {item.name}
+                    </span>
                   </Link>
                 </Combobox.ItemText>
               </Combobox.Item>

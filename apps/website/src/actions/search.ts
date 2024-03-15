@@ -12,6 +12,7 @@ export async function searchItem(search: string) {
       name: itemsMetadata.name,
       slug: itemsMetadata.slug,
       icon: itemsMetadata.icon,
+      quality: itemsMetadata.quality,
     })
     .from(itemsMetadata)
     .where(

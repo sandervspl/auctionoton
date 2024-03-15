@@ -11,6 +11,7 @@ import { useSettings } from 'hooks/use-settings';
 import { MoveDownRightIcon, MoveUpRightIcon } from 'lucide-react';
 import { cn } from 'services/cn';
 import { getRingQualityColor, getTextQualityColor } from 'services/colors';
+import { ItemImage } from 'common/item-image';
 
 type Props = {
   item: {
@@ -48,20 +49,7 @@ export const RecentSearchItem = (props: Props) => {
             ...getTextQualityColor(props.item.quality),
           }}
         >
-          <Image
-            src={props.item.icon ?? '/images/questionmark.webp'}
-            alt={props.item.name!}
-            className="h-6 w-6 rounded-md ring-1"
-            width={24}
-            height={24}
-            onError={(e) => {
-              (e.target as any).src = '/images/questionmark.webp';
-              (e.target as any).removeAttribute('srcset');
-            }}
-            style={{
-              ...getRingQualityColor(props.item.quality),
-            }}
-          />
+          <ItemImage item={props.item} className="h-6 w-6" width={24} height={24} />
           {props.item.name}
         </CardHeader>
 
