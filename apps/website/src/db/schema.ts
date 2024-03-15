@@ -87,12 +87,18 @@ export const dashboardSectionRelations = relations(dashboardSections, ({ many })
 
 export const dashboardSectionItems = pgTable('dashboard_section_items', {
   id: bigserial('id', { mode: 'number' }).primaryKey(),
-  itemId: integer('item_id').notNull(),
+  itemId: integer('item_id')
+    .notNull()
+    .references(() => itemsMetadata.id),
   order: integer('order').notNull(),
 });
 
-export const dashboardSectionItemsRelations = relations(dashboardSectionItems, ({ many }) => ({
+export const dashboardSectionItemsRelations = relations(dashboardSectionItems, ({ many, one }) => ({
   items: many(dashboardSectionsSectionItems),
+  item: one(itemsMetadata, {
+    fields: [dashboardSectionItems.itemId],
+    references: [itemsMetadata.id],
+  }),
 }));
 
 export const dashboardSectionsSectionItems = pgTable(
