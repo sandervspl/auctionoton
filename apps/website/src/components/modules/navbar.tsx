@@ -19,9 +19,7 @@ export const Navbar = () => {
             <span className="hidden sm:block">Auctionoton</span>
             <span className="sm:hidden">A</span>
           </Link>
-          <div className="top-3 sm:w-full w-full flex-grow flex-shrink">
-            <ItemSearch />
-          </div>
+          <ItemSearch />
         </div>
         <div className="flex ml-auto self-center gap-2">
           <RealmDropdown />

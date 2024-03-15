@@ -11,28 +11,57 @@ import { Input } from 'park-ui/input';
 import { useSettings } from 'hooks/use-settings';
 import { useSearchQuery } from 'queries/search';
 import { addRecentSearch } from 'actions/search';
-
-import { ItemImage } from './item-image';
 import { getTextQualityColor } from 'services/colors';
 
-export const ItemSearch = () => {
-  const { settings } = useSettings();
+import { ItemImage } from './item-image';
+
+type Props = {
+  autoFocus?: boolean;
+  className?: string;
+  onBlur?: () => void;
+  searchItem?: (props: { item: SearchItem }) => React.ReactNode;
+};
+
+export type SearchItem = {
+  id: number;
+  name: string | null;
+  slug: string | null;
+  icon: string | null;
+  quality: number | null;
+};
+
+export const ItemSearch = React.forwardRef((props: Props, ref) => {
   const [inputValue, setValue] = React.useState('');
   const [value] = useDebounce(inputValue, 500);
   const searchQuery = useSearchQuery(value);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
+  React.useImperativeHandle(
+    ref,
+    () => {
+      return {
+        focus() {
+          inputRef.current?.focus();
+        },
+      };
+    },
+    [],
+  );
+
   return (
     <Combobox.Root
-      onInputValueChange={(e) => {
-        setValue(e.value);
-      }}
       items={searchQuery.data ?? []}
       selectionBehavior="clear"
+      className={props.className}
     >
       <Combobox.Control>
         <Combobox.Input placeholder="Search item" asChild>
-          <Input ref={inputRef} />
+          <Input
+            ref={inputRef}
+            autoFocus={props.autoFocus}
+            onBlur={props.onBlur}
+            onChange={(e) => setValue(e.currentTarget.value)}
+          />
         </Combobox.Input>
       </Combobox.Control>
       <Combobox.Positioner>
@@ -51,30 +80,11 @@ export const ItemSearch = () => {
             {searchQuery.data?.map((item) => (
               <Combobox.Item key={item.id} item={item.slug}>
                 <Combobox.ItemText asChild>
-                  <Link
-                    href={$path({
-                      route: '/item/[...item]',
-                      routeParams: {
-                        item: [settings.realm, settings.region, settings.faction, item.slug!],
-                      },
-                    })}
-                    className="flex items-center justify-start w-full gap-2 h-full"
-                    onClick={() => {
-                      setValue('');
-                      inputRef.current?.blur();
-                      addRecentSearch(inputValue, item.id);
-                    }}
-                  >
-                    <ItemImage item={item} width={24} height={24} />
-                    <span
-                      className="truncate"
-                      style={{
-                        ...getTextQualityColor(item.quality),
-                      }}
-                    >
-                      {item.name}
-                    </span>
-                  </Link>
+                  {props.searchItem ? (
+                    <props.searchItem item={item} />
+                  ) : (
+                    <ItemLink {...{ item, inputRef, setValue, inputValue }} />
+                  )}
                 </Combobox.ItemText>
               </Combobox.Item>
             ))}
@@ -82,5 +92,45 @@ export const ItemSearch = () => {
         </Combobox.Content>
       </Combobox.Positioner>
     </Combobox.Root>
+  );
+});
+
+type ItemLinkProps = {
+  setValue: (value: string) => void;
+  inputRef: React.RefObject<HTMLInputElement>;
+  item: SearchItem;
+  inputValue: string;
+};
+
+const ItemLink = (props: ItemLinkProps) => {
+  const { settings } = useSettings();
+
+  const onClick = () => {
+    props.setValue('');
+    props.inputRef.current?.blur();
+    addRecentSearch(props.inputValue, props.item.id);
+  };
+
+  return (
+    <Link
+      href={$path({
+        route: '/item/[...item]',
+        routeParams: {
+          item: [settings.realm, settings.region, settings.faction, props.item.slug!],
+        },
+      })}
+      className="flex items-center justify-start w-full gap-2 h-full"
+      onClick={onClick}
+    >
+      <ItemImage item={props.item} width={24} height={24} />
+      <span
+        className="truncate"
+        style={{
+          ...getTextQualityColor(props.item.quality),
+        }}
+      >
+        {props.item.name}
+      </span>
+    </Link>
   );
 };

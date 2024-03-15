@@ -1,16 +1,14 @@
 'use client';
 
-import * as React from 'react';
 import { $path } from 'next-typesafe-url';
 import Link from 'next/link';
-import Image from 'next/image';
 
 import { CoinValue } from 'common/coin-value';
 import { Card, CardHeader, CardContent } from 'shadcn-ui/card';
 import { useSettings } from 'hooks/use-settings';
 import { MoveDownRightIcon, MoveUpRightIcon } from 'lucide-react';
 import { cn } from 'services/cn';
-import { getRingQualityColor, getTextQualityColor } from 'services/colors';
+import { getTextQualityColor } from 'services/colors';
 import { ItemImage } from 'common/item-image';
 
 type Props = {
@@ -34,7 +32,7 @@ export const RecentSearchItem = (props: Props) => {
   const { settings } = useSettings();
 
   return (
-    <Card key={props.item.id}>
+    <Card key={props.item.id} className="hover:border-white/30">
       <Link
         href={$path({
           route: '/item/[...item]',

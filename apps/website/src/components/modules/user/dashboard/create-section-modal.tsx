@@ -1,9 +1,7 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
-import { useEffect } from 'react';
-import { toast } from 'sonner';
-import { Loader2Icon } from 'lucide-react';
+import { useFormStatus } from 'react-dom';
+import { Loader2Icon, SquarePlusIcon } from 'lucide-react';
 
 import {
   Dialog,
@@ -17,41 +15,39 @@ import {
 import { Button } from 'shadcn-ui/button';
 import { Input } from 'shadcn-ui/input';
 import { Label } from 'shadcn-ui/label';
-import { createDashboardSection } from 'actions/dashboard';
+import { useCreateSectionModal } from './hooks';
 
 export const CreateSectionModal = () => {
-  const [state, action] = useFormState(createDashboardSection, { error: '' });
-
-  useEffect(() => {
-    if (state.error) {
-      toast.error(state.error);
-    }
-  }, [state.error]);
+  const { isOpen, setOpen, action, state } = useCreateSectionModal();
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Add section</Button>
+        <Button variant="outline" className="gap-2">
+          <SquarePlusIcon size={16} />
+          Add collection
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Dashboard section</DialogTitle>
+          <DialogTitle>Create item collection</DialogTitle>
           <DialogDescription>Add a new dashboard section to organize your items.</DialogDescription>
         </DialogHeader>
         <form action={action}>
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Name
+            <div className="grid grid-cols-6 items-center gap-4">
+              <Label htmlFor="section_name" className="text-right col-span-2">
+                Collection name
               </Label>
               <Input
-                id="name"
-                name="name"
+                id="section_name"
+                name="section_name"
                 placeholder="Lionheart Helm reagents"
-                className="col-span-3"
+                className="col-span-4"
                 autoComplete="off"
               />
             </div>
+            {state.error && <p className="text-red-500 ml-auto">{state.error}</p>}
           </div>
           <DialogFooter>
             <SubmitButton />

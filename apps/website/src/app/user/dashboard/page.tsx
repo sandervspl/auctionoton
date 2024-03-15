@@ -4,7 +4,8 @@ import { toast } from 'sonner';
 import { redirect } from 'next/navigation';
 
 import { CreateSectionModal } from 'modules/user/dashboard/create-section-modal';
-import { db } from 'db';
+import { getDashboardSections } from 'queries/dashboard';
+import { DashboardSection } from 'modules/user/dashboard/section';
 
 type Props = {
   params: Record<string, string>;
@@ -23,20 +24,21 @@ export default async function Page(props: Props) {
     redirect('/');
   }
 
-  const sections = await db.query.dashboardSections.findMany({
-    with: {
-      items: {
-        with: { dashboardSectionItem: true },
-      },
-    },
-  });
-
-  console.log(sections[0]?.items[0]);
+  const sections = await getDashboardSections();
 
   return (
-    <>
-      <h1>Dashboard</h1>
-      <CreateSectionModal />
-    </>
+    <div className="space-y-4 p-10">
+      <h1 className="text-2xl font-bold">Dashboard</h1>
+
+      <div className="flex items-center gap-4">
+        <CreateSectionModal />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {sections.map((section) => (
+          <DashboardSection key={section.id} section={section} />
+        ))}
+      </div>
+    </div>
   );
 }

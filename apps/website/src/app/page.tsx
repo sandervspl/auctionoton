@@ -39,8 +39,6 @@ export default async function Page(props: Props) {
             className="object-cover"
             quality={90}
             priority
-            // width={200}
-            // height={200}
             fill
           />
         </div>
