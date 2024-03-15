@@ -1,5 +1,4 @@
 import type * as React from 'react';
-import Image from 'next/image';
 import { $path } from 'next-typesafe-url';
 import { notFound } from 'next/navigation';
 
@@ -7,7 +6,8 @@ import type { ItemParam } from './page';
 import { FactionButtons } from 'common/faction-buttons';
 import { getAuctionHouseId } from 'queries/auction-house';
 import { getItemHistory } from 'queries/items';
-import { getRingQualityColor, getTextQualityColor } from 'services/colors';
+import { getTextQualityColor } from 'services/colors';
+import { ItemImage } from 'common/item-image';
 
 type Props = {
   children: React.ReactNode;
@@ -33,17 +33,7 @@ export default async function Layout(props: Props) {
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-10">
       <header className="flex flex-col gap-6">
         <div className="flex gap-2 items-center">
-          <Image
-            src={itemHistory[0]!.icon!}
-            alt={itemHistory[0]!.name!}
-            width={40}
-            height={40}
-            className="rounded-lg overflow-hidden bg-black ring-1"
-            priority
-            style={{
-              ...getRingQualityColor(itemHistory[0]?.quality),
-            }}
-          />
+          <ItemImage item={itemHistory[0]!} width={40} height={40} />
 
           <div className="flex flex-col justify-start">
             <h1
