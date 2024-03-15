@@ -1,7 +1,6 @@
 import { getRecentSearches } from 'actions/search';
 
 import { RecentSearchItem } from './recent-search-item';
-import { Card, CardHeader, CardTitle } from 'shadcn-ui/card';
 
 export const RecentSearchSection = async () => {
   const recentSearches = await getRecentSearches();

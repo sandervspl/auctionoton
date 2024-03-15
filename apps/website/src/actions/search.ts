@@ -43,6 +43,7 @@ export async function getRecentSearches() {
       name: itemsMetadata.name,
       slug: itemsMetadata.slug,
       icon: itemsMetadata.icon,
+      quality: itemsMetadata.quality,
     })
     .from(recentSearches)
     .orderBy(desc(recentSearches.timestamp))

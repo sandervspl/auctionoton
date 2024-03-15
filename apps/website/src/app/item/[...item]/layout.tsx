@@ -7,6 +7,7 @@ import type { ItemParam } from './page';
 import { FactionButtons } from 'common/faction-buttons';
 import { getAuctionHouseId } from 'queries/auction-house';
 import { getItemHistory } from 'queries/items';
+import { getRingQualityColor, getTextQualityColor } from 'services/colors';
 
 type Props = {
   children: React.ReactNode;
@@ -37,12 +38,22 @@ export default async function Layout(props: Props) {
             alt={itemHistory[0]!.name!}
             width={40}
             height={40}
-            className="rounded-lg overflow-hidden bg-black"
+            className="rounded-lg overflow-hidden bg-black ring-1"
             priority
+            style={{
+              ...getRingQualityColor(itemHistory[0]?.quality),
+            }}
           />
 
           <div className="flex flex-col justify-start">
-            <h1 className="font-bold text-2xl">{itemHistory[0]?.name}</h1>
+            <h1
+              className="font-bold text-2xl"
+              style={{
+                ...getTextQualityColor(itemHistory[0]?.quality),
+              }}
+            >
+              {itemHistory[0]?.name}
+            </h1>
             <p className="text-sm">
               <span className="capitalize">{realmSlug?.replaceAll('-', ' ')}</span> (
               {region?.toUpperCase()}) <span className="capitalize">- {faction}</span>

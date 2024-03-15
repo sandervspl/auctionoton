@@ -1,4 +1,5 @@
 // REQUIRED TO TURN THIS FILE INTO A MODULE -- DO NOT REMOVE
+// biome-ignore lint/style/useExportType: need this
 export {};
 
 // global variables
@@ -20,7 +21,14 @@ declare global {
   }
 
   // Add window types
+  // biome-ignore lint/suspicious/noEmptyInterface: leave it empty for future use
   interface Window {
     // add properties here
+  }
+}
+
+declare module 'react' {
+  interface CSSProperties {
+    [key: `--${string}`]: string | number;
   }
 }

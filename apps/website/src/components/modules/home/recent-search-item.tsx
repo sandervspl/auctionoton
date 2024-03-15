@@ -10,6 +10,7 @@ import { Card, CardHeader, CardContent } from 'shadcn-ui/card';
 import { useSettings } from 'hooks/use-settings';
 import { MoveDownRightIcon, MoveUpRightIcon } from 'lucide-react';
 import { cn } from 'services/cn';
+import { getRingQualityColor, getTextQualityColor } from 'services/colors';
 
 type Props = {
   item: {
@@ -19,6 +20,7 @@ type Props = {
     name: string | null;
     slug: string | null;
     icon: string | null;
+    quality: number | null;
     minBuyout?: number | undefined;
     marketValue?: number | undefined;
     diffMinBuyout?: number | undefined;
@@ -40,16 +42,24 @@ export const RecentSearchItem = (props: Props) => {
           },
         })}
       >
-        <CardHeader className="flex flex-row items-center pb-2 gap-2">
+        <CardHeader
+          className="flex flex-row items-center pb-2 gap-2"
+          style={{
+            ...getTextQualityColor(props.item.quality),
+          }}
+        >
           <Image
             src={props.item.icon ?? '/images/questionmark.webp'}
             alt={props.item.name!}
-            className="h-6 w-6 rounded-md"
+            className="h-6 w-6 rounded-md ring-1"
             width={24}
             height={24}
             onError={(e) => {
               (e.target as any).src = '/images/questionmark.webp';
               (e.target as any).removeAttribute('srcset');
+            }}
+            style={{
+              ...getRingQualityColor(props.item.quality),
             }}
           />
           {props.item.name}
