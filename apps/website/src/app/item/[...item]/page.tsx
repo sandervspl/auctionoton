@@ -1,14 +1,10 @@
 import type * as i from 'types';
-import type { Metadata, ResolvingMetadata } from 'next';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import dayjs from 'dayjs';
 
-import { getItemHistory } from 'queries/items';
+import { getItemFromSlug, getItemHistory } from 'queries/items';
 import { getAuctionHouseId } from 'queries/auction-house';
-import { PriceChart } from 'modules/item-detail/price-chart';
-import { ResponsiveLine } from '@nivo/line';
 import { ItemCharts } from 'modules/item-detail/item-charts';
-import { db } from 'db';
 
 type Props = i.NextPageProps<{
   params: {
@@ -21,23 +17,17 @@ type Props = i.NextPageProps<{
 
 export type ItemParam = [realmSlug: string, region: string, faction: string, itemSlug: string];
 
-export const generateMetadata = async (
-  { params, searchParams }: Props,
-  parent: ResolvingMetadata,
-): Promise<Metadata> => {
+export const revalidate = 300;
+
+export const generateMetadata = async ({ params }: Props): Promise<Metadata> => {
   const [, , , itemSlug] = params.item;
 
-  const item = await db.query.itemsMetadata.findFirst({
-    where: (itemsMetadata, { eq }) => eq(itemsMetadata.slug, itemSlug!),
-    columns: { name: true },
-  });
+  const item = await getItemFromSlug(itemSlug!);
 
   return {
     title: item?.name,
   };
 };
-
-export const revalidate = 300;
 
 const Page = async (props: Props) => {
   const [realmSlug, region, faction, itemSlug] = props.params.item;

@@ -2,6 +2,13 @@ import { db } from 'db';
 import { items, itemsMetadata } from 'db/schema';
 import { and, eq, asc } from 'drizzle-orm';
 
+export async function getItemFromSlug(slug: string) {
+  return db.query.itemsMetadata.findFirst({
+    where: (itemsMetadata, { eq }) => eq(itemsMetadata.slug, slug),
+    columns: { name: true },
+  });
+}
+
 export async function getItemHistory(itemSlug: string, auctionHouseId: number) {
   const itemHistory = await db
     .select({
