@@ -1,4 +1,4 @@
-import { sql, and, eq } from 'drizzle-orm';
+import { sql, and, eq, desc } from 'drizzle-orm';
 import slugify from '@sindresorhus/slugify';
 
 import * as i from '../../types';
@@ -24,7 +24,9 @@ async function queryItem(id: number, auctionHouseId: number) {
       .select()
       .from(items)
       .where(and(eq(items.itemId, id), eq(items.auctionHouseId, auctionHouseId)))
-      .fullJoin(itemsMetadata, eq(items.itemId, itemsMetadata.id));
+      .fullJoin(itemsMetadata, eq(items.itemId, itemsMetadata.id))
+      .orderBy(desc(items.timestamp))
+      .limit(1);
 
     // If not in DB, fetch item from TSM
     if (queryResult == null || queryResult.length === 0 || queryResult[0].items == null) {
@@ -99,7 +101,10 @@ async function queryItem(id: number, auctionHouseId: number) {
             .onConflictDoNothing();
         }
       } catch (err: any) {
-        console.error('getItemFromBnet:', err.message);
+        console.error('[getItemFromBnet]', err.message, {
+          itemId: item.itemId,
+          ahId: item.auctionHouseId,
+        });
       }
     }
 

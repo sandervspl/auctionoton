@@ -1,43 +1,71 @@
-import { Ratelimit } from '@upstash/ratelimit';
-import { Redis } from '@upstash/redis';
 import { Elysia, t } from 'elysia';
 import { cors } from '@elysiajs/cors';
+import { swagger } from '@elysiajs/swagger';
 
 import { itemService } from './api/item';
-import { checkRateLimit, errorHeaders, successHeaders } from './utils';
+import { errorHeaders, successHeaders } from './utils';
 import { realmService } from './api/realms';
 
-const ratelimit = new Ratelimit({
-  redis: Redis.fromEnv(),
-  limiter: Ratelimit.slidingWindow(10, '10 s'),
-  prefix: 'auctionoton:item',
-});
+const version = await Bun.file('package.json')
+  .json()
+  .then((pkg) => pkg.version);
 
 const app = new Elysia()
   .use(cors())
-  .onRequest(async ({ request, set }) => {
-    const result = await checkRateLimit(ratelimit, request);
+  .use(
+    swagger({
+      documentation: {
+        info: {
+          title: 'Auctionoton API',
+          version,
+          description: 'API documentation for Auctionoton',
+        },
+        servers: [
+          {
+            url: 'https://auctionoton-api.sandervspl.dev',
+            description: 'Production',
+          },
+        ],
+      },
+      version,
+    }),
+  )
+  // .state('ratelimit', new Map())
+  // .onRequest(async ({ request, set, store: { ratelimit } }) => {
+  //   const result = await checkRateLimit(ratelimit, 30, 10, request);
 
-    if (result) {
-      set.status = 429;
-      set.headers = {
-        ...errorHeaders,
-        'content-type': 'text/plain',
-        'ratelimit-limit': result.limit.toString(),
-        'ratelimit-remaining': result.remaining.toString(),
-        'ratelimit-reset': result.reset.toString(),
-      };
+  //   if (result) {
+  //     set.status = 429;
+  //     set.headers = {
+  //       ...errorHeaders,
+  //       'content-type': 'text/plain',
+  //       'ratelimit-limit': result.limit.toString(),
+  //       'ratelimit-remaining': result.remaining.toString(),
+  //       'ratelimit-reset': result.reset.toString(),
+  //     };
 
-      return 'Too many requests';
-    }
-  })
-  .get('/health', async () => {
-    return 'OK';
-  })
+  //     console.info('Rate limit exceeded');
+
+  //     return 'Too many requests';
+  //   }
+  // })
+  .get(
+    '/health',
+    async () => {
+      return 'OK';
+    },
+    {
+      detail: {
+        summary: 'Health Check',
+        tags: ['System'],
+      },
+    },
+  )
   .get(
     '/realms/:region/:version',
-    async ({ request, set, params: { region, version } }) => {
-      const realms = await realmService(request, region, version);
+    async ({ set, params: { region, version } }) => {
+      console.info('GET /realms/:region/:version', { region, version });
+      const realms = await realmService(region, version);
 
       if ('error' in realms) {
         set.status = realms.status;
@@ -49,14 +77,30 @@ const app = new Elysia()
     },
     {
       params: t.Object({
-        region: t.String(),
-        version: t.String(),
+        region: t.Union([t.Literal('eu'), t.Literal('us')]),
+        version: t.Union([
+          t.Literal('classic'),
+          t.Literal('seasonal'),
+          t.Literal('era'),
+          t.Literal('hardcore'),
+        ]),
       }),
+      detail: {
+        summary: 'Get Realms',
+        tags: ['Realms'],
+        description:
+          'Get all realms and its auction houses for a specific region and game version. Region can be "eu" or "us" and version can be "classic", "seasonal", "era" or "hardcore".',
+        parameters: [
+          { name: 'region', in: 'path', required: true, schema: { type: 'string' } },
+          { name: 'version', in: 'path', required: true, schema: { type: 'string' } },
+        ],
+      },
     },
   )
   .get(
     '/item/:id/ah/:ah_id',
     async ({ params: { id, ah_id }, set }) => {
+      console.info('GET /item/:id/ah/:ah_id', { id, ah_id });
       const item = await itemService(id, ah_id);
 
       if ('error' in item) {
@@ -74,6 +118,11 @@ const app = new Elysia()
         id: t.Numeric(),
         ah_id: t.Numeric(),
       }),
+      detail: {
+        summary: 'Get Item',
+        tags: ['Items'],
+        description: "Get an item's auction house data from a specific auction house",
+      },
     },
   )
   .listen(process.env.PORT ?? 3000);

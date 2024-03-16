@@ -1,4 +1,3 @@
-import { Ratelimit } from '@upstash/ratelimit';
 import crypto from 'node:crypto';
 
 import * as i from '../types';
@@ -21,17 +20,17 @@ export function getFingerprint(req: Request) {
 
   const keys = Object.keys(req).sort() as Array<keyof Request>;
 
-  keys.forEach((k) => {
+  for (const k of keys) {
     const _k = k.toLowerCase() as keyof Request;
     cleaned[_k] = req[_k];
-  });
+  }
 
   if (cleaned.method) {
     cleaned.method = cleaned.method.toUpperCase();
   }
 
   if ('ttl' in cleaned) {
-    delete cleaned.ttl;
+    cleaned.ttl = undefined;
   }
 
   const hash = crypto.createHash('md5').update(JSON.stringify(cleaned)).digest('hex');
@@ -39,13 +38,43 @@ export function getFingerprint(req: Request) {
   return prefix + hash;
 }
 
-export async function checkRateLimit(rateLimit: Ratelimit, request: Request) {
+export async function checkRateLimit(
+  rateLimit: Map<string, i.RateLimit>,
+  window: number,
+  windowTime: number,
+  request: Request,
+) {
   const fingerprint = getFingerprint(request);
-  const { success, remaining, reset, limit, pending } = await rateLimit.limit(fingerprint);
+  const rateLimitData = rateLimit.get(fingerprint);
 
-  if (!success) {
-    return { remaining, reset, limit, pending };
+  const init = {
+    // Time remaining in seconds
+    remaining: window,
+    reset: Date.now() + windowTime * 1000,
+    limit: window,
+  };
+
+  if (rateLimitData == null) {
+    rateLimit.set(fingerprint, init);
+
+    return false;
   }
+
+  if (rateLimitData.reset < Date.now()) {
+    rateLimit.set(fingerprint, init);
+
+    return false;
+  }
+
+  if (rateLimitData.remaining <= 0) {
+    return rateLimitData;
+  }
+
+  rateLimitData.remaining--;
+
+  rateLimit.set(fingerprint, rateLimitData);
+
+  return false;
 }
 
 export const versionMap = {
@@ -78,7 +107,7 @@ export function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-export function convertToCoins(rawPrice: number = 0, amount = 1): i.PriceObject {
+export function convertToCoins(rawPrice = 0, amount = 1): i.PriceObject {
   const multiPrice = rawPrice * amount;
   const gold = Math.floor(multiPrice / 10000) || 0;
   const silver = Math.floor((multiPrice % 10000) / 100) || 0;

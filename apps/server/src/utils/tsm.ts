@@ -34,6 +34,40 @@ type Item = {
   numAuctions: number;
 };
 
+type RateLimits = 10 | 100 | 500;
+
+const getTSMRateLimitKey = (limit: RateLimits) => `tsm:rate-limit-24hr:${limit}`;
+
+// Get the current rate limit left for the TSM API
+export async function getTSMRateLimit24hr(limit: RateLimits) {
+  const key = getTSMRateLimitKey(limit);
+
+  const cached = await kv.get(key);
+  if (cached) {
+    return Number(cached);
+  }
+
+  await kv.set(key, limit, { EX: 60 * 60 * 24 });
+  return limit;
+}
+
+// Count down the rate limit for the TSM API
+export async function useTSMRateLimit24hr(limit: RateLimits) {
+  const amount = await getTSMRateLimit24hr(limit);
+
+  if (amount === 0) {
+    console.log(`TSM rate limit reached! ${amount}/${limit}`);
+    return amount;
+  }
+
+  const key = getTSMRateLimitKey(limit);
+  const nextAmount = amount - 1;
+  await kv.set(key, nextAmount);
+  console.log(`TSM rate limit left: ${nextAmount}/${limit}`);
+
+  return nextAmount;
+}
+
 async function getAccessToken() {
   const KV_KEY = 'tsm:access-token';
 
@@ -114,6 +148,7 @@ export async function getRegions() {
   };
 
   try {
+    await useTSMRateLimit24hr(10);
     await kv.set(KV_KEY, JSON.stringify(regions.items), { EX: 60 * 60 * 24 });
   } catch (error: any) {
     console.error('kv error:', error.message || 'unknown error');
@@ -144,6 +179,7 @@ export async function getRealms(regionId: number) {
   };
 
   try {
+    await useTSMRateLimit24hr(10);
     await kv.set(KV_KEY, JSON.stringify(realms.items), { EX: 60 * 60 * 24 });
   } catch (error: any) {
     console.error('kv error:', error.message || 'unknown error');
@@ -182,6 +218,7 @@ export async function getAuctionHouse(auctionHouseId: number) {
 
   if (Array.isArray(auctionHouse) && auctionHouse.length > 0) {
     try {
+      await useTSMRateLimit24hr(100);
       await kv.set(KV_KEY, new Date().toISOString(), { EX: 60 * 60 * 6 });
     } catch (error: any) {
       console.error('kv error:', error.message || 'unknown error');
@@ -207,6 +244,8 @@ export async function getItem(itemId: number, auctionHouseId: number) {
   }
 
   const item = (await response.json()) as Item;
+
+  await useTSMRateLimit24hr(500);
 
   return item;
 }

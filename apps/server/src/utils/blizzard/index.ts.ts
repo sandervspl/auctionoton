@@ -49,7 +49,7 @@ export async function getItemFromBnet(id: number, locale = 'en_US') {
   const accessToken = await getAccessToken();
 
   const params = new URLSearchParams({
-    namespace: 'static-classic-us',
+    namespace: 'static-classic1x-us',
     locale,
     access_token: accessToken,
   });
@@ -60,6 +60,7 @@ export async function getItemFromBnet(id: number, locale = 'en_US') {
     try {
       await response.body?.cancel?.();
     } catch (err) {}
+    console.error(`Failed to get item ${id}: ${response.status} ${response.statusText}`);
     throw new Error('Failed to get item');
   }
 

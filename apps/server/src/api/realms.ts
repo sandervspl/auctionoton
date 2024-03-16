@@ -1,6 +1,6 @@
 import { kv } from '../kv';
-import { getQueries } from '../utils';
 import { getRealms, getRegions } from '../utils/tsm';
+import * as i from '../types';
 
 export const config = {
   runtime: 'edge',
@@ -20,13 +20,24 @@ const headers = {
   'Access-Control-Allow-Origin': '*',
 };
 
-export async function realmService(req: Request, regionq: string, version: string) {
+type Realm = {
+  name: string;
+  localizedName: string;
+  realmId: number;
+  auctionHouses: {
+    auctionHouseId: number;
+    type: 'Horde' | 'Alliance' | 'Neutral';
+    lastModified: number;
+  }[];
+};
+
+export async function realmService(regionq: i.Region, version: i.GameVersion) {
   const KV_KEY = `tsm:realms:${regionq}:${version}`;
 
   try {
     const cached = await kv.get(KV_KEY);
     if (cached) {
-      return JSON.parse(cached) as object[];
+      return JSON.parse(cached) as Realm[];
     }
 
     const regions = await getRegions();

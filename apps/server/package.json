@@ -8,8 +8,6 @@
   "dependencies": {
     "@elysiajs/cors": "^0.8.0",
     "@sindresorhus/slugify": "^2.2.1",
-    "@upstash/ratelimit": "^1.0.1",
-    "@upstash/redis": "^1.28.4",
     "buffer-polyfill": "^6.0.3",
     "drizzle-orm": "^0.29.4",
     "drizzle-zod": "^0.5.1",

@@ -16,13 +16,10 @@ export const items = pgTable(
     timestamp: timestamp('timestamp').defaultNow(),
   },
   (table) => ({
-    auction_house_id_idx: index('items_item_id_auction_house_id_idx').on(
+    auction_house_id_idx: index('items_item_id_auction_house_id_ts_idx').on(
       table.itemId,
       table.auctionHouseId,
-    ),
-    auction_house_id_unq: unique('items_item_id_auction_house_id_unq').on(
-      table.itemId,
-      table.auctionHouseId,
+      table.timestamp,
     ),
   }),
 );

@@ -25,7 +25,7 @@ export type PageItem = {
   id: number;
 };
 
-export type Version = 'classic' | 'era' | 'hardcore' | 'seasonal';
+export type GameVersion = 'classic' | 'era' | 'hardcore' | 'seasonal';
 
 export type ReagentItem = {
   id: number;

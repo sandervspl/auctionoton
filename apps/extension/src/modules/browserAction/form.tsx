@@ -34,7 +34,7 @@ interface FormInput {
   region: i.Regions;
   realm: string;
   faction: i.Factions;
-  version: i.Version;
+  version: i.GameVersion;
 }
 
 // Create a client
