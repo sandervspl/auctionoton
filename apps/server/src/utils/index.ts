@@ -20,17 +20,17 @@ export function getFingerprint(req: Request) {
 
   const keys = Object.keys(req).sort() as Array<keyof Request>;
 
-  keys.forEach((k) => {
+  for (const k of keys) {
     const _k = k.toLowerCase() as keyof Request;
     cleaned[_k] = req[_k];
-  });
+  }
 
   if (cleaned.method) {
     cleaned.method = cleaned.method.toUpperCase();
   }
 
   if ('ttl' in cleaned) {
-    delete cleaned.ttl;
+    cleaned.ttl = undefined;
   }
 
   const hash = crypto.createHash('md5').update(JSON.stringify(cleaned)).digest('hex');
@@ -107,7 +107,7 @@ export function capitalize(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-export function convertToCoins(rawPrice: number = 0, amount = 1): i.PriceObject {
+export function convertToCoins(rawPrice = 0, amount = 1): i.PriceObject {
   const multiPrice = rawPrice * amount;
   const gold = Math.floor(multiPrice / 10000) || 0;
   const silver = Math.floor((multiPrice % 10000) / 100) || 0;
