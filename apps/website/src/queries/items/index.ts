@@ -1,6 +1,6 @@
 import { db } from 'db';
 import { items, itemsMetadata } from 'db/schema';
-import { and, eq, asc } from 'drizzle-orm';
+import { and, eq, asc, gt } from 'drizzle-orm';
 
 export async function getItemFromSlug(slug: string) {
   return db.query.itemsMetadata.findFirst({
@@ -10,6 +10,7 @@ export async function getItemFromSlug(slug: string) {
 }
 
 export async function getItemHistory(itemSlug: string, auctionHouseId: number) {
+  const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const itemHistory = await db
     .select({
       minBuyout: items.minBuyout,
@@ -23,7 +24,13 @@ export async function getItemHistory(itemSlug: string, auctionHouseId: number) {
       quality: itemsMetadata.quality,
     })
     .from(items)
-    .where(and(eq(itemsMetadata.slug, itemSlug!), eq(items.auctionHouseId, auctionHouseId)))
+    .where(
+      and(
+        eq(itemsMetadata.slug, itemSlug!),
+        eq(items.auctionHouseId, auctionHouseId),
+        gt(items.timestamp, new Date(sevenDaysAgo)),
+      ),
+    )
     .leftJoin(itemsMetadata, eq(items.itemId, itemsMetadata.id))
     .orderBy(asc(items.timestamp));
 
