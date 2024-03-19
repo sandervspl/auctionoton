@@ -6,15 +6,15 @@
     "dev": "bun run --watch src/index.ts"
   },
   "dependencies": {
-    "@elysiajs/cors": "^1.0.0",
+    "@elysiajs/cors": "^1.0.2",
     "@sindresorhus/slugify": "^2.2.1",
     "buffer-polyfill": "^6.0.3",
-    "drizzle-orm": "^0.29.5",
+    "drizzle-orm": "^0.30.4",
     "drizzle-zod": "^0.5.1",
-    "elysia": "^1.0.0",
+    "elysia": "^1.0.6",
     "postgres": "^3.4.3",
     "redis": "^4.6.13",
-    "remeda": "^1.50.1"
+    "remeda": "^1.55.0"
   },
   "devDependencies": {
     "bun-types": "latest",
