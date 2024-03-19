@@ -26,8 +26,12 @@ export const items = pgTable(
     timestamp: timestamp('timestamp').defaultNow(),
   },
   (table) => ({
-    auction_house_id_idx: index('items_item_id_auction_house_id_ts_idx').on(
+    item_id_idx: index('items_item_id_idx').on(table.itemId),
+    item_id_auction_house_id_idx: index('items_item_id_auction_house_id_idx').on(
       table.itemId,
+      table.auctionHouseId,
+    ),
+    auction_house_id_ts_idx: index('items_auction_house_id_ts_idx').on(
       table.auctionHouseId,
       table.timestamp,
     ),
@@ -39,7 +43,7 @@ export const insertItemsSchema = createInsertSchema(items);
 export const itemsMetadata = pgTable(
   'items_metadata',
   {
-    id: bigserial('id', { mode: 'number' }).notNull(),
+    id: bigserial('id', { mode: 'number' }).notNull().unique(),
     name: text('name').default(''),
     slug: text('slug').default(''),
     locale: text('locale').default('en_US'),
@@ -53,26 +57,19 @@ export const itemsMetadata = pgTable(
   },
   (table) => ({
     id_idx: index('items_metadata_id_idx').on(table.id),
-    id_locale_idx: index('items_metadata_id_locale_idx').on(table.id, table.locale),
-    id_unq: unique('items_metadata_id_unq').on(table.id),
+    name_idx: index('items_metadata_name_idx').on(table.name),
     slug_idx: index('items_metadata_slug_idx').on(table.slug),
   }),
 );
 
 export const insertItemsMetadataSchema = createInsertSchema(itemsMetadata);
 
-export const recentSearches = pgTable(
-  'recent_searches',
-  {
-    id: bigserial('id', { mode: 'number' }).primaryKey(),
-    itemId: integer('item_id').notNull(),
-    search: text('search').notNull(),
-    timestamp: timestamp('timestamp').defaultNow(),
-  },
-  (table) => ({
-    search_timestamp_idx: index('recent_searches_timestamp_idx').on(table.timestamp),
-  }),
-);
+export const recentSearches = pgTable('recent_searches', {
+  id: bigserial('id', { mode: 'number' }).primaryKey(),
+  itemId: integer('item_id').notNull(),
+  search: text('search').notNull(),
+  timestamp: timestamp('timestamp').defaultNow(),
+});
 
 export const dashboardSections = pgTable('dashboard_sections', {
   id: bigserial('id', { mode: 'number' }).primaryKey(),
