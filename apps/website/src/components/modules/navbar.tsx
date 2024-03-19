@@ -1,12 +1,15 @@
 import Link from 'next/link';
 import { $path } from 'next-typesafe-url';
 import { SignInButton, UserButton, auth } from '@clerk/nextjs';
+import Image from 'next/image';
 
 import { RealmDropdown } from 'common/realm-dropdown';
 import { ItemSearch } from 'common/item-search';
 
 import Script from 'next/script';
 import { Button } from 'shadcn-ui/button';
+
+import IconSvg from 'public/vectors/icon.svg';
 
 export const Navbar = () => {
   const { userId } = auth();
@@ -15,8 +18,9 @@ export const Navbar = () => {
     <header className="relative h-16 px-4 border-b shrink-0 md:px-6 gap-4">
       <div className="flex items-center justify-between mx-auto w-full h-full max-w-screen-xl">
         <div className="flex items-center justify-start gap-4">
-          <Link href={$path({ route: '/' })} className="self-center">
-            <span className="hidden sm:block">Auctionoton</span>
+          <Link href={$path({ route: '/' })} className="flex gap-2 items-center self-center">
+            <Image src={IconSvg} alt="logo" className="size-6" />
+            <span className="hidden sm:block text-lg font-bold">auctionoton</span>
             <span className="sm:hidden">A</span>
           </Link>
           <ItemSearch />
