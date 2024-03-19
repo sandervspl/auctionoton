@@ -7,17 +7,15 @@
     "db:migrate": "bun run src/db/migrate.ts"
   },
   "dependencies": {
-    "@elysiajs/cors": "^0.8.0",
-    "@elysiajs/swagger": "^0.8.5",
+    "@elysiajs/cors": "^1.0.2",
     "@sindresorhus/slugify": "^2.2.1",
     "buffer-polyfill": "^6.0.3",
-    "drizzle-orm": "^0.30.2",
+    "drizzle-orm": "^0.30.4",
     "drizzle-zod": "^0.5.1",
-    "elysia": "^0.8.17",
-    "p-map": "^7.0.1",
+    "elysia": "^1.0.6",
     "postgres": "^3.4.3",
     "redis": "^4.6.13",
-    "remeda": "^1.50.1"
+    "remeda": "^1.55.0"
   },
   "devDependencies": {
     "bun-types": "latest",

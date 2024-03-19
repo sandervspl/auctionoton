@@ -3,7 +3,7 @@ import { cors } from '@elysiajs/cors';
 import { swagger } from '@elysiajs/swagger';
 
 import { itemService } from './api/item';
-import { checkRateLimit, errorHeaders, successHeaders } from './utils';
+import { errorHeaders, successHeaders } from './utils';
 import { realmService } from './api/realms';
 
 const version = await Bun.file('package.json')
@@ -30,25 +30,25 @@ const app = new Elysia()
       version,
     }),
   )
-  .state('ratelimit', new Map())
-  .onRequest(async ({ request, set, store: { ratelimit } }) => {
-    const result = await checkRateLimit(ratelimit, 30, 10, request);
+  // .state('ratelimit', new Map())
+  // .onRequest(async ({ request, set, store: { ratelimit } }) => {
+  //   const result = await checkRateLimit(ratelimit, 30, 10, request);
 
-    if (result) {
-      set.status = 429;
-      set.headers = {
-        ...errorHeaders,
-        'content-type': 'text/plain',
-        'ratelimit-limit': result.limit.toString(),
-        'ratelimit-remaining': result.remaining.toString(),
-        'ratelimit-reset': result.reset.toString(),
-      };
+  //   if (result) {
+  //     set.status = 429;
+  //     set.headers = {
+  //       ...errorHeaders,
+  //       'content-type': 'text/plain',
+  //       'ratelimit-limit': result.limit.toString(),
+  //       'ratelimit-remaining': result.remaining.toString(),
+  //       'ratelimit-reset': result.reset.toString(),
+  //     };
 
-      console.info('Rate limit exceeded');
+  //     console.info('Rate limit exceeded');
 
-      return 'Too many requests';
-    }
-  })
+  //     return 'Too many requests';
+  //   }
+  // })
   .get(
     '/health',
     async () => {
