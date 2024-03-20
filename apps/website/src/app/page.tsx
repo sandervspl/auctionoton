@@ -33,17 +33,6 @@ export default async function Page(props: Props) {
             <FactionButtons />
           </div>
         </div>
-
-        <div className="hidden sm:flex relative overflow-hidden rounded-lg bg-neutral-900 p-10">
-          <Image
-            src="/images/goblin_1.webp"
-            alt="Goblin auctioneer art"
-            className="object-cover"
-            quality={90}
-            priority
-            fill
-          />
-        </div>
       </section>
 
       <RecentSearchSection />
