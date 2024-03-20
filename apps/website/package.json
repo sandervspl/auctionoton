@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "concurrently 'next dev --turbo' 'next-typesafe-url --watch'",
     "start": "NODE_ENV=production next start",
-    "build": "next-typesafe-url && DEBUG=true NODE_ENV=production bunx next build",
+    "build": "next-typesafe-url && DEBUG=true NODE_ENV=production next build",
     "postbuild": "next-sitemap",
     "analyze": "ANALYZE=true npm run build",
     "typecheck": "tsc --noEmit"
