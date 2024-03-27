@@ -6,7 +6,6 @@ import Image from 'next/image';
 import { RealmDropdown } from 'common/realm-dropdown';
 import { ItemSearch } from 'common/item-search';
 
-import Script from 'next/script';
 import { Button } from 'shadcn-ui/button';
 
 import IconSvg from 'public/vectors/icon.svg';
@@ -43,10 +42,6 @@ export const Navbar = () => {
           </div>
         </div>
       </div>
-      <Script
-        src="https://plausible.sandervspl.dev/js/script.js"
-        data-domain="auctionoton.sandervspl.dev"
-      />
     </header>
   );
 };

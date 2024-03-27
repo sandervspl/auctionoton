@@ -26,17 +26,26 @@ export const metadata: Metadata = {
 
 const RootLayout = (props: Props) => {
   return (
-    <html lang="en" className="dark h-dvh min-h-full antialiased">
-      <body className={cn('h-full min-h-full', inter.className)}>
-        <Providers>
-          <div className="flex flex-col w-full min-h-screen">
-            <Navbar />
-            {props.children}
-            {process.env.NODE_ENV !== 'production' && <SizeIndicator />}
-          </div>
-        </Providers>
-      </body>
-    </html>
+    <>
+      <head>
+        <script
+          defer
+          src="https://plausible.sandervspl.dev/js/script.js"
+          data-domain="auctionoton.sandervspl.dev"
+        />
+      </head>
+      <html lang="en" className="dark h-dvh min-h-full antialiased">
+        <body className={cn('h-full min-h-full', inter.className)}>
+          <Providers>
+            <div className="flex flex-col w-full min-h-screen">
+              <Navbar />
+              {props.children}
+              {process.env.NODE_ENV !== 'production' && <SizeIndicator />}
+            </div>
+          </Providers>
+        </body>
+      </html>
+    </>
   );
 };
 
