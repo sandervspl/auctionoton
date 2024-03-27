@@ -1,6 +1,5 @@
 import * as React from 'react';
 import type { Metadata } from 'next';
-import Image from 'next/image';
 
 import { FactionButtons } from 'common/faction-buttons';
 import { ItemSearch } from 'common/item-search';

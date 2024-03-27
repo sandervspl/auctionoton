@@ -44,8 +44,8 @@ export const Navbar = () => {
         </div>
       </div>
       <Script
-        src="http://umami-f4oc848.168.119.167.208.sslip.io/script.js"
-        data-website-id="047847e3-ba46-4960-a0fd-9eae75c8ba96"
+        src="https://plausible.sandervspl.dev/js/script.js"
+        data-domain="auctionoton.sandervspl.dev"
       />
     </header>
   );
