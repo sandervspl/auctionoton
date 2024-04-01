@@ -1,7 +1,7 @@
 import * as R from 'remeda';
 
 import { getAuctionHouse } from '../../utils/tsm';
-import { closeDbConnection, db } from '../../db';
+import { db } from '../../db';
 import { items } from '../../db/schema';
 
 export async function updateAuctionHouseData(auctionHouseId: string | number) {
@@ -29,7 +29,5 @@ export async function updateAuctionHouseData(auctionHouseId: string | number) {
     }
   } catch (err: any) {
     console.error(err.message);
-  } finally {
-    await closeDbConnection();
   }
 }

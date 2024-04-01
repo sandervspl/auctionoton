@@ -17,11 +17,3 @@ const postgresClient = postgres(process.env.DB_URL!, {
   },
 });
 export const db = drizzle(postgresClient, { schema });
-
-export async function closeDbConnection() {
-  try {
-    await postgresClient.end();
-  } catch (error) {
-    console.error('Failed to close DB connection:', error);
-  }
-}

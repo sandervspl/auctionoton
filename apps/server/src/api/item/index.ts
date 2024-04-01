@@ -2,7 +2,7 @@ import { and, eq, desc } from 'drizzle-orm';
 import slugify from '@sindresorhus/slugify';
 
 import * as i from '../../types';
-import { closeDbConnection, db } from '../../db';
+import { db } from '../../db';
 import { items, itemsMetadata } from '../../db/schema';
 import { getItemFromBnet } from '../../utils/blizzard/index.ts';
 import { qualityMap } from '../../utils';
@@ -52,9 +52,6 @@ async function queryItem(id: number, auctionHouseId: number) {
         })
         .onConflictDoNothing();
       console.info('4. done');
-
-      // if connection to postgres is still open, close it
-      await closeDbConnection();
 
       return {
         server: '',
@@ -114,9 +111,6 @@ async function queryItem(id: number, auctionHouseId: number) {
         });
       }
     }
-
-    // if connection to postgres is still open, close it
-    await closeDbConnection();
 
     return {
       server: '',
