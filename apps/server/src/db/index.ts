@@ -8,7 +8,6 @@ import * as schema from './schema';
 // migrate(drizzle(migrationClient), { migrationsFolder: './src/db/migrations' });
 
 const postgresClient = postgres(process.env.DB_URL!, {
-  idle_timeout: 1000,
   onclose(connId) {
     console.log(`DB connection "${connId}" closed`);
   },
