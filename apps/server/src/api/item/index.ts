@@ -2,7 +2,7 @@ import { and, eq, desc } from 'drizzle-orm';
 import slugify from '@sindresorhus/slugify';
 
 import * as i from '../../types';
-import { db } from '../../db';
+import { db, postgresClient } from '../../db';
 import { items, itemsMetadata } from '../../db/schema';
 import { getItemFromBnet } from '../../utils/blizzard/index.ts';
 import { qualityMap } from '../../utils';
@@ -17,6 +17,7 @@ export async function itemService(itemId: number, auctionHouseId: number) {
 async function queryItem(id: number, auctionHouseId: number) {
   try {
     // Check if item is in DB
+    console.info('1. Querying item from DB');
     const queryResult = await db
       .select()
       .from(items)
@@ -37,6 +38,7 @@ async function queryItem(id: number, auctionHouseId: number) {
       const itemFromBnet = await getItemFromBnet(item.itemId);
       const itemFromBnetSlug = slugify(itemFromBnet.name, { lowercase: true, decamelize: true });
 
+      console.info('4. Saving item to DB');
       await db
         .insert(itemsMetadata)
         .values({
@@ -47,7 +49,8 @@ async function queryItem(id: number, auctionHouseId: number) {
           requiredLevel: itemFromBnet.required_level,
           slug: itemFromBnetSlug,
         })
-        .onConflictDoNothing();
+        .onConflictDoNothing()
+        .finally(() => postgresClient.end());
 
       return {
         server: '',
@@ -85,6 +88,8 @@ async function queryItem(id: number, auctionHouseId: number) {
 
         if (itemFromBnet) {
           itemFromBnetSlug = slugify(itemFromBnet.name, { lowercase: true, decamelize: true });
+
+          console.info('4. Saving item to DB');
           await db
             .insert(itemsMetadata)
             .values({
@@ -95,7 +100,8 @@ async function queryItem(id: number, auctionHouseId: number) {
               requiredLevel: itemFromBnet.required_level,
               slug: itemFromBnetSlug,
             })
-            .onConflictDoNothing();
+            .onConflictDoNothing()
+            .finally(() => postgresClient.end());
         }
       } catch (err: any) {
         console.error('[getItemFromBnet]', err.message, {
