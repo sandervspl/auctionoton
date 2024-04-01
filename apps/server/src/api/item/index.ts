@@ -2,7 +2,7 @@ import { and, eq, desc } from 'drizzle-orm';
 import slugify from '@sindresorhus/slugify';
 
 import * as i from '../../types';
-import { db, postgresClient } from '../../db';
+import { closeDbConnection, db } from '../../db';
 import { items, itemsMetadata } from '../../db/schema';
 import { getItemFromBnet } from '../../utils/blizzard/index.ts';
 import { qualityMap } from '../../utils';
@@ -25,6 +25,7 @@ async function queryItem(id: number, auctionHouseId: number) {
       .fullJoin(itemsMetadata, eq(items.itemId, itemsMetadata.id))
       .orderBy(desc(items.timestamp))
       .limit(1);
+    console.info('1. done');
 
     // If not in DB, fetch item from TSM
     if (queryResult == null || queryResult.length === 0 || queryResult[0].items == null) {
@@ -49,8 +50,11 @@ async function queryItem(id: number, auctionHouseId: number) {
           requiredLevel: itemFromBnet.required_level,
           slug: itemFromBnetSlug,
         })
-        .onConflictDoNothing()
-        .finally(() => postgresClient.end());
+        .onConflictDoNothing();
+      console.info('4. done');
+
+      // if connection to postgres is still open, close it
+      await closeDbConnection();
 
       return {
         server: '',
@@ -100,8 +104,8 @@ async function queryItem(id: number, auctionHouseId: number) {
               requiredLevel: itemFromBnet.required_level,
               slug: itemFromBnetSlug,
             })
-            .onConflictDoNothing()
-            .finally(() => postgresClient.end());
+            .onConflictDoNothing();
+          console.info('4. done');
         }
       } catch (err: any) {
         console.error('[getItemFromBnet]', err.message, {
@@ -110,6 +114,9 @@ async function queryItem(id: number, auctionHouseId: number) {
         });
       }
     }
+
+    // if connection to postgres is still open, close it
+    await closeDbConnection();
 
     return {
       server: '',

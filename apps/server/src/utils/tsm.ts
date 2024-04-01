@@ -225,6 +225,7 @@ export async function getItem(itemId: number, auctionHouseId: number) {
   }
 
   const item = (await response.json()) as Item;
+  console.info('2. done');
 
   return item;
 }

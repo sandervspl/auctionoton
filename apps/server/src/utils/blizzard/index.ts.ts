@@ -66,6 +66,7 @@ export async function getItemFromBnet(id: number, locale = 'en_US') {
   }
 
   const data = (await response.json()) as GameItem;
+  console.info('3. done');
 
   return data;
 }
