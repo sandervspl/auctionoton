@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "module": "src/index.js",
   "scripts": {
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun build ./src/index.ts --outdir ./build --target bun"
   },
   "dependencies": {
     "@elysiajs/cors": "^1.0.2",
