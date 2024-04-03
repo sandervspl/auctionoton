@@ -11,7 +11,12 @@ import { getItem } from '../../utils/tsm';
 export async function itemService(itemId: number, auctionHouseId: number) {
   const item = await queryItem(itemId, auctionHouseId);
 
-  return item;
+  return (
+    item ?? {
+      error: true,
+      reason: 'Item not found',
+    }
+  );
 }
 
 async function queryItem(id: number, auctionHouseId: number) {
@@ -32,7 +37,7 @@ async function queryItem(id: number, auctionHouseId: number) {
       const item = await getItem(id, auctionHouseId);
 
       if (!item) {
-        throw new Error('Item not found');
+        return null;
       }
 
       // Fetch item metadata and save to DB
