@@ -1,10 +1,11 @@
 import * as R from 'remeda';
 
 import { getAuctionHouse } from '../../utils/tsm';
-import { db } from '../../db';
+import { createDbClient } from '../../db';
 import { items } from '../../db/schema';
 
 export async function updateAuctionHouseData(auctionHouseId: string | number) {
+  const { db, client } = createDbClient();
   const ahItems = await getAuctionHouse(Number(auctionHouseId));
 
   if (!ahItems) {
@@ -29,5 +30,8 @@ export async function updateAuctionHouseData(auctionHouseId: string | number) {
     }
   } catch (err: any) {
     console.error(err.message);
+  } finally {
+    console.log('2. closing db connection');
+    client.end();
   }
 }

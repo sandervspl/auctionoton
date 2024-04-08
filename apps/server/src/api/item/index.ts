@@ -2,7 +2,7 @@ import { and, eq, desc } from 'drizzle-orm';
 import slugify from '@sindresorhus/slugify';
 
 import * as i from '../../types';
-import { db } from '../../db';
+import { createDbClient } from '../../db';
 import { items, itemsMetadata } from '../../db/schema';
 import { getItemFromBnet } from '../../utils/blizzard/index.ts';
 import { qualityMap } from '../../utils';
@@ -20,9 +20,12 @@ export async function itemService(itemId: number, auctionHouseId: number) {
 }
 
 async function queryItem(id: number, auctionHouseId: number) {
+  const { db, client } = createDbClient();
+
   try {
     // Check if item is in DB
     console.info('1. Querying item from DB');
+
     const queryResult = await db
       .select()
       .from(items)
@@ -146,5 +149,8 @@ async function queryItem(id: number, auctionHouseId: number) {
     console.error(err);
 
     return { error: 'true', reason: err.message } as i.NexusHub.ErrorResponse;
+  } finally {
+    console.log('1. closing db connection');
+    client.end();
   }
 }
