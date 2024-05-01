@@ -20,7 +20,7 @@ export type ItemParam = [realmSlug: string, region: string, faction: string, ite
 export const revalidate = 300;
 
 export const generateMetadata = async ({ params }: Props): Promise<Metadata> => {
-  const [, , , itemSlug] = params.item;
+  const itemSlug = params.item[3];
 
   const item = await getItemFromSlug(itemSlug!);
 
