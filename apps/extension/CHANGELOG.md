@@ -1,5 +1,11 @@
 # extension
 
+## 5.1.1
+
+### Patch Changes
+
+- dc4932e: Rename tab to Cataclysm
+
 ## 5.1.0
 
 ### Minor Changes
