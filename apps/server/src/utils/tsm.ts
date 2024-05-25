@@ -1,3 +1,5 @@
+import { createDbClient } from '../db';
+import { items } from '../db/schema';
 import { kv } from '../kv';
 
 type Region = {
@@ -49,23 +51,6 @@ export async function getTSMRateLimit24hr(limit: RateLimits) {
 
   await kv.set(key, limit, { EX: 60 * 60 * 24 });
   return limit;
-}
-
-// Count down the rate limit for the TSM API
-export async function useTSMRateLimit24hr(limit: RateLimits) {
-  const amount = await getTSMRateLimit24hr(limit);
-
-  if (amount === 0) {
-    console.log(`TSM rate limit reached! ${amount}/${limit}`);
-    return amount;
-  }
-
-  const key = getTSMRateLimitKey(limit);
-  const nextAmount = amount - 1;
-  await kv.set(key, nextAmount);
-  console.log(`TSM rate limit left: ${nextAmount}/${limit}`);
-
-  return nextAmount;
 }
 
 async function getAccessToken() {
@@ -148,7 +133,6 @@ export async function getRegions() {
   };
 
   try {
-    await useTSMRateLimit24hr(10);
     await kv.set(KV_KEY, JSON.stringify(regions.items), { EX: 60 * 60 * 24 });
   } catch (error: any) {
     console.error('kv error:', error.message || 'unknown error');
@@ -179,7 +163,6 @@ export async function getRealms(regionId: number) {
   };
 
   try {
-    await useTSMRateLimit24hr(10);
     await kv.set(KV_KEY, JSON.stringify(realms.items), { EX: 60 * 60 * 24 });
   } catch (error: any) {
     console.error('kv error:', error.message || 'unknown error');
@@ -218,7 +201,6 @@ export async function getAuctionHouse(auctionHouseId: number) {
 
   if (Array.isArray(auctionHouse) && auctionHouse.length > 0) {
     try {
-      await useTSMRateLimit24hr(100);
       await kv.set(KV_KEY, new Date().toISOString(), { EX: 60 * 60 * 6 });
     } catch (error: any) {
       console.error('kv error:', error.message || 'unknown error');
@@ -229,6 +211,7 @@ export async function getAuctionHouse(auctionHouseId: number) {
 }
 
 export async function getItem(itemId: number, auctionHouseId: number) {
+  console.info('2. Fetching item from TSM');
   const response = await fetch(
     `https://pricing-api.tradeskillmaster.com/ah/${auctionHouseId}/item/${itemId}`,
     {
@@ -244,8 +227,32 @@ export async function getItem(itemId: number, auctionHouseId: number) {
   }
 
   const item = (await response.json()) as Item;
+  console.info('2. done');
 
-  await useTSMRateLimit24hr(500);
+  console.log('2. Adding item to DB');
+  const { db, client } = createDbClient();
+
+  try {
+    await db
+      .insert(items)
+      .values({
+        auctionHouseId: Number(auctionHouseId),
+        itemId: item.itemId,
+        numAuctions: item.numAuctions,
+        marketValue: item.marketValue,
+        historical: item.historical,
+        minBuyout: item.minBuyout,
+        quantity: item.quantity,
+      })
+      .onConflictDoNothing();
+  } catch (err: any) {
+    console.error(err.message);
+  } finally {
+    console.log('2. closing db connection');
+    client.end();
+  }
+
+  console.log('2. done');
 
   return item;
 }

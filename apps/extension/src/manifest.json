@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Auctionoton: Auction House Prices for Wowhead",
-  "version": "5.1.0",
+  "version": "5.1.1",
   "description": "Display current Auction House price data for items on wowhead.com",
   "content_scripts": [
     {
@@ -10,6 +10,9 @@
         "https://wotlk.wowhead.com/*",
         "https://wowhead.com/wotlk/*",
         "https://www.wowhead.com/wotlk/*",
+        "https://cata.wowhead.com/*",
+        "https://wowhead.com/cata/*",
+        "https://www.wowhead.com/cata/*",
         "https://wowhead.com/classic/*",
         "https://www.wowhead.com/classic/*"
       ],
@@ -23,6 +26,9 @@
         "https://wotlk.wowhead.com/*",
         "https://wowhead.com/wotlk/*",
         "https://www.wowhead.com/wotlk/*",
+        "https://cata.wowhead.com/*",
+        "https://wowhead.com/cata/*",
+        "https://www.wowhead.com/cata/*",
         "https://wowhead.com/classic/*",
         "https://www.wowhead.com/classic/*"
       ],

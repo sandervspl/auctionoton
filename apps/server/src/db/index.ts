@@ -7,5 +7,15 @@ import * as schema from './schema';
 // const migrationClient = postgres(process.env.DB_URL!, { max: 1 });
 // migrate(drizzle(migrationClient), { migrationsFolder: './src/db/migrations' });
 
-const queryClient = postgres(process.env.DB_URL!);
-export const db = drizzle(queryClient, { schema });
+export function createDbClient() {
+  const client = postgres(process.env.DB_URL!, {
+    onclose(connId) {
+      console.log(`DB connection "${connId}" closed`);
+    },
+    onnotice(notice) {
+      console.log('DB notice:', notice);
+    },
+  });
+
+  return { db: drizzle(client, { schema }), client };
+}

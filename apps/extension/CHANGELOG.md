@@ -1,12 +1,19 @@
 # extension
 
+## 5.1.1
+
+### Patch Changes
+
+- dc4932e: Rename tab to Cataclysm
+
 ## 5.1.0
 
 ### Minor Changes
 
-- 63d0716: Add support for new server
-  Fix crafting price
-  Improve error for item not found
+- Add support for new server
+- Fix crafting price
+- Improve error for item not found
+- Add wowhead.com/cata support
 
 ## 5.0.0
 

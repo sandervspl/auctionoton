@@ -54,6 +54,7 @@ export async function getItemFromBnet(id: number, locale = 'en_US') {
     access_token: accessToken,
   });
 
+  console.info('3. Fetching item from Blizzard');
   const response = await fetch(`https://us.api.blizzard.com/data/wow/item/${id}?${params}`);
 
   if (response.status !== 200) {
@@ -65,6 +66,7 @@ export async function getItemFromBnet(id: number, locale = 'en_US') {
   }
 
   const data = (await response.json()) as GameItem;
+  console.info('3. done');
 
   return data;
 }

@@ -1,25 +1,32 @@
-import { sql, and, eq, desc } from 'drizzle-orm';
+import { and, eq, desc } from 'drizzle-orm';
 import slugify from '@sindresorhus/slugify';
+import dayjs from 'dayjs';
 
 import * as i from '../../types';
-import { db } from '../../db';
+import { createDbClient } from '../../db';
 import { items, itemsMetadata } from '../../db/schema';
 import { getItemFromBnet } from '../../utils/blizzard/index.ts';
 import { qualityMap } from '../../utils';
 import { getItem } from '../../utils/tsm';
-import { updateAuctionHouseData } from './auction-house';
 
 export async function itemService(itemId: number, auctionHouseId: number) {
-  updateAuctionHouseData(auctionHouseId);
-
   const item = await queryItem(itemId, auctionHouseId);
 
-  return item;
+  return (
+    item ?? {
+      error: true,
+      reason: 'Item not found',
+    }
+  );
 }
 
 async function queryItem(id: number, auctionHouseId: number) {
+  const { db, client } = createDbClient();
+
   try {
     // Check if item is in DB
+    console.info('1. Querying item from DB');
+
     const queryResult = await db
       .select()
       .from(items)
@@ -27,19 +34,32 @@ async function queryItem(id: number, auctionHouseId: number) {
       .fullJoin(itemsMetadata, eq(items.itemId, itemsMetadata.id))
       .orderBy(desc(items.timestamp))
       .limit(1);
+    console.info('1. done');
+
+    const someDaysAgo = dayjs().subtract(3, 'days');
+    const isTooOld = dayjs(queryResult?.[0]?.items?.timestamp) < someDaysAgo;
 
     // If not in DB, fetch item from TSM
-    if (queryResult == null || queryResult.length === 0 || queryResult[0].items == null) {
-      const item = await getItem(id, auctionHouseId);
+    if (
+      queryResult == null ||
+      queryResult.length === 0 ||
+      queryResult[0].items == null ||
+      isTooOld
+    ) {
+      console.log('1. Item needs to be fetched from TSM');
+      console.log('queryResult', queryResult);
+      console.log('isTooOld', isTooOld);
 
+      const item = await getItem(id, auctionHouseId);
       if (!item) {
-        throw new Error('Item not found');
+        return null;
       }
 
       // Fetch item metadata and save to DB
       const itemFromBnet = await getItemFromBnet(item.itemId);
       const itemFromBnetSlug = slugify(itemFromBnet.name, { lowercase: true, decamelize: true });
 
+      console.info('4. Saving item to DB');
       await db
         .insert(itemsMetadata)
         .values({
@@ -51,6 +71,7 @@ async function queryItem(id: number, auctionHouseId: number) {
           slug: itemFromBnetSlug,
         })
         .onConflictDoNothing();
+      console.info('4. done');
 
       return {
         server: '',
@@ -88,6 +109,8 @@ async function queryItem(id: number, auctionHouseId: number) {
 
         if (itemFromBnet) {
           itemFromBnetSlug = slugify(itemFromBnet.name, { lowercase: true, decamelize: true });
+
+          console.info('4. Saving item to DB');
           await db
             .insert(itemsMetadata)
             .values({
@@ -99,6 +122,7 @@ async function queryItem(id: number, auctionHouseId: number) {
               slug: itemFromBnetSlug,
             })
             .onConflictDoNothing();
+          console.info('4. done');
         }
       } catch (err: any) {
         console.error('[getItemFromBnet]', err.message, {
@@ -137,5 +161,8 @@ async function queryItem(id: number, auctionHouseId: number) {
     console.error(err);
 
     return { error: 'true', reason: err.message } as i.NexusHub.ErrorResponse;
+  } finally {
+    console.log('closing db connection');
+    client.end();
   }
 }

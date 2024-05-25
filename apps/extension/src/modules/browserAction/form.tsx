@@ -194,7 +194,7 @@ export const RealmForm: React.FC = () => {
                     </FormControl>
                     <SelectContent position="item-aligned">
                       {versionTab === 'classic' && (
-                        <SelectItem value="classic">Wrath of the Lich King</SelectItem>
+                        <SelectItem value="classic">Cataclysm</SelectItem>
                       )}
                       <SelectItem value="era">Era</SelectItem>
                       <SelectItem value="hardcore">Hardcore</SelectItem>

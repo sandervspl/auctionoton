@@ -3,18 +3,20 @@
   "version": "1.0.0",
   "module": "src/index.js",
   "scripts": {
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun build ./src/index.ts --outdir ./build --target bun"
   },
   "dependencies": {
-    "@elysiajs/cors": "^0.8.0",
+    "@elysiajs/cors": "^1.0.2",
     "@sindresorhus/slugify": "^2.2.1",
     "buffer-polyfill": "^6.0.3",
-    "drizzle-orm": "^0.29.4",
+    "dayjs": "^1.11.11",
+    "drizzle-orm": "^0.30.4",
     "drizzle-zod": "^0.5.1",
-    "elysia": "^0.8.17",
+    "elysia": "^1.0.6",
     "postgres": "^3.4.3",
     "redis": "^4.6.13",
-    "remeda": "^1.45.2"
+    "remeda": "^1.55.0"
   },
   "devDependencies": {
     "bun-types": "latest",
