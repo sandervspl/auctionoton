@@ -4,12 +4,13 @@ import { getAuctionHouse } from '../../utils/tsm';
 import { createDbClient } from '../../db';
 import { items } from '../../db/schema';
 import { Item } from '../../types/tsm';
-import { kv } from '../../kv';
+import { KEYS, kv } from '../../kv';
 
 const queue = new Map<string | number, Promise<Item[] | undefined>>();
 
 export async function updateAuctionHouseData(auctionHouseId: string | number) {
   console.log('Updating AH for:', auctionHouseId);
+  const KV_KEY = KEYS.tsmAHRecentlyFetched(auctionHouseId);
 
   const { db, client } = createDbClient();
   const getAuctionHousePromise = queue.get(auctionHouseId);
@@ -22,7 +23,7 @@ export async function updateAuctionHouseData(auctionHouseId: string | number) {
     ahItems = await getAuctionHousePromise;
   } else {
     // Check if AH has already been fetched
-    if (await kv.get(`tsm:ah:${auctionHouseId}`)) {
+    if (await kv.get(KV_KEY)) {
       return;
     }
 
@@ -40,10 +41,11 @@ export async function updateAuctionHouseData(auctionHouseId: string | number) {
           console.error(`Error fetching AH '${auctionHouseId}'`, err.message);
           return undefined;
         })
-        .finally(() => {
+        .finally(async () => {
           // Remove from queue
           console.log(`Removing AH '${auctionHouseId}' from queue...`);
           queue.delete(auctionHouseId);
+          await kv.set(KV_KEY, new Date().toISOString(), { EX: 60 * 60 * 6 });
         }),
     );
 

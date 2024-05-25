@@ -1,4 +1,4 @@
-import { kv } from '../kv';
+import { KEYS, kv } from '../kv';
 import { getRealms, getRegions } from '../utils/tsm';
 import * as i from '../types';
 
@@ -14,12 +14,6 @@ const versionMap = {
   seasonal: 'Season of Discovery',
 };
 
-const headers = {
-  'content-type': 'application/json',
-  'cache-control': 'public, max-age=10800, s-maxage=3600, stale-while-revalidate',
-  'Access-Control-Allow-Origin': '*',
-};
-
 type Realm = {
   name: string;
   localizedName: string;
@@ -32,7 +26,7 @@ type Realm = {
 };
 
 export async function realmService(regionq: i.Region, version: i.GameVersion) {
-  const KV_KEY = `tsm:realms:${regionq}:${version}`;
+  const KV_KEY = KEYS.tsmRealmsVersion(regionq, version);
 
   try {
     const cached = await kv.get(KV_KEY);

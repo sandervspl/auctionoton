@@ -1,29 +1,10 @@
 import { createDbClient } from '../db';
 import { items } from '../db/schema';
-import { kv } from '../kv';
+import { KEYS, kv } from '../kv';
 import { Item, Realm, Region } from '../types/tsm';
 
-type RateLimits = 10 | 100 | 500;
-
-const getTSMRateLimitKey = (limit: RateLimits) => `tsm:rate-limit-24hr:${limit}`;
-
-// Get the current rate limit left for the TSM API
-export async function getTSMRateLimit24hr(limit: RateLimits) {
-  const key = getTSMRateLimitKey(limit);
-
-  const cached = await kv.get(key);
-  if (cached) {
-    return Number(cached);
-  }
-
-  await kv.set(key, limit, { EX: 60 * 60 * 24 });
-  return limit;
-}
-
 async function getAccessToken() {
-  const KV_KEY = 'tsm:access-token';
-
-  const cached = await kv.get(KV_KEY);
+  const cached = await kv.get(KEYS.tsmAccessToken);
   if (cached) {
     return cached;
   }
@@ -63,7 +44,7 @@ async function getAccessToken() {
   };
 
   try {
-    await kv.set(KV_KEY, access_token, { EX: 60 * 60 * 24 });
+    await kv.set(KEYS.tsmAccessToken, access_token, { EX: 60 * 60 * 24 });
   } catch (error: any) {
     console.error('kv error:', error.message || 'unknown error');
   }
@@ -71,19 +52,17 @@ async function getAccessToken() {
   return access_token;
 }
 
-const headers = async () => {
+async function headers() {
   const token = await getAccessToken();
 
   return {
     Accept: 'application/json',
     Authorization: `Bearer ${token}`,
   };
-};
+}
 
 export async function getRegions() {
-  const KV_KEY = 'tsm:regions';
-
-  const cached = await kv.get(KV_KEY);
+  const cached = await kv.get(KEYS.tsmRegions);
   if (cached) {
     return JSON.parse(cached) as Region[];
   }
@@ -100,7 +79,7 @@ export async function getRegions() {
   };
 
   try {
-    await kv.set(KV_KEY, JSON.stringify(regions.items), { EX: 60 * 60 * 24 });
+    await kv.set(KEYS.tsmRegions, JSON.stringify(regions.items), { EX: 60 * 60 * 24 });
   } catch (error: any) {
     console.error('kv error:', error.message || 'unknown error');
   }
@@ -109,7 +88,7 @@ export async function getRegions() {
 }
 
 export async function getRealms(regionId: number) {
-  const KV_KEY = `tsm:realms:${regionId}`;
+  const KV_KEY = KEYS.tsmRealmsRegion(regionId);
   const cached = await kv.get(KV_KEY);
   if (cached) {
     return JSON.parse(cached) as Realm[];
@@ -162,7 +141,7 @@ async function fetchAuctionHouse(auctionHouseId: string | number) {
 export async function getAuctionHouse(auctionHouseId: string | number) {
   // If already in queue, return its request
   if (queue.has(auctionHouseId)) {
-    console.log(`Waiting for AH '${auctionHouseId}' in queue to resolve...`);
+    console.log(`Waiting for AH "${auctionHouseId}" in queue to resolve...`);
     return queue.get(auctionHouseId);
   }
 
@@ -170,8 +149,9 @@ export async function getAuctionHouse(auctionHouseId: string | number) {
   queue.set(
     auctionHouseId,
     (async () => {
+      const KV_KEY = KEYS.tsmAHRecentlyFetched(auctionHouseId);
+
       try {
-        const KV_KEY = `tsm:ah:${auctionHouseId}`;
         const recentlyUpdated = await kv.get(KV_KEY);
 
         if (recentlyUpdated) {
@@ -190,12 +170,13 @@ export async function getAuctionHouse(auctionHouseId: string | number) {
 
         return auctionHouse;
       } catch (err: any) {
-        console.error(`Error fetching AH '${auctionHouseId}'`, err.message);
+        console.error(`Error fetching AH "${auctionHouseId}"`, err.message);
         return undefined;
       } finally {
         // Remove from queue
-        console.log(`Removing AH '${auctionHouseId}' from queue...`);
+        console.log(`Removing AH "${auctionHouseId}" from queue...`);
         queue.delete(auctionHouseId);
+        await kv.set(KV_KEY, new Date().toISOString(), { EX: 60 * 60 * 6 });
       }
     })(),
   );
