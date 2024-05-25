@@ -1,5 +1,11 @@
 # @auctionoton/server
 
+## 1.1.0
+
+### Minor Changes
+
+- 3bf82bf: Added queue to fetching auction house
+
 ## 1.0.0
 
 ### Major Changes
