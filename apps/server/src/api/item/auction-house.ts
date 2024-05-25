@@ -45,7 +45,7 @@ export async function updateAuctionHouseData(auctionHouseId: string | number) {
           // Remove from queue
           console.log(`Removing AH '${auctionHouseId}' from queue...`);
           queue.delete(auctionHouseId);
-          await kv.set(KV_KEY, new Date().toISOString(), { EX: 60 * 60 * 6 });
+          await kv.set(KV_KEY, new Date().toISOString(), { EX: 60 * 60 * 6, NX: true });
         }),
     );
 

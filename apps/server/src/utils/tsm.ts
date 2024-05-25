@@ -44,7 +44,7 @@ async function getAccessToken() {
   };
 
   try {
-    await kv.set(KEYS.tsmAccessToken, access_token, { EX: 60 * 60 * 24 });
+    await kv.set(KEYS.tsmAccessToken, access_token, { EX: 60 * 60 * 24, NX: true });
   } catch (error: any) {
     console.error('kv error:', error.message || 'unknown error');
   }
@@ -79,7 +79,7 @@ export async function getRegions() {
   };
 
   try {
-    await kv.set(KEYS.tsmRegions, JSON.stringify(regions.items), { EX: 60 * 60 * 24 });
+    await kv.set(KEYS.tsmRegions, JSON.stringify(regions.items), { EX: 60 * 60 * 24, NX: true });
   } catch (error: any) {
     console.error('kv error:', error.message || 'unknown error');
   }
@@ -162,7 +162,7 @@ export async function getAuctionHouse(auctionHouseId: string | number) {
 
         if (Array.isArray(auctionHouse) && auctionHouse.length > 0) {
           try {
-            await kv.set(KV_KEY, new Date().toISOString(), { EX: 60 * 60 * 6 });
+            await kv.set(KV_KEY, new Date().toISOString(), { EX: 60 * 60 * 6, NX: true });
           } catch (error: any) {
             console.error('kv error:', error.message || 'unknown error');
           }
@@ -176,7 +176,7 @@ export async function getAuctionHouse(auctionHouseId: string | number) {
         // Remove from queue
         console.log(`Removing AH "${auctionHouseId}" from queue...`);
         queue.delete(auctionHouseId);
-        await kv.set(KV_KEY, new Date().toISOString(), { EX: 60 * 60 * 6 });
+        await kv.set(KV_KEY, new Date().toISOString(), { EX: 60 * 60 * 6, NX: true });
       }
     })(),
   );

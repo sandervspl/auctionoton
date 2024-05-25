@@ -61,7 +61,7 @@ export async function realmService(regionq: i.Region, version: i.GameVersion) {
     }));
 
     try {
-      await kv.set(KV_KEY, JSON.stringify(data), { EX: 60 * 60 * 24 });
+      await kv.set(KV_KEY, JSON.stringify(data), { EX: 60 * 60 * 24, NX: true });
     } catch (error: any) {
       console.error('kv error:', error.message || 'unknown error');
     }
