@@ -7,7 +7,7 @@ import { createDbClient } from '../../db';
 import { items, itemsMetadata } from '../../db/schema';
 import { getItemFromBnet } from '../../utils/blizzard/index.ts';
 import { qualityMap } from '../../utils';
-import { getItem } from '../../utils/tsm';
+import { updateAuctionHouseData } from './auction-house';
 
 export async function itemService(itemId: number, auctionHouseId: number) {
   const item = await queryItem(itemId, auctionHouseId);
@@ -50,7 +50,12 @@ async function queryItem(id: number, auctionHouseId: number) {
       console.log('queryResult', queryResult);
       console.log('isTooOld', isTooOld);
 
-      const item = await getItem(id, auctionHouseId);
+      const ahItems = await updateAuctionHouseData(auctionHouseId);
+      if (!ahItems) {
+        return null;
+      }
+
+      const item = ahItems.find((ahItem) => ahItem.itemId === id);
       if (!item) {
         return null;
       }
@@ -59,7 +64,7 @@ async function queryItem(id: number, auctionHouseId: number) {
       const itemFromBnet = await getItemFromBnet(item.itemId);
       const itemFromBnetSlug = slugify(itemFromBnet.name, { lowercase: true, decamelize: true });
 
-      console.info('4. Saving item to DB');
+      console.info('4. Saving item metadata to DB');
       await db
         .insert(itemsMetadata)
         .values({

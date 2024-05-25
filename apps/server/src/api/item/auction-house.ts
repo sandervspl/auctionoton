@@ -3,12 +3,51 @@ import * as R from 'remeda';
 import { getAuctionHouse } from '../../utils/tsm';
 import { createDbClient } from '../../db';
 import { items } from '../../db/schema';
+import { Item } from '../../types/tsm';
+
+const queue = new Map<string | number, Promise<Item[] | undefined>>();
 
 export async function updateAuctionHouseData(auctionHouseId: string | number) {
+  console.log('Updating AH for:', auctionHouseId);
+
   const { db, client } = createDbClient();
-  const ahItems = await getAuctionHouse(Number(auctionHouseId));
+  const getAuctionHousePromise = queue.get(auctionHouseId);
+
+  let ahItems: Item[] | undefined;
+
+  // Check if AH is already being fetched
+  if (getAuctionHousePromise) {
+    console.log(`Waiting for AH '${auctionHouseId}' in queue to resolve...`);
+    ahItems = await getAuctionHousePromise;
+  } else {
+    // Add to queue
+    console.log(`Adding AH '${auctionHouseId}' fetch to queue...`);
+
+    queue.set(
+      auctionHouseId,
+      getAuctionHouse(auctionHouseId)
+        .then((items) => {
+          console.log(`AH '${auctionHouseId}' fetched! Items: ${items?.length ?? 0}`);
+          return items;
+        })
+        .catch((err) => {
+          console.error(`Error fetching AH '${auctionHouseId}'`, err.message);
+          return undefined;
+        })
+        .finally(() => {
+          // Remove from queue
+          console.log(`Removing AH '${auctionHouseId}' from queue...`);
+          queue.delete(auctionHouseId);
+        }),
+    );
+
+    // Wait for this AH ID to be fetched
+    console.log(`Fetching AH '${auctionHouseId}'...`);
+    ahItems = await queue.get(auctionHouseId);
+  }
 
   if (!ahItems) {
+    console.error(`No items found for AH '${auctionHouseId}'!`);
     return;
   }
 
@@ -28,6 +67,8 @@ export async function updateAuctionHouseData(auctionHouseId: string | number) {
         })),
       );
     }
+
+    return ahItems;
   } catch (err: any) {
     console.error(err.message);
   } finally {

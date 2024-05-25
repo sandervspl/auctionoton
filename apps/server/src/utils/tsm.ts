@@ -1,40 +1,7 @@
 import { createDbClient } from '../db';
 import { items } from '../db/schema';
 import { kv } from '../kv';
-
-type Region = {
-  regionId: number;
-  name: 'Europe' | 'North America' | 'Taiwan' | 'Korea';
-  regionPrefix: 'eu' | 'us' | 'tw' | 'kr';
-  gmtOffset: number;
-  gameVersion: 'Classic Era' | 'Classic Era - Hardcore' | 'Season of Discovery' | 'Wrath';
-  lastModified: number;
-};
-
-type AuctionHouse = {
-  auctionHouseId: number;
-  type: 'Alliance' | 'Horde' | 'Neutral';
-  lastModified: number;
-};
-
-type Realm = {
-  realmId: number;
-  name: string;
-  localizedName: string;
-  locale: string;
-  auctionHouses: AuctionHouse[];
-};
-
-type Item = {
-  auctionHouseId: number;
-  itemId: number;
-  petSpeciesId: number | null;
-  minBuyout: number;
-  quantity: number;
-  marketValue: number;
-  historical: number;
-  numAuctions: number;
-};
+import { Item, Realm, Region } from '../types/tsm';
 
 type RateLimits = 10 | 100 | 500;
 
@@ -171,7 +138,7 @@ export async function getRealms(regionId: number) {
   return realms.items;
 }
 
-export async function getAuctionHouse(auctionHouseId: number) {
+export async function getAuctionHouse(auctionHouseId: string | number) {
   const KV_KEY = `tsm:ah:${auctionHouseId}`;
   const recentlyUpdated = await kv.get(KV_KEY);
 
