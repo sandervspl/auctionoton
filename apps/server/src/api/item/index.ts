@@ -1,5 +1,6 @@
 import { and, eq, desc } from 'drizzle-orm';
 import slugify from '@sindresorhus/slugify';
+import dayjs from 'dayjs';
 
 import * as i from '../../types';
 import { createDbClient } from '../../db';
@@ -35,10 +36,21 @@ async function queryItem(id: number, auctionHouseId: number) {
       .limit(1);
     console.info('1. done');
 
-    // If not in DB, fetch item from TSM
-    if (queryResult == null || queryResult.length === 0 || queryResult[0].items == null) {
-      const item = await getItem(id, auctionHouseId);
+    const someDaysAgo = dayjs().subtract(3, 'days');
+    const isTooOld = dayjs(queryResult?.[0]?.items?.timestamp) < someDaysAgo;
 
+    // If not in DB, fetch item from TSM
+    if (
+      queryResult == null ||
+      queryResult.length === 0 ||
+      queryResult[0].items == null ||
+      isTooOld
+    ) {
+      console.log('1. Item needs to be fetched from TSM');
+      console.log('queryResult', queryResult);
+      console.log('isTooOld', isTooOld);
+
+      const item = await getItem(id, auctionHouseId);
       if (!item) {
         return null;
       }
@@ -150,7 +162,7 @@ async function queryItem(id: number, auctionHouseId: number) {
 
     return { error: 'true', reason: err.message } as i.NexusHub.ErrorResponse;
   } finally {
-    console.log('1. closing db connection');
+    console.log('closing db connection');
     client.end();
   }
 }

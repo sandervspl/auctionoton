@@ -10,6 +10,7 @@
     "@elysiajs/cors": "^1.0.2",
     "@sindresorhus/slugify": "^2.2.1",
     "buffer-polyfill": "^6.0.3",
+    "dayjs": "^1.11.11",
     "drizzle-orm": "^0.30.4",
     "drizzle-zod": "^0.5.1",
     "elysia": "^1.0.6",

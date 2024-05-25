@@ -1,3 +1,5 @@
+import { createDbClient } from '../db';
+import { items } from '../db/schema';
 import { kv } from '../kv';
 
 type Region = {
@@ -226,6 +228,31 @@ export async function getItem(itemId: number, auctionHouseId: number) {
 
   const item = (await response.json()) as Item;
   console.info('2. done');
+
+  console.log('2. Adding item to DB');
+  const { db, client } = createDbClient();
+
+  try {
+    await db
+      .insert(items)
+      .values({
+        auctionHouseId: Number(auctionHouseId),
+        itemId: item.itemId,
+        numAuctions: item.numAuctions,
+        marketValue: item.marketValue,
+        historical: item.historical,
+        minBuyout: item.minBuyout,
+        quantity: item.quantity,
+      })
+      .onConflictDoNothing();
+  } catch (err: any) {
+    console.error(err.message);
+  } finally {
+    console.log('2. closing db connection');
+    client.end();
+  }
+
+  console.log('2. done');
 
   return item;
 }
