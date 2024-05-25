@@ -8,6 +8,7 @@ import { items, itemsMetadata } from '../../db/schema';
 import { getItemFromBnet } from '../../utils/blizzard/index.ts';
 import { qualityMap } from '../../utils';
 import { updateAuctionHouseData } from './auction-house';
+import { getAuctionHouse } from '../../utils/tsm';
 
 export async function itemService(itemId: number, auctionHouseId: number) {
   const item = await queryItem(itemId, auctionHouseId);
@@ -50,7 +51,7 @@ async function queryItem(id: number, auctionHouseId: number) {
       console.log('queryResult', queryResult);
       console.log('isTooOld', isTooOld);
 
-      const ahItems = await updateAuctionHouseData(auctionHouseId);
+      const ahItems = await getAuctionHouse(auctionHouseId);
       if (!ahItems) {
         return null;
       }

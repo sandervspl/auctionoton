@@ -4,6 +4,7 @@ import { getAuctionHouse } from '../../utils/tsm';
 import { createDbClient } from '../../db';
 import { items } from '../../db/schema';
 import { Item } from '../../types/tsm';
+import { kv } from '../../kv';
 
 const queue = new Map<string | number, Promise<Item[] | undefined>>();
 
@@ -20,6 +21,11 @@ export async function updateAuctionHouseData(auctionHouseId: string | number) {
     console.log(`Waiting for AH '${auctionHouseId}' in queue to resolve...`);
     ahItems = await getAuctionHousePromise;
   } else {
+    // Check if AH has already been fetched
+    if (await kv.get(`tsm:ah:${auctionHouseId}`)) {
+      return;
+    }
+
     // Add to queue
     console.log(`Adding AH '${auctionHouseId}' fetch to queue...`);
 
