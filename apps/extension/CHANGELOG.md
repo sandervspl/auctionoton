@@ -1,5 +1,11 @@
 # extension
 
+## 5.1.2
+
+### Patch Changes
+
+- 8e15ba5: Replace anything related to wotlk to cata or classic
+
 ## 5.1.1
 
 ### Patch Changes
