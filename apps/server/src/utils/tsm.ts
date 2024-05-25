@@ -46,7 +46,7 @@ async function getAccessToken() {
   try {
     await kv.set(KEYS.tsmAccessToken, access_token, { EX: 60 * 60 * 24, NX: true });
   } catch (error: any) {
-    console.error('kv error:', error.message || 'unknown error');
+    console.error('[getAccessToken]', 'kv error:', error.message || 'unknown error');
   }
 
   return access_token;
@@ -111,7 +111,7 @@ export async function getRealms(regionId: number) {
   try {
     await kv.set(KV_KEY, JSON.stringify(realms.items), { EX: 60 * 60 * 24 });
   } catch (error: any) {
-    console.error('kv error:', error.message || 'unknown error');
+    console.error('[getRealms]', 'kv error:', error.message || 'unknown error');
   }
 
   return realms.items;
@@ -120,13 +120,11 @@ export async function getRealms(regionId: number) {
 const queue = new Map<string | number, Promise<Item[] | undefined>>();
 
 async function fetchAuctionHouse(auctionHouseId: string | number) {
-  console.log(`fetching auction house "${auctionHouseId}"...`);
+  console.info(auctionHouseId, 'fetching auction house...');
 
   const response = await fetch(`https://pricing-api.tradeskillmaster.com/ah/${auctionHouseId}`, {
     headers: await headers(),
   });
-
-  console.log(`fetched auction house "${auctionHouseId}": ${response.status}`);
 
   if (response.status !== 200) {
     try {
@@ -141,7 +139,7 @@ async function fetchAuctionHouse(auctionHouseId: string | number) {
 export async function getAuctionHouse(auctionHouseId: string | number) {
   // If already in queue, return its request
   if (queue.has(auctionHouseId)) {
-    console.log(`Waiting for AH "${auctionHouseId}" in queue to resolve...`);
+    console.info(auctionHouseId, 'Waiting for AH in queue to resolve...');
     return queue.get(auctionHouseId);
   }
 
@@ -164,17 +162,16 @@ export async function getAuctionHouse(auctionHouseId: string | number) {
           try {
             await kv.set(KV_KEY, new Date().toISOString(), { EX: 60 * 60 * 6, NX: true });
           } catch (error: any) {
-            console.error('kv error:', error.message || 'unknown error');
+            console.error(auctionHouseId, 'kv error:', error.message || 'unknown error');
           }
         }
 
         return auctionHouse;
       } catch (err: any) {
-        console.error(`Error fetching AH "${auctionHouseId}"`, err.message);
+        console.error(auctionHouseId, 'Error fetching AH', err.message);
         return undefined;
       } finally {
         // Remove from queue
-        console.log(`Removing AH "${auctionHouseId}" from queue...`);
         queue.delete(auctionHouseId);
         await kv.set(KV_KEY, new Date().toISOString(), { EX: 60 * 60 * 6, NX: true });
       }
@@ -185,7 +182,8 @@ export async function getAuctionHouse(auctionHouseId: string | number) {
 }
 
 export async function getItem(itemId: number, auctionHouseId: number) {
-  console.info('2. Fetching item from TSM');
+  const logPrefix = `${itemId}:${auctionHouseId}`;
+  console.info(logPrefix, 'Fetching item from TSM');
 
   const response = await fetch(
     `https://pricing-api.tradeskillmaster.com/ah/${auctionHouseId}/item/${itemId}`,
@@ -203,9 +201,8 @@ export async function getItem(itemId: number, auctionHouseId: number) {
   }
 
   const item = (await response.json()) as Item;
-  console.info('2. done');
 
-  console.log('2. Adding item to DB');
+  console.info(logPrefix, 'Adding item to DB');
   const { db, client } = createDbClient();
 
   try {
@@ -224,11 +221,9 @@ export async function getItem(itemId: number, auctionHouseId: number) {
   } catch (err: any) {
     console.error(err.message);
   } finally {
-    console.log('2. closing db connection');
+    console.info(logPrefix, 'closing db connection');
     client.end();
   }
-
-  console.log('2. done');
 
   return item;
 }

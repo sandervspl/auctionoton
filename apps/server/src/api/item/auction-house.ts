@@ -9,7 +9,7 @@ import { KEYS, kv } from '../../kv';
 const queue = new Map<string | number, Promise<Item[] | undefined>>();
 
 export async function updateAuctionHouseData(auctionHouseId: string | number) {
-  console.log('Updating AH for:', auctionHouseId);
+  console.info(auctionHouseId, 'Updating AH');
   const KV_KEY = KEYS.tsmAHRecentlyFetched(auctionHouseId);
 
   const { db, client } = createDbClient();
@@ -19,7 +19,7 @@ export async function updateAuctionHouseData(auctionHouseId: string | number) {
 
   // Check if AH is already being fetched
   if (getAuctionHousePromise) {
-    console.log(`Waiting for AH '${auctionHouseId}' in queue to resolve...`);
+    console.info(auctionHouseId, 'Waiting for AH in queue to resolve...');
     ahItems = await getAuctionHousePromise;
   } else {
     // Check if AH has already been fetched
@@ -28,34 +28,33 @@ export async function updateAuctionHouseData(auctionHouseId: string | number) {
     }
 
     // Add to queue
-    console.log(`Adding AH '${auctionHouseId}' fetch to queue...`);
+    console.info(auctionHouseId, 'Adding AH to queue...');
 
     queue.set(
       auctionHouseId,
       getAuctionHouse(auctionHouseId)
         .then((items) => {
-          console.log(`AH '${auctionHouseId}' fetched! Items: ${items?.length ?? 0}`);
+          console.info(auctionHouseId, 'AH fetched!');
           return items;
         })
         .catch((err) => {
-          console.error(`Error fetching AH '${auctionHouseId}'`, err.message);
+          console.error(auctionHouseId, 'Error fetching AH', err.message);
           return undefined;
         })
         .finally(async () => {
           // Remove from queue
-          console.log(`Removing AH '${auctionHouseId}' from queue...`);
           queue.delete(auctionHouseId);
           await kv.set(KV_KEY, new Date().toISOString(), { EX: 60 * 60 * 6, NX: true });
         }),
     );
 
     // Wait for this AH ID to be fetched
-    console.log(`Fetching AH '${auctionHouseId}'...`);
+    console.info(auctionHouseId, 'Fetching AH...');
     ahItems = await queue.get(auctionHouseId);
   }
 
   if (!ahItems) {
-    console.error(`No items found for AH '${auctionHouseId}'!`);
+    console.error(auctionHouseId, 'No items found for AH!');
     return;
   }
 
@@ -80,7 +79,7 @@ export async function updateAuctionHouseData(auctionHouseId: string | number) {
   } catch (err: any) {
     console.error(err.message);
   } finally {
-    console.log('2. closing db connection');
+    console.info(auctionHouseId, 'closing db connection');
     client.end();
   }
 }

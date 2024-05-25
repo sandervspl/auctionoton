@@ -7,7 +7,6 @@ import { createDbClient } from '../../db';
 import { items, itemsMetadata } from '../../db/schema';
 import { getItemFromBnet } from '../../utils/blizzard/index.ts';
 import { qualityMap } from '../../utils';
-import { updateAuctionHouseData } from './auction-house';
 import { getAuctionHouse } from '../../utils/tsm';
 
 export async function itemService(itemId: number, auctionHouseId: number) {
@@ -23,10 +22,11 @@ export async function itemService(itemId: number, auctionHouseId: number) {
 
 async function queryItem(id: number, auctionHouseId: number) {
   const { db, client } = createDbClient();
+  const logPrefix = `${id}:${auctionHouseId}`;
 
   try {
     // Check if item is in DB
-    console.info('1. Querying item from DB');
+    console.info(logPrefix, 'Querying item from DB');
 
     const queryResult = await db
       .select()
@@ -35,7 +35,6 @@ async function queryItem(id: number, auctionHouseId: number) {
       .fullJoin(itemsMetadata, eq(items.itemId, itemsMetadata.id))
       .orderBy(desc(items.timestamp))
       .limit(1);
-    console.info('1. done');
 
     const someDaysAgo = dayjs().subtract(3, 'days');
     const isTooOld = dayjs(queryResult?.[0]?.items?.timestamp) < someDaysAgo;
@@ -47,9 +46,9 @@ async function queryItem(id: number, auctionHouseId: number) {
       queryResult[0].items == null ||
       isTooOld
     ) {
-      console.log('1. Item needs to be fetched from TSM');
-      console.log('queryResult', queryResult);
-      console.log('isTooOld', isTooOld);
+      console.log(logPrefix, 'Item needs to be fetched from TSM');
+      console.log(logPrefix, 'queryResult', queryResult);
+      console.log(logPrefix, 'isTooOld', isTooOld);
 
       const ahItems = await getAuctionHouse(auctionHouseId);
       if (!ahItems) {
@@ -65,7 +64,7 @@ async function queryItem(id: number, auctionHouseId: number) {
       const itemFromBnet = await getItemFromBnet(item.itemId);
       const itemFromBnetSlug = slugify(itemFromBnet.name, { lowercase: true, decamelize: true });
 
-      console.info('4. Saving item metadata to DB');
+      console.info(logPrefix, 'Saving item metadata to DB');
       await db
         .insert(itemsMetadata)
         .values({
@@ -77,7 +76,6 @@ async function queryItem(id: number, auctionHouseId: number) {
           slug: itemFromBnetSlug,
         })
         .onConflictDoNothing();
-      console.info('4. done');
 
       return {
         server: '',
@@ -109,6 +107,7 @@ async function queryItem(id: number, auctionHouseId: number) {
     const { items: item, items_metadata: metadata } = queryResult[0];
     let itemFromBnet: i.GameItem | null = null;
     let itemFromBnetSlug = '';
+
     if (!metadata) {
       try {
         itemFromBnet = await getItemFromBnet(item.itemId);
@@ -116,7 +115,7 @@ async function queryItem(id: number, auctionHouseId: number) {
         if (itemFromBnet) {
           itemFromBnetSlug = slugify(itemFromBnet.name, { lowercase: true, decamelize: true });
 
-          console.info('4. Saving item to DB');
+          console.info(logPrefix, 'Saving item to DB');
           await db
             .insert(itemsMetadata)
             .values({
@@ -128,10 +127,9 @@ async function queryItem(id: number, auctionHouseId: number) {
               slug: itemFromBnetSlug,
             })
             .onConflictDoNothing();
-          console.info('4. done');
         }
       } catch (err: any) {
-        console.error('[getItemFromBnet]', err.message, {
+        console.error(logPrefix, '[getItemFromBnet]', err.message, {
           itemId: item.itemId,
           ahId: item.auctionHouseId,
         });
@@ -168,7 +166,7 @@ async function queryItem(id: number, auctionHouseId: number) {
 
     return { error: 'true', reason: err.message } as i.NexusHub.ErrorResponse;
   } finally {
-    console.log('closing db connection');
+    console.log(logPrefix, 'closing db connection');
     client.end();
   }
 }
