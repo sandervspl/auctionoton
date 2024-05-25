@@ -6,11 +6,11 @@ export function useWowhead() {
     version = 'era';
   }
   const wowheadBaseUrl =
-    version === 'era' ? 'https://wowhead.com/classic' : 'https://wowhead.com/wotlk';
+    version === 'era' ? 'https://wowhead.com/classic' : 'https://wowhead.com/cata';
 
   return {
     isEra: version === 'era',
-    isWotlk: version === 'classic',
+    isClassic: version === 'classic',
     version,
     wowheadBaseUrl,
   };
