@@ -7,7 +7,8 @@ import { createDbClient } from '../../db';
 import { items, itemsMetadata } from '../../db/schema';
 import { getItemFromBnet } from '../../utils/blizzard/index.ts';
 import { qualityMap } from '../../utils';
-import { getAuctionHouse } from '../../utils/tsm';
+import { getAuctionHouse, getItem } from '../../utils/tsm';
+import { Item } from '../../types/tsm';
 
 export async function itemService(itemId: number, auctionHouseId: number) {
   const item = await queryItem(itemId, auctionHouseId);
@@ -50,14 +51,22 @@ async function queryItem(id: number, auctionHouseId: number) {
       console.log(logPrefix, 'queryResult', queryResult);
       console.log(logPrefix, 'isTooOld', isTooOld);
 
+      let item: Item | undefined | null;
+
       const ahItems = await getAuctionHouse(auctionHouseId);
+
+      // If something went wrong with the AH request, try to get the item from TSM directly
       if (!ahItems) {
-        return null;
+        item = await getItem(id, auctionHouseId);
       }
 
-      const item = ahItems.find((ahItem) => ahItem.itemId === id);
       if (!item) {
-        return null;
+        item = ahItems?.find((ahItem) => ahItem.itemId === id);
+
+        // If we still don't have the item, return not found
+        if (!item) {
+          return null;
+        }
       }
 
       // Fetch item metadata and save to DB
