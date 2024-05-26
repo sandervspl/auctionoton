@@ -36,9 +36,10 @@ async function queryItem(id: number, auctionHouseId: number) {
       .fullJoin(itemsMetadata, eq(items.itemId, itemsMetadata.id))
       .orderBy(desc(items.timestamp))
       .limit(1);
+    const itemFromDb = queryResult?.[0]?.items;
 
-    const someDaysAgo = dayjs().subtract(3, 'days');
-    const isTooOld = dayjs(queryResult?.[0]?.items?.timestamp) < someDaysAgo;
+    const someTimeAgo = dayjs().subtract(3, 'hours');
+    const isTooOld = dayjs(itemFromDb?.timestamp) < someTimeAgo;
 
     // If not in DB, fetch item from TSM
     if (
@@ -63,9 +64,13 @@ async function queryItem(id: number, auctionHouseId: number) {
       if (!item) {
         item = ahItems?.find((ahItem) => ahItem.itemId === id);
 
-        // If we still don't have the item, return not found
         if (!item) {
-          return null;
+          item = itemFromDb;
+
+          // If we still don't have the item, return not found
+          if (!item) {
+            return null;
+          }
         }
       }
 
