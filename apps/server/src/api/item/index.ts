@@ -54,23 +54,19 @@ async function queryItem(id: number, auctionHouseId: number, version: i.GameVers
 
       let item: Item | undefined | null;
 
-      const ahItems = await getAuctionHouse(auctionHouseId);
+      // Fetch entire auction house if needed
+      getAuctionHouse(auctionHouseId);
 
-      // If something went wrong with the AH request, try to get the item from TSM directly
-      if (!ahItems) {
-        item = await getItem(id, auctionHouseId);
-      }
+      // Get the item from TSM directly
+      item = await getItem(id, auctionHouseId);
 
       if (!item) {
-        item = ahItems?.find((ahItem) => ahItem.itemId === id);
+        // If TSM fetch failed, return item from DB if possible
+        item = itemFromDb;
 
+        // If we still don't have the item, return not found
         if (!item) {
-          item = itemFromDb;
-
-          // If we still don't have the item, return not found
-          if (!item) {
-            return null;
-          }
+          return null;
         }
       }
 
