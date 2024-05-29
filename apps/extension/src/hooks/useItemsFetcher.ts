@@ -3,10 +3,12 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import asyncStorage from 'utils/asyncStorage';
 import { fetchItemFromAPI } from 'src/queries/item';
 import useUser from './useUser';
+import { useWowhead } from './useWowhead';
 
 export function useItemsFetcher(id: string | number | undefined, itemIds: number[]) {
   const queryClient = useQueryClient();
   const user = useUser();
+  const { version } = useWowhead();
 
   return useQuery({
     queryKey: ['items', id],
@@ -35,7 +37,7 @@ export function useItemsFetcher(id: string | number | undefined, itemIds: number
             return;
           }
 
-          return fetchItemFromAPI(itemId, user.realm.auctionHouseId);
+          return fetchItemFromAPI(itemId, user.realm.auctionHouseId, version);
         }),
       );
 
