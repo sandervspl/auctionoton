@@ -40,9 +40,9 @@ jobs:
 
       - name: Build extension
         run: |
-          bun run build
+          pnpm run build
           cd apps/extension
-          bun run ci:create-dist
+          pnpm run ci:create-dist
           cd ../..
 
       - name: Deploy to Chrome Web Store

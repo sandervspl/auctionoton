@@ -45,8 +45,8 @@ jobs:
       - name: Typecheck
         run: |
           cd apps/extension
-          bun run tc
+          pnpm run tc
           cd ../..
 
       - name: Build monorepo
-        run: bun run build
+        run: pnpm run build
