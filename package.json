@@ -3,9 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "license": "ISC",
-  "workspaces": [
-    "apps/*"
-  ],
   "scripts": {
     "build": "cd apps/extension && bun run build",
     "prettier": "prettier --write \"**/*.{ts,tsx,md}\"",
