@@ -49,13 +49,13 @@ export async function getItemFromBnet(id: number, locale = 'en_US') {
   const accessToken = await getAccessToken();
 
   const params = new URLSearchParams({
-    namespace: 'static-classic1x-us',
+    namespace: 'static-classic1x-eu',
     locale,
     access_token: accessToken,
   });
 
   console.info('3. Fetching item from Blizzard');
-  const response = await fetch(`https://us.api.blizzard.com/data/wow/item/${id}?${params}`);
+  const response = await fetch(`https://eu.api.blizzard.com/data/wow/item/${id}?${params}`);
 
   if (response.status !== 200) {
     try {
