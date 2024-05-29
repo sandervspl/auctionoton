@@ -4,11 +4,11 @@
   "private": true,
   "license": "ISC",
   "scripts": {
-    "build": "cd apps/extension && bun run build",
+    "build": "cd apps/extension && pnpm run build",
     "prettier": "prettier --write \"**/*.{ts,tsx,md}\"",
     "cs:add": "npx changeset",
     "cs:ver": "npx changeset version",
-    "e:version": "bun run build && cd apps/extension && npm run version"
+    "e:version": "pnpm run build && cd apps/extension && npm run version"
   },
   "devDependencies": {
     "@changesets/cli": "2.25.0",
