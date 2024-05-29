@@ -10,8 +10,8 @@ import { qualityMap } from '../../utils';
 import { getAuctionHouse, getItem } from '../../utils/tsm';
 import { Item } from '../../types/tsm';
 
-export async function itemService(itemId: number, auctionHouseId: number) {
-  const item = await queryItem(itemId, auctionHouseId);
+export async function itemService(itemId: number, auctionHouseId: number, version: i.GameVersion) {
+  const item = await queryItem(itemId, auctionHouseId, version);
 
   return (
     item ?? {
@@ -21,7 +21,7 @@ export async function itemService(itemId: number, auctionHouseId: number) {
   );
 }
 
-async function queryItem(id: number, auctionHouseId: number) {
+async function queryItem(id: number, auctionHouseId: number, version: i.GameVersion) {
   const { db, client } = createDbClient();
   const logPrefix = `${id}:${auctionHouseId}`;
 
@@ -75,7 +75,7 @@ async function queryItem(id: number, auctionHouseId: number) {
       }
 
       // Fetch item metadata and save to DB
-      const itemFromBnet = await getItemFromBnet(item.itemId);
+      const itemFromBnet = await getItemFromBnet(item.itemId, version);
       const itemFromBnetSlug = slugify(itemFromBnet.name, { lowercase: true, decamelize: true });
 
       console.info(logPrefix, 'Saving item metadata to DB');
@@ -124,7 +124,7 @@ async function queryItem(id: number, auctionHouseId: number) {
 
     if (!metadata) {
       try {
-        itemFromBnet = await getItemFromBnet(item.itemId);
+        itemFromBnet = await getItemFromBnet(item.itemId, version);
 
         if (itemFromBnet) {
           itemFromBnetSlug = slugify(itemFromBnet.name, { lowercase: true, decamelize: true });
