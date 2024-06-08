@@ -1,11 +1,10 @@
-export type Region = {
-  regionId: number;
-  name: 'Europe' | 'North America' | 'Taiwan' | 'Korea';
-  regionPrefix: 'eu' | 'us' | 'tw' | 'kr';
-  gmtOffset: number;
-  gameVersion: 'Classic Era' | 'Classic Era - Hardcore' | 'Season of Discovery' | 'Wrath';
-  lastModified: number;
-};
+export type GameVersion =
+  | 'Classic Era'
+  | 'Classic Era - Hardcore'
+  | 'Season of Discovery'
+  | 'Wrath';
+
+export type RegionName = 'Europe' | 'North America' | 'Taiwan' | 'Korea';
 
 export type AuctionHouse = {
   auctionHouseId: number;
@@ -15,10 +14,21 @@ export type AuctionHouse = {
 
 export type Realm = {
   realmId: number;
+  regionId: number;
   name: string;
   localizedName: string;
   locale: string;
   auctionHouses: AuctionHouse[];
+};
+
+export type Region = {
+  regionId: number;
+  name: RegionName;
+  regionPrefix: 'eu' | 'us';
+  gmtOffset: number;
+  gameVersion: GameVersion;
+  lastModified: string;
+  realms: Realm[];
 };
 
 export type Item = {

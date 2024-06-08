@@ -1,7 +1,15 @@
+import * as i from '../types';
 import { createDbClient } from '../db';
 import { items } from '../db/schema';
 import { KEYS, kv } from '../kv';
-import { Item, Realm, Region } from '../types/tsm';
+import { Region, Item } from '../types/tsm';
+
+const versionMap = {
+  era: 'Classic Era',
+  hardcore: 'Classic Era - Hardcore',
+  classic: 'Wrath',
+  seasonal: 'Season of Discovery',
+} as const;
 
 async function getAccessToken() {
   const cached = await kv.get(KEYS.tsmAccessToken);
@@ -61,63 +69,41 @@ async function headers() {
   };
 }
 
-export async function getRegions() {
-  const cached = await kv.get(KEYS.tsmRegions);
-  if (cached) {
-    return JSON.parse(cached) as Region[];
-  }
-
-  const response = await fetch('https://realm-api.tradeskillmaster.com/regions', {
-    headers: await headers(),
-  });
-  if (response.status !== 200) {
-    throw new Error('Failed to fetch regions');
-  }
-
-  const regions = (await response.json()) as {
-    items: Region[];
-  };
-
-  try {
-    await kv.set(KEYS.tsmRegions, JSON.stringify(regions.items), {
-      EX: 60 * 60 * 24 * 7,
-      NX: true,
-    });
-  } catch (error: any) {
-    console.error('kv error:', error.message || 'unknown error');
-  }
-
-  return regions.items;
-}
-
-export async function getRealms(regionId: number) {
-  const KV_KEY = KEYS.tsmRealmsRegion(regionId);
+export async function getRealms(regionq: i.Region, version: i.GameVersion) {
+  const KV_KEY = KEYS.tsmRealms;
   const cached = await kv.get(KV_KEY);
-  if (cached) {
-    return JSON.parse(cached) as Realm[];
-  }
+  let regions: { items: Region[] } = cached ? JSON.parse(cached) : { items: [] };
 
-  const response = await fetch(
-    `https://realm-api.tradeskillmaster.com/regions/${regionId}/realms`,
-    {
+  // Fetch from TSM if not in cache
+  if (regions.items.length === 0) {
+    const response = await fetch(`https://realm-api.tradeskillmaster.com/realms`, {
       headers: await headers(),
-    },
+    });
+    if (response.status !== 200) {
+      throw new Error(`Failed to fetch realms`);
+    }
+
+    regions = await response.json();
+
+    // Cache the response
+    if (regions.items && regions.items.length > 0) {
+      try {
+        await kv.set(KV_KEY, JSON.stringify(regions), { EX: 60 * 60 * 24 * 3 });
+      } catch (error: any) {
+        console.error('[getRealms]', 'kv error:', error.message || 'unknown error');
+      }
+    }
+  }
+
+  const region = regions.items.find(
+    (region) => region.regionPrefix === regionq && region.gameVersion === versionMap[version],
   );
-  if (response.status !== 200) {
-    throw new Error(`Failed to fetch realms for region "${regionId}"`);
+
+  if (region == null) {
+    return [];
   }
 
-  const realms = (await response.json()) as {
-    items: Realm[];
-  };
-
-  try {
-    await kv.set(KV_KEY, JSON.stringify(realms.items), { EX: 60 * 60 * 24 * 7 });
-  } catch (error: any) {
-    console.error('[getRealms]', 'kv error:', error.message || 'unknown error');
-  }
-
-  return realms.items;
+  return region.realms;
 }
 
 const queue = new Map<string | number, Promise<Item[] | undefined>>();

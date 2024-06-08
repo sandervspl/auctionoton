@@ -12,7 +12,6 @@ export const kv = client;
 export const KEYS = {
   tsmAccessToken: 'tsm:access_token',
   tsmRegions: 'tsm:regions',
-  tsmRealmsRegion: (regionId: string | number) => `tsm:realms:${regionId}`,
-  tsmRealmsVersion: (region: i.Region, version: i.GameVersion) => `tsm:realms:${region}:${version}`,
+  tsmRealms: 'tsm:realms',
   tsmAHRecentlyFetched: (auctionHouseId: string | number) => `tsm:ah:${auctionHouseId}`,
 };
