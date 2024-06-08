@@ -79,7 +79,10 @@ export async function getRegions() {
   };
 
   try {
-    await kv.set(KEYS.tsmRegions, JSON.stringify(regions.items), { EX: 60 * 60 * 24, NX: true });
+    await kv.set(KEYS.tsmRegions, JSON.stringify(regions.items), {
+      EX: 60 * 60 * 24 * 7,
+      NX: true,
+    });
   } catch (error: any) {
     console.error('kv error:', error.message || 'unknown error');
   }
@@ -109,7 +112,7 @@ export async function getRealms(regionId: number) {
   };
 
   try {
-    await kv.set(KV_KEY, JSON.stringify(realms.items), { EX: 60 * 60 * 24 });
+    await kv.set(KV_KEY, JSON.stringify(realms.items), { EX: 60 * 60 * 24 * 7 });
   } catch (error: any) {
     console.error('[getRealms]', 'kv error:', error.message || 'unknown error');
   }
