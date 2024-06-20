@@ -1,6 +1,6 @@
 {
   "name": "@auctionoton/extension",
-  "version": "5.2.0",
+  "version": "5.2.1",
   "description": "Code for auctionoton-extension.",
   "private": true,
   "main": "index.js",

@@ -1,5 +1,11 @@
 # extension
 
+## 5.2.1
+
+### Patch Changes
+
+- Fixed crafting cost breakdown with items not found on the auction house
+
 ## 5.2.0
 
 ### Minor Changes
