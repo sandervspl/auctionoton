@@ -52,7 +52,10 @@ export function useItemsFetcher(id: string | number | undefined, itemIds: number
         queryClient.setQueryData<i.CachedItemDataClassic>(['item', ...itemQueryKey], item);
       }
 
-      return allItems.filter((item): item is i.CachedItemDataClassic => !!item);
+      return allItems.filter(
+        (item): item is i.CachedItemDataClassic =>
+          !!item && typeof item !== 'string' && 'stats' in item,
+      );
     },
   });
 }
