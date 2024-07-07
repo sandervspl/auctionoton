@@ -1,5 +1,12 @@
 # extension
 
+## 5.3.0
+
+### Minor Changes
+
+- Show loader per reagent
+- Code improvements
+
 ## 5.2.1
 
 ### Patch Changes
