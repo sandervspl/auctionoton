@@ -15,7 +15,7 @@
     "concurrently": "^7.5.0",
     "cross-env": "^7.0.3",
     "prettier": "^2.7.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.5.3"
   },
   "dependencies": {
     "@elysiajs/swagger": "^0.8.5"

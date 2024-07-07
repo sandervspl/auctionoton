@@ -7,9 +7,8 @@ import { Value } from './tooltip/Value';
 import { useWowhead } from 'hooks/useWowhead';
 
 type Props = {
-  items: i.CachedItemDataClassic[] | undefined;
+  items: { data: i.CachedItemDataClassic | undefined; isLoading: boolean }[];
   reagentItems: i.ReagentItem[];
-  isLoading?: boolean;
   reagents?: Map<number, number>;
   craftAmount?: number;
 };
@@ -26,17 +25,19 @@ export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
   }
 
   const total =
-    props.items?.reduce((acc, item) => {
-      const reagentAmount = getReagentAmount(item.itemId);
-      const { minBuyout } = item.stats.current;
-      const value = typeof minBuyout !== 'object' ? Number(minBuyout) : minBuyout.raw;
+    props.items
+      .filter((item) => item.data?.stats)
+      .reduce((acc, item) => {
+        const reagentAmount = getReagentAmount(item.data!.itemId);
+        const { minBuyout } = item.data!.stats.current;
+        const value = typeof minBuyout !== 'object' ? Number(minBuyout) : minBuyout.raw;
 
-      if (isNaN(value)) {
-        return acc;
-      }
+        if (isNaN(value)) {
+          return acc;
+        }
 
-      return acc + value * reagentAmount * craftAmount;
-    }, 0) || 0;
+        return acc + value * reagentAmount * craftAmount;
+      }, 0) || 0;
 
   return (
     <>
@@ -53,35 +54,39 @@ export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
           <span className="auc-font-bold auc-text-right">Qty</span>
           <span className="auc-font-bold auc-mb-2 auc-text-right">Cost</span>
 
-          {(!props.items || props.isLoading) && (
-            <div className="auc-col-span-3 auc-flex auc-items-center auc-justify-center">
-              <LoadingSvg />
-            </div>
-          )}
-
-          {props.items?.map((item) => (
-            <React.Fragment key={item.itemId}>
+          {props.items.map((item) => (
+            <React.Fragment key={item.data!.itemId}>
               <a
-                href={`${wowheadBaseUrl}/item=${item.itemId}`}
+                href={`${wowheadBaseUrl}/item=${item.data!.itemId}`}
                 className={`auc-flex auc-gap-1 auc-items-center ${getQualityClassFromTags(
-                  item.tags,
+                  item.data?.tags?.length ? item.data.tags : ['common'],
                 )}`}
               >
-                <ItemIcon
-                  url={getReagentIcon(item.itemId)}
-                  itemId={item.itemId}
-                  slug={item.uniqueName}
-                />
-                <span className="auc-flex-1">{item.name}</span>
+                {item.data && (
+                  <>
+                    <ItemIcon
+                      url={getReagentIcon(item.data.itemId)}
+                      itemId={item.data.itemId}
+                      slug={item.data.uniqueName}
+                    />
+                    <span className="auc-flex-1">{item.data.name}</span>
+                  </>
+                )}
               </a>
               <div className="auc-flex auc-items-center auc-justify-end">
-                {getReagentAmount(item.itemId) * craftAmount}
+                {getReagentAmount(item.data!.itemId) * craftAmount}
               </div>
               <div className="auc-flex auc-items-center auc-justify-end">
-                <Value
-                  value={item.stats.current.minBuyout}
-                  amount={getReagentAmount(item.itemId) * craftAmount}
-                />
+                {item.data?.stats ? (
+                  <Value
+                    value={item.data.stats.current.minBuyout}
+                    amount={getReagentAmount(item.data.itemId) * craftAmount}
+                  />
+                ) : item.isLoading ? (
+                  <LoadingSvg style={{ width: '15px' }} />
+                ) : (
+                  'N/A'
+                )}
               </div>
             </React.Fragment>
           ))}
