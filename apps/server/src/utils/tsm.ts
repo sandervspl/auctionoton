@@ -1,62 +1,18 @@
+import * as i from '../types';
 import { createDbClient } from '../db';
 import { items } from '../db/schema';
-import { kv } from '../kv';
+import { KEYS, kv } from '../kv';
+import { Region, Item } from '../types/tsm';
 
-type Region = {
-  regionId: number;
-  name: 'Europe' | 'North America' | 'Taiwan' | 'Korea';
-  regionPrefix: 'eu' | 'us' | 'tw' | 'kr';
-  gmtOffset: number;
-  gameVersion: 'Classic Era' | 'Classic Era - Hardcore' | 'Season of Discovery' | 'Wrath';
-  lastModified: number;
-};
-
-type AuctionHouse = {
-  auctionHouseId: number;
-  type: 'Alliance' | 'Horde' | 'Neutral';
-  lastModified: number;
-};
-
-type Realm = {
-  realmId: number;
-  name: string;
-  localizedName: string;
-  locale: string;
-  auctionHouses: AuctionHouse[];
-};
-
-type Item = {
-  auctionHouseId: number;
-  itemId: number;
-  petSpeciesId: number | null;
-  minBuyout: number;
-  quantity: number;
-  marketValue: number;
-  historical: number;
-  numAuctions: number;
-};
-
-type RateLimits = 10 | 100 | 500;
-
-const getTSMRateLimitKey = (limit: RateLimits) => `tsm:rate-limit-24hr:${limit}`;
-
-// Get the current rate limit left for the TSM API
-export async function getTSMRateLimit24hr(limit: RateLimits) {
-  const key = getTSMRateLimitKey(limit);
-
-  const cached = await kv.get(key);
-  if (cached) {
-    return Number(cached);
-  }
-
-  await kv.set(key, limit, { EX: 60 * 60 * 24 });
-  return limit;
-}
+const versionMap = {
+  era: 'Classic Era',
+  hardcore: 'Classic Era - Hardcore',
+  classic: 'Wrath',
+  seasonal: 'Season of Discovery',
+} as const;
 
 async function getAccessToken() {
-  const KV_KEY = 'tsm:access-token';
-
-  const cached = await kv.get(KV_KEY);
+  const cached = await kv.get(KEYS.tsmAccessToken);
   if (cached) {
     return cached;
   }
@@ -96,99 +52,68 @@ async function getAccessToken() {
   };
 
   try {
-    await kv.set(KV_KEY, access_token, { EX: 60 * 60 * 24 });
+    await kv.set(KEYS.tsmAccessToken, access_token, { EX: 60 * 60 * 24, NX: true });
   } catch (error: any) {
-    console.error('kv error:', error.message || 'unknown error');
+    console.error('[getAccessToken]', 'kv error:', error.message || 'unknown error');
   }
 
   return access_token;
 }
 
-const headers = async () => {
+async function headers() {
   const token = await getAccessToken();
 
   return {
     Accept: 'application/json',
     Authorization: `Bearer ${token}`,
   };
-};
-
-export async function getRegions() {
-  const KV_KEY = 'tsm:regions';
-
-  const cached = await kv.get(KV_KEY);
-  if (cached) {
-    return JSON.parse(cached) as Region[];
-  }
-
-  const response = await fetch('https://realm-api.tradeskillmaster.com/regions', {
-    headers: await headers(),
-  });
-  if (response.status !== 200) {
-    throw new Error('Failed to fetch regions');
-  }
-
-  const regions = (await response.json()) as {
-    items: Region[];
-  };
-
-  try {
-    await kv.set(KV_KEY, JSON.stringify(regions.items), { EX: 60 * 60 * 24 });
-  } catch (error: any) {
-    console.error('kv error:', error.message || 'unknown error');
-  }
-
-  return regions.items;
 }
 
-export async function getRealms(regionId: number) {
-  const KV_KEY = `tsm:realms:${regionId}`;
+export async function getRealms(regionq: i.Region, version: i.GameVersion) {
+  const KV_KEY = KEYS.tsmRealms;
   const cached = await kv.get(KV_KEY);
-  if (cached) {
-    return JSON.parse(cached) as Realm[];
-  }
+  let regions: { items: Region[] } = cached ? JSON.parse(cached) : { items: [] };
 
-  const response = await fetch(
-    `https://realm-api.tradeskillmaster.com/regions/${regionId}/realms`,
-    {
+  // Fetch from TSM if not in cache
+  if (regions.items.length === 0) {
+    const response = await fetch(`https://realm-api.tradeskillmaster.com/realms`, {
       headers: await headers(),
-    },
+    });
+    if (response.status !== 200) {
+      throw new Error(`Failed to fetch realms`);
+    }
+
+    regions = await response.json();
+
+    // Cache the response
+    if (regions.items && regions.items.length > 0) {
+      try {
+        await kv.set(KV_KEY, JSON.stringify(regions), { EX: 60 * 60 * 24 * 3 });
+      } catch (error: any) {
+        console.error('[getRealms]', 'kv error:', error.message || 'unknown error');
+      }
+    }
+  }
+
+  const region = regions.items.find(
+    (region) => region.regionPrefix === regionq && region.gameVersion === versionMap[version],
   );
-  if (response.status !== 200) {
-    throw new Error(`Failed to fetch realms for region "${regionId}"`);
+
+  if (region == null) {
+    return [];
   }
 
-  const realms = (await response.json()) as {
-    items: Realm[];
-  };
-
-  try {
-    await kv.set(KV_KEY, JSON.stringify(realms.items), { EX: 60 * 60 * 24 });
-  } catch (error: any) {
-    console.error('kv error:', error.message || 'unknown error');
-  }
-
-  return realms.items;
+  return region.realms;
 }
 
-export async function getAuctionHouse(auctionHouseId: number) {
-  const KV_KEY = `tsm:ah:${auctionHouseId}`;
-  const recentlyUpdated = await kv.get(KV_KEY);
+const queue = new Map<string | number, Promise<Item[] | undefined>>();
 
-  if (recentlyUpdated) {
-    return;
-  }
-
-  // Temporarily lock the key to prevent multiple requests
-  await kv.set(KV_KEY, new Date().toISOString(), { EX: 5 });
-
-  console.log(`fetching auction house "${auctionHouseId}"...`);
+async function fetchAuctionHouse(auctionHouseId: string | number) {
+  console.info(auctionHouseId, 'fetching auction house...');
 
   const response = await fetch(`https://pricing-api.tradeskillmaster.com/ah/${auctionHouseId}`, {
     headers: await headers(),
   });
-
-  console.log(`fetched auction house "${auctionHouseId}": ${response.status}`);
 
   if (response.status !== 200) {
     try {
@@ -197,27 +122,65 @@ export async function getAuctionHouse(auctionHouseId: number) {
     throw new Error(`Failed to fetch auction house "${auctionHouseId}": ${response.statusText}`);
   }
 
-  const auctionHouse = (await response.json()) as Item[];
+  return response.json() as Promise<Item[]>;
+}
 
-  if (Array.isArray(auctionHouse) && auctionHouse.length > 0) {
-    try {
-      await kv.set(KV_KEY, new Date().toISOString(), { EX: 60 * 60 * 6 });
-    } catch (error: any) {
-      console.error('kv error:', error.message || 'unknown error');
-    }
+export async function getAuctionHouse(auctionHouseId: string | number) {
+  // If already in queue, return its request
+  if (queue.has(auctionHouseId)) {
+    console.info(auctionHouseId, 'Waiting for AH in queue to resolve...');
+    return queue.get(auctionHouseId);
   }
 
-  return auctionHouse;
+  // Add auction house request to queue
+  queue.set(
+    auctionHouseId,
+    (async () => {
+      const KV_KEY = KEYS.tsmAHRecentlyFetched(auctionHouseId);
+
+      try {
+        const recentlyUpdated = await kv.get(KV_KEY);
+
+        if (recentlyUpdated) {
+          return undefined;
+        }
+
+        const auctionHouse = await fetchAuctionHouse(auctionHouseId);
+
+        if (Array.isArray(auctionHouse) && auctionHouse.length > 0) {
+          try {
+            await kv.set(KV_KEY, new Date().toISOString(), { EX: 60 * 60 * 6, NX: true });
+          } catch (error: any) {
+            console.error(auctionHouseId, 'kv error:', error.message || 'unknown error');
+          }
+        }
+
+        return auctionHouse;
+      } catch (err: any) {
+        console.error(auctionHouseId, 'Error fetching AH', err.message);
+        return undefined;
+      } finally {
+        // Remove from queue
+        queue.delete(auctionHouseId);
+        await kv.set(KV_KEY, new Date().toISOString(), { EX: 60 * 60 * 6, NX: true });
+      }
+    })(),
+  );
+
+  return queue.get(auctionHouseId);
 }
 
 export async function getItem(itemId: number, auctionHouseId: number) {
-  console.info('2. Fetching item from TSM');
+  const logPrefix = `${itemId}:${auctionHouseId}`;
+  console.info(logPrefix, 'Fetching item from TSM');
+
   const response = await fetch(
     `https://pricing-api.tradeskillmaster.com/ah/${auctionHouseId}/item/${itemId}`,
     {
       headers: await headers(),
     },
   );
+
   if (response.status !== 200) {
     try {
       await response.body?.cancel?.();
@@ -227,9 +190,8 @@ export async function getItem(itemId: number, auctionHouseId: number) {
   }
 
   const item = (await response.json()) as Item;
-  console.info('2. done');
 
-  console.log('2. Adding item to DB');
+  console.info(logPrefix, 'Adding item to DB');
   const { db, client } = createDbClient();
 
   try {
@@ -248,11 +210,9 @@ export async function getItem(itemId: number, auctionHouseId: number) {
   } catch (err: any) {
     console.error(err.message);
   } finally {
-    console.log('2. closing db connection');
+    console.info(logPrefix, 'closing db connection');
     client.end();
   }
-
-  console.log('2. done');
 
   return item;
 }

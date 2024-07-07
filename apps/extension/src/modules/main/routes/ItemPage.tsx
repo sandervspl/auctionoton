@@ -50,8 +50,10 @@ export const ItemPage = (): React.ReactPortal | null => {
       {activeTab === 1 && (
         <CraftingCostTooltip
           reagentItems={reagentItems}
-          items={items.data}
-          isLoading={items.isLoading}
+          items={items.map((item) => ({
+            data: item.data,
+            isLoading: item.isLoading || item.isFetching,
+          }))}
         />
       )}
 

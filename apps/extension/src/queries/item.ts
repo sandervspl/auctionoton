@@ -4,7 +4,12 @@ import dayjs from 'dayjs';
 import asyncStorage from 'utils/asyncStorage';
 import { auctionotonAPIUrl, auctionotonAPI } from 'utils/auctionotonApi';
 
-export async function fetchItemFromAPI(itemId: number, auctionHouseId: number, amount = 1) {
+export async function fetchItemFromAPI(
+  itemId: number,
+  auctionHouseId: number,
+  version: i.GameVersion,
+  amount = 1,
+) {
   try {
     if (!auctionHouseId) {
       if (__DEV__) {
@@ -17,7 +22,7 @@ export async function fetchItemFromAPI(itemId: number, auctionHouseId: number, a
     }
 
     const { data, status } = await auctionotonAPI.get<i.ItemDataClassicResponse>(
-      `${auctionotonAPIUrl}/item/${itemId}/ah/${auctionHouseId}`,
+      `${auctionotonAPIUrl}/item/${itemId}/ah/${auctionHouseId}/${version}`,
     );
 
     const localData: i.CachedItemDataClassic = {

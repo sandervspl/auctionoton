@@ -1,23 +1,9 @@
-import { kv } from '../kv';
-import { getRealms, getRegions } from '../utils/tsm';
+import { getRealms } from '../utils/tsm';
 import * as i from '../types';
 
 export const config = {
   runtime: 'edge',
   regions: ['sfo1'],
-};
-
-const versionMap = {
-  era: 'Classic Era',
-  hardcore: 'Classic Era - Hardcore',
-  classic: 'Wrath',
-  seasonal: 'Season of Discovery',
-};
-
-const headers = {
-  'content-type': 'application/json',
-  'cache-control': 'public, max-age=10800, s-maxage=3600, stale-while-revalidate',
-  'Access-Control-Allow-Origin': '*',
 };
 
 type Realm = {
@@ -32,30 +18,8 @@ type Realm = {
 };
 
 export async function realmService(regionq: i.Region, version: i.GameVersion) {
-  const KV_KEY = `tsm:realms:${regionq}:${version}`;
-
   try {
-    const cached = await kv.get(KV_KEY);
-    if (cached) {
-      return JSON.parse(cached) as Realm[];
-    }
-
-    const regions = await getRegions();
-    const region = regions.find(
-      (r) =>
-        r.gameVersion === versionMap[version as keyof typeof versionMap] &&
-        r.regionPrefix === regionq,
-    );
-
-    if (region == null) {
-      return {
-        error: true,
-        status: 404,
-        message: `Region "${region}" not found`,
-      };
-    }
-
-    const realms = (await getRealms(region.regionId)).sort((a, b) =>
+    const realms = (await getRealms(regionq, version)).sort((a, b) =>
       a.localizedName.localeCompare(b.localizedName),
     );
 
@@ -65,12 +29,6 @@ export async function realmService(regionq: i.Region, version: i.GameVersion) {
       realmId: realm.realmId,
       auctionHouses: realm.auctionHouses,
     }));
-
-    try {
-      await kv.set(KV_KEY, JSON.stringify(data), { EX: 60 * 60 * 24 });
-    } catch (error: any) {
-      console.error('kv error:', error.message || 'unknown error');
-    }
 
     return data;
   } catch (error: any) {

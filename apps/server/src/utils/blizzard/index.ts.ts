@@ -1,5 +1,4 @@
-// import { Buffer } from 'buffer-polyfill';
-
+import * as i from '../../types';
 import { AccessToken, GameItem } from './types';
 import { kv } from '../../kv';
 
@@ -45,17 +44,18 @@ export async function getAccessToken() {
   return data.access_token;
 }
 
-export async function getItemFromBnet(id: number, locale = 'en_US') {
+export async function getItemFromBnet(id: number, version: i.GameVersion, locale = 'en_US') {
   const accessToken = await getAccessToken();
 
+  const namespace = version === 'seasonal' ? 'static-classic1x-eu' : 'static-classic-eu';
   const params = new URLSearchParams({
-    namespace: 'static-classic1x-us',
+    namespace,
     locale,
     access_token: accessToken,
   });
 
   console.info('3. Fetching item from Blizzard');
-  const response = await fetch(`https://us.api.blizzard.com/data/wow/item/${id}?${params}`);
+  const response = await fetch(`https://eu.api.blizzard.com/data/wow/item/${id}?${params}`);
 
   if (response.status !== 200) {
     try {

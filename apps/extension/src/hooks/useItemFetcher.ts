@@ -7,6 +7,7 @@ import validateCache from 'utils/validateCache';
 
 import { fetchItemFromAPI } from 'src/queries/item';
 import { useAuctionHouse } from './useAuctionHouse';
+import { useWowhead } from './useWowhead';
 
 type Options = Omit<
   UseQueryOptions<i.CachedItemDataClassic | undefined, unknown, i.CachedItemDataClassic>,
@@ -15,12 +16,11 @@ type Options = Omit<
 
 function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
   const auctionHouseId = useAuctionHouse();
+  const { version } = useWowhead();
   const queryClient = useQueryClient();
   const [error, setError] = React.useState('');
   const [warning, setWarning] = React.useState('');
-
   const queryKey: i.ItemQueryKey = [auctionHouseId!, itemId];
-
   const { data, isLoading, isFetching, isError, refetch } = useQuery({
     queryKey: ['item', ...queryKey],
     queryFn: fetchItem,
@@ -50,7 +50,7 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
       }
     }
 
-    const result = await fetchItemFromAPI(itemId, auctionHouseId!);
+    const result = await fetchItemFromAPI(itemId, auctionHouseId!, version);
 
     if (result == null) {
       setError('Something went wrong fetching this item. Please try again.');

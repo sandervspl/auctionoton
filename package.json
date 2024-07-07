@@ -3,22 +3,19 @@
   "version": "0.0.0",
   "private": true,
   "license": "ISC",
-  "workspaces": [
-    "apps/*"
-  ],
   "scripts": {
-    "build": "cd apps/extension && bun run build",
+    "build": "cd apps/extension && pnpm run build",
     "prettier": "prettier --write \"**/*.{ts,tsx,md}\"",
     "cs:add": "npx changeset",
     "cs:ver": "npx changeset version",
-    "e:version": "bun run build && cd apps/extension && npm run version"
+    "e:version": "pnpm run build && cd apps/extension && npm run version"
   },
   "devDependencies": {
     "@changesets/cli": "2.25.0",
     "concurrently": "^7.5.0",
     "cross-env": "^7.0.3",
     "prettier": "^2.7.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.5.3"
   },
   "dependencies": {
     "@elysiajs/swagger": "^0.8.5"

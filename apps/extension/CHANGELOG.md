@@ -1,5 +1,25 @@
 # extension
 
+## 5.2.1
+
+### Patch Changes
+
+- Fixed crafting cost breakdown with items not found on the auction house
+
+## 5.2.0
+
+### Minor Changes
+
+- 2a9407d: - Add version to item API
+  - Speed up item API by fetching AH in the background
+  - Fix switching servers between wowhead.com/classic and wowhead.com/cata
+
+## 5.1.2
+
+### Patch Changes
+
+- 8e15ba5: Replace anything related to wotlk to cata or classic
+
 ## 5.1.1
 
 ### Patch Changes

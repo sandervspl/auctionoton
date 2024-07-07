@@ -11,7 +11,7 @@ class AsyncStorage {
     });
   }
 
-  get = async <T extends i.StorageKeys>(key: T): Promise<i.BrowserStorage[T]> => {
+  get = async <T extends i.StorageKeys>(key: T): Promise<i.BrowserStorage[T] | undefined> => {
     return new Promise((resolve) => {
       addon.storage.local.get(key, (items) => {
         return resolve(items[key]);
@@ -57,7 +57,7 @@ class AsyncStorage {
   getItem = async (
     itemQueryKey: i.ItemQueryKey,
     cb?: (item: i.CachedItemDataClassic | undefined) => void,
-  ): Promise<i.CachedItemDataClassic> => {
+  ) => {
     const items = await this.get('items');
     const key = this.getKeyFromQueryKey(itemQueryKey);
     const item = items?.[key];

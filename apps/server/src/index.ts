@@ -6,7 +6,7 @@ import { itemService } from './api/item';
 import { errorHeaders, successHeaders } from './utils';
 import { realmService } from './api/realms';
 
-const version = await Bun.file('package.json')
+const packageVersion = await Bun.file('package.json')
   .json()
   .then((pkg) => pkg.version);
 
@@ -17,7 +17,7 @@ const app = new Elysia()
       documentation: {
         info: {
           title: 'Auctionoton API',
-          version,
+          version: packageVersion,
           description: 'API documentation for Auctionoton',
         },
         servers: [
@@ -27,7 +27,7 @@ const app = new Elysia()
           },
         ],
       },
-      version,
+      version: packageVersion,
     }),
   )
   // .state('ratelimit', new Map())
@@ -98,10 +98,10 @@ const app = new Elysia()
     },
   )
   .get(
-    '/item/:id/ah/:ah_id',
-    async ({ params: { id, ah_id }, set }) => {
-      console.info('GET /item/:id/ah/:ah_id', { id, ah_id });
-      const item = await itemService(id, ah_id);
+    '/item/:id/ah/:ah_id/:version',
+    async ({ params: { id, ah_id, version }, set }) => {
+      console.info('GET /item/:id/ah/:ah_id/:version', { id, ah_id, version });
+      const item = await itemService(id, ah_id, version);
 
       if ('error' in item) {
         set.status = 404;
@@ -117,11 +117,22 @@ const app = new Elysia()
       params: t.Object({
         id: t.Numeric(),
         ah_id: t.Numeric(),
+        version: t.Union([
+          t.Literal('classic'),
+          t.Literal('seasonal'),
+          t.Literal('era'),
+          t.Literal('hardcore'),
+        ]),
       }),
       detail: {
         summary: 'Get Item',
         tags: ['Items'],
         description: "Get an item's auction house data from a specific auction house",
+        parameters: [
+          { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+          { name: 'ah_id', in: 'path', required: true, schema: { type: 'string' } },
+          { name: 'version', in: 'path', required: false, schema: { type: 'string' } },
+        ],
       },
     },
   )
