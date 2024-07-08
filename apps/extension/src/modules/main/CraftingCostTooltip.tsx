@@ -56,12 +56,14 @@ export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
 
           {props.items.map((item) => (
             <React.Fragment key={item.data!.itemId}>
-              <a
-                href={`${wowheadBaseUrl}/item=${item.data!.itemId}`}
-                className={`auc-flex auc-gap-1 auc-items-center ${getQualityClassFromTags(
-                  item.data?.tags?.length ? item.data.tags : ['common'],
-                )}`}
-              >
+              <div className="auc-flex auc-gap-1 auc-items-center">
+                <a
+                  href={`${wowheadBaseUrl}/item=${item.data!.itemId}`}
+                  className={getQualityClassFromTags(
+                    item.data?.tags?.length ? item.data.tags : ['common'],
+                  )}
+                />
+
                 {item.data && (
                   <>
                     <ItemIcon
@@ -69,10 +71,12 @@ export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
                       itemId={item.data.itemId}
                       slug={item.data.uniqueName}
                     />
-                    <span className="auc-flex-1">{item.data.name}</span>
+                    <a href={`${wowheadBaseUrl}/item=${item.data!.itemId}`} className="auc-flex-1">
+                      {item.data.name}
+                    </a>
                   </>
                 )}
-              </a>
+              </div>
               <div className="auc-flex auc-items-center auc-justify-end">
                 {getReagentAmount(item.data!.itemId) * craftAmount}
               </div>
