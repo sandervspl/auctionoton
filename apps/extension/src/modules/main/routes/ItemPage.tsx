@@ -4,8 +4,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import useItemFromPage from 'hooks/useItemFromPage';
-
 import { useCraftableItemPage } from 'hooks/useCraftableItemPage';
+
 import generateContainer from '../generateContainer';
 import { Tabs } from '../Tabs';
 import { ChangeRealmButton } from '../ChangeRealmButton';
