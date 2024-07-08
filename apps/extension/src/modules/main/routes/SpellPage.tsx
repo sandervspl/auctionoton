@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 
 import useSpellFromPage from 'hooks/useSpellFromPage';
 import { useCraftableItemPage } from 'hooks/useCraftableItemPage';
+
 import generateContainer from '../generateContainer';
 import { ChangeRealmButton } from '../ChangeRealmButton';
 import { CraftingCostTooltip } from '../CraftingCostTooltip';
@@ -37,8 +38,10 @@ export const SpellPage: React.FC = (props) => {
 
       <CraftingCostTooltip
         reagentItems={reagentItems}
-        items={items.data}
-        isLoading={items.isLoading}
+        items={items.map((item) => ({
+          data: item.data,
+          isLoading: item.isLoading || item.isFetching,
+        }))}
       />
 
       <div className="auc-h-1" />
