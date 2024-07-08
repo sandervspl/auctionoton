@@ -9,7 +9,7 @@ import generateContainer from '../generateContainer';
 import { ChangeRealmButton } from '../ChangeRealmButton';
 import { CraftingCostTooltip } from '../CraftingCostTooltip';
 
-export const SpellPage: React.FC = (props) => {
+export const SpellPage = () => {
   const { spell: pageSpell } = useSpellFromPage();
   const tooltipElementId = `tt${pageSpell?.id}`;
   const tooltipElement = document.querySelector(`div#${tooltipElementId}`);
