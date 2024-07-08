@@ -6,15 +6,15 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { useQuery } from '@tanstack/react-query';
 
 import LoadingSvg from 'static/loading.svg';
+// import WarningSvg from 'static/exclamation-circle-regular.svg';
 import { ELEMENT_ID } from 'src/constants';
-import { itemQueryOptions } from 'src/queries/item';
+import useItemFetcher from 'hooks/useItemFetcher';
 import { useWowhead } from 'hooks/useWowhead';
 import useStorageQuery from 'hooks/useStorageQuery';
-import { useRealm } from 'hooks/useRealm';
-import { useAuctionHouse } from 'hooks/useAuctionHouse';
 
 import { SellPrice } from './SellPrice';
 import { TooltipBody } from './TooltipBody';
+import { useRealm } from 'hooks/useRealm';
 
 dayjs.extend(relativeTime);
 
@@ -24,21 +24,10 @@ dayjs.extend(relativeTime);
  * - add tooltip with text to add your server with a link to the form
  */
 
-const Tooltip = (props: Props) => {
+const Tooltip: React.FC<Props> = (props) => {
   const { data: user } = useStorageQuery('user');
-  const auctionHouseId = useAuctionHouse();
-  const { isEra, version } = useWowhead();
-  const {
-    error,
-    isFetching,
-    isLoading,
-    data: item,
-    refetch,
-  } = useQuery(
-    itemQueryOptions(auctionHouseId!, props.itemId, version, {
-      enabled: !!auctionHouseId && !!props.itemId,
-    }),
-  );
+  const { error, isFetching, isLoading, item, refetch } = useItemFetcher(props.itemId);
+  const { isEra } = useWowhead();
   const { activeRealm } = useRealm();
   const { data: lastUpdated } = useQuery({
     queryKey: ['tooltip', props.itemId, item?.updatedAt],
@@ -141,6 +130,7 @@ const Tooltip = (props: Props) => {
       {(!item || !item) && (isLoading || isFetching) ? (
         <tr>
           <td>
+            {/* @ts-ignore */}
             <LoadingSvg />
           </td>
         </tr>

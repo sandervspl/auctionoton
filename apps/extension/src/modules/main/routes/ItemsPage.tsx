@@ -2,19 +2,16 @@ import 'typed-query-selector';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import cn from 'classnames';
-import { useQuery } from '@tanstack/react-query';
 
 import LoadingSvg from 'static/loading.svg';
-import { itemQueryOptions } from 'src/queries/item';
+import useItemFetcher from 'hooks/useItemFetcher';
 import useIntersectionObserver from 'hooks/useIntersectionObserver';
-import { useAuctionHouse } from 'hooks/useAuctionHouse';
-import { useWowhead } from 'hooks/useWowhead';
 
 import { Value } from '../tooltip/Value';
 
 type Sorting = null | 'asc' | 'desc';
 
-const ItemsPage = () => {
+const ItemsPage: React.FC = () => {
   const [sorting, setSorting] = React.useState<Sorting>(null);
 
   const sortByBuyout = React.useCallback(
@@ -166,26 +163,16 @@ const ItemsPage = () => {
 
 const TableCell: React.FC<Props> = (props) => {
   const cellRef = React.useRef<HTMLTableCellElement>(null);
-  const auctionHouseId = useAuctionHouse();
-  const { version } = useWowhead();
   const entry = useIntersectionObserver(cellRef, {
     freezeOnceVisible: true,
     disconnectOnceVisible: true,
   });
   const isVisible = entry?.isIntersecting;
-  const {
-    data: item,
-    isLoading,
-    isFetching,
-    isError,
-    error,
-  } = useQuery(
-    itemQueryOptions(auctionHouseId!, props.itemId!, version, {
-      enabled: !!auctionHouseId && !!props.itemId && isVisible,
-      retry: false,
-      retryOnMount: false,
-    }),
-  );
+  const { isError, isLoading, isFetching, item } = useItemFetcher(props.itemId!, {
+    enabled: !!props.itemId && isVisible,
+    retry: false,
+    retryOnMount: false,
+  });
   const isFetchingItem = !item || isLoading;
   const buyout = item?.stats.current.minBuyout;
 
@@ -208,7 +195,7 @@ const TableCell: React.FC<Props> = (props) => {
   return (
     <td ref={cellRef} className="auc-text-left">
       {isError && !item ? (
-        <span className="auc-flex">{error ? error.message : 'Error!'}</span>
+        <span className="auc-flex">Error!</span>
       ) : item && (isLoading || isFetching) ? (
         <div className="auc-flex auc-gap-2">
           <LoadingSvg style={{ width: '15px' }} />
