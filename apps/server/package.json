@@ -20,6 +20,7 @@
     "remeda": "^1.61.0"
   },
   "devDependencies": {
+    "@types/node": "latest",
     "bun-types": "latest",
     "drizzle-kit": "^0.21.4"
   }
