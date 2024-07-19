@@ -73,7 +73,7 @@ export async function updateAuctionHouseData(
           numAuctions: item.numAuctions,
           marketValue: item.marketValue,
           historical: item.historical,
-          minBuyout: item.minBuyout,
+          minBuyout: item.minBuyout.toString(),
           quantity: item.quantity,
         })),
       );

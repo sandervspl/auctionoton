@@ -36,7 +36,12 @@ async function queryItem(id: number, auctionHouseId: number, version: i.GameVers
       .fullJoin(itemsMetadata, eq(items.itemId, itemsMetadata.id))
       .orderBy(desc(items.timestamp))
       .limit(1);
-    const itemFromDb = queryResult?.[0]?.items;
+    const itemFromDb = queryResult?.[0]?.items
+      ? {
+          ...queryResult[0].items,
+          minBuyout: Number(queryResult[0].items.minBuyout),
+        }
+      : null;
 
     const someTimeAgo = dayjs().subtract(3, 'hours');
     const isTooOld = dayjs(itemFromDb?.timestamp) < someTimeAgo;
@@ -162,7 +167,7 @@ async function queryItem(id: number, auctionHouseId: number, version: i.GameVers
           numAuctions: item.numAuctions,
           marketValue: item.marketValue,
           historicalValue: item.historical,
-          minBuyout: item.minBuyout,
+          minBuyout: Number(item.minBuyout),
           quantity: item.quantity,
         },
         previous: null,

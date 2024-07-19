@@ -1,10 +1,8 @@
 {
-  "id": "fc3ac108-d576-44a9-a1bb-95c61c4cb449",
-  "prevId": "00000000-0000-0000-0000-000000000000",
-  "version": "5",
-  "dialect": "pg",
+  "version": "6",
+  "dialect": "postgresql",
   "tables": {
-    "items": {
+    "public.items": {
       "name": "items",
       "schema": "",
       "columns": {
@@ -85,15 +83,15 @@
       "uniqueConstraints": {
         "items_item_id_auction_house_id_unq": {
           "name": "items_item_id_auction_house_id_unq",
-          "nullsNotDistinct": false,
           "columns": [
             "item_id",
             "auction_house_id"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       }
     },
-    "items_metadata": {
+    "public.items_metadata": {
       "name": "items_metadata",
       "schema": "",
       "columns": {
@@ -175,10 +173,10 @@
       "uniqueConstraints": {
         "items_metadata_id_unq": {
           "name": "items_metadata_id_unq",
-          "nullsNotDistinct": false,
           "columns": [
             "id"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       }
     }
@@ -186,8 +184,10 @@
   "enums": {},
   "schemas": {},
   "_meta": {
-    "columns": {},
     "schemas": {},
-    "tables": {}
-  }
+    "tables": {},
+    "columns": {}
+  },
+  "id": "fc3ac108-d576-44a9-a1bb-95c61c4cb449",
+  "prevId": "00000000-0000-0000-0000-000000000000"
 }
