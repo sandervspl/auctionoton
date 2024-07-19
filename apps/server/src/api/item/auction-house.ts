@@ -1,6 +1,7 @@
 import * as R from 'remeda';
 
-import { getAuctionHouse } from '../../utils/tsm';
+import * as i from '../../types';
+import { getAuctionHouse, tsmApiKeys } from '../../utils/tsm';
 import { createDbClient } from '../../db';
 import { items } from '../../db/schema';
 import { Item } from '../../types/tsm';
@@ -8,7 +9,10 @@ import { KEYS, kv } from '../../kv';
 
 const queue = new Map<string | number, Promise<Item[] | undefined>>();
 
-export async function updateAuctionHouseData(auctionHouseId: string | number) {
+export async function updateAuctionHouseData(
+  auctionHouseId: string | number,
+  version: i.GameVersion,
+) {
   console.info(auctionHouseId, 'Updating AH');
   const KV_KEY = KEYS.tsmAHRecentlyFetched(auctionHouseId);
 
@@ -29,10 +33,10 @@ export async function updateAuctionHouseData(auctionHouseId: string | number) {
 
     // Add to queue
     console.info(auctionHouseId, 'Adding AH to queue...');
-
+    const tsmApiKey = tsmApiKeys[version];
     queue.set(
       auctionHouseId,
-      getAuctionHouse(auctionHouseId)
+      getAuctionHouse(auctionHouseId, tsmApiKey)
         .then((items) => {
           console.info(auctionHouseId, 'AH fetched!');
           return items;

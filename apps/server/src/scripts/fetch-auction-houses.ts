@@ -7,7 +7,7 @@ const MAX_ERRORS = 3;
 
 for (const region of ['eu', 'us'] as i.Region[]) {
   // Too many realms to fetch them all, so we'll only fetch seasonal periodically
-  for (const version of ['seasonal'] as i.GameVersion[]) {
+  for (const version of ['seasonal', 'era', 'classic', 'hardcore'] as i.GameVersion[]) {
     console.log(`Fetching realms for "${region}-${version}"...`);
     const realms = await realmService(region, version);
 
@@ -21,7 +21,7 @@ for (const region of ['eu', 'us'] as i.Region[]) {
 
       for await (const auctionHouse of realm.auctionHouses) {
         try {
-          await updateAuctionHouseData(auctionHouse.auctionHouseId);
+          await updateAuctionHouseData(auctionHouse.auctionHouseId, version);
         } catch (err: any) {
           console.error(
             `Failed to update AH for "${realm.name}" (${region}-${version})...`,

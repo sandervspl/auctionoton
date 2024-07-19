@@ -4,14 +4,21 @@ import { items } from '../db/schema';
 import { KEYS, kv } from '../kv';
 import { Region, Item } from '../types/tsm';
 
-const versionMap = {
+const versionMap: Record<i.GameVersion, string> = {
   era: 'Classic Era',
   hardcore: 'Classic Era - Hardcore',
   classic: 'Wrath',
   seasonal: 'Season of Discovery',
 } as const;
 
-async function getAccessToken() {
+export const tsmApiKeys: Record<i.GameVersion, string> = {
+  era: process.env.TSM_API_KEY_D!,
+  hardcore: process.env.TSM_API_KEY_C!,
+  classic: process.env.TSM_API_KEY_B!,
+  seasonal: process.env.TSM_API_KEY!,
+};
+
+async function getAccessToken(tsmApiKey: string) {
   const cached = await kv.get(KEYS.tsmAccessToken);
   if (cached) {
     return cached;
@@ -23,7 +30,7 @@ async function getAccessToken() {
       client_id: process.env.TSM_CLIENT_ID,
       grant_type: 'api_token',
       scope: 'app:realm-api app:pricing-api',
-      token: process.env.TSM_API_KEY,
+      token: tsmApiKey ?? process.env.TSM_API_KEY,
     }),
     headers: {
       'content-type': 'application/json',
@@ -60,8 +67,8 @@ async function getAccessToken() {
   return access_token;
 }
 
-async function headers() {
-  const token = await getAccessToken();
+async function headers(tsmApiKey: string) {
+  const token = await getAccessToken(tsmApiKey);
 
   return {
     Accept: 'application/json',
@@ -76,8 +83,9 @@ export async function getRealms(regionq: i.Region, version: i.GameVersion) {
 
   // Fetch from TSM if not in cache
   if (regions.items.length === 0) {
+    const tsmApiKey = tsmApiKeys[version];
     const response = await fetch(`https://realm-api.tradeskillmaster.com/realms`, {
-      headers: await headers(),
+      headers: await headers(tsmApiKey),
     });
     if (response.status !== 200) {
       throw new Error(`Failed to fetch realms`);
@@ -108,11 +116,11 @@ export async function getRealms(regionq: i.Region, version: i.GameVersion) {
 
 const queue = new Map<string | number, Promise<Item[] | undefined>>();
 
-async function fetchAuctionHouse(auctionHouseId: string | number) {
+async function fetchAuctionHouse(auctionHouseId: string | number, tsmApiKey: string) {
   console.info(auctionHouseId, 'fetching auction house...');
 
   const response = await fetch(`https://pricing-api.tradeskillmaster.com/ah/${auctionHouseId}`, {
-    headers: await headers(),
+    headers: await headers(tsmApiKey),
   });
 
   if (response.status !== 200) {
@@ -125,7 +133,7 @@ async function fetchAuctionHouse(auctionHouseId: string | number) {
   return response.json() as Promise<Item[]>;
 }
 
-export async function getAuctionHouse(auctionHouseId: string | number) {
+export async function getAuctionHouse(auctionHouseId: string | number, tsmApiKey: string) {
   // If already in queue, return its request
   if (queue.has(auctionHouseId)) {
     console.info(auctionHouseId, 'Waiting for AH in queue to resolve...');
@@ -145,7 +153,7 @@ export async function getAuctionHouse(auctionHouseId: string | number) {
           return undefined;
         }
 
-        const auctionHouse = await fetchAuctionHouse(auctionHouseId);
+        const auctionHouse = await fetchAuctionHouse(auctionHouseId, tsmApiKey);
 
         if (Array.isArray(auctionHouse) && auctionHouse.length > 0) {
           try {
@@ -170,14 +178,14 @@ export async function getAuctionHouse(auctionHouseId: string | number) {
   return queue.get(auctionHouseId);
 }
 
-export async function getItem(itemId: number, auctionHouseId: number) {
+export async function getItem(itemId: number, auctionHouseId: number, tsmApiKey: string) {
   const logPrefix = `${itemId}:${auctionHouseId}`;
   console.info(logPrefix, 'Fetching item from TSM');
 
   const response = await fetch(
     `https://pricing-api.tradeskillmaster.com/ah/${auctionHouseId}/item/${itemId}`,
     {
-      headers: await headers(),
+      headers: await headers(tsmApiKey),
     },
   );
 
