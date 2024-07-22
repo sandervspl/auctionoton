@@ -2,18 +2,17 @@
 
 import * as React from 'react';
 import { Loader2Icon } from 'lucide-react';
-import { $path } from 'next-typesafe-url';
 import { useDebounce } from 'use-debounce';
-import Link from 'next/link';
 import * as Combobox from 'park-ui/combobox';
 import { Input } from 'park-ui/input';
 
 import { useSettings } from 'hooks/use-settings';
 import { useSearchQuery } from 'queries/search';
-import { addRecentSearch } from 'actions/search';
 import { getTextQualityColor } from 'services/colors';
 
 import { ItemImage } from './item-image';
+import { useRouter } from 'next/navigation';
+import { addRecentSearch } from 'actions/search';
 
 type Props = {
   autoFocus?: boolean;
@@ -32,9 +31,12 @@ export type SearchItem = {
 
 export const ItemSearch = React.forwardRef((props: Props, ref) => {
   const [inputValue, setValue] = React.useState('');
+  const [, startTransition] = React.useTransition();
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const router = useRouter();
   const [value] = useDebounce(inputValue, 500);
   const searchQuery = useSearchQuery(value);
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const { settings } = useSettings();
 
   React.useImperativeHandle(
     ref,
@@ -53,6 +55,18 @@ export const ItemSearch = React.forwardRef((props: Props, ref) => {
       items={searchQuery.data ?? []}
       selectionBehavior="clear"
       className={props.className}
+      onValueChange={(details) => {
+        startTransition(async () => {
+          const slug = details.value[0];
+          const itemId = searchQuery.data?.find((item) => item.slug === slug)?.id;
+          setValue('');
+          inputRef.current?.blur();
+          if (itemId) {
+            await addRecentSearch(inputValue, itemId);
+          }
+          router.push(`/item/${settings.realm}/${settings.region}/${settings.faction}/${details.value[0]}`);
+        })
+      }}
     >
       <Combobox.Control>
         <Combobox.Input placeholder="Search item" asChild>
@@ -83,7 +97,12 @@ export const ItemSearch = React.forwardRef((props: Props, ref) => {
                   {props.searchItem ? (
                     <props.searchItem item={item} />
                   ) : (
-                    <ItemLink {...{ item, inputRef, setValue, inputValue }} />
+                    <div className="flex items-center justify-start w-full gap-2 h-full">
+                      <ItemImage item={item} width={24} height={24} />
+                      <span className="truncate" style={getTextQualityColor(item.quality)}>
+                        {item.name}
+                      </span>
+                    </div>
                   )}
                 </Combobox.ItemText>
               </Combobox.Item>
@@ -94,43 +113,3 @@ export const ItemSearch = React.forwardRef((props: Props, ref) => {
     </Combobox.Root>
   );
 });
-
-type ItemLinkProps = {
-  setValue: (value: string) => void;
-  inputRef: React.RefObject<HTMLInputElement>;
-  item: SearchItem;
-  inputValue: string;
-};
-
-const ItemLink = (props: ItemLinkProps) => {
-  const { settings } = useSettings();
-
-  const onClick = () => {
-    props.setValue('');
-    props.inputRef.current?.blur();
-    addRecentSearch(props.inputValue, props.item.id);
-  };
-
-  return (
-    <Link
-      href={$path({
-        route: '/item/[...item]',
-        routeParams: {
-          item: [settings.realm, settings.region, settings.faction, props.item.slug!],
-        },
-      })}
-      className="flex items-center justify-start w-full gap-2 h-full"
-      onClick={onClick}
-    >
-      <ItemImage item={props.item} width={24} height={24} />
-      <span
-        className="truncate"
-        style={{
-          ...getTextQualityColor(props.item.quality),
-        }}
-      >
-        {props.item.name}
-      </span>
-    </Link>
-  );
-};
