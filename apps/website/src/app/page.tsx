@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 
 import { FactionButtons } from 'common/faction-buttons';
 import { ItemSearch } from 'common/item-search';
-import { RecentSearchSection } from 'modules/home/recent-search-section';
+import { RecentSearchSection, RecentSearchSectionLoader } from 'modules/home/recent-search-section';
 import { ErrorToast } from 'modules/home/error-toast';
 
 type Props = {
@@ -34,7 +34,9 @@ export default async function Page(props: Props) {
         </div>
       </section>
 
-      <RecentSearchSection />
+      <React.Suspense fallback={<RecentSearchSectionLoader />}>
+        <RecentSearchSection />
+      </React.Suspense>
 
       <React.Suspense fallback={null}>
         <ErrorToast />
