@@ -3,13 +3,11 @@ import {
   text,
   integer,
   pgTable,
-  unique,
   index,
   bigserial,
   timestamp,
   primaryKey,
 } from 'drizzle-orm/pg-core';
-import { createInsertSchema } from 'drizzle-zod';
 
 export const items = pgTable(
   'items',
@@ -38,8 +36,6 @@ export const items = pgTable(
   }),
 );
 
-export const insertItemsSchema = createInsertSchema(items);
-
 export const itemsMetadata = pgTable(
   'items_metadata',
   {
@@ -61,8 +57,6 @@ export const itemsMetadata = pgTable(
     slug_idx: index('items_metadata_slug_idx').on(table.slug),
   }),
 );
-
-export const insertItemsMetadataSchema = createInsertSchema(itemsMetadata);
 
 export const recentSearches = pgTable('recent_searches', {
   id: bigserial('id', { mode: 'number' }).primaryKey(),
