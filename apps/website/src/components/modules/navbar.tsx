@@ -17,10 +17,12 @@ export const Navbar = () => {
     <header className="relative h-16 px-4 border-b shrink-0 md:px-6 gap-4">
       <div className="flex items-center justify-between mx-auto w-full h-full max-w-screen-xl">
         <div className="flex items-center justify-start gap-4">
-          <Link href={$path({ route: '/' })} className="flex gap-2 items-center self-center">
+          <Link
+            href={$path({ route: '/' })}
+            className="flex items-center gap-2 sm:min-w-36 shrink-0"
+          >
             <Image src={IconSvg} alt="logo" className="size-6" />
-            <span className="hidden sm:block text-lg font-bold">auctionoton</span>
-            <span className="sm:hidden">A</span>
+            <div className="hidden sm:block text-lg font-bold ">auctionoton</div>
           </Link>
           <ItemSearch />
         </div>
@@ -36,7 +38,7 @@ export const Navbar = () => {
               </>
             ) : (
               <Button asChild variant="outline">
-                <SignInButton mode='modal' />
+                <SignInButton mode="modal" />
               </Button>
             )}
           </div>
