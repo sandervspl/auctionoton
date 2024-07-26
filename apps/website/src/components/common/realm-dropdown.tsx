@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useParams, usePathname, useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { $path } from 'next-typesafe-url';
 
 import { useMediaQuery } from 'hooks/use-media-query';
@@ -59,7 +59,6 @@ export function RealmDropdown() {
 function RealmList(props: { setOpen: (open: boolean) => void }) {
   const { setRealm, setRegion } = useSettings();
   const [, startTransition] = React.useTransition();
-  const pathname = usePathname();
   const router = useRouter();
   const params = useParams() as { item?: ItemParam };
 
