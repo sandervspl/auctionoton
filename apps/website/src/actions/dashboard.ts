@@ -5,7 +5,6 @@ import { revalidatePath } from 'next/cache';
 import { zfd } from 'zod-form-data';
 import { auth } from '@clerk/nextjs';
 import { redirect } from 'next/navigation';
-import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { db } from 'db';
@@ -19,7 +18,6 @@ export async function createDashboardSection(state: any, formdata: FormData) {
   try {
     const { userId } = auth();
     if (!userId) {
-      toast.error('You must be logged in');
       redirect('/');
     }
 
@@ -54,14 +52,13 @@ export async function addDashboardSectionItem(state: any, formdata: FormData) {
   try {
     const { userId } = auth();
     if (!userId) {
-      toast.error('You must be logged in');
       redirect('/');
     }
 
     const data = addSectionItem.parse(formdata);
 
     await db.transaction(async (tx) => {
-      const [sectionItem] = await db
+      const [sectionItem] = await tx
         .insert(dashboardSectionItems)
         .values({
           itemId: data.item_id,
@@ -73,7 +70,7 @@ export async function addDashboardSectionItem(state: any, formdata: FormData) {
         throw new Error('Error adding dashboard section item');
       }
 
-      await db.insert(dashboardSectionsSectionItems).values({
+      await tx.insert(dashboardSectionsSectionItems).values({
         dashboardSectionId: data.section_id,
         dashboardSectionItemId: sectionItem.id,
       });
