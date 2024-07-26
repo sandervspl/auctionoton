@@ -5,14 +5,15 @@ import { Loader2Icon } from 'lucide-react';
 import { useDebounce } from 'use-debounce';
 import * as Combobox from 'park-ui/combobox';
 import { Input } from 'park-ui/input';
+import { useRouter } from 'next/navigation';
+import type { CollectionItem } from '@ark-ui/react';
 
+import { addRecentSearch } from 'actions/search';
 import { useSettings } from 'hooks/use-settings';
 import { useSearchQuery } from 'queries/search';
 import { getTextQualityColor } from 'services/colors';
 
 import { ItemImage } from './item-image';
-import { useRouter } from 'next/navigation';
-import { addRecentSearch } from 'actions/search';
 
 type Props = {
   autoFocus?: boolean;
@@ -56,16 +57,24 @@ export const ItemSearch = React.forwardRef((props: Props, ref) => {
       selectionBehavior="clear"
       className={props.className}
       onValueChange={(details) => {
-        startTransition(async () => {
-          const slug = details.value[0];
-          const itemId = searchQuery.data?.find((item) => item.slug === slug)?.id;
-          setValue('');
-          inputRef.current?.blur();
-          if (itemId) {
-            await addRecentSearch(inputValue, itemId);
-          }
-          router.push(`/item/${settings.realm}/${settings.region}/${settings.faction}/${details.value[0]}`);
-        })
+        // If we have a custom item component we don't want to use the default action
+        if (!props.searchItem) {
+          startTransition(async () => {
+            const slug = details.value[0];
+            const itemId = searchQuery.data?.find((item) => item.slug === slug)?.id;
+
+            setValue('');
+            inputRef.current?.blur();
+
+            if (itemId) {
+              await addRecentSearch(inputValue, itemId);
+            }
+
+            router.push(
+              `/item/${settings.realm}/${settings.region}/${settings.faction}/${details.value[0]}`,
+            );
+          });
+        }
       }}
     >
       <Combobox.Control>
