@@ -36,7 +36,7 @@ export const Navbar = () => {
               </>
             ) : (
               <Button asChild variant="outline">
-                <SignInButton />
+                <SignInButton mode='modal' />
               </Button>
             )}
           </div>
