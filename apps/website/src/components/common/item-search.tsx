@@ -11,6 +11,7 @@ import { addRecentSearch } from 'actions/search';
 import { useSettings } from 'hooks/use-settings';
 import { useSearchQuery } from 'queries/search';
 import { getTextQualityColor } from 'services/colors';
+import { cn } from 'services/cn';
 
 import { ItemImage } from './item-image';
 
@@ -57,6 +58,7 @@ export const ItemSearch = React.forwardRef((props: Props, ref) => {
       selectionBehavior="clear"
       className={props.className}
       closeOnSelect={!!props.searchItem}
+      open={true}
       onValueChange={(details) => {
         // If we have a custom item component we don't want to use the default action
         if (!props.searchItem) {
@@ -90,7 +92,7 @@ export const ItemSearch = React.forwardRef((props: Props, ref) => {
         </Combobox.Input>
       </Combobox.Control>
       <Combobox.Positioner>
-        <Combobox.Content>
+        <Combobox.Content className={cn({ 'p-1': !!searchQuery.data })}>
           <>
             {searchQuery.data && searchQuery.data.length === 0 ? (
               <div className="p-2 flex items-center text-sm gap-2">No items found.</div>
@@ -103,7 +105,11 @@ export const ItemSearch = React.forwardRef((props: Props, ref) => {
 
           <Combobox.ItemGroup id="items">
             {searchQuery.data?.map((item) => (
-              <Combobox.Item key={item.id} item={item.slug}>
+              <Combobox.Item
+                key={item.id}
+                item={item.slug}
+                className="px-2 h-10 leading-6 text-base"
+              >
                 <Combobox.ItemText asChild>
                   {props.searchItem ? (
                     <props.searchItem item={item} />

@@ -1,4 +1,4 @@
-import { ark, type HTMLArkProps } from '@ark-ui/react/factory';
+import { ark, type HTMLArkProps } from '@ark-ui/react';
 import { forwardRef } from 'react';
 import { tv, type VariantProps } from 'tailwind-variants';
 
