@@ -6,7 +6,6 @@ import { useDebounce } from 'use-debounce';
 import * as Combobox from 'park-ui/combobox';
 import { Input } from 'park-ui/input';
 import { useRouter } from 'next/navigation';
-import type { CollectionItem } from '@ark-ui/react';
 
 import { addRecentSearch } from 'actions/search';
 import { useSettings } from 'hooks/use-settings';
@@ -31,8 +30,9 @@ export type SearchItem = {
 };
 
 export const ItemSearch = React.forwardRef((props: Props, ref) => {
+  const [selectedItem, setSelectedItem] = React.useState<number>();
   const [inputValue, setValue] = React.useState('');
-  const [, startTransition] = React.useTransition();
+  const [pending, startTransition] = React.useTransition();
   const inputRef = React.useRef<HTMLInputElement>(null);
   const router = useRouter();
   const [value] = useDebounce(inputValue, 500);
@@ -56,16 +56,18 @@ export const ItemSearch = React.forwardRef((props: Props, ref) => {
       items={searchQuery.data ?? []}
       selectionBehavior="clear"
       className={props.className}
+      closeOnSelect={!!props.searchItem}
       onValueChange={(details) => {
         // If we have a custom item component we don't want to use the default action
         if (!props.searchItem) {
+          const slug = details.value[0];
+          const itemId = searchQuery.data?.find((item) => item.slug === slug)?.id;
+
+          if (itemId) {
+            setSelectedItem(itemId);
+          }
+
           startTransition(async () => {
-            const slug = details.value[0];
-            const itemId = searchQuery.data?.find((item) => item.slug === slug)?.id;
-
-            setValue('');
-            inputRef.current?.blur();
-
             if (itemId) {
               await addRecentSearch(inputValue, itemId);
             }
@@ -94,7 +96,7 @@ export const ItemSearch = React.forwardRef((props: Props, ref) => {
               <div className="p-2 flex items-center text-sm gap-2">No items found.</div>
             ) : !searchQuery.data && inputValue.length > 0 ? (
               <div className="p-2 flex items-center text-sm gap-2">
-                <Loader2Icon className="animate-spin h-4 w-4" /> Searching...
+                <Loader2Icon className="animate-spin size-4" /> Searching...
               </div>
             ) : null}
           </>
@@ -108,9 +110,15 @@ export const ItemSearch = React.forwardRef((props: Props, ref) => {
                   ) : (
                     <div className="flex items-center justify-start w-full gap-2 h-full">
                       <ItemImage item={item} width={24} height={24} />
-                      <span className="truncate" style={getTextQualityColor(item.quality)}>
+                      <div
+                        className="truncate flex items-center justify-between w-full"
+                        style={getTextQualityColor(item.quality)}
+                      >
                         {item.name}
-                      </span>
+                        {selectedItem === item.id && pending && (
+                          <Loader2Icon className="animate-spin size-5 text-white" />
+                        )}
+                      </div>
                     </div>
                   )}
                 </Combobox.ItemText>
