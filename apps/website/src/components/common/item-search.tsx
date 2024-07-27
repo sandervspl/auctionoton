@@ -20,7 +20,6 @@ type Props = {
   className?: string;
   onBlur?: () => void;
   searchItem?: (props: { item: SearchItem }) => React.ReactNode;
-  closeOnSelect?: boolean;
 };
 
 export type SearchItem = {
@@ -32,6 +31,7 @@ export type SearchItem = {
 };
 
 export const ItemSearch = React.forwardRef((props: Props, ref) => {
+  const [open, setOpen] = React.useState(false);
   const [selectedItem, setSelectedItem] = React.useState<number>();
   const [inputValue, setValue] = React.useState('');
   const [pending, startTransition] = React.useTransition();
@@ -53,13 +53,20 @@ export const ItemSearch = React.forwardRef((props: Props, ref) => {
     [],
   );
 
+  if (!pending && open && !inputValue) {
+    setOpen(false);
+  }
+
   return (
     <Combobox.Root
       items={searchQuery.data ?? []}
       selectionBehavior="clear"
       className={props.className}
-      closeOnSelect={props.closeOnSelect ?? false}
+      open={open}
+      closeOnSelect={false}
       onValueChange={(details) => {
+        setValue('');
+
         // If we have a custom item component we don't want to use the default action
         if (!props.searchItem) {
           const slug = details.value[0];
@@ -87,7 +94,12 @@ export const ItemSearch = React.forwardRef((props: Props, ref) => {
             ref={inputRef}
             autoFocus={props.autoFocus}
             onBlur={props.onBlur}
-            onChange={(e) => setValue(e.currentTarget.value)}
+            onChange={(e) => {
+              if (e.currentTarget.value.length > 0 && !open) {
+                setOpen(true);
+              }
+              setValue(e.currentTarget.value);
+            }}
           />
         </Combobox.Input>
       </Combobox.Control>

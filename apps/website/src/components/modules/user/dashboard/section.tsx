@@ -82,7 +82,6 @@ export const DashboardSection = ({ section }: Props) => {
             // Component needs to always be mounted or else the results don't render
             className={cn({ 'sr-only': !isSearching, 'w-full': isSearching })}
             searchItem={(props) => <SearchItemComponent {...props} section={section} />}
-            closeOnSelect
           />
           {!isSearching && (
             <Button

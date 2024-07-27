@@ -26,7 +26,7 @@ export const Navbar = () => {
             <Image src={IconSvg} alt="logo" className="size-6" />
             <div className="hidden sm:block text-lg font-bold ">auctionoton</div>
           </Link>
-          <ItemSearch closeOnSelect />
+          <ItemSearch />
         </div>
 
         <div className="ml-auto self-center gap-2 hidden md:flex">
