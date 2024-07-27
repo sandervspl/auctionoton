@@ -20,6 +20,7 @@ type Props = {
   className?: string;
   onBlur?: () => void;
   searchItem?: (props: { item: SearchItem }) => React.ReactNode;
+  closeOnSelect?: boolean;
 };
 
 export type SearchItem = {
@@ -57,8 +58,7 @@ export const ItemSearch = React.forwardRef((props: Props, ref) => {
       items={searchQuery.data ?? []}
       selectionBehavior="clear"
       className={props.className}
-      closeOnSelect={!!props.searchItem}
-      open={true}
+      closeOnSelect={props.closeOnSelect ?? false}
       onValueChange={(details) => {
         // If we have a custom item component we don't want to use the default action
         if (!props.searchItem) {
