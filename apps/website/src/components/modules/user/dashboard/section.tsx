@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { PlusIcon } from 'lucide-react';
+import { Loader2Icon, PlusIcon, XIcon } from 'lucide-react';
 import Link from 'next/link';
 import { $path } from 'next-typesafe-url';
 import { useFormState } from 'react-dom';
@@ -14,7 +14,10 @@ import { Button } from 'shadcn-ui/button';
 import { useSettings } from 'hooks/use-settings';
 import { ItemSearch, type SearchItem } from 'common/item-search';
 import { cn } from 'services/cn';
-import { addDashboardSectionItem } from 'actions/dashboard';
+import { addDashboardSectionItem, deleteDashboardSection } from 'actions/dashboard';
+import { IconButton } from '~/components/park-ui/icon-button';
+import { useServerActionMutation } from '~/hooks/server-action-hooks';
+import { useRouter } from 'next/navigation';
 
 type Props = {
   section: {
@@ -42,14 +45,31 @@ type Props = {
 };
 
 export const DashboardSection = ({ section }: Props) => {
+  const router = useRouter();
   const { settings } = useSettings();
   const [isSearching, setIsSearching] = React.useState(false);
   const ref = React.useRef<HTMLInputElement>(null);
+  const deleteSection = useServerActionMutation(deleteDashboardSection);
+
+  function onDeleteClick() {
+    if (window.confirm('Are you sure you want to delete this section?')) {
+      deleteSection.mutateAsync({ section_id: section.id }).then(() => {
+        router.refresh();
+      });
+    }
+  }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className={cn({ 'opacity-25': deleteSection.isPending })}>
+      <CardHeader className="flex-row justify-between">
         <CardTitle>{section.name}</CardTitle>
+        {!deleteSection.isPending ? (
+          <IconButton onClick={onDeleteClick}>
+            <XIcon size={16} />
+          </IconButton>
+        ) : (
+          <Loader2Icon className="animate-spin" size={16} />
+        )}
       </CardHeader>
       <CardContent className="flex flex-col gap-6 justify-between">
         {section.items.length > 0 && (
@@ -64,9 +84,7 @@ export const DashboardSection = ({ section }: Props) => {
                   },
                 })}
                 className="flex items-center gap-2 hover:underline underline-offset-4"
-                style={{
-                  ...getTextQualityColor(item.quality),
-                }}
+                style={{ ...getTextQualityColor(item.quality) }}
               >
                 <ItemImage item={item} width={30} height={30} />
                 {item.name}

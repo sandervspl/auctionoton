@@ -6,9 +6,11 @@ import { zfd } from 'zod-form-data';
 import { auth } from '@clerk/nextjs';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
+import { createServerAction } from 'zsa';
 
 import { db } from 'db';
 import { dashboardSectionItems, dashboardSections, dashboardSectionsSectionItems } from 'db/schema';
+import { eq } from 'drizzle-orm';
 
 const createDashboardSectionSchema = zfd.formData({
   section_name: zfd.text(z.string({ required_error: 'Name is required' }).min(1).max(100)),
@@ -89,3 +91,14 @@ export async function addDashboardSectionItem(state: any, formdata: FormData) {
     error: '',
   };
 }
+
+export const deleteDashboardSection = createServerAction()
+  .input(
+    z.object({
+      section_id: z.number(),
+    }),
+  )
+  .handler(async ({ input }) => {
+    await db.delete(dashboardSections).where(eq(dashboardSections.id, input.section_id));
+    revalidatePath('/user/dashboard');
+  });
