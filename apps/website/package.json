@@ -48,8 +48,11 @@
     "use-debounce": "^10.0.0",
     "use-local-storage-state": "^19.1.0",
     "vaul": "^0.9.0",
-    "zod": "^3.22.4",
-    "zod-form-data": "^2.0.2"
+    "zod": "^3.23.8",
+    "zod-form-data": "^2.0.2",
+    "zsa": "^0.5.1",
+    "zsa-react": "^0.2.2",
+    "zsa-react-query": "^0.2.1"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^14.1.4",

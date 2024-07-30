@@ -296,11 +296,20 @@ importers:
         specifier: ^0.9.0
         version: 0.9.1(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1)
       zod:
-        specifier: ^3.22.4
+        specifier: ^3.23.8
         version: 3.23.8
       zod-form-data:
         specifier: ^2.0.2
         version: 2.0.2(zod@3.23.8)
+      zsa:
+        specifier: ^0.5.1
+        version: 0.5.1(zod@3.23.8)
+      zsa-react:
+        specifier: ^0.2.2
+        version: 0.2.2(react@18.3.1)(zod@3.23.8)
+      zsa-react-query:
+        specifier: ^0.2.1
+        version: 0.2.1(@tanstack/react-query@5.51.11)(react@18.3.1)(zod@3.23.8)
     devDependencies:
       '@next/bundle-analyzer':
         specifier: ^14.1.4
@@ -9139,3 +9148,35 @@ packages:
 
   /zod@3.23.8:
     resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
+
+  /zsa-react-query@0.2.1(@tanstack/react-query@5.51.11)(react@18.3.1)(zod@3.23.8):
+    resolution: {integrity: sha512-/2IbJFGOneghpNlqd+VdNXNUzxYdPKIyGADcWGFS8gbUIBNyzdkZqcUqHxeU9Qwu9t7I8jbQHGkpV775kbq3Ng==}
+    peerDependencies:
+      '@tanstack/react-query': ^5.0.0
+      react: ^18.0.0 || ^19.0.0
+      zod: ^3.23.5
+    dependencies:
+      '@tanstack/react-query': 5.51.11(react@18.3.1)
+      react: 18.3.1
+      zod: 3.23.8
+      zsa: 0.5.1(zod@3.23.8)
+    dev: false
+
+  /zsa-react@0.2.2(react@18.3.1)(zod@3.23.8):
+    resolution: {integrity: sha512-0jUGzIy4PRc8Ur3JS+YBdRyD3rnsErCzNeJOVLhTxPqaKDDQ+JEmIHGYAK354RNpchIlvGVDcuedZXEGL6Nl6Q==}
+    peerDependencies:
+      react: ^18.0.0 || ^19.0.0
+      zod: ^3.23.5
+    dependencies:
+      react: 18.3.1
+      zod: 3.23.8
+      zsa: 0.5.1(zod@3.23.8)
+    dev: false
+
+  /zsa@0.5.1(zod@3.23.8):
+    resolution: {integrity: sha512-8QI/SQrcdVFTlcFYGvKbB9UroLVZ0LJNEI1aVZUD2ASsRWqrgz1aEGqPAvuMgr+MM9+PQ3AyH8zspAcvbd2FoA==}
+    peerDependencies:
+      zod: ^3.23.5
+    dependencies:
+      zod: 3.23.8
+    dev: false
