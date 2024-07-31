@@ -163,7 +163,7 @@ const ItemLink = ({ item, settings, sectionId, sectionItemid }: ItemLinkProps) =
       style={{ ...getTextQualityColor(item.quality) }}
     >
       <ItemImage item={item} width={30} height={30} />
-      <div className="flex items-center gap-2 justify-between w-full">
+      <div className="flex items-center gap-4 justify-between w-full">
         {item.name}
         {deleteItem.isPending ? (
           <Loader2Icon className="animate-spin text-white" size={16} />
@@ -173,7 +173,7 @@ const ItemLink = ({ item, settings, sectionId, sectionItemid }: ItemLinkProps) =
               e.preventDefault();
               onDeleteItemClick(sectionItemid);
             }}
-            className="hidden group-hover/item:block"
+            className="opacity-0 group-hover/item:opacity-100"
           >
             <XIcon size={16} className="text-white" />
           </IconButton>
