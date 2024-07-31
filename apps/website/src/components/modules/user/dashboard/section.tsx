@@ -65,11 +65,11 @@ export const DashboardSection = ({ section }: Props) => {
   }
 
   return (
-    <Card className={cn({ 'opacity-25': deleteSection.isPending })}>
+    <Card className={cn('group/card', { 'opacity-25': deleteSection.isPending })}>
       <CardHeader className="flex-row justify-between">
         <CardTitle>{section.name}</CardTitle>
         {!deleteSection.isPending ? (
-          <IconButton onClick={onDeleteSectionClick}>
+          <IconButton onClick={onDeleteSectionClick} className="hidden group-hover/card:block">
             <XIcon size={16} />
           </IconButton>
         ) : (
@@ -158,7 +158,7 @@ const ItemLink = ({ item, settings, sectionId, sectionItemid }: ItemLinkProps) =
           item: [settings.realm, settings.region, settings.faction, `${item.slug}-${item.id}`],
         },
       })}
-      className={cn('flex items-center gap-2 hover:underline underline-offset-4', {
+      className={cn('group/item flex items-center gap-2 hover:underline underline-offset-4', {
         'opacity-50': deleteItem.isPending,
       })}
       style={{ ...getTextQualityColor(item.quality) }}
@@ -166,18 +166,19 @@ const ItemLink = ({ item, settings, sectionId, sectionItemid }: ItemLinkProps) =
       <ItemImage item={item} width={30} height={30} />
       <div className="flex items-center gap-2 justify-between w-full">
         {item.name}
-        <IconButton
-          onClick={(e) => {
-            e.preventDefault();
-            onDeleteItemClick(sectionItemid);
-          }}
-        >
-          {deleteItem.isPending ? (
-            <Loader2Icon className="animate-spin text-white" size={16} />
-          ) : (
+        {deleteItem.isPending ? (
+          <Loader2Icon className="animate-spin text-white" size={16} />
+        ) : (
+          <IconButton
+            onClick={(e) => {
+              e.preventDefault();
+              onDeleteItemClick(sectionItemid);
+            }}
+            className="hidden group-hover/item:block"
+          >
             <XIcon size={16} className="text-white" />
-          )}
-        </IconButton>
+          </IconButton>
+        )}
       </div>
     </Link>
   );
