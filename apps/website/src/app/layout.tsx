@@ -6,10 +6,10 @@ import { Inter } from 'next/font/google';
 
 import { cn } from 'services/cn';
 import { SITE_URL } from 'services/utils';
+import { Navbar } from 'modules/navbar';
 import { SizeIndicator } from 'common/SizeIndicator';
 
 import { Providers } from './Providers';
-import { Navbar } from 'modules/navbar';
 
 type Props = i.NextLayoutProps;
 
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
 };
 
-const RootLayout = (props: Props) => {
+const RootLayout = ({ children }: Props) => {
   return (
     <>
       <head>
@@ -39,7 +39,7 @@ const RootLayout = (props: Props) => {
           <Providers>
             <div className="flex flex-col w-full min-h-screen">
               <Navbar />
-              {props.children}
+              {children}
               {process.env.NODE_ENV !== 'production' && <SizeIndicator />}
             </div>
           </Providers>

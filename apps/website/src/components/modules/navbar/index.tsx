@@ -2,15 +2,13 @@ import Link from 'next/link';
 import { $path } from 'next-typesafe-url';
 import { SignInButton, UserButton, auth } from '@clerk/nextjs';
 import Image from 'next/image';
-import { MenuIcon, XIcon } from 'lucide-react';
 
 import { Button } from 'shadcn-ui/button';
-import * as Drawer from 'park-ui/drawer';
-import { IconButton } from 'park-ui/icon-button';
 import { RealmDropdown } from 'common/realm-dropdown';
 import { ItemSearch } from 'common/item-search';
-
 import IconSvg from 'public/vectors/icon.svg';
+
+import { MobileMenu } from './mobile-menu';
 
 export const Navbar = () => {
   const { userId } = auth();
@@ -52,49 +50,5 @@ export const Navbar = () => {
         </div>
       </div>
     </header>
-  );
-};
-
-export const MobileMenu = (props: Drawer.RootProps & { userId: string | null }) => {
-  return (
-    <Drawer.Root {...props}>
-      <Drawer.Trigger asChild>
-        <IconButton variant="ghost">
-          <MenuIcon />
-        </IconButton>
-      </Drawer.Trigger>
-      <Drawer.Backdrop />
-      <Drawer.Positioner className="right-0">
-        <Drawer.Content>
-          <Drawer.Header className="flex items-center justify-between">
-            <Drawer.Title>Auctionoton</Drawer.Title>
-            <Drawer.CloseTrigger asChild>
-              <IconButton variant="ghost">
-                <XIcon />
-              </IconButton>
-            </Drawer.CloseTrigger>
-          </Drawer.Header>
-          <Drawer.Body className="space-y-4">
-            <RealmDropdown />
-            {props.userId && (
-              <Button asChild variant="outline">
-                <Link href={$path({ route: '/user/dashboard' })}>Dashboard</Link>
-              </Button>
-            )}
-          </Drawer.Body>
-          <Drawer.Footer gap="3">
-            <div className="flex items-center gap-2">
-              {props.userId ? (
-                <UserButton />
-              ) : (
-                <Button asChild variant="outline">
-                  <SignInButton mode="modal" />
-                </Button>
-              )}
-            </div>
-          </Drawer.Footer>
-        </Drawer.Content>
-      </Drawer.Positioner>
-    </Drawer.Root>
   );
 };

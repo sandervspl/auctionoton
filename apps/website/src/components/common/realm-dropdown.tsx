@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { $path } from 'next-typesafe-url';
+import { Loader2Icon } from 'lucide-react';
 
 import { setAuctionHouseIdCookie } from 'actions/cookie';
 import { useMediaQuery } from 'hooks/use-media-query';
@@ -21,16 +22,24 @@ import { Drawer, DrawerContent, DrawerTrigger } from 'shadcn-ui/drawer';
 import { Popover, PopoverContent, PopoverTrigger } from 'shadcn-ui/popover';
 import { realmDropdownValues } from 'services/realms';
 import type { ItemParam } from 'src/app/item/[...item]/page';
-import { Loader2Icon } from 'lucide-react';
 
-export function RealmDropdown() {
+type Props = {
+  onOpen?: () => void;
+};
+
+export function RealmDropdown({ onOpen }: Props) {
   const { settings } = useSettings();
   const [open, setOpen] = React.useState(false);
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
+  function onOpenChange(isOpen: boolean) {
+    onOpen?.();
+    setOpen(isOpen);
+  }
+
   if (isDesktop) {
     return (
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={open} onOpenChange={onOpenChange}>
         <PopoverTrigger asChild>
           <Button variant="outline" className="w-[150px] justify-start capitalize">
             {settings.realm.replaceAll('-', ' ')} ({settings.region.toUpperCase()})
@@ -44,7 +53,7 @@ export function RealmDropdown() {
   }
 
   return (
-    <Drawer open={open} onOpenChange={setOpen}>
+    <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerTrigger asChild>
         <Button variant="outline" className="justify-start">
           Realm
