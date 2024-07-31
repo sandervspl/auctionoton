@@ -4,7 +4,7 @@ import { cookies } from 'next/headers';
 import { z } from 'zod';
 import { createServerAction } from 'zsa';
 
-import { getAuctionHouseId } from 'queries/auction-house';
+import { getAuctionHouseId } from 'services/auction-house';
 
 export const setAuctionHouseIdCookie = createServerAction()
   .input(

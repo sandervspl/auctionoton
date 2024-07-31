@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { getItemWithId, getItemHistory } from 'queries/items';
-import { getAuctionHouseId } from 'queries/auction-house';
+import { getAuctionHouseId } from 'services/auction-house';
 import { ItemCharts } from 'modules/item-detail/item-charts';
 
 type Props = i.NextPageProps<{

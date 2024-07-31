@@ -2,8 +2,8 @@ import type * as React from 'react';
 import { $path } from 'next-typesafe-url';
 import { notFound } from 'next/navigation';
 
-import { getAuctionHouseId } from 'queries/auction-house';
 import { getItemHistory } from 'queries/items';
+import { getAuctionHouseId } from 'services/auction-house';
 import { getTextQualityColor } from 'services/colors';
 import { FactionButtons } from 'common/faction-buttons';
 import { ItemImage } from 'common/item-image';
