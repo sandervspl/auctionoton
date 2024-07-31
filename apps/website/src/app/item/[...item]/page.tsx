@@ -2,7 +2,7 @@ import type * as i from 'types';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-import { getItemWithId, getItemFromSlug, getItemHistory } from 'queries/items';
+import { getItemWithId, getItemHistory } from 'queries/items';
 import { getAuctionHouseId } from 'queries/auction-house';
 import { ItemCharts } from 'modules/item-detail/item-charts';
 

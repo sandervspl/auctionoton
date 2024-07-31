@@ -10,10 +10,6 @@ export type Props = {
 
 export const CoinValue: React.FC<Props> = (props) => {
   const getValueStrings = (): string | JSX.Element[] => {
-    if (typeof props.value === 'string') {
-      return props.value;
-    }
-
     const raw = Number(props.value);
     const amount = props.amount ?? 1;
     const coins = convertToCoins(raw * amount);

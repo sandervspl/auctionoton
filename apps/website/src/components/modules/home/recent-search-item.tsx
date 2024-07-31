@@ -20,16 +20,16 @@ type Props = {
     slug: string | null;
     icon: string | null;
     quality: number | null;
-    minBuyout?: number | undefined;
-    marketValue?: number | undefined;
+    min_buyout?: number | undefined;
+    market_value?: number | undefined;
     diffMinBuyout?: number | undefined;
     diffMarketValue?: number | undefined;
-    lastUpdated?: Date | null | undefined;
   };
 };
 
 export const RecentSearchItem = (props: Props) => {
   const { settings } = useSettings();
+  const minBuyoutDiffPrct = (props.item.diffMinBuyout! / props.item.min_buyout!) * 100;
 
   return (
     <Card key={props.item.id} className="hover:border-white/30">
@@ -58,20 +58,20 @@ export const RecentSearchItem = (props: Props) => {
 
         <CardContent>
           <div className="flex gap-2 items-center">
-            <CoinValue value={props.item.minBuyout!} />
+            <CoinValue value={props.item.min_buyout!} />
 
             <div
               className={cn('flex items-center gap-1 text-green-400', {
-                'text-red-400': props.item.diffMarketValue! < 0,
+                'text-red-400': props.item.diffMinBuyout! < 0,
               })}
             >
-              {props.item.diffMarketValue! > 0 ? (
+              {props.item.diffMinBuyout! > 0 ? (
                 <MoveUpRightIcon size={18} />
-              ) : props.item.diffMarketValue! < 0 ? (
+              ) : props.item.diffMinBuyout! < 0 ? (
                 <MoveDownRightIcon size={18} />
               ) : null}
               <small className="text-xs">
-                {((props.item.diffMarketValue! / props.item.marketValue!) * 100).toFixed(2)}%
+                {Number.isNaN(minBuyoutDiffPrct) ? null : `${minBuyoutDiffPrct.toFixed(2)}%`}
               </small>
             </div>
           </div>
