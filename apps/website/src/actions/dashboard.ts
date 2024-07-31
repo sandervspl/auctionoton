@@ -10,7 +10,7 @@ import { createServerAction } from 'zsa';
 
 import { db } from 'db';
 import { dashboardSectionItems, dashboardSections, dashboardSectionsSectionItems } from 'db/schema';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
 const createDashboardSectionSchema = zfd.formData({
   section_name: zfd.text(z.string({ required_error: 'Name is required' }).min(1).max(100)),
@@ -95,10 +95,34 @@ export async function addDashboardSectionItem(state: any, formdata: FormData) {
 export const deleteDashboardSection = createServerAction()
   .input(
     z.object({
-      section_id: z.number(),
+      sectionId: z.number(),
     }),
   )
   .handler(async ({ input }) => {
-    await db.delete(dashboardSections).where(eq(dashboardSections.id, input.section_id));
+    await db.delete(dashboardSections).where(eq(dashboardSections.id, input.sectionId));
+    revalidatePath('/user/dashboard');
+  });
+
+export const deleteDashboardSectionItem = createServerAction()
+  .input(
+    z.object({
+      sectionId: z.number(),
+      sectionItemId: z.number(),
+    }),
+  )
+  .handler(async ({ input }) => {
+    await db.transaction(async (tx) => {
+      await tx
+        .delete(dashboardSectionsSectionItems)
+        .where(
+          and(
+            eq(dashboardSectionsSectionItems.dashboardSectionId, input.sectionId),
+            eq(dashboardSectionsSectionItems.dashboardSectionItemId, input.sectionItemId),
+          ),
+        );
+      await tx
+        .delete(dashboardSectionItems)
+        .where(eq(dashboardSectionItems.id, input.sectionItemId));
+    });
     revalidatePath('/user/dashboard');
   });

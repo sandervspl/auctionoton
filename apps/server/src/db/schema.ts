@@ -101,7 +101,7 @@ export const dashboardSectionsSectionItems = pgTable(
       .references(() => dashboardSections.id),
     dashboardSectionItemId: integer('dashboard_section_item_id')
       .notNull()
-      .references(() => dashboardSectionItems.id),
+      .references(() => dashboardSectionItems.id, { onDelete: 'cascade' }),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.dashboardSectionId, table.dashboardSectionItemId] }),

@@ -14,7 +14,11 @@ import { Button } from 'shadcn-ui/button';
 import { useSettings } from 'hooks/use-settings';
 import { ItemSearch, type SearchItem } from 'common/item-search';
 import { cn } from 'services/cn';
-import { addDashboardSectionItem, deleteDashboardSection } from 'actions/dashboard';
+import {
+  addDashboardSectionItem,
+  deleteDashboardSection,
+  deleteDashboardSectionItem,
+} from 'actions/dashboard';
 import { IconButton } from '~/components/park-ui/icon-button';
 import { useServerActionMutation } from '~/hooks/server-action-hooks';
 import { useRouter } from 'next/navigation';
@@ -48,15 +52,36 @@ export const DashboardSection = ({ section }: Props) => {
   const router = useRouter();
   const { settings } = useSettings();
   const [isSearching, setIsSearching] = React.useState(false);
+  const [itemIdDeleting, setItemIdDeleting] = React.useState<number>();
   const ref = React.useRef<HTMLInputElement>(null);
   const deleteSection = useServerActionMutation(deleteDashboardSection);
+  const deleteItem = useServerActionMutation(deleteDashboardSectionItem);
 
-  function onDeleteClick() {
+  function onDeleteSectionClick() {
     if (window.confirm('Are you sure you want to delete this section?')) {
-      deleteSection.mutateAsync({ section_id: section.id }).then(() => {
+      deleteSection.mutateAsync({ sectionId: section.id }).then(() => {
         router.refresh();
-        toast.success('Section deleted!');
+        toast.success('Section deleted');
       });
+    }
+  }
+
+  function onDeleteItemClick(sectionItemId: number) {
+    if (window.confirm('Are you sure you want to delete this item?')) {
+      setItemIdDeleting(sectionItemId);
+
+      deleteItem
+        .mutateAsync({ sectionId: section.id, sectionItemId })
+        .then(() => {
+          router.refresh();
+          toast.success('Item removed from section');
+        })
+        .catch((err) => {
+          console.error(err.message);
+        })
+        .finally(() => {
+          setItemIdDeleting(undefined);
+        });
     }
   }
 
@@ -65,7 +90,7 @@ export const DashboardSection = ({ section }: Props) => {
       <CardHeader className="flex-row justify-between">
         <CardTitle>{section.name}</CardTitle>
         {!deleteSection.isPending ? (
-          <IconButton onClick={onDeleteClick}>
+          <IconButton onClick={onDeleteSectionClick}>
             <XIcon size={16} />
           </IconButton>
         ) : (
@@ -75,7 +100,7 @@ export const DashboardSection = ({ section }: Props) => {
       <CardContent className="flex flex-col gap-6 justify-between">
         {section.items.length > 0 && (
           <div className="flex flex-col gap-4">
-            {section.items.map(({ dashboardSectionItem: { item } }) => (
+            {section.items.map(({ dashboardSectionItem: { item, id } }) => (
               <Link
                 key={item.id}
                 href={$path({
@@ -89,11 +114,27 @@ export const DashboardSection = ({ section }: Props) => {
                     ],
                   },
                 })}
-                className="flex items-center gap-2 hover:underline underline-offset-4"
+                className={cn('flex items-center gap-2 hover:underline underline-offset-4', {
+                  'opacity-50': itemIdDeleting === id,
+                })}
                 style={{ ...getTextQualityColor(item.quality) }}
               >
                 <ItemImage item={item} width={30} height={30} />
-                {item.name}
+                <div className="flex items-center gap-2 justify-between w-full">
+                  {item.name}
+                  <IconButton
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onDeleteItemClick(id);
+                    }}
+                  >
+                    {itemIdDeleting === id ? (
+                      <Loader2Icon className="animate-spin text-white" size={16} />
+                    ) : (
+                      <XIcon size={16} className="text-white" />
+                    )}
+                  </IconButton>
+                </div>
               </Link>
             ))}
           </div>
