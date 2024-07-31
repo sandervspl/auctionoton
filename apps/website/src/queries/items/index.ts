@@ -15,7 +15,7 @@ export async function getItemWithId(id: number | string) {
   });
 }
 
-export async function getItemHistory(itemId: number | string, auctionHouseId: number) {
+export async function getItemHistory(itemId: number | string, auctionHouseId: number | string) {
   const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const itemHistory = await db
     .select({
@@ -33,7 +33,7 @@ export async function getItemHistory(itemId: number | string, auctionHouseId: nu
     .where(
       and(
         eq(itemsMetadata.id, Number(itemId)),
-        eq(items.auctionHouseId, auctionHouseId),
+        eq(items.auctionHouseId, Number(auctionHouseId)),
         gt(items.timestamp, new Date(sevenDaysAgo)),
       ),
     )

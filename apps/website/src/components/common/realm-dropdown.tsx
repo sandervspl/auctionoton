@@ -4,7 +4,10 @@ import * as React from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { $path } from 'next-typesafe-url';
 
+import { setAuctionHouseIdCookie } from 'actions/cookie';
 import { useMediaQuery } from 'hooks/use-media-query';
+import { useSettings } from 'hooks/use-settings';
+import { useServerActionMutation } from 'hooks/server-action-hooks';
 import { Button } from 'shadcn-ui/button';
 import {
   Command,
@@ -17,7 +20,6 @@ import {
 import { Drawer, DrawerContent, DrawerTrigger } from 'shadcn-ui/drawer';
 import { Popover, PopoverContent, PopoverTrigger } from 'shadcn-ui/popover';
 import { realmDropdownValues } from 'services/realms';
-import { useSettings } from 'hooks/use-settings';
 import type { ItemParam } from 'src/app/item/[...item]/page';
 
 export function RealmDropdown() {
@@ -57,11 +59,12 @@ export function RealmDropdown() {
 }
 
 function RealmList(props: { setOpen: (open: boolean) => void }) {
-  const { setRealm, setRegion } = useSettings();
+  const { setRealm, setRegion, settings } = useSettings();
   const [, startTransition] = React.useTransition();
   const router = useRouter();
   const params = useParams() as { item?: ItemParam };
   const itemId = params.item?.[3]?.split('-').pop();
+  const setAuctionHouseCookie = useServerActionMutation(setAuctionHouseIdCookie);
 
   return (
     <Command>
@@ -74,13 +77,19 @@ function RealmList(props: { setOpen: (open: boolean) => void }) {
               key={realm.value}
               value={realm.value}
               onSelect={(value) => {
-                startTransition(() => {
+                startTransition(async () => {
                   props.setOpen(false);
                   const [realm, region] = value.split('_');
 
                   if (realm && region) {
                     setRealm(realm);
                     setRegion(region);
+
+                    await setAuctionHouseCookie.mutateAsync({
+                      region,
+                      realmSlug: realm,
+                      faction: settings.faction,
+                    });
 
                     if (params.item) {
                       router.push(

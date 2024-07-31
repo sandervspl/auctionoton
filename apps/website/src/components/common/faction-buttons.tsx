@@ -3,6 +3,8 @@
 import { useSettings } from 'hooks/use-settings';
 import Link from 'next/link';
 
+import { setAuctionHouseIdCookie } from 'actions/cookie';
+import { useServerActionMutation } from 'hooks/server-action-hooks';
 import { Button } from 'shadcn-ui/button';
 
 type Props = {
@@ -23,12 +25,20 @@ export const FactionButtons = (props: Props) => {
 
 const FactionButton = (props: { faction: 'alliance' | 'horde'; href?: string }) => {
   const { settings, setFaction } = useSettings();
+  const setAuctionHouseCookie = useServerActionMutation(setAuctionHouseIdCookie);
 
   if (!props.href) {
     return (
       <Button
         variant={settings.faction === props.faction ? 'default' : 'outline'}
-        onClick={() => setFaction(props.faction)}
+        onClick={() => {
+          setFaction(props.faction);
+          setAuctionHouseCookie.mutateAsync({
+            region: settings.region,
+            realmSlug: settings.realm,
+            faction: props.faction,
+          });
+        }}
       >
         {props.faction}
       </Button>
