@@ -1,3 +1,4 @@
+import 'server-only';
 import { db } from 'db';
 import { items, itemsMetadata } from 'db/schema';
 import { and, eq, asc, gt } from 'drizzle-orm';

@@ -1,3 +1,4 @@
+import 'server-only';
 import { auth } from '@clerk/nextjs';
 import { redirect } from 'next/navigation';
 
