@@ -30,22 +30,24 @@ const FactionButton = (props: { faction: 'alliance' | 'horde'; href?: string }) 
   const [isPending, startTransition] = React.useTransition();
   const setAuctionHouseCookie = useServerActionMutation(setAuctionHouseIdCookie);
 
+  async function onFactionClick() {
+    startTransition(async () => {
+      setFaction(props.faction);
+
+      await setAuctionHouseCookie.mutateAsync({
+        region: settings.region,
+        realmSlug: settings.realm,
+        faction: props.faction,
+      });
+    });
+  }
+
   if (!props.href) {
     return (
       <Button
         variant={settings.faction === props.faction ? 'default' : 'outline'}
         className="flex items-center gap-2"
-        onClick={() => {
-          startTransition(async () => {
-            setFaction(props.faction);
-
-            await setAuctionHouseCookie.mutateAsync({
-              region: settings.region,
-              realmSlug: settings.realm,
-              faction: props.faction,
-            });
-          });
-        }}
+        onClick={onFactionClick}
       >
         {props.faction}
         {isPending && <Loader2Icon className="animate-spin" size={16} />}
@@ -58,9 +60,10 @@ const FactionButton = (props: { faction: 'alliance' | 'horde'; href?: string }) 
       <Link
         href={props.href}
         className="capitalize flex items-center gap-2"
-        onClick={() => setFaction(props.faction)}
+        onClick={onFactionClick}
       >
         {props.faction}
+        {isPending && <Loader2Icon className="animate-spin" size={16} />}
       </Link>
     </Button>
   );
