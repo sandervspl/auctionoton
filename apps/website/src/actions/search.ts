@@ -1,10 +1,12 @@
 'use server';
 
 import { and, desc, isNotNull, like, or, sql, eq } from 'drizzle-orm';
+import { cookies } from 'next/headers';
+import { auth } from '@clerk/nextjs';
+import { redirect } from 'next/navigation';
 
 import { db } from 'db';
 import { itemsMetadata, recentSearches } from 'db/schema';
-import { cookies } from 'next/headers';
 
 export async function searchItem(search: string) {
   const results = await db
@@ -29,11 +31,12 @@ export async function searchItem(search: string) {
 }
 
 export async function addRecentSearch(search: string, itemId: number) {
-  try {
-    await db.insert(recentSearches).values({ search, itemId });
-  } catch (error: any) {
-    console.error('Error adding recent search:', error.message);
+  const { userId } = auth();
+  if (!userId) {
+    redirect('/?error=unauthorized');
   }
+
+  await db.insert(recentSearches).values({ search, itemId, userId });
 }
 
 type RecentSearchItem = {

@@ -7,10 +7,10 @@ import { auth } from '@clerk/nextjs';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { createServerAction } from 'zsa';
+import { and, eq } from 'drizzle-orm';
 
 import { db } from 'db';
 import { dashboardSectionItems, dashboardSections, dashboardSectionsSectionItems } from 'db/schema';
-import { and, eq } from 'drizzle-orm';
 
 const createDashboardSectionSchema = zfd.formData({
   section_name: zfd.text(z.string({ required_error: 'Name is required' }).min(1).max(100)),

@@ -3,6 +3,7 @@ import {
   text,
   integer,
   pgTable,
+  unique,
   index,
   bigserial,
   timestamp,
@@ -60,9 +61,13 @@ export const itemsMetadata = pgTable(
 
 export const recentSearches = pgTable('recent_searches', {
   id: bigserial('id', { mode: 'number' }).primaryKey(),
-  itemId: integer('item_id').notNull(),
+  itemId: integer('item_id')
+    .unique()
+    .notNull()
+    .references(() => items.id),
   search: text('search').notNull(),
   timestamp: timestamp('timestamp').defaultNow(),
+  userId: text('user_id').notNull(),
 });
 
 export const dashboardSections = pgTable('dashboard_sections', {
@@ -100,7 +105,7 @@ export const dashboardSectionsSectionItems = pgTable(
       .references(() => dashboardSections.id),
     dashboardSectionItemId: integer('dashboard_section_item_id')
       .notNull()
-      .references(() => dashboardSectionItems.id),
+      .references(() => dashboardSectionItems.id, { onDelete: 'cascade' }),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.dashboardSectionId, table.dashboardSectionItemId] }),

@@ -1,0 +1,408 @@
+{
+  "id": "64388b86-db13-4184-bcd5-92a8d39e5cb5",
+  "prevId": "5422fa31-06e7-4bb6-be46-8f92f55731ab",
+  "version": "5",
+  "dialect": "pg",
+  "tables": {
+    "dashboard_section_items": {
+      "name": "dashboard_section_items",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "item_id": {
+          "name": "item_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "dashboard_section_items_item_id_items_metadata_id_fk": {
+          "name": "dashboard_section_items_item_id_items_metadata_id_fk",
+          "tableFrom": "dashboard_section_items",
+          "tableTo": "items_metadata",
+          "columnsFrom": [
+            "item_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "dashboard_sections": {
+      "name": "dashboard_sections",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "dashboard_sections_section_items": {
+      "name": "dashboard_sections_section_items",
+      "schema": "",
+      "columns": {
+        "dashboard_section_id": {
+          "name": "dashboard_section_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dashboard_section_item_id": {
+          "name": "dashboard_section_item_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "dashboard_sections_section_items_dashboard_section_id_dashboard_sections_id_fk": {
+          "name": "dashboard_sections_section_items_dashboard_section_id_dashboard_sections_id_fk",
+          "tableFrom": "dashboard_sections_section_items",
+          "tableTo": "dashboard_sections",
+          "columnsFrom": [
+            "dashboard_section_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "dashboard_sections_section_items_dashboard_section_item_id_dashboard_section_items_id_fk": {
+          "name": "dashboard_sections_section_items_dashboard_section_item_id_dashboard_section_items_id_fk",
+          "tableFrom": "dashboard_sections_section_items",
+          "tableTo": "dashboard_section_items",
+          "columnsFrom": [
+            "dashboard_section_item_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "dashboard_sections_section_items_dashboard_section_id_dashboard_section_item_id_pk": {
+          "name": "dashboard_sections_section_items_dashboard_section_id_dashboard_section_item_id_pk",
+          "columns": [
+            "dashboard_section_id",
+            "dashboard_section_item_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "items": {
+      "name": "items",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "auction_house_id": {
+          "name": "auction_house_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "item_id": {
+          "name": "item_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pet_species_id": {
+          "name": "pet_species_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "min_buyout": {
+          "name": "min_buyout",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "quantity": {
+          "name": "quantity",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "market_value": {
+          "name": "market_value",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "historical": {
+          "name": "historical",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "num_auctions": {
+          "name": "num_auctions",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "timestamp": {
+          "name": "timestamp",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "items_item_id_idx": {
+          "name": "items_item_id_idx",
+          "columns": [
+            "item_id"
+          ],
+          "isUnique": false
+        },
+        "items_item_id_auction_house_id_idx": {
+          "name": "items_item_id_auction_house_id_idx",
+          "columns": [
+            "item_id",
+            "auction_house_id"
+          ],
+          "isUnique": false
+        },
+        "items_auction_house_id_ts_idx": {
+          "name": "items_auction_house_id_ts_idx",
+          "columns": [
+            "auction_house_id",
+            "timestamp"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "items_metadata": {
+      "name": "items_metadata",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "locale": {
+          "name": "locale",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'en_US'"
+        },
+        "quality": {
+          "name": "quality",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 1
+        },
+        "tags": {
+          "name": "tags",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "item_level": {
+          "name": "item_level",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "required_level": {
+          "name": "required_level",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "icon": {
+          "name": "icon",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'https://wow.zamimg.com/images/wow/icons/large/inv_misc_questionmark.jpg'"
+        }
+      },
+      "indexes": {
+        "items_metadata_id_idx": {
+          "name": "items_metadata_id_idx",
+          "columns": [
+            "id"
+          ],
+          "isUnique": false
+        },
+        "items_metadata_name_idx": {
+          "name": "items_metadata_name_idx",
+          "columns": [
+            "name"
+          ],
+          "isUnique": false
+        },
+        "items_metadata_slug_idx": {
+          "name": "items_metadata_slug_idx",
+          "columns": [
+            "slug"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "items_metadata_id_unique": {
+          "name": "items_metadata_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
+          ]
+        }
+      }
+    },
+    "recent_searches": {
+      "name": "recent_searches",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "item_id": {
+          "name": "item_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "search": {
+          "name": "search",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "timestamp": {
+          "name": "timestamp",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "recent_searches_item_id_items_metadata_id_fk": {
+          "name": "recent_searches_item_id_items_metadata_id_fk",
+          "tableFrom": "recent_searches",
+          "tableTo": "items_metadata",
+          "columnsFrom": [
+            "item_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "recent_searches_item_id_unique": {
+          "name": "recent_searches_item_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "item_id"
+          ]
+        }
+      }
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

@@ -64,9 +64,10 @@ export const recentSearches = pgTable('recent_searches', {
   itemId: integer('item_id')
     .unique()
     .notNull()
-    .references(() => items.id),
+    .references(() => itemsMetadata.id),
   search: text('search').notNull(),
   timestamp: timestamp('timestamp').defaultNow(),
+  userId: text('user_id').notNull(),
 });
 
 export const dashboardSections = pgTable('dashboard_sections', {
