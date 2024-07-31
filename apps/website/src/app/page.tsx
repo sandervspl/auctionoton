@@ -19,7 +19,7 @@ export const revalidate = 60;
 
 export default async function Page(props: Props) {
   return (
-    <main className="h-dvh">
+    <main className="h-dvh space-y-8 sm:space-y-0">
       <section className="grid grid-cols-1 sm:grid-cols-2 gap-10 px-10 pt-10 sm:pt-20 sm:h-[50%] max-w-screen-xl mx-auto">
         <div className="relative space-y-6 self-center">
           <div className="space-y-2">
