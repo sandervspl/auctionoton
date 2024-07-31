@@ -33,7 +33,7 @@ export async function searchItem(search: string) {
 export async function addRecentSearch(search: string, itemId: number) {
   const { userId } = auth();
   if (!userId) {
-    redirect('/?error=unauthorized');
+    return;
   }
 
   await db.insert(recentSearches).values({ search, itemId, userId });
