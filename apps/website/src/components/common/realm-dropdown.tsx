@@ -21,6 +21,7 @@ import { Drawer, DrawerContent, DrawerTrigger } from 'shadcn-ui/drawer';
 import { Popover, PopoverContent, PopoverTrigger } from 'shadcn-ui/popover';
 import { realmDropdownValues } from 'services/realms';
 import type { ItemParam } from 'src/app/item/[...item]/page';
+import { Loader2Icon } from 'lucide-react';
 
 export function RealmDropdown() {
   const { settings } = useSettings();
@@ -60,11 +61,16 @@ export function RealmDropdown() {
 
 function RealmList(props: { setOpen: (open: boolean) => void }) {
   const { setRealm, setRegion, settings } = useSettings();
-  const [, startTransition] = React.useTransition();
+  const [selected, setSelected] = React.useState<string>();
+  const [isPending, startTransition] = React.useTransition();
   const router = useRouter();
   const params = useParams() as { item?: ItemParam };
   const itemId = params.item?.[3]?.split('-').pop();
   const setAuctionHouseCookie = useServerActionMutation(setAuctionHouseIdCookie);
+
+  if (!isPending && selected) {
+    setSelected(undefined);
+  }
 
   return (
     <Command>
@@ -76,7 +82,10 @@ function RealmList(props: { setOpen: (open: boolean) => void }) {
             <CommandItem
               key={realm.value}
               value={realm.value}
+              className="flex items-center justify-between gap-2"
               onSelect={(value) => {
+                setSelected(value);
+
                 startTransition(async () => {
                   props.setOpen(false);
                   const [realm, region] = value.split('_');
@@ -106,6 +115,9 @@ function RealmList(props: { setOpen: (open: boolean) => void }) {
               }}
             >
               {realm.label}
+              {isPending && selected === realm.value && (
+                <Loader2Icon className="animate-spin" size={16} />
+              )}
             </CommandItem>
           ))}
         </CommandGroup>
