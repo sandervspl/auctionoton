@@ -5,7 +5,6 @@ import { Loader2Icon, PlusIcon, XIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { $path } from 'next-typesafe-url';
-import { useFormState } from 'react-dom';
 import { toast } from 'sonner';
 
 import { Card, CardContent, CardHeader, CardTitle } from 'shadcn-ui/card';
@@ -193,30 +192,39 @@ const SearchItemComponent = (props: SearchItemProps) => {
   const highestOrder = props.section.items.reduce((acc, { dashboardSectionItem: { order } }) => {
     return order > acc ? order : acc;
   }, 0);
-  const [state, action] = useFormState(addDashboardSectionItem, { error: '' });
+  const addItem = useServerActionMutation(addDashboardSectionItem);
 
-  React.useEffect(() => {
-    if (state.error) {
-      toast.error(state.error);
-    }
-  }, [state.error]);
+  const onItemClick = () => {
+    addItem
+      .mutateAsync({
+        section_id: props.section.id,
+        item_id: props.item.id,
+        highest_order: highestOrder,
+      })
+      .then(() => {
+        toast.success('Item added to section');
+      })
+      .catch((err) => {
+        console.error(err.message);
+        toast.error(err.message);
+      });
+  };
 
   return (
-    <form action={action}>
-      <input type="hidden" name="highest_order" value={highestOrder} />
-      <input type="hidden" name="section_id" value={props.section.id} />
-      <input type="hidden" name="item_id" value={props.item.id} />
-      <button type="submit" className="flex items-center justify-start w-full gap-2 h-full">
-        <ItemImage item={props.item} width={24} height={24} />
-        <span
-          className="truncate"
-          style={{
-            ...getTextQualityColor(props.item.quality),
-          }}
-        >
-          {props.item.name}
-        </span>
-      </button>
-    </form>
+    <button
+      type="button"
+      className="flex items-center justify-start w-full gap-2 h-full"
+      onClick={onItemClick}
+    >
+      <ItemImage item={props.item} width={24} height={24} />
+      <span
+        className="truncate"
+        style={{
+          ...getTextQualityColor(props.item.quality),
+        }}
+      >
+        {props.item.name}
+      </span>
+    </button>
   );
 };

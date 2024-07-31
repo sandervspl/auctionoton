@@ -2,7 +2,6 @@
 
 import { $path } from 'next-typesafe-url';
 import { revalidatePath } from 'next/cache';
-import { zfd } from 'zod-form-data';
 import { auth } from '@clerk/nextjs';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
@@ -32,27 +31,26 @@ export const createDashboardSection = createServerAction()
     revalidatePath('/user/dashboard');
   });
 
-const addSectionItem = zfd.formData({
-  section_id: zfd.numeric(z.number({ required_error: 'Section ID is required' })),
-  item_id: zfd.numeric(z.number({ required_error: 'Item ID is required' })),
-  highest_order: zfd.numeric(z.number({ required_error: 'Highest Order is required' })),
-});
-
-export async function addDashboardSectionItem(state: any, formdata: FormData) {
-  try {
+export const addDashboardSectionItem = createServerAction()
+  .input(
+    z.object({
+      section_id: z.number(),
+      item_id: z.number(),
+      highest_order: z.number(),
+    }),
+  )
+  .handler(async ({ input }) => {
     const { userId } = auth();
     if (!userId) {
       redirect('/');
     }
 
-    const data = addSectionItem.parse(formdata);
-
     await db.transaction(async (tx) => {
       const [sectionItem] = await tx
         .insert(dashboardSectionItems)
         .values({
-          itemId: data.item_id,
-          order: data.highest_order + 1,
+          itemId: input.item_id,
+          order: input.highest_order + 1,
         })
         .returning({ id: dashboardSectionItems.id });
 
@@ -61,24 +59,13 @@ export async function addDashboardSectionItem(state: any, formdata: FormData) {
       }
 
       await tx.insert(dashboardSectionsSectionItems).values({
-        dashboardSectionId: data.section_id,
+        dashboardSectionId: input.section_id,
         dashboardSectionItemId: sectionItem.id,
       });
     });
 
     revalidatePath($path({ route: '/user/dashboard' }));
-  } catch (error: any) {
-    console.error('Error adding dashboard section item', error.message);
-
-    return {
-      error: 'Error adding dashboard section item',
-    };
-  }
-
-  return {
-    error: '',
-  };
-}
+  });
 
 export const deleteDashboardSection = createServerAction()
   .input(
