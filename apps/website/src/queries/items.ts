@@ -1,7 +1,8 @@
 import 'server-only';
+import { and, eq, asc, gt } from 'drizzle-orm';
+
 import { db } from 'db';
 import { items, itemsMetadata } from 'db/schema';
-import { and, eq, asc, gt } from 'drizzle-orm';
 
 export async function getItemFromSlug(slug: string) {
   return db.query.itemsMetadata.findFirst({
