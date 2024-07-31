@@ -61,11 +61,11 @@ export default async function Layout(props: Props) {
           href={{
             a: $path({
               route: '/item/[...item]',
-              routeParams: { item: [realmSlug!, region!, 'alliance', `${itemSlug}-${itemId}`] },
+              routeParams: { item: [realmSlug!, region!, 'alliance', itemSlug] },
             }),
             h: $path({
               route: '/item/[...item]',
-              routeParams: { item: [realmSlug!, region!, 'horde', `${itemSlug}-${itemId}`] },
+              routeParams: { item: [realmSlug!, region!, 'horde', itemSlug] },
             }),
           }}
         />
