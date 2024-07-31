@@ -80,7 +80,12 @@ export const DashboardSection = ({ section }: Props) => {
                 href={$path({
                   route: '/item/[...item]',
                   routeParams: {
-                    item: [settings.realm, settings.region, settings.faction, item.slug!],
+                    item: [
+                      settings.realm,
+                      settings.region,
+                      settings.faction,
+                      `${item.slug}-${item.id}`,
+                    ],
                   },
                 })}
                 className="flex items-center gap-2 hover:underline underline-offset-4"

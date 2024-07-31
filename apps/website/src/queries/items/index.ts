@@ -9,7 +9,13 @@ export async function getItemFromSlug(slug: string) {
   });
 }
 
-export async function getItemHistory(itemSlug: string, auctionHouseId: number) {
+export async function getItemWithId(id: number | string) {
+  return db.query.itemsMetadata.findFirst({
+    where: (itemsMetadata, { eq }) => eq(itemsMetadata.id, Number(id)),
+  });
+}
+
+export async function getItemHistory(itemId: number | string, auctionHouseId: number) {
   const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const itemHistory = await db
     .select({
@@ -26,7 +32,7 @@ export async function getItemHistory(itemSlug: string, auctionHouseId: number) {
     .from(items)
     .where(
       and(
-        eq(itemsMetadata.slug, itemSlug!),
+        eq(itemsMetadata.id, Number(itemId)),
         eq(items.auctionHouseId, auctionHouseId),
         gt(items.timestamp, new Date(sevenDaysAgo)),
       ),

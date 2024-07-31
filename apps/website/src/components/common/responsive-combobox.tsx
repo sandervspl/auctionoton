@@ -16,7 +16,7 @@ import {
 } from 'shadcn-ui/command';
 import { Drawer, DrawerContent, DrawerTrigger } from 'shadcn-ui/drawer';
 import { Popover, PopoverContent, PopoverTrigger } from 'shadcn-ui/popover';
-import { ItemParam } from 'src/app/item/[...item]/page';
+import type { ItemParam } from 'src/app/item/[...item]/page';
 
 type Props = {
   options: Option[];
@@ -75,6 +75,7 @@ function StatusList(props: {
 }) {
   const router = useRouter();
   const params = useParams() as { item: ItemParam };
+  const itemId = params.item?.[3]?.split('-').pop();
 
   return (
     <Command>
@@ -94,7 +95,9 @@ function StatusList(props: {
                 router.push(
                   $path({
                     route: '/item/[...item]',
-                    routeParams: { item: [realm!, region!, params.item[2], params.item[3]] },
+                    routeParams: {
+                      item: [realm!, region!, params.item[2], `${params.item[3]}-${itemId}`],
+                    },
                   }),
                 );
               }}

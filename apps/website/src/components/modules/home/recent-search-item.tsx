@@ -37,7 +37,12 @@ export const RecentSearchItem = (props: Props) => {
         href={$path({
           route: '/item/[...item]',
           routeParams: {
-            item: [settings.realm, settings.region, settings.faction, props.item.slug!],
+            item: [
+              settings.realm,
+              settings.region,
+              settings.faction,
+              `${props.item.slug}-${props.item.itemId}`,
+            ],
           },
         })}
       >

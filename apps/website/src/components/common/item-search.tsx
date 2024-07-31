@@ -82,7 +82,7 @@ export const ItemSearch = React.forwardRef((props: Props, ref) => {
             }
 
             router.push(
-              `/item/${settings.realm}/${settings.region}/${settings.faction}/${details.value[0]}`,
+              `/item/${settings.realm}/${settings.region}/${settings.faction}/${details.value[0]}-${itemId}`,
             );
           });
         }

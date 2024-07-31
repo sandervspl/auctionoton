@@ -61,6 +61,7 @@ function RealmList(props: { setOpen: (open: boolean) => void }) {
   const [, startTransition] = React.useTransition();
   const router = useRouter();
   const params = useParams() as { item?: ItemParam };
+  const itemId = params.item?.[3]?.split('-').pop();
 
   return (
     <Command>
@@ -86,7 +87,7 @@ function RealmList(props: { setOpen: (open: boolean) => void }) {
                         $path({
                           route: '/item/[...item]',
                           routeParams: {
-                            item: [realm, region, 'alliance', params.item[3]],
+                            item: [realm, region, 'alliance', `${params.item[3]}-${itemId}`],
                           },
                         }),
                       );

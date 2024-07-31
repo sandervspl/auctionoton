@@ -19,12 +19,17 @@ type Props = {
 export default async function Layout(props: Props) {
   const [realmSlug, region, faction, itemSlug] = props.params.item;
 
+  const itemId = itemSlug!.split('-').pop();
+  if (!itemId) {
+    notFound();
+  }
+
   const auctionHouseId = getAuctionHouseId(region!, realmSlug!, faction!);
   if (auctionHouseId == null) {
     notFound();
   }
 
-  const itemHistory = await getItemHistory(itemSlug!, auctionHouseId!);
+  const itemHistory = await getItemHistory(itemId, auctionHouseId);
   if (itemHistory.length === 0) {
     notFound();
   }
@@ -55,11 +60,11 @@ export default async function Layout(props: Props) {
           href={{
             a: $path({
               route: '/item/[...item]',
-              routeParams: { item: [realmSlug!, region!, 'alliance', itemSlug!] },
+              routeParams: { item: [realmSlug!, region!, 'alliance', `${itemSlug}-${itemId}`] },
             }),
             h: $path({
               route: '/item/[...item]',
-              routeParams: { item: [realmSlug!, region!, 'horde', itemSlug!] },
+              routeParams: { item: [realmSlug!, region!, 'horde', `${itemSlug}-${itemId}`] },
             }),
           }}
         />
