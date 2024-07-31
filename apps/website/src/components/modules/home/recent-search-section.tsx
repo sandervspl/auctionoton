@@ -1,4 +1,4 @@
-import { getRecentSearches } from 'actions/search';
+import { getRecentSearches } from 'queries/search';
 
 import { RecentSearchItem } from './recent-search-item';
 
