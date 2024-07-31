@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Loader2Icon, PlusIcon, XIcon } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { $path } from 'next-typesafe-url';
 import { useFormState } from 'react-dom';
 import { toast } from 'sonner';
@@ -19,9 +20,8 @@ import {
   deleteDashboardSection,
   deleteDashboardSectionItem,
 } from 'actions/dashboard';
-import { IconButton } from '~/components/park-ui/icon-button';
-import { useServerActionMutation } from '~/hooks/server-action-hooks';
-import { useRouter } from 'next/navigation';
+import { IconButton } from 'park-ui/icon-button';
+import { useServerActionMutation } from 'hooks/server-action-hooks';
 
 type Props = {
   section: {
@@ -52,10 +52,8 @@ export const DashboardSection = ({ section }: Props) => {
   const router = useRouter();
   const { settings } = useSettings();
   const [isSearching, setIsSearching] = React.useState(false);
-  const [itemIdDeleting, setItemIdDeleting] = React.useState<number>();
   const ref = React.useRef<HTMLInputElement>(null);
   const deleteSection = useServerActionMutation(deleteDashboardSection);
-  const deleteItem = useServerActionMutation(deleteDashboardSectionItem);
 
   function onDeleteSectionClick() {
     if (window.confirm('Are you sure you want to delete this section?')) {
@@ -63,25 +61,6 @@ export const DashboardSection = ({ section }: Props) => {
         router.refresh();
         toast.success('Section deleted');
       });
-    }
-  }
-
-  function onDeleteItemClick(sectionItemId: number) {
-    if (window.confirm('Are you sure you want to delete this item?')) {
-      setItemIdDeleting(sectionItemId);
-
-      deleteItem
-        .mutateAsync({ sectionId: section.id, sectionItemId })
-        .then(() => {
-          router.refresh();
-          toast.success('Item removed from section');
-        })
-        .catch((err) => {
-          console.error(err.message);
-        })
-        .finally(() => {
-          setItemIdDeleting(undefined);
-        });
     }
   }
 
@@ -101,41 +80,13 @@ export const DashboardSection = ({ section }: Props) => {
         {section.items.length > 0 && (
           <div className="flex flex-col gap-4">
             {section.items.map(({ dashboardSectionItem: { item, id } }) => (
-              <Link
-                key={item.id}
-                href={$path({
-                  route: '/item/[...item]',
-                  routeParams: {
-                    item: [
-                      settings.realm,
-                      settings.region,
-                      settings.faction,
-                      `${item.slug}-${item.id}`,
-                    ],
-                  },
-                })}
-                className={cn('flex items-center gap-2 hover:underline underline-offset-4', {
-                  'opacity-50': itemIdDeleting === id,
-                })}
-                style={{ ...getTextQualityColor(item.quality) }}
-              >
-                <ItemImage item={item} width={30} height={30} />
-                <div className="flex items-center gap-2 justify-between w-full">
-                  {item.name}
-                  <IconButton
-                    onClick={(e) => {
-                      e.preventDefault();
-                      onDeleteItemClick(id);
-                    }}
-                  >
-                    {itemIdDeleting === id ? (
-                      <Loader2Icon className="animate-spin text-white" size={16} />
-                    ) : (
-                      <XIcon size={16} className="text-white" />
-                    )}
-                  </IconButton>
-                </div>
-              </Link>
+              <ItemLink
+                key={id}
+                settings={settings}
+                item={item}
+                sectionId={section.id}
+                sectionItemid={id}
+              />
             ))}
           </div>
         )}
@@ -164,6 +115,71 @@ export const DashboardSection = ({ section }: Props) => {
         </div>
       </CardContent>
     </Card>
+  );
+};
+
+type ItemLinkProps = {
+  item: {
+    id: number;
+    name: string | null;
+    slug: string | null;
+    icon: string | null;
+    quality: number | null;
+  };
+  settings: ReturnType<typeof useSettings>['settings'];
+  sectionId: number;
+  sectionItemid: number;
+};
+
+const ItemLink = ({ item, settings, sectionId, sectionItemid }: ItemLinkProps) => {
+  const router = useRouter();
+  const deleteItem = useServerActionMutation(deleteDashboardSectionItem);
+
+  function onDeleteItemClick(sectionItemId: number) {
+    if (window.confirm('Are you sure you want to delete this item?')) {
+      deleteItem
+        .mutateAsync({ sectionId, sectionItemId })
+        .then(() => {
+          router.refresh();
+          toast.success('Item removed from section');
+        })
+        .catch((err) => {
+          console.error(err.message);
+        });
+    }
+  }
+
+  return (
+    <Link
+      key={item.id}
+      href={$path({
+        route: '/item/[...item]',
+        routeParams: {
+          item: [settings.realm, settings.region, settings.faction, `${item.slug}-${item.id}`],
+        },
+      })}
+      className={cn('flex items-center gap-2 hover:underline underline-offset-4', {
+        'opacity-50': deleteItem.isPending,
+      })}
+      style={{ ...getTextQualityColor(item.quality) }}
+    >
+      <ItemImage item={item} width={30} height={30} />
+      <div className="flex items-center gap-2 justify-between w-full">
+        {item.name}
+        <IconButton
+          onClick={(e) => {
+            e.preventDefault();
+            onDeleteItemClick(sectionItemid);
+          }}
+        >
+          {deleteItem.isPending ? (
+            <Loader2Icon className="animate-spin text-white" size={16} />
+          ) : (
+            <XIcon size={16} className="text-white" />
+          )}
+        </IconButton>
+      </div>
+    </Link>
   );
 };
 
