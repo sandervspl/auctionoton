@@ -7,9 +7,9 @@ import * as Combobox from 'park-ui/combobox';
 import { Input } from 'park-ui/input';
 import { useRouter } from 'next/navigation';
 
-import { addRecentSearch } from 'actions/search';
+import { addRecentSearch, searchItem } from 'actions/search';
 import { useSettings } from 'hooks/use-settings';
-import { useSearchQuery } from 'queries/search';
+import { useServerActionQuery } from 'hooks/server-action-hooks';
 import { getTextQualityColor } from 'services/colors';
 import { cn } from 'services/cn';
 
@@ -38,7 +38,10 @@ export const ItemSearch = React.forwardRef((props: Props, ref) => {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const router = useRouter();
   const [value] = useDebounce(inputValue, 500);
-  const searchQuery = useSearchQuery(value);
+  const searchQuery = useServerActionQuery(searchItem, {
+    input: value,
+    queryKey: ['search', value],
+  });
   const { settings } = useSettings();
 
   React.useImperativeHandle(
