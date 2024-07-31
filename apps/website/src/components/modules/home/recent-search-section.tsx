@@ -5,6 +5,10 @@ import { RecentSearchItem } from './recent-search-item';
 export const RecentSearchSection = async () => {
   const recentSearches = await getRecentSearches();
 
+  if (recentSearches.length === 0) {
+    return null;
+  }
+
   return (
     <section className="px-10 space-y-4">
       <h2 className="text-2xl font-bold">Recent Searches</h2>
@@ -23,9 +27,7 @@ export const RecentSearchSectionLoader = () => {
     <section className="px-10 space-y-4">
       <h2 className="text-2xl font-bold">Recent Searches</h2>
 
-      <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
-        ...
-      </div>
+      <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">...</div>
     </section>
   );
-}
+};

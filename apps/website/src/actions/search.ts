@@ -56,6 +56,11 @@ type RecentSearchItem = {
 };
 
 export async function getRecentSearches() {
+  const { userId } = auth();
+  if (!userId) {
+    return [];
+  }
+
   const auctionHouseId = cookies().get('auctionhouse_id');
 
   if (!auctionHouseId) {
@@ -85,6 +90,7 @@ export async function getRecentSearches() {
 WITH recent_searches_cte AS (
   SELECT id, item_id, search, timestamp
   FROM recent_searches
+  WHERE user_id = ${userId}
   ORDER BY timestamp DESC
   LIMIT 10
 ),
