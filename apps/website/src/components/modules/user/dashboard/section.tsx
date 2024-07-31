@@ -55,6 +55,7 @@ export const DashboardSection = ({ section }: Props) => {
     if (window.confirm('Are you sure you want to delete this section?')) {
       deleteSection.mutateAsync({ section_id: section.id }).then(() => {
         router.refresh();
+        toast.success('Section deleted!');
       });
     }
   }
