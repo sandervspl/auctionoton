@@ -12,37 +12,25 @@ import { and, eq } from 'drizzle-orm';
 import { db } from 'db';
 import { dashboardSectionItems, dashboardSections, dashboardSectionsSectionItems } from 'db/schema';
 
-const createDashboardSectionSchema = zfd.formData({
-  section_name: zfd.text(z.string({ required_error: 'Name is required' }).min(1).max(100)),
-});
-
-export async function createDashboardSection(state: any, formdata: FormData) {
-  try {
+export const createDashboardSection = createServerAction()
+  .input(
+    z.object({
+      section_name: z.string().min(1).max(100),
+    }),
+  )
+  .handler(async ({ input }) => {
     const { userId } = auth();
     if (!userId) {
       redirect('/');
     }
 
-    const data = createDashboardSectionSchema.parse(formdata);
-
     await db
       .insert(dashboardSections)
-      .values({ name: data.section_name, userId, order: 0 })
+      .values({ name: input.section_name, userId, order: 0 })
       .returning({ id: dashboardSections.id });
 
-    revalidatePath($path({ route: '/user/dashboard' }));
-  } catch (error: any) {
-    console.error('Error creating dashboard section', error.message);
-
-    return {
-      error: 'Error creating dashboard section',
-    };
-  }
-
-  return {
-    error: '',
-  };
-}
+    revalidatePath('/user/dashboard');
+  });
 
 const addSectionItem = zfd.formData({
   section_id: zfd.numeric(z.number({ required_error: 'Section ID is required' })),

@@ -1,5 +1,6 @@
 'use client';
 
+import * as React from 'react';
 import { useFormStatus } from 'react-dom';
 import { Loader2Icon, SquarePlusIcon } from 'lucide-react';
 
@@ -15,10 +16,24 @@ import {
 import { Button } from 'shadcn-ui/button';
 import { Input } from 'shadcn-ui/input';
 import { Label } from 'shadcn-ui/label';
-import { useCreateSectionModal } from './hooks';
+import { createDashboardSection } from 'actions/dashboard';
+import { useServerActionMutation } from 'hooks/server-action-hooks';
+import { toast } from 'sonner';
 
 export const CreateSectionModal = () => {
-  const { isOpen, setOpen, action, state } = useCreateSectionModal();
+  const [isOpen, setOpen] = React.useState(false);
+  const addSection = useServerActionMutation(createDashboardSection);
+
+  function onSubmit(formdata: FormData) {
+    addSection
+      .mutateAsync({ section_name: formdata.get('section_name') as string })
+      .then(() => {
+        setOpen(false);
+      })
+      .catch((err) => {
+        toast.error(err.message);
+      });
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={setOpen}>
@@ -33,7 +48,7 @@ export const CreateSectionModal = () => {
           <DialogTitle>Create item collection</DialogTitle>
           <DialogDescription>Add a new dashboard section to organize your items.</DialogDescription>
         </DialogHeader>
-        <form action={action}>
+        <form action={onSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-6 items-center gap-4">
               <Label htmlFor="section_name" className="text-right col-span-2">
@@ -47,7 +62,9 @@ export const CreateSectionModal = () => {
                 autoComplete="off"
               />
             </div>
-            {state.error && <p className="text-red-500 ml-auto">{state.error}</p>}
+            {addSection.isError && (
+              <p className="text-red-500 ml-auto">{addSection.error.message}</p>
+            )}
           </div>
           <DialogFooter>
             <SubmitButton />
