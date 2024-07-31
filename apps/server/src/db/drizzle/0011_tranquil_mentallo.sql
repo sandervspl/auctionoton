@@ -1,4 +1,4 @@
-ALTER TABLE "items_metadata" DROP CONSTRAINT "items_metadata_id_unq";--> statement-breakpoint
+ALTER TABLE "items_metadata" DROP CONSTRAINT IF EXISTS "items_metadata_id_unq";--> statement-breakpoint
 DROP INDEX IF EXISTS "items_item_id_auction_house_id_ts_idx";--> statement-breakpoint
 DROP INDEX IF EXISTS "items_metadata_id_locale_idx";--> statement-breakpoint
 DROP INDEX IF EXISTS "recent_searches_timestamp_idx";--> statement-breakpoint
@@ -12,4 +12,13 @@ EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
-ALTER TABLE "items_metadata" ADD CONSTRAINT "items_metadata_id_unique" UNIQUE("id");
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 
+        FROM pg_constraint 
+        WHERE conname = 'items_metadata_id_unique'
+    ) THEN
+        ALTER TABLE "items_metadata" ADD CONSTRAINT "items_metadata_id_unique" UNIQUE("id");
+    END IF;
+END $$;

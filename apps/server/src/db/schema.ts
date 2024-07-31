@@ -61,7 +61,10 @@ export const itemsMetadata = pgTable(
 
 export const recentSearches = pgTable('recent_searches', {
   id: bigserial('id', { mode: 'number' }).primaryKey(),
-  itemId: integer('item_id').notNull(),
+  itemId: integer('item_id')
+    .unique()
+    .notNull()
+    .references(() => items.id),
   search: text('search').notNull(),
   timestamp: timestamp('timestamp').defaultNow(),
 });
