@@ -49,7 +49,6 @@
     "use-local-storage-state": "^19.1.0",
     "vaul": "^0.9.0",
     "zod": "^3.23.8",
-    "zod-form-data": "^2.0.2",
     "zsa": "^0.5.1",
     "zsa-react": "^0.2.2",
     "zsa-react-query": "^0.2.1"
