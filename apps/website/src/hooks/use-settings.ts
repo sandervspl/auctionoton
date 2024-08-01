@@ -8,12 +8,12 @@ type Settings = {
   faction: string;
 };
 
-export function useSettings() {
+export function useSettings(initialValues?: Partial<Settings>) {
   const [settings, setSettings] = useLocalStorageState<Settings>('settings', {
     defaultValue: {
-      realm: 'chaos-bolt',
-      region: 'eu',
-      faction: 'alliance',
+      realm: initialValues?.realm ?? 'chaos-bolt',
+      region: initialValues?.region ?? 'eu',
+      faction: initialValues?.faction ?? 'alliance',
     },
   });
 

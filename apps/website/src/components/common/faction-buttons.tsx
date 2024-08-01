@@ -14,19 +14,24 @@ type Props = {
     a: string;
     h: string;
   };
+  initialValue?: string;
 };
 
 export const FactionButtons = (props: Props) => {
   return (
     <div className="flex gap-2 items-center">
-      <FactionButton faction="alliance" href={props.href?.a} />
-      <FactionButton faction="horde" href={props.href?.h} />
+      <FactionButton faction="alliance" initialFaction={props.initialValue} href={props.href?.a} />
+      <FactionButton faction="horde" initialFaction={props.initialValue} href={props.href?.h} />
     </div>
   );
 };
 
-const FactionButton = (props: { faction: 'alliance' | 'horde'; href?: string }) => {
-  const { settings, setFaction } = useSettings();
+const FactionButton = (props: {
+  faction: 'alliance' | 'horde';
+  initialFaction?: string;
+  href?: string;
+}) => {
+  const { settings, setFaction } = useSettings({ faction: props.initialFaction });
   const [isPending, startTransition] = React.useTransition();
   const setAuctionHouseCookie = useServerActionMutation(setAuctionHouseIdCookie);
 

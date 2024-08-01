@@ -68,6 +68,7 @@ export default async function Layout(props: Props) {
               routeParams: { item: [realmSlug!, region!, 'horde', itemSlug] },
             }),
           }}
+          initialValue={faction}
         />
       </header>
       {props.children}
