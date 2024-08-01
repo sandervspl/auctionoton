@@ -61,6 +61,7 @@ const FactionButton = (props: { faction: 'alliance' | 'horde'; href?: string }) 
         href={props.href}
         className="capitalize flex items-center gap-2"
         onClick={onFactionClick}
+        replace
       >
         {props.faction}
         {isPending && <Loader2Icon className="animate-spin" size={16} />}
