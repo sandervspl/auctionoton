@@ -2,7 +2,7 @@ import type * as React from 'react';
 import { $path } from 'next-typesafe-url';
 import { notFound } from 'next/navigation';
 
-import { getItemHistory } from 'queries/items';
+import { getItemHistory, getItemWithId } from 'queries/items';
 import { getAuctionHouseId } from 'services/auction-house';
 import { getTextQualityColor } from 'services/colors';
 import { FactionButtons } from 'common/faction-buttons';
@@ -30,8 +30,8 @@ export default async function Layout(props: Props) {
     notFound();
   }
 
-  const itemHistory = await getItemHistory(itemId, auctionHouseId);
-  if (itemHistory.length === 0) {
+  const itemMetadata = await getItemWithId(itemId);
+  if (!itemMetadata) {
     notFound();
   }
 
@@ -39,16 +39,16 @@ export default async function Layout(props: Props) {
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-10">
       <header className="flex flex-col gap-6">
         <div className="flex gap-2 items-center">
-          <ItemImage item={itemHistory[0]!} width={40} height={40} />
+          <ItemImage item={itemMetadata} width={40} height={40} />
 
           <div className="flex flex-col justify-start">
             <h1
               className="font-bold text-2xl"
               style={{
-                ...getTextQualityColor(itemHistory[0]?.quality),
+                ...getTextQualityColor(itemMetadata.quality),
               }}
             >
-              {itemHistory[0]?.name}
+              {itemMetadata.name}
             </h1>
             <p className="text-sm">
               <span className="capitalize">{realmSlug?.replaceAll('-', ' ')}</span> (

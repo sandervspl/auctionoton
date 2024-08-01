@@ -9,7 +9,8 @@ import { CoinValue } from 'common/coin-value';
 
 type Props = {
   data: { x: string; y: number }[];
-  title: string;
+  dataId: string;
+  title: string | React.ReactNode;
   lineProps?: Omit<LineSvgProps, 'data'>;
   children?: React.ReactNode;
 };
@@ -28,7 +29,7 @@ export const PriceChart = ({ lineProps, ...props }: Props) => {
             <ResponsiveLine
               data={[
                 {
-                  id: props.title,
+                  id: props.dataId,
                   data: props.data,
                 },
               ]}

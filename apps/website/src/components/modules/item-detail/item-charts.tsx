@@ -4,6 +4,8 @@ import * as React from 'react';
 import { ResponsiveLine } from '@nivo/line';
 import dayjs from 'dayjs';
 
+import { CoinValue } from 'common/coin-value';
+
 import { PriceChart } from './price-chart';
 
 type Props = {
@@ -28,23 +30,46 @@ export const ItemCharts = ({ itemHistory }: Props) => {
           x: dayjs(item.timestamp).format('YYYY-MM-DD HH:mm'),
           y: item.minBuyout,
         }))}
-        title="Min Buyout"
+        dataId="min-buyout"
+        title={
+          <div className="flex items-center gap-2">
+            Min Buyout <CoinValue value={itemHistory.at(-1)!.minBuyout} />
+          </div>
+        }
       />
       <PriceChart
         data={itemHistory.map((item) => ({
           x: dayjs(item.timestamp).format('YYYY-MM-DD HH:mm'),
           y: item.marketValue,
         }))}
-        title="Market Value"
+        dataId="market-value"
+        title={
+          <div className="flex items-center gap-2">
+            Market Value <CoinValue value={itemHistory.at(-1)!.marketValue} />
+          </div>
+        }
       />
       <PriceChart
         data={itemHistory.map((item) => ({
           x: dayjs(item.timestamp).format('YYYY-MM-DD HH:mm'),
           y: item.historical,
         }))}
-        title="Historical"
+        dataId="historical"
+        title={
+          <div>
+            Historical <span className="font-bold ml-1">{itemHistory.at(-1)!.historical}</span>
+          </div>
+        }
       />
-      <PriceChart data={[]} title="Quantity">
+      <PriceChart
+        data={[]}
+        dataId="quantity"
+        title={
+          <div>
+            Quantity <span className="font-bold ml-1">{itemHistory.at(-1)!.quantity}</span>
+          </div>
+        }
+      >
         <ResponsiveLine
           data={[
             {
