@@ -50,18 +50,6 @@ export const ItemCharts = ({ itemHistory }: Props) => {
         }
       />
       <PriceChart
-        data={itemHistory.map((item) => ({
-          x: dayjs(item.timestamp).format('YYYY-MM-DD HH:mm'),
-          y: item.historical,
-        }))}
-        dataId="historical"
-        title={
-          <div>
-            Historical <span className="font-bold ml-1">{itemHistory.at(-1)!.historical}</span>
-          </div>
-        }
-      />
-      <PriceChart
         data={[]}
         dataId="quantity"
         title={
