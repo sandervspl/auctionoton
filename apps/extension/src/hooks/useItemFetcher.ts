@@ -1,4 +1,4 @@
-import type * as i from 'types';
+import * as i from 'types';
 import React from 'react';
 import { useQuery, useQueryClient, type UseQueryOptions } from '@tanstack/react-query';
 

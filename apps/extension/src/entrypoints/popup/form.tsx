@@ -1,5 +1,5 @@
 import 'typed-query-selector';
-import type * as i from 'types';
+import * as i from 'types';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { QueryClient, QueryClientProvider, useMutation } from '@tanstack/react-query';

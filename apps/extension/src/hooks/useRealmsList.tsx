@@ -1,4 +1,4 @@
-import type * as i from 'types';
+import * as i from 'types';
 import { useQuery } from '@tanstack/react-query';
 
 import { auctionotonAPI, auctionotonAPIUrl } from 'utils';
