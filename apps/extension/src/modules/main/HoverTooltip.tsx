@@ -4,8 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import { Key } from 'w3c-keys';
 import { useSnapshot } from 'valtio';
 
-import getBodyElement from 'utils/getBodyElement';
-import asyncStorage from 'utils/asyncStorage';
+import { getBodyElement, asyncStorage } from 'utils';
 import useStorageQuery from 'hooks/useStorageQuery';
 import useItemFromPage from 'hooks/useItemFromPage';
 

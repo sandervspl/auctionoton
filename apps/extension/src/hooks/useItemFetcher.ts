@@ -1,9 +1,8 @@
-import * as i from 'types';
+import type * as i from 'types';
 import React from 'react';
-import { useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
+import { useQuery, useQueryClient, type UseQueryOptions } from '@tanstack/react-query';
 
-import asyncStorage from 'utils/asyncStorage';
-import validateCache from 'utils/validateCache';
+import { asyncStorage, validateCache } from 'utils';
 
 import { fetchItemFromAPI } from 'src/queries/item';
 import { useAuctionHouse } from './useAuctionHouse';

@@ -85,7 +85,7 @@ class AsyncStorage {
   };
 }
 
-const asyncStorage = new AsyncStorage();
+export const asyncStorage = new AsyncStorage();
 
 if (__DEV__) {
   // asyncStorage.clear();

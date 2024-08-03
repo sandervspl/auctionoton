@@ -1,8 +1,8 @@
 import * as i from 'types';
 import { useQueries } from '@tanstack/react-query';
 
-import asyncStorage from 'utils/asyncStorage';
-import { fetchItemFromAPI } from 'src/queries/item';
+import { asyncStorage } from 'utils';
+import { fetchItemFromAPI } from '@/queries/item';
 
 import useUser from './useUser';
 import { useWowhead } from './useWowhead';

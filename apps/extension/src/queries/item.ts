@@ -1,8 +1,7 @@
 import * as i from 'types';
 import dayjs from 'dayjs';
 
-import asyncStorage from 'utils/asyncStorage';
-import { auctionotonAPIUrl, auctionotonAPI } from 'utils/auctionotonApi';
+import { asyncStorage, auctionotonAPIUrl, auctionotonAPI } from 'utils';
 
 export async function fetchItemFromAPI(
   itemId: number,

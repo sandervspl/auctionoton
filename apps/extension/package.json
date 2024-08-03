@@ -7,10 +7,14 @@
   "author": "Sander Vispoel <sandervspl@github>",
   "license": "ISC",
   "scripts": {
-    "build": "npm run css:extension && npm run css:form && cross-env NODE_ENV=production node esbuild.config.js",
-    "start": "rm -rf ./dist && concurrently 'node esbuild.config.js' 'npm run css'",
+    "dev": "wxt",
+    "dev:firefox": "wxt --browser firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build --browser firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip --browser firefox",
+    "postinstall": "wxt prepare",
     "css": "concurrently 'npm run css:extension -- --watch' 'npm run css:form -- --watch'",
-    "postbuild": "cd dist; zip -D -r ../auctionoton-$npm_package_version.zip ./*",
     "ci:create-dist": "cd dist; zip -D -r ../auctionoton.zip ./*",
     "css:extension": "tailwindcss -i ./src/style.css -o ./dist/style.css",
     "css:form": "tailwindcss -i ./src/modules/browserAction/style.css -o ./dist/style_form.css",
@@ -64,6 +68,7 @@
     "postcss-import": "^15.1.0",
     "rimraf": "3.0.2",
     "tailwindcss": "^3.3.6",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "wxt": "^0.19.3"
   }
 }

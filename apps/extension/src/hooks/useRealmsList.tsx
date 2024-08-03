@@ -1,7 +1,7 @@
-import * as i from 'types';
+import type * as i from 'types';
 import { useQuery } from '@tanstack/react-query';
 
-import { auctionotonAPI, auctionotonAPIUrl } from 'utils/auctionotonApi';
+import { auctionotonAPI, auctionotonAPIUrl } from 'utils';
 
 type Realm = {
   name: string;
@@ -38,7 +38,9 @@ function useRealmsList(region: i.Regions, version: i.GameVersion) {
       return data;
     },
     enabled: !!region,
+    // biome-ignore lint/style/useNumberNamespace: <explanation>
     gcTime: Infinity,
+    // biome-ignore lint/style/useNumberNamespace: <explanation>
     staleTime: Infinity,
   });
 

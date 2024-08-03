@@ -6,8 +6,7 @@ module.exports = {
     preflight: false,
   },
   content: [
-    './src/modules/**/*.{html,ts,tsx,scss}',
-    './src/components/**/*.tsx',
+    './src/**/*.{html,ts,tsx,scss}',
 	],
   theme: {
     container: {

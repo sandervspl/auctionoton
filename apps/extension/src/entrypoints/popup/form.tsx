@@ -1,10 +1,11 @@
 import 'typed-query-selector';
-import * as i from 'types';
+import type * as i from 'types';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { QueryClient, QueryClientProvider, useMutation } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { type SubmitHandler, useForm } from 'react-hook-form';
+import slugify from 'slugify';
 
 import {
   SelectValue,
@@ -12,12 +13,12 @@ import {
   SelectItem,
   SelectContent,
   Select,
-} from 'src/components/ui/select';
-import { Button } from 'src/components/ui/button';
-import { Tabs, TabsList, TabsTrigger } from 'src/components/ui/tabs';
-import useRealmsList from 'hooks/useRealmsList';
-import useStorageQuery from 'hooks/useStorageQuery';
-import asyncStorage from 'utils/asyncStorage';
+} from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import useRealmsList from '@/hooks/useRealmsList';
+import useStorageQuery from '@/hooks/useStorageQuery';
+import { asyncStorage } from 'utils';
 import {
   Form,
   FormControl,
@@ -25,10 +26,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from 'src/components/ui/form';
-import slugify from 'slugify';
-import { Skeleton } from 'src/components/ui/skeleton';
-import { useAuctionHouse } from 'hooks/useAuctionHouse';
+} from '@/components/ui/form';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useAuctionHouse } from '@/hooks/useAuctionHouse';
 
 interface FormInput {
   region: i.Regions;
@@ -75,7 +75,7 @@ export const RealmForm: React.FC = () => {
         version: 'classic',
       });
     }
-  }, [user]);
+  }, [user, auctionHouseId, form.formState.isDirty, form.reset]);
 
   React.useEffect(() => {
     if (!realms.data) {
@@ -90,7 +90,7 @@ export const RealmForm: React.FC = () => {
     } else if (firstRealmInlist) {
       form.setValue('realm', firstRealmInlist.name);
     }
-  }, [user, realms.data, watchRegion, watchVersion]);
+  }, [user, realms.data, watchVersion, form.setValue]);
 
   React.useEffect(() => {
     if (!watchRealm) {
@@ -99,7 +99,7 @@ export const RealmForm: React.FC = () => {
 
     const faction = user?.faction[watchRealm];
     form.setValue('faction', faction || 'Alliance');
-  }, [watchRealm]);
+  }, [watchRealm, form.setValue, user?.faction[watchRealm]]);
 
   React.useEffect(() => {
     if (versionTab === 'classic') {
@@ -107,7 +107,7 @@ export const RealmForm: React.FC = () => {
     } else {
       form.setValue('version', 'seasonal');
     }
-  }, [versionTab]);
+  }, [versionTab, form.setValue]);
 
   const onSubmit: SubmitHandler<FormInput> = async (data, e) => {
     e?.preventDefault();
