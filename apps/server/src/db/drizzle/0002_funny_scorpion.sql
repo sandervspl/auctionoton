@@ -1,0 +1,1 @@
+ALTER TABLE "items" ALTER COLUMN "min_buyout" SET DATA TYPE numeric;

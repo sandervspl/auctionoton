@@ -15,6 +15,13 @@
       "when": 1709673329815,
       "tag": "0001_numerous_mysterio",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1721419759043,
+      "tag": "0002_funny_scorpion",
+      "breakpoints": true
     }
   ]
 }

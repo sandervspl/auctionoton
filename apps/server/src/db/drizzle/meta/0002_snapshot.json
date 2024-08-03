@@ -1,4 +1,6 @@
 {
+  "id": "38fd37ab-0d40-4750-a8b9-25d4a2fbee0b",
+  "prevId": "03ab9ad6-742c-452d-94b6-9857493b1baf",
   "version": "6",
   "dialect": "postgresql",
   "tables": {
@@ -32,7 +34,7 @@
         },
         "min_buyout": {
           "name": "min_buyout",
-          "type": "integer",
+          "type": "numeric",
           "primaryKey": false,
           "notNull": true
         },
@@ -165,10 +167,10 @@
       "uniqueConstraints": {
         "items_metadata_id_unq": {
           "name": "items_metadata_id_unq",
+          "nullsNotDistinct": false,
           "columns": [
             "id"
-          ],
-          "nullsNotDistinct": false
+          ]
         }
       }
     }
@@ -176,10 +178,8 @@
   "enums": {},
   "schemas": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
-  },
-  "id": "03ab9ad6-742c-452d-94b6-9857493b1baf",
-  "prevId": "fc3ac108-d576-44a9-a1bb-95c61c4cb449"
+    "tables": {}
+  }
 }

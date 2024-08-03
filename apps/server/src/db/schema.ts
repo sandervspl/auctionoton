@@ -1,4 +1,13 @@
-import { text, integer, pgTable, unique, index, bigserial, timestamp } from 'drizzle-orm/pg-core';
+import {
+  text,
+  integer,
+  pgTable,
+  unique,
+  index,
+  bigserial,
+  timestamp,
+  numeric,
+} from 'drizzle-orm/pg-core';
 import { createInsertSchema } from 'drizzle-zod';
 
 export const items = pgTable(
@@ -8,7 +17,7 @@ export const items = pgTable(
     auctionHouseId: integer('auction_house_id').notNull(),
     itemId: integer('item_id').notNull(),
     petSpeciesId: integer('pet_species_id'),
-    minBuyout: integer('min_buyout').notNull(),
+    minBuyout: numeric('min_buyout').notNull(),
     quantity: integer('quantity').notNull(),
     marketValue: integer('market_value').notNull(),
     historical: integer('historical').notNull(),

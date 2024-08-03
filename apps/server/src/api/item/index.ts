@@ -7,7 +7,7 @@ import { createDbClient } from '../../db';
 import { items, itemsMetadata } from '../../db/schema';
 import { getItemFromBnet } from '../../utils/blizzard/index.ts';
 import { qualityMap } from '../../utils';
-import { getAuctionHouse, getItem } from '../../utils/tsm';
+import { getAuctionHouse, getItem, tsmApiKeys } from '../../utils/tsm';
 import { Item } from '../../types/tsm';
 
 export async function itemService(itemId: number, auctionHouseId: number, version: i.GameVersion) {
@@ -36,7 +36,12 @@ async function queryItem(id: number, auctionHouseId: number, version: i.GameVers
       .fullJoin(itemsMetadata, eq(items.itemId, itemsMetadata.id))
       .orderBy(desc(items.timestamp))
       .limit(1);
-    const itemFromDb = queryResult?.[0]?.items;
+    const itemFromDb = queryResult?.[0]?.items
+      ? {
+          ...queryResult[0].items,
+          minBuyout: Number(queryResult[0].items.minBuyout),
+        }
+      : null;
 
     const someTimeAgo = dayjs().subtract(3, 'hours');
     const isTooOld = dayjs(itemFromDb?.timestamp) < someTimeAgo;
@@ -55,10 +60,11 @@ async function queryItem(id: number, auctionHouseId: number, version: i.GameVers
       let item: Item | undefined | null;
 
       // Fetch entire auction house if needed
-      getAuctionHouse(auctionHouseId);
+      const tsmApiKey = tsmApiKeys[version];
+      getAuctionHouse(auctionHouseId, tsmApiKey);
 
       // Get the item from TSM directly
-      item = await getItem(id, auctionHouseId);
+      item = await getItem(id, auctionHouseId, tsmApiKey);
 
       if (!item) {
         // If TSM fetch failed, return item from DB if possible
@@ -161,7 +167,7 @@ async function queryItem(id: number, auctionHouseId: number, version: i.GameVers
           numAuctions: item.numAuctions,
           marketValue: item.marketValue,
           historicalValue: item.historical,
-          minBuyout: item.minBuyout,
+          minBuyout: Number(item.minBuyout),
           quantity: item.quantity,
         },
         previous: null,
