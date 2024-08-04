@@ -151,8 +151,8 @@ export const RealmForm: React.FC = () => {
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <div className="space-y-2 text-center gap-4 flex items-center md:block">
-          <img alt="Logo" src="static/icon.png" className="mx-auto hidden md:block" />
-          <img alt="Logo" src="static/icon-48.png" className="block md:hidden" />
+          <img alt="Logo" src="/icon/icon.png" className="mx-auto hidden md:block" />
+          <img alt="Logo" src="/icon/48.png" className="block md:hidden" />
           <h1 className="text-lg md:text-3xl font-bold">Auctionoton</h1>
           <p className="text-zinc-500 dark:text-zinc-400 hidden md:block">
             Select your realm to see auction house prices on Wowhead
