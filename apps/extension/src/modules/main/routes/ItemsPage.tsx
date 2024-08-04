@@ -193,11 +193,11 @@ const TableCell: React.FC<Props> = (props) => {
   }, [props.rowEl, buyout, props.sorting]);
 
   return (
-    <td ref={cellRef} className="auc-text-left">
+    <td ref={cellRef} className="text-left">
       {isError && !item ? (
-        <span className="auc-flex">Error!</span>
+        <span className="flex">Error!</span>
       ) : item && (isLoading || isFetching) ? (
-        <div className="auc-flex auc-gap-2">
+        <div className="flex gap-2">
           <LoadingSvg style={{ width: '15px' }} />
           <Value value={item.stats.current.minBuyout} />
         </div>

@@ -28,15 +28,15 @@ export const ItemPriceTooltip = (props: Props) => {
     <Tooltip itemId={props.itemId}>
       {({ error, loading, item, getItem }) => {
         return (
-          <div className="auc-mt-2">
+          <div className="mt-2">
             {!loading && error && !item && (
-              <div className="auc-mb-2">
+              <div className="mb-2">
                 <button
-                  className="btn btn-small auc-btn"
+                  className="btn btn-small btn"
                   onClick={() => getItem()}
                   title="Try loading item data again for Auctionoton"
                 >
-                  <RedoSvg className="auc-h-2 auc-pr-1" />
+                  <RedoSvg className="h-2 pr-1" />
                   <span>Try again</span>
                 </button>
               </div>
@@ -46,7 +46,7 @@ export const ItemPriceTooltip = (props: Props) => {
                 href={createNexushubLink(item as i.CachedItemDataClassic)!}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="q auc-flex auc-place-items-center auc-gap-1"
+                className="q flex place-items-center gap-1"
               >
                 More information on Nexushub.co <ExternalLinkSvg />
               </a>

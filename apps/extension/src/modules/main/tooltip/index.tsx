@@ -69,7 +69,7 @@ const Tooltip: React.FC<Props> = (props) => {
       header={
         <>
           {lastUpdated && (
-            <div className="whtt-sellprice auc-mb-2">
+            <div className="whtt-sellprice mb-2">
               Last updated:&nbsp;
               <span
                 className={cn({
@@ -85,8 +85,8 @@ const Tooltip: React.FC<Props> = (props) => {
       }
     >
       {item ? (
-        <tr className="auc-block auc-w-full">
-          <td className="auc-block auc-w-full">
+        <tr className="block w-full">
+          <td className="block w-full">
             {!item?.stats?.current?.minBuyout ? (
               'No data is available for this realm.'
             ) : (
@@ -118,9 +118,9 @@ const Tooltip: React.FC<Props> = (props) => {
 
             {/* Only show this loading indicator if we can show a cached item */}
             {item && (isLoading || isFetching) ? (
-              <div className="auc-mt-2 auc-flex">
+              <div className="mt-2 flex">
                 {/* @ts-ignore */}
-                <LoadingSvg className="auc-mr-1 auc-inline-block auc-w-4" />
+                <LoadingSvg className="mr-1 inline-block w-4" />
                 Fetching latest price info...
               </div>
             ) : null}
@@ -138,15 +138,15 @@ const Tooltip: React.FC<Props> = (props) => {
       {error && !item ? (
         <tr>
           <td>
-            <div className="auc-mt-2 auc-flex auc-text-red-500">{errorStr}</div>
+            <div className="mt-2 flex text-red-500">{errorStr}</div>
           </td>
         </tr>
       ) : null}
       {/* {warning ? (
                   <tr>
                     <td>
-                      <div className="auc-mt-1">
-                        <WarningSvg className="auc-h-3" />
+                      <div className="mt-1">
+                        <WarningSvg className="h-3" />
                         {warning}
                       </div>
                     </td>

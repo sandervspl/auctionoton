@@ -39,8 +39,8 @@ export const Value: React.FC<Props> = (props) => {
   const value = getValueStrings();
 
   if (typeof value === 'string' || value.length > 0) {
-    return <span className="auc-flex auc-gap-1">{value}</span>;
+    return <span className="flex gap-1">{value}</span>;
   }
 
-  return <span className="auc-text-gray-300">N/A</span>;
+  return <span className="text-gray-300">N/A</span>;
 };

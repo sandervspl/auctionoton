@@ -39,13 +39,13 @@ export const TooltipBody: React.FC<Props> = (props) => {
       <tbody>
         <tr>
           <td>
-            <table className="!auc-block !auc-w-full">
-              <tbody className="!auc-block !auc-w-full">
-                <tr className="auc-block auc-w-full">
+            <table className="!block !w-full">
+              <tbody className="!block !w-full">
+                <tr className="block w-full">
                   <td>
                     {props.hideServerName ? null : (
                       <span className="q whtt-extra whtt-ilvl">
-                        <span className="auc-capitalize">{getServerName()}</span>
+                        <span className="capitalize">{getServerName()}</span>
                       </span>
                     )}
                     {props.header}
@@ -56,12 +56,12 @@ export const TooltipBody: React.FC<Props> = (props) => {
             </table>
           </td>
 
-          <th className="!auc-bg-right-top" />
+          <th className="!bg-right-top" />
         </tr>
 
         <tr>
-          <th className="!auc-bg-left-bottom" />
-          <th className="!auc-bg-right-bottom" />
+          <th className="!bg-left-bottom" />
+          <th className="!bg-right-bottom" />
         </tr>
       </tbody>
     </table>

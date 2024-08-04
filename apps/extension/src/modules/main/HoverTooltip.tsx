@@ -167,9 +167,7 @@ const HoverTooltip = (): React.ReactPortal | null => {
   return ReactDOM.createPortal(
     <Tooltip itemId={itemId} amount={shiftKeyPressed ? amount : 1}>
       {ui?.showTip.shiftKey && amount > 1 ? (
-        <div className="blizzard-blue auc-mt-2">
-          Tip: press shift to see the price for the stack!
-        </div>
+        <div className="blizzard-blue mt-2">Tip: press shift to see the price for the stack!</div>
       ) : null}
     </Tooltip>,
     containerEl.current,

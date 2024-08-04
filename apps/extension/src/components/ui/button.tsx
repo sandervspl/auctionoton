@@ -5,24 +5,22 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from 'utils';
 
 const buttonVariants = cva(
-  'auc-inline-flex auc-items-center auc-justify-center auc-whitespace-nowrap auc-rounded-md auc-text-sm auc-font-medium auc-ring-offset-background auc-transition-colors auc-focus-visible:outline-none auc-focus-visible:ring-2 auc-focus-visible:ring-ring auc-focus-visible:ring-offset-2 auc-disabled:pointer-events-none auc-disabled:opacity-50',
+  'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
-        default: 'auc-bg-primary auc-text-primary-foreground hover:auc-bg-primary/90',
-        destructive:
-          'auc-bg-destructive auc-text-destructive-foreground hover:auc-bg-destructive/90',
-        outline:
-          'auc-border auc-border-input auc-bg-background hover:auc-bg-accent hover:auc-text-accent-foreground',
-        secondary: 'auc-bg-secondary auc-text-secondary-foreground hover:auc-bg-secondary/80',
-        ghost: 'hover:auc-bg-accent hover:auc-text-accent-foreground',
-        link: 'auc-text-primary auc-underline-offset-4 hover:auc-underline',
+        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
+        destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
+        outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
+        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+        ghost: 'hover:bg-accent hover:text-accent-foreground',
+        link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
-        default: 'auc-h-10 auc-px-4 auc-py-2',
-        sm: 'auc-h-9 auc-rounded-md auc-px-3',
-        lg: 'auc-h-11 auc-rounded-md auc-px-8',
-        icon: 'auc-h-10 auc-w-10',
+        default: 'h-10 px-4 py-2',
+        sm: 'h-9 rounded-md px-3',
+        lg: 'h-11 rounded-md px-8',
+        icon: 'h-10 w-10',
       },
     },
     defaultVariants: {

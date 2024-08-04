@@ -31,8 +31,8 @@ export const SpellPage: React.FC = (props) => {
 
   return ReactDOM.createPortal(
     <>
-      <div className="auc-h-2" />
-      <p className="!auc-relative !auc-left-0 !auc-h-auto !auc-w-auto auc-text-[10px]">
+      <div className="h-2" />
+      <p className="!relative !left-0 !h-auto !w-auto text-[10px]">
         Auction House Prices for Wowhead
       </p>
 
@@ -44,7 +44,7 @@ export const SpellPage: React.FC = (props) => {
         }))}
       />
 
-      <div className="auc-h-1" />
+      <div className="h-1" />
       <ChangeRealmButton />
     </>,
     container,

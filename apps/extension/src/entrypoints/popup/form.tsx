@@ -147,29 +147,29 @@ export const RealmForm: React.FC = () => {
   return (
     <Form {...form}>
       <form
-        className="auc-mx-auto md:auc-max-w-md auc-space-y-6 auc-p-6 auc-w-full"
+        className="mx-auto md:max-w-md space-y-6 p-6 w-full"
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <div className="auc-space-y-2 auc-text-center auc-gap-4 auc-flex auc-items-center md:auc-block">
-          <img alt="Logo" src="static/icon.png" className="auc-mx-auto auc-hidden md:auc-block" />
-          <img alt="Logo" src="static/icon-48.png" className="auc-block md:auc-hidden" />
-          <h1 className="auc-text-lg md:auc-text-3xl auc-font-bold">Auctionoton</h1>
-          <p className="auc-text-zinc-500 dark:auc-text-zinc-400 auc-hidden md:auc-block">
+        <div className="space-y-2 text-center gap-4 flex items-center md:block">
+          <img alt="Logo" src="static/icon.png" className="mx-auto hidden md:block" />
+          <img alt="Logo" src="static/icon-48.png" className="block md:hidden" />
+          <h1 className="text-lg md:text-3xl font-bold">Auctionoton</h1>
+          <p className="text-zinc-500 dark:text-zinc-400 hidden md:block">
             Select your realm to see auction house prices on Wowhead
           </p>
         </div>
-        <div className="auc-space-y-6 auc-w-full">
+        <div className="space-y-6 w-full">
           <Tabs
             defaultValue="classic"
-            className="auc-w-full"
+            className="w-full"
             value={versionTab}
             onValueChange={(value) => setVersionTab(value as 'classic' | 'era')}
           >
-            <TabsList className="auc-w-full">
-              <TabsTrigger value="classic" className="auc-w-full">
+            <TabsList className="w-full">
+              <TabsTrigger value="classic" className="w-full">
                 Classic
               </TabsTrigger>
-              <TabsTrigger value="era" className="auc-w-full">
+              <TabsTrigger value="era" className="w-full">
                 Era
               </TabsTrigger>
             </TabsList>
@@ -180,7 +180,7 @@ export const RealmForm: React.FC = () => {
               control={form.control}
               name="version"
               render={({ field }) => (
-                <FormItem className="auc-space-y-1">
+                <FormItem className="space-y-1">
                   <FormLabel>Game Version</FormLabel>
                   <Select
                     onValueChange={field.onChange}
@@ -211,7 +211,7 @@ export const RealmForm: React.FC = () => {
               control={form.control}
               name="region"
               render={({ field }) => (
-                <FormItem className="auc-space-y-1">
+                <FormItem className="space-y-1">
                   <FormLabel>Region</FormLabel>
                   <Select
                     onValueChange={field.onChange}
@@ -238,10 +238,10 @@ export const RealmForm: React.FC = () => {
               control={form.control}
               name="realm"
               render={({ field }) => (
-                <FormItem className="auc-space-y-1">
+                <FormItem className="space-y-1">
                   <FormLabel>Realm</FormLabel>
                   {realms.isLoading ? (
-                    <Skeleton className="auc-h-[40px]" />
+                    <Skeleton className="h-[40px]" />
                   ) : (
                     <Select
                       onValueChange={field.onChange}
@@ -272,10 +272,10 @@ export const RealmForm: React.FC = () => {
               control={form.control}
               name="faction"
               render={({ field }) => (
-                <FormItem className="auc-space-y-1">
+                <FormItem className="space-y-1">
                   <FormLabel>Faction</FormLabel>
                   {realms.isLoading ? (
-                    <Skeleton className="auc-h-[40px]" />
+                    <Skeleton className="h-[40px]" />
                   ) : (
                     <Select
                       onValueChange={field.onChange}
@@ -298,12 +298,10 @@ export const RealmForm: React.FC = () => {
               )}
             />
           </div>
-          <Button className="auc-w-full" type="submit">
+          <Button className="w-full" type="submit">
             Save
           </Button>
-          {userMutation.isSuccess && (
-            <p className="auc-text-green-500 dark:auc-text-green-400">Saved!</p>
-          )}
+          {userMutation.isSuccess && <p className="text-green-500 dark:text-green-400">Saved!</p>}
         </div>
       </form>
     </Form>
