@@ -5,7 +5,7 @@ import _set from 'lodash/set';
 class AsyncStorage {
   async getAll(): Promise<i.BrowserStorage> {
     return new Promise((resolve) => {
-      addon.storage.local.get(null, (data) => {
+      chrome.storage.local.get(null, (data) => {
         return resolve(data as i.BrowserStorage);
       });
     });
@@ -13,7 +13,7 @@ class AsyncStorage {
 
   get = async <T extends i.StorageKeys>(key: T): Promise<i.BrowserStorage[T] | undefined> => {
     return new Promise((resolve) => {
-      addon.storage.local.get(key, (items) => {
+      chrome.storage.local.get(key, (items) => {
         return resolve(items[key]);
       });
     });
@@ -27,14 +27,14 @@ class AsyncStorage {
     const next = produce(cur || {}, update);
 
     return new Promise((resolve) => {
-      addon.storage.local.set({ [key]: next }, resolve);
+      chrome.storage.local.set({ [key]: next }, resolve);
     });
   };
 
   clear = async <T extends i.StorageKeys>(key?: T): Promise<void> => {
     return new Promise((resolve) => {
       if (key) {
-        addon.storage.local.set({ [key]: {} }, resolve);
+        chrome.storage.local.set({ [key]: {} }, resolve);
       } else {
         this.init(resolve);
       }
@@ -81,7 +81,7 @@ class AsyncStorage {
       },
     };
 
-    addon.storage.local.set({ items, ui, user }).then(cb);
+    chrome.storage.local.set({ items, ui, user }).then(cb);
   };
 }
 

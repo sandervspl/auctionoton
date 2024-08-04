@@ -8,7 +8,7 @@ export const ChangeRealmButton: React.FC = () => {
   return (
     <button
       className="btn btn-small btn !flex items-center"
-      onClick={() => window.open(`${addon.runtime.getURL('form.html')}?large=true`)}
+      onClick={() => window.open(`${chrome.runtime.getURL('form.html')}?large=true`)}
       title="Change server for Auctionoton"
     >
       {/* @ts-ignore */}

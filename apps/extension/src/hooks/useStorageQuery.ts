@@ -12,7 +12,7 @@ function useStorageQuery<K extends i.StorageKeys>(key: K) {
   });
 
   React.useEffect(() => {
-    addon.storage.onChanged.addListener(() => {
+    chrome.storage.onChanged.addListener(() => {
       queryClient.invalidateQueries({ refetchType: 'all' });
     });
   }, [queryClient.invalidateQueries]);

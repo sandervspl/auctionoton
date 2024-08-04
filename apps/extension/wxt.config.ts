@@ -35,7 +35,13 @@ export default defineConfig({
     ],
   },
   vite: (env) => ({
-    plugins: [banner('var addon = (chrome || browser);'), svgr()],
+    plugins: [
+      banner({
+        content: 'var addon = (chrome || browser);',
+        outDir: '.output',
+      }),
+      svgr(),
+    ],
     define: {
       'process.env.NODE_ENV': JSON.stringify(env),
       __DEV__: JSON.stringify(DEV),
