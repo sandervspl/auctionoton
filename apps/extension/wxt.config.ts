@@ -11,16 +11,11 @@ export default defineConfig({
   manifestVersion: 3,
   modules: ['@wxt-dev/module-react'],
   modulesDir: 'src/wxtModules',
+  runner: {
+    chromiumArgs: ['--disable-search-engine-choice-screen'],
+  },
   alias: {
-    'constants/*': 'src/constants/*',
-    state: 'src/state/index',
-    'state/*': 'src/state/*',
-    'hooks/*': 'src/hooks/*',
     utils: 'src/utils/index.ts',
-    'static/*': 'src/static/*',
-    'modules/*': 'src/modules/*',
-    types: 'src/types/index',
-    'src/*': 'src/*',
   },
   manifest: {
     permissions: [
