@@ -10,7 +10,7 @@ export default defineBackground(() => {
   chrome.runtime.onInstalled.addListener(async (details) => {
     if (details.reason === 'install') {
       asyncStorage.init();
-      chrome.tabs.create({ url: './form.html?large=true' });
+      chrome.tabs.create({ url: './popup.html?large=true' });
     }
 
     if (details.reason === 'update') {

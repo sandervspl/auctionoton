@@ -41,7 +41,7 @@
     {
       "resources": [
         "index.js",
-        "form.html"
+        "popup.html"
       ],
       "matches": [
         "<all_urls>"
@@ -53,11 +53,11 @@
   },
   "action": {
     "default_icon": "static/icon.png",
-    "default_popup": "form.html",
+    "default_popup": "popup.html",
     "default_title": "Auctionoton: Auction House Prices for Wowhead"
   },
   "options_ui": {
-    "page": "form.html",
+    "page": "popup.html",
     "open_in_tab": true
   },
   "icons": {
