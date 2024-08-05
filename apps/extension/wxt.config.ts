@@ -2,8 +2,8 @@ import { defineConfig } from 'wxt';
 import svgr from 'vite-plugin-svgr';
 import banner from 'vite-plugin-banner';
 
-const env = process.env.NODE_ENV || 'development';
-const DEV = env !== 'production';
+const nodeEnv = process.env.NODE_ENV || 'development';
+const DEV = nodeEnv !== 'production';
 const PROD = !DEV;
 
 export default defineConfig({
@@ -15,6 +15,7 @@ export default defineConfig({
     chromiumArgs: ['--disable-search-engine-choice-screen'],
   },
   alias: {
+    types: 'src/types/index.ts',
     utils: 'src/utils/index.ts',
   },
   manifest: {
@@ -38,7 +39,8 @@ export default defineConfig({
       svgr(),
     ],
     define: {
-      'process.env.NODE_ENV': JSON.stringify(env),
+      'process.env.NODE_ENV': JSON.stringify(nodeEnv),
+      __VITE_ENV__: JSON.stringify(env),
       __DEV__: JSON.stringify(DEV),
       __PROD__: JSON.stringify(PROD),
     },
