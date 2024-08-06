@@ -5,6 +5,11 @@
     "lineWidth": 100
   },
   "javascript": {
+    "globals": [
+      "__DEV__",
+      "__PROD__",
+      "__VITE_ENV__"
+    ],
     "formatter": {
       "enabled": true,
       "quoteStyle": "single",
