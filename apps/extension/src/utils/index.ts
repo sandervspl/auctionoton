@@ -1,4 +1,3 @@
-export * from './asyncStorage';
 export * from './getBodyElement';
 export * from './items';
 export * from './time';

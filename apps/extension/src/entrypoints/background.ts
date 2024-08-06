@@ -1,25 +1,43 @@
-// biome-ignore lint/style/noVar: <explanation>
-var addon = chrome || browser;
-import { asyncStorage } from 'utils';
+import * as i from 'types';
+import { storage } from 'wxt/storage';
 
 export default defineBackground(() => {
   // Reset storage
-  // asyncStorage.clear('items');
+  // storage.removeItem('local:items');
+
+  async function init() {
+    const items: i.ItemsData = {};
+    const user: Partial<i.UserData> = {
+      realms: {},
+      faction: {},
+    };
+    const ui: i.UiData = {
+      showTip: {
+        shiftKey: true,
+      },
+    };
+
+    await Promise.all([
+      storage.setItem('local:items', items),
+      storage.setItem('local:ui', ui),
+      storage.setItem('local:user', user),
+    ]);
+  }
 
   // Open page for user's server/faction information after installation
-  chrome.runtime.onInstalled.addListener(async (details) => {
+  browser.runtime.onInstalled.addListener(async (details) => {
     if (details.reason === 'install') {
-      asyncStorage.init();
-      chrome.tabs.create({ url: './popup.html?large=true' });
+      await init();
+      browser.tabs.create({ url: './popup.html?large=true' });
     }
 
     if (details.reason === 'update') {
       const prevVersion = details.previousVersion;
-      const curVersion = chrome.runtime.getManifest().version;
+      const curVersion = browser.runtime.getManifest().version;
 
       // Update to how "lastUpdated" is shown
       if (prevVersion !== '2.3.0' && curVersion === '2.3.0') {
-        asyncStorage.clear('items');
+        storage.removeItem('local:items');
       }
     }
   });

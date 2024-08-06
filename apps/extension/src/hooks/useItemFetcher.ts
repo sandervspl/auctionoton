@@ -2,8 +2,9 @@ import * as i from 'types';
 import React from 'react';
 import { skipToken, useQuery, useQueryClient, type UseQueryOptions } from '@tanstack/react-query';
 
-import { asyncStorage, validateCache } from 'utils';
+import { validateCache } from 'utils';
 import { fetchItemFromAPI } from '@/queries/item';
+import { getItemFromStorage } from '@/utils/storage';
 
 import { useAuctionHouse } from './useAuctionHouse';
 import { useWowhead } from './useWowhead';
@@ -37,11 +38,12 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
     setWarning('');
 
     // Check browser storage if item is stored
-    const itemFromStorage = await asyncStorage.getItem(queryKey);
-
+    const itemFromStorage = await getItemFromStorage(auctionHouseId, itemId);
     // If found, set it as the item
     if (itemFromStorage) {
-      queryClient.setQueryData<i.CachedItemDataClassic>(['item', ...queryKey], itemFromStorage);
+      if (queryKey.every((v) => v != null)) {
+        queryClient.setQueryData<i.CachedItemDataClassic>(['item', ...queryKey], itemFromStorage);
+      }
 
       if (validateCache(itemFromStorage)) {
         return itemFromStorage;

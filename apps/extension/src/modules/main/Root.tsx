@@ -1,5 +1,6 @@
 import React from 'react';
 import { Key } from 'w3c-keys';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { ItemPage } from './routes/ItemPage';
 import { SpellPage } from './routes/SpellPage';
@@ -19,11 +20,20 @@ class AppContainer extends React.Component {
 }
 
 const App: React.FC = () => {
+  const queryClient = useQueryClient();
   const isItemPage = window.location.pathname.includes('item=');
   const isSpellPage = window.location.pathname.includes('spell=');
   const isItemsPage = window.location.pathname.includes('/items/');
 
+  const onStorageChange = React.useCallback(() => {
+    queryClient.invalidateQueries({ refetchType: 'all' });
+  }, [queryClient.invalidateQueries]);
+
   React.useEffect(() => {
+    if (!browser.storage.onChanged.hasListener(onStorageChange)) {
+      browser.storage.onChanged.addListener(onStorageChange);
+    }
+
     function onKeyDown(e: KeyboardEvent) {
       uiState.keys[e.key as Key] = true;
     }
@@ -38,8 +48,9 @@ const App: React.FC = () => {
     return () => {
       document.removeEventListener('keydown', onKeyDown);
       document.removeEventListener('keyup', onKeyUp);
+      browser.storage.onChanged.removeListener(onStorageChange);
     };
-  }, []);
+  }, [onStorageChange]);
 
   console.log({ isItemPage, isItemsPage, isSpellPage });
 

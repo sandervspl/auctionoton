@@ -60,7 +60,7 @@ export type UserData = {
 };
 
 export type ItemsData = {
-  [ItemQueryKeyString: string]: i.AnyCachedItem;
+  [ItemQueryKeyString: `${number}:${number}`]: i.AnyCachedItem;
 };
 
 export type UiData = {

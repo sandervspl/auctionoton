@@ -1,7 +1,10 @@
 import * as i from 'types';
 import dayjs from 'dayjs';
+import { storage } from 'wxt/storage';
+import { produce } from 'immer';
 
-import { asyncStorage, auctionotonAPIUrl, auctionotonAPI } from 'utils';
+import { auctionotonAPIUrl, auctionotonAPI } from 'utils';
+import { addItemToStorage, getItemsFromStorage } from '@/utils/storage';
 
 export async function fetchItemFromAPI(
   itemId: number,
@@ -11,6 +14,7 @@ export async function fetchItemFromAPI(
 ) {
   try {
     if (!auctionHouseId) {
+      // @ts-ignore
       if (__DEV__) {
         throw new Error(
           `Invalid auction house id provided ("${auctionHouseId}") for item "${itemId}"`,
@@ -20,7 +24,7 @@ export async function fetchItemFromAPI(
       return;
     }
 
-    const { data, status } = await auctionotonAPI.get<i.ItemDataClassicResponse>(
+    const { data } = await auctionotonAPI.get<i.ItemDataClassicResponse>(
       `${auctionotonAPIUrl}/item/${itemId}/ah/${auctionHouseId}/${version}`,
     );
 
@@ -30,7 +34,7 @@ export async function fetchItemFromAPI(
     };
 
     // Store in browser storage
-    await asyncStorage.addItem([auctionHouseId, itemId], localData);
+    await addItemToStorage(auctionHouseId, itemId, localData);
 
     return localData;
   } catch (err: any) {

@@ -1,12 +1,13 @@
 import * as i from 'types';
 import { useQueries } from '@tanstack/react-query';
+import { storage } from 'wxt/storage';
 
-import { asyncStorage } from 'utils';
 import { fetchItemFromAPI } from '@/queries/item';
 
 import useUser from './useUser';
 import { useWowhead } from './useWowhead';
 import { useAuctionHouse } from './useAuctionHouse';
+import { getItemFromStorage } from '@/utils/storage';
 
 export function useItemsFetcher(itemIds: number[]) {
   const user = useUser();
@@ -26,7 +27,7 @@ export function useItemsFetcher(itemIds: number[]) {
         }
 
         // Check browser storage if item is stored
-        const cachedItem = await asyncStorage.getItem([user.realm!.auctionHouseId, itemId]);
+        const cachedItem = getItemFromStorage(user.realm!.auctionHouseId, itemId);
         if (cachedItem) {
           return cachedItem;
         }

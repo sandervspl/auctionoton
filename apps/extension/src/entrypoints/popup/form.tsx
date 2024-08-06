@@ -6,6 +6,8 @@ import { QueryClient, QueryClientProvider, useMutation } from '@tanstack/react-q
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { type SubmitHandler, useForm } from 'react-hook-form';
 import slugify from 'slugify';
+import { produce } from 'immer';
+import { storage } from 'wxt/storage';
 
 import {
   SelectValue,
@@ -18,7 +20,6 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import useRealmsList from '@/hooks/useRealmsList';
 import useStorageQuery from '@/hooks/useStorageQuery';
-import { asyncStorage } from 'utils';
 import {
   Form,
   FormControl,
@@ -119,7 +120,7 @@ export const RealmForm: React.FC = () => {
       throw Error('No realms found');
     }
 
-    return asyncStorage.set('user', (draft) => {
+    const nextUser = produce(user ?? ({} as i.UserData), (draft) => {
       const realm = realms.data.find((realm) => realm.name === data.realm);
 
       draft.region = data.region;
@@ -142,6 +143,8 @@ export const RealmForm: React.FC = () => {
         [data.realm]: data.faction,
       };
     });
+
+    return storage.setItem('local:user', nextUser);
   }
 
   return (
