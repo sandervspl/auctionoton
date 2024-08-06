@@ -13,8 +13,9 @@ export default defineConfig({
   runner: {
     chromiumArgs: ['--disable-search-engine-choice-screen', '--start-maximized'],
     startUrls: [
-      'https://www.wowhead.com/classic/item=17010/fiery-core#reagent-for',
-      'https://www.wowhead.com/classic/spell=23638/black-amnesty',
+      'https://www.wowhead.com/classic/item=12360/arcanite-bar', // Item Page
+      'https://www.wowhead.com/classic/spell=23638/black-amnesty', // Spell Page
+      'https://www.wowhead.com/classic/items/trade-goods/cloth', // Items Page
     ],
     keepProfileChanges: true,
   },
