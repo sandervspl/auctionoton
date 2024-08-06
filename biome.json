@@ -21,6 +21,9 @@
   },
   "linter": {
     "rules": {
+      "correctness": {
+        "noUnusedImports": "warn"
+      },
       "style": {
         "useImportType": "off",
         "noNonNullAssertion": "off"
