@@ -12,7 +12,12 @@ export default defineConfig({
   modules: ['@wxt-dev/module-react'],
   modulesDir: 'src/wxtModules',
   runner: {
-    chromiumArgs: ['--disable-search-engine-choice-screen'],
+    chromiumArgs: ['--disable-search-engine-choice-screen', '--start-maximized'],
+    startUrls: [
+      'https://www.wowhead.com/classic/item=17010/fiery-core#reagent-for',
+      'https://www.wowhead.com/classic/spell=23638/black-amnesty',
+    ],
+    keepProfileChanges: true,
   },
   alias: {
     types: 'src/types/index.ts',
