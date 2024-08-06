@@ -1,23 +1,21 @@
 import * as i from 'types';
-import { useQueries } from '@tanstack/react-query';
-import { storage } from 'wxt/storage';
+import { skipToken, useQueries } from '@tanstack/react-query';
 
 import { fetchItemFromAPI } from '@/queries/item';
 
 import useUser from './useUser';
 import { useWowhead } from './useWowhead';
-import { useAuctionHouse } from './useAuctionHouse';
 import { getItemFromStorage } from '@/utils/storage';
 
-export function useItemsFetcher(itemIds: number[]) {
+export function useItemsFetcher(itemIds: number[], auctionHouseId: number) {
   const user = useUser();
   const { version } = useWowhead();
-  const auctionHouseId = useAuctionHouse();
 
   return useQueries({
     queries: itemIds.map((itemId) => ({
-      enabled: !!user.realm,
+      enabled: !!auctionHouseId,
       queryKey: ['item', auctionHouseId, itemId],
+      retry: false,
       placeholderData: {
         itemId,
       } as i.CachedItemDataClassic,

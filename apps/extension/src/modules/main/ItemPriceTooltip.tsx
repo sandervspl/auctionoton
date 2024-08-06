@@ -9,6 +9,7 @@ import Tooltip from './tooltip';
 
 type Props = {
   itemId: number;
+  auctionHouseId: number;
 };
 
 export const ItemPriceTooltip = (props: Props) => {
@@ -25,7 +26,7 @@ export const ItemPriceTooltip = (props: Props) => {
   }
 
   return (
-    <Tooltip itemId={props.itemId}>
+    <Tooltip itemId={props.itemId} auctionHouseId={props.auctionHouseId}>
       {({ error, loading, item, getItem }) => {
         return (
           <div className="auc-mt-2">

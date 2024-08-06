@@ -10,6 +10,7 @@ import { getBodyElement } from 'utils';
 import useStorageQuery from '@/hooks/useStorageQuery';
 import useItemFromPage from '@/hooks/useItemFromPage';
 import { useEventListener } from '@/hooks/useEventListener';
+import { useAuctionHouse } from '@/hooks/useAuctionHouse';
 
 import Tooltip from './tooltip';
 import generateContainer from './generateContainer';
@@ -36,6 +37,7 @@ const HoverTooltip = () => {
       storage.setItem('local:ui', nextUi);
     },
   });
+  const auctionHouseId = useAuctionHouse();
 
   const shiftKeyPressed = uiSnap.keys[Key.Shift];
 
@@ -165,19 +167,12 @@ const HoverTooltip = () => {
     return observer;
   }
 
-  console.log({
-    visible,
-    itemId,
-    'containerEl.current': containerEl.current,
-    'hoverEl.current': hoverEl.current,
-  });
-
-  if (!visible || !itemId || !containerEl.current || !hoverEl.current) {
+  if (!visible || !itemId || !containerEl.current || !hoverEl.current || !auctionHouseId) {
     return null;
   }
 
   return ReactDOM.createPortal(
-    <Tooltip itemId={itemId} amount={shiftKeyPressed ? amount : 1}>
+    <Tooltip itemId={itemId} auctionHouseId={auctionHouseId} amount={shiftKeyPressed ? amount : 1}>
       {ui?.showTip.shiftKey && amount > 1 ? (
         <div className="blizzard-blue auc-mt-2">
           Tip: press shift to see the price for the stack!

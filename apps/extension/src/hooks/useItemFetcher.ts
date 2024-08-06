@@ -14,8 +14,7 @@ type Options = Omit<
   'queryKey' | 'queryFn'
 >;
 
-function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
-  const auctionHouseId = useAuctionHouse();
+function useItemFetcher(itemId: number, auctionHouseId: number, options?: Options): UseItemFetcher {
   const { version } = useWowhead();
   const queryClient = useQueryClient();
   const [error, setError] = React.useState('');
@@ -26,6 +25,7 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
     queryFn: !!auctionHouseId && !!itemId ? fetchItem : skipToken,
     refetchOnWindowFocus: true,
     retry: false, // Let user retry on demand with button
+    enabled: !!itemId && !!auctionHouseId,
     ...options,
   });
 

@@ -52,8 +52,6 @@ const App: React.FC = () => {
     };
   }, [onStorageChange]);
 
-  console.log({ isItemPage, isItemsPage, isSpellPage });
-
   return (
     <>
       {isItemPage && <ItemPage />}

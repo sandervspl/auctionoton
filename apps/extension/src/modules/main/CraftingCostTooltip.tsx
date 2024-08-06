@@ -9,14 +9,18 @@ import { TooltipBody } from './tooltip/TooltipBody';
 import { Value } from './tooltip/Value';
 
 type Props = {
-  items: { data: i.CachedItemDataClassic | undefined; isLoading: boolean }[];
   reagentItems: i.ReagentItem[];
+  auctionHouseId: number;
   reagents?: Map<number, number>;
   craftAmount?: number;
 };
 
 export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
   const { wowheadBaseUrl } = useWowhead();
+  const items = useItemsFetcher(
+    props.reagentItems.map((item) => item.id),
+    props.auctionHouseId,
+  );
 
   function getReagentAmount(id: number) {
     return props.reagentItems.find((reagentItem) => reagentItem.id === id)?.amount ?? 1;
@@ -27,7 +31,7 @@ export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
   }
 
   const total =
-    props.items
+    items
       .filter((item) => item.data?.stats)
       .reduce((acc, item) => {
         const reagentAmount = getReagentAmount(item.data!.itemId);
@@ -56,47 +60,52 @@ export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
           <span className="auc-font-bold auc-text-right">Qty</span>
           <span className="auc-font-bold auc-mb-2 auc-text-right">Cost</span>
 
-          {props.items.map((item) => (
-            <React.Fragment key={item.data!.itemId}>
-              <div className="auc-flex auc-gap-1 auc-items-center">
-                {/* biome-ignore lint/a11y/useAnchorContent: Wowhead script will add content */}
-                <a
-                  href={`${wowheadBaseUrl}/item=${item.data!.itemId}`}
-                  className={getQualityClassFromTags(
-                    item.data?.tags?.length ? item.data.tags : ['common'],
-                  )}
-                />
-
-                {item.data && (
-                  <>
-                    <ItemIcon
-                      url={getReagentIcon(item.data.itemId)}
-                      itemId={item.data.itemId}
-                      slug={item.data.uniqueName}
-                    />
-                    <a href={`${wowheadBaseUrl}/item=${item.data!.itemId}`} className="auc-flex-1">
-                      {item.data.name}
-                    </a>
-                  </>
-                )}
-              </div>
-              <div className="auc-flex auc-items-center auc-justify-end">
-                {getReagentAmount(item.data!.itemId) * craftAmount}
-              </div>
-              <div className="auc-flex auc-items-center auc-justify-end">
-                {item.data?.stats ? (
-                  <Value
-                    value={item.data.stats.current.minBuyout}
-                    amount={getReagentAmount(item.data.itemId) * craftAmount}
+          {items
+            .filter((item) => item.data?.itemId)
+            .map((item) => (
+              <React.Fragment key={item.data!.itemId}>
+                <div className="auc-flex auc-gap-1 auc-items-center">
+                  {/* biome-ignore lint/a11y/useAnchorContent: Wowhead script will add content */}
+                  <a
+                    href={`${wowheadBaseUrl}/item=${item.data!.itemId}`}
+                    className={getQualityClassFromTags(
+                      item.data?.tags?.length ? item.data.tags : ['common'],
+                    )}
                   />
-                ) : item.isLoading ? (
-                  <Loader2Icon size={15} className="auc-animate-spin" />
-                ) : (
-                  'N/A'
-                )}
-              </div>
-            </React.Fragment>
-          ))}
+
+                  {item.data && (
+                    <>
+                      <ItemIcon
+                        url={getReagentIcon(item.data.itemId)}
+                        itemId={item.data.itemId}
+                        slug={item.data.uniqueName}
+                      />
+                      <a
+                        href={`${wowheadBaseUrl}/item=${item.data!.itemId}`}
+                        className="auc-flex-1"
+                      >
+                        {item.data.name}
+                      </a>
+                    </>
+                  )}
+                </div>
+                <div className="auc-flex auc-items-center auc-justify-end">
+                  {getReagentAmount(item.data!.itemId) * craftAmount}
+                </div>
+                <div className="auc-flex auc-items-center auc-justify-end">
+                  {item.data?.stats ? (
+                    <Value
+                      value={item.data.stats.current.minBuyout}
+                      amount={getReagentAmount(item.data.itemId) * craftAmount}
+                    />
+                  ) : item.isLoading ? (
+                    <Loader2Icon size={15} className="auc-animate-spin" />
+                  ) : (
+                    'N/A'
+                  )}
+                </div>
+              </React.Fragment>
+            ))}
 
           <div className="auc-col-span-3 auc-h-4" />
 

@@ -6,12 +6,14 @@ import { Loader2Icon } from 'lucide-react';
 
 import useItemFetcher from '@/hooks/useItemFetcher';
 import useIntersectionObserver from '@/hooks/useIntersectionObserver';
+import { useAuctionHouse } from '@/hooks/useAuctionHouse';
 
 import { Value } from '../tooltip/Value';
 
 type Sorting = null | 'asc' | 'desc';
 
 const ItemsPage: React.FC = () => {
+  const auctionHouseId = useAuctionHouse();
   const [sorting, setSorting] = React.useState<Sorting>(null);
 
   const resetSorting = React.useCallback(() => {
@@ -153,13 +155,25 @@ const ItemsPage: React.FC = () => {
         const itemIdRaw = anchorEl?.href.split('item=')[1].split('/')[0];
         const itemId = itemIdRaw == null ? null : Number(itemIdRaw);
 
+        if (!itemId || !auctionHouseId) {
+          return null;
+        }
+
         return ReactDOM.createPortal(
-          <TableCell num={i} itemId={itemId} rowEl={rowEl} sorting={sorting} />,
+          <TableCell num={i} {...{ itemId, auctionHouseId, rowEl, sorting }} />,
           rowEl,
         );
       })}
     </>
   );
+};
+
+type Props = {
+  num: number;
+  itemId: number;
+  auctionHouseId: number;
+  rowEl: Element;
+  sorting: Sorting;
 };
 
 const TableCell: React.FC<Props> = (props) => {
@@ -169,11 +183,14 @@ const TableCell: React.FC<Props> = (props) => {
     disconnectOnceVisible: true,
   });
   const isVisible = entry?.isIntersecting;
-  const { isError, isLoading, isFetching, item } = useItemFetcher(props.itemId!, {
-    enabled: !!props.itemId && isVisible,
-    retry: false,
-    retryOnMount: false,
-  });
+  const { isError, isLoading, isFetching, item } = useItemFetcher(
+    props.itemId,
+    props.auctionHouseId,
+    {
+      enabled: !!props.auctionHouseId && !!props.itemId && isVisible,
+      retryOnMount: false,
+    },
+  );
   const isFetchingItem = !item || isLoading;
   const buyout = item?.stats.current.minBuyout;
 
@@ -211,13 +228,6 @@ const TableCell: React.FC<Props> = (props) => {
       )}
     </td>
   );
-};
-
-type Props = {
-  num: number;
-  itemId: number | null;
-  rowEl: Element;
-  sorting: Sorting;
 };
 
 export default ItemsPage;

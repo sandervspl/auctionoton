@@ -23,9 +23,26 @@ dayjs.extend(relativeTime);
  * - add tooltip with text to add your server with a link to the form
  */
 
+type Props = {
+  itemId: number;
+  auctionHouseId: number;
+  amount?: number;
+  children: null | JSX.Element | ((args: ChildrenFuncArgs) => JSX.Element | null);
+};
+
+type ChildrenFuncArgs = {
+  error: boolean;
+  loading: boolean;
+  item: i.MaybeAnyItem;
+  getItem: i.ItemRefetchFn;
+};
+
 const Tooltip: React.FC<Props> = ({ amount = 1, ...props }) => {
   const { data: user } = useStorageQuery('user');
-  const { error, isFetching, isLoading, item, refetch } = useItemFetcher(props.itemId);
+  const { error, isFetching, isLoading, item, refetch } = useItemFetcher(
+    props.itemId,
+    props.auctionHouseId,
+  );
   const { isEra } = useWowhead();
   const { activeRealm } = useRealm();
   const { data: lastUpdated } = useQuery({
@@ -156,18 +173,5 @@ const Tooltip: React.FC<Props> = ({ amount = 1, ...props }) => {
     </TooltipBody>
   );
 };
-
-interface ChildrenFuncArgs {
-  error: boolean;
-  loading: boolean;
-  item: i.MaybeAnyItem;
-  getItem: i.ItemRefetchFn;
-}
-
-interface Props {
-  itemId: number;
-  amount?: number;
-  children: null | JSX.Element | ((args: ChildrenFuncArgs) => JSX.Element | null);
-}
 
 export default Tooltip;
