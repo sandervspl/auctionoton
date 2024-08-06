@@ -3,8 +3,8 @@ import * as i from 'types';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import useItemFromPage from 'hooks/useItemFromPage';
-import { useCraftableItemPage } from 'hooks/useCraftableItemPage';
+import useItemFromPage from '@/hooks/useItemFromPage';
+import { useCraftableItemPage } from '@/hooks/useCraftableItemPage';
 
 import generateContainer from '../generateContainer';
 import { Tabs } from '../Tabs';
@@ -40,8 +40,8 @@ export const ItemPage = (): React.ReactPortal | null => {
 
   return ReactDOM.createPortal(
     <>
-      <div className="h-2" />
-      <p className="!relative !left-0 !h-auto !w-auto text-[10px]">
+      <div className="auc-h-2" />
+      <p className="!auc-relative !auc-left-0 !auc-h-auto !auc-w-auto auc-text-[10px]">
         Auction House Prices for Wowhead
       </p>
 
@@ -57,7 +57,7 @@ export const ItemPage = (): React.ReactPortal | null => {
         />
       )}
 
-      <div className="h-1" />
+      <div className="auc-h-1" />
       <ChangeRealmButton />
     </>,
     container,
@@ -68,6 +68,7 @@ function useGetReagentItems() {
   const reagentItems: i.ReagentItem[] = React.useMemo(() => {
     const createdByTabEl = document.querySelector('#tab-created-by-spell');
     if (!createdByTabEl) {
+      // @ts-ignore
       if (__DEV__) {
         console.error('Could not find "created by" tab');
       }
@@ -79,6 +80,7 @@ function useGetReagentItems() {
       'a[href="#created-by-spell"',
     ) as HTMLAnchorElement;
     if (!createdByTabAnchor) {
+      // @ts-ignore
       if (__DEV__) {
         console.error('Could not find "created by" tab anchor');
       }

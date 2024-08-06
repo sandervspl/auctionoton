@@ -2,6 +2,7 @@
 module.exports = {
   darkMode: ['class'],
   content: ['./src/**/*.{html,ts,tsx,scss}'],
+  prefix: 'auc-',
   theme: {
     container: {
       center: true,

@@ -2,8 +2,8 @@ import * as i from 'types';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import useSpellFromPage from 'hooks/useSpellFromPage';
-import { useCraftableItemPage } from 'hooks/useCraftableItemPage';
+import useSpellFromPage from '@/hooks/useSpellFromPage';
+import { useCraftableItemPage } from '@/hooks/useCraftableItemPage';
 
 import generateContainer from '../generateContainer';
 import { ChangeRealmButton } from '../ChangeRealmButton';
@@ -31,8 +31,8 @@ export const SpellPage: React.FC = (props) => {
 
   return ReactDOM.createPortal(
     <>
-      <div className="h-2" />
-      <p className="!relative !left-0 !h-auto !w-auto text-[10px]">
+      <div className="auc-h-2" />
+      <p className="!auc-relative !auc-left-0 !auc-h-auto !auc-w-auto auc-text-[10px]">
         Auction House Prices for Wowhead
       </p>
 
@@ -44,7 +44,7 @@ export const SpellPage: React.FC = (props) => {
         }))}
       />
 
-      <div className="h-1" />
+      <div className="auc-h-1" />
       <ChangeRealmButton />
     </>,
     container,
@@ -111,6 +111,7 @@ function useGetReagentItems() {
       .filter((item): item is i.ReagentItem => !!item?.id);
 
     if (reagentAnchors.length === 0) {
+      // @ts-ignore
       if (__DEV__) {
         console.error('Could not find any reagent anchors');
       }
@@ -146,5 +147,5 @@ function useWowheadAmountInput(setCraftAmount: React.Dispatch<React.SetStateActi
     return () => {
       amountInputEl.removeEventListener('change', onAmountChange);
     };
-  }, []);
+  }, [setCraftAmount]);
 }

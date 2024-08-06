@@ -1,10 +1,10 @@
 import * as i from 'types';
 import * as React from 'react';
-import useStorageQuery from 'hooks/useStorageQuery';
 
-import ExternalLinkSvg from 'static/external-link.svg';
-import RedoSvg from 'static/redo-solid.svg';
-import { useWowhead } from 'hooks/useWowhead';
+// import ExternalLinkSvg from '@/static/external-link.svg';
+import useStorageQuery from '@/hooks/useStorageQuery';
+import { useWowhead } from '@/hooks/useWowhead';
+
 import Tooltip from './tooltip';
 
 type Props = {
@@ -28,15 +28,16 @@ export const ItemPriceTooltip = (props: Props) => {
     <Tooltip itemId={props.itemId}>
       {({ error, loading, item, getItem }) => {
         return (
-          <div className="mt-2">
+          <div className="auc-mt-2">
             {!loading && error && !item && (
-              <div className="mb-2">
+              <div className="auc-mb-2">
                 <button
+                  type="button"
                   className="btn btn-small btn"
                   onClick={() => getItem()}
                   title="Try loading item data again for Auctionoton"
                 >
-                  <RedoSvg className="h-2 pr-1" />
+                  <img src="~/assets/redo-solid.svg" alt="redo" className="auc-h-2 auc-pr-1" />
                   <span>Try again</span>
                 </button>
               </div>
@@ -46,9 +47,10 @@ export const ItemPriceTooltip = (props: Props) => {
                 href={createNexushubLink(item as i.CachedItemDataClassic)!}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="q flex place-items-center gap-1"
+                className="auc-q auc-flex auc-place-items-center auc-gap-1"
               >
-                More information on Nexushub.co <ExternalLinkSvg />
+                More information on Nexushub.co
+                <img src="~/assets/external-link.svg" alt="external link" />
               </a>
             )}
           </div>

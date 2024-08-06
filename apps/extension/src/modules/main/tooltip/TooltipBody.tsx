@@ -1,6 +1,7 @@
-import { useWowhead } from 'hooks/useWowhead';
-import useStorageQuery from 'hooks/useStorageQuery';
 import React from 'react';
+
+import { useWowhead } from '@/hooks/useWowhead';
+import useStorageQuery from '@/hooks/useStorageQuery';
 
 type Props = {
   id: string;
@@ -39,13 +40,13 @@ export const TooltipBody: React.FC<Props> = (props) => {
       <tbody>
         <tr>
           <td>
-            <table className="!block !w-full">
-              <tbody className="!block !w-full">
-                <tr className="block w-full">
+            <table className="!auc-block !auc-w-full">
+              <tbody className="!auc-block !auc-w-full">
+                <tr className="auc-block auc-w-full">
                   <td>
                     {props.hideServerName ? null : (
                       <span className="q whtt-extra whtt-ilvl">
-                        <span className="capitalize">{getServerName()}</span>
+                        <span className="auc-capitalize">{getServerName()}</span>
                       </span>
                     )}
                     {props.header}
@@ -56,12 +57,12 @@ export const TooltipBody: React.FC<Props> = (props) => {
             </table>
           </td>
 
-          <th className="!bg-right-top" />
+          <th className="!auc-bg-right-top" />
         </tr>
 
         <tr>
-          <th className="!bg-left-bottom" />
-          <th className="!bg-right-bottom" />
+          <th className="!auc-bg-left-bottom" />
+          <th className="!auc-bg-right-bottom" />
         </tr>
       </tbody>
     </table>

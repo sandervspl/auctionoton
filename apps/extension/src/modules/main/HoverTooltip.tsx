@@ -5,15 +5,15 @@ import { Key } from 'w3c-keys';
 import { useSnapshot } from 'valtio';
 
 import { getBodyElement, asyncStorage } from 'utils';
-import useStorageQuery from 'hooks/useStorageQuery';
-import useItemFromPage from 'hooks/useItemFromPage';
+import useStorageQuery from '@/hooks/useStorageQuery';
+import useItemFromPage from '@/hooks/useItemFromPage';
+import { useEventListener } from '@/hooks/useEventListener';
 
-import { useEventListener } from 'hooks/useEventListener';
 import Tooltip from './tooltip';
 import generateContainer from './generateContainer';
 import { uiState } from './state';
 
-const HoverTooltip = (): React.ReactPortal | null => {
+const HoverTooltip = () => {
   const [itemId, setItemId] = React.useState<number>();
   const [visible, setVisible] = React.useState(false);
   const [amount, setAmount] = React.useState(1);
@@ -28,7 +28,9 @@ const HoverTooltip = (): React.ReactPortal | null => {
   const uiMutation = useMutation({
     mutationFn: async () =>
       asyncStorage.set('ui', (draft) => {
-        draft!.showTip.shiftKey = false;
+        if (draft) {
+          draft.showTip.shiftKey = false;
+        }
       }),
   });
 
@@ -72,14 +74,14 @@ const HoverTooltip = (): React.ReactPortal | null => {
       currentEl = currentEl.parentNode as HTMLAnchorElement;
       depth++;
     }
-  }, [visible, itemId]);
+  }, [visible, itemId, getItemIdFromUrl, isAuctionableItem]);
 
   React.useEffect(() => {
     // Remove shift key tip if user has never pressed shift, has pressed shift and we hover an item with an amount shown
     if (ui?.showTip.shiftKey && shiftKeyPressed && hoverEl.current && amount > 1) {
       uiMutation.mutate();
     }
-  }, [ui?.showTip.shiftKey, shiftKeyPressed, hoverEl.current]);
+  }, [ui?.showTip.shiftKey, shiftKeyPressed, amount, uiMutation.mutate]);
 
   // Listen to bubbled events and check if we are targeting a link to an item
   // Event Delegation: https://davidwalsh.name/event-delegate
@@ -160,6 +162,13 @@ const HoverTooltip = (): React.ReactPortal | null => {
     return observer;
   }
 
+  console.log({
+    visible,
+    itemId,
+    'containerEl.current': containerEl.current,
+    'hoverEl.current': hoverEl.current,
+  });
+
   if (!visible || !itemId || !containerEl.current || !hoverEl.current) {
     return null;
   }
@@ -167,7 +176,9 @@ const HoverTooltip = (): React.ReactPortal | null => {
   return ReactDOM.createPortal(
     <Tooltip itemId={itemId} amount={shiftKeyPressed ? amount : 1}>
       {ui?.showTip.shiftKey && amount > 1 ? (
-        <div className="blizzard-blue mt-2">Tip: press shift to see the price for the stack!</div>
+        <div className="blizzard-blue auc-mt-2">
+          Tip: press shift to see the price for the stack!
+        </div>
       ) : null}
     </Tooltip>,
     containerEl.current,

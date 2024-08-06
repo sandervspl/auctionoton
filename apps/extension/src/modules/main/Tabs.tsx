@@ -9,7 +9,7 @@ export const Tabs: React.FC<Props> = (props) => {
   const [activeTabIndex, setActiveTabIndex] = React.useState(0);
 
   return (
-    <div className="tabs-container mb-2">
+    <div className="tabs-container auc-mb-2">
       <ul className="tabs">
         {props.tabs.map((tab, i) => (
           <li
@@ -21,6 +21,7 @@ export const Tabs: React.FC<Props> = (props) => {
               props.onTabChange?.(i);
             }}
           >
+            {/* biome-ignore lint/a11y/useValidAnchor: Wowhead uses this markup style */}
             <a rel="np">
               <div>{tab}</div>
             </a>

@@ -1,10 +1,10 @@
 import * as i from 'types';
 import React from 'react';
-import { useQuery, useQueryClient, type UseQueryOptions } from '@tanstack/react-query';
+import { skipToken, useQuery, useQueryClient, type UseQueryOptions } from '@tanstack/react-query';
 
 import { asyncStorage, validateCache } from 'utils';
+import { fetchItemFromAPI } from '@/queries/item';
 
-import { fetchItemFromAPI } from 'src/queries/item';
 import { useAuctionHouse } from './useAuctionHouse';
 import { useWowhead } from './useWowhead';
 
@@ -22,10 +22,9 @@ function useItemFetcher(itemId: number, options?: Options): UseItemFetcher {
   const queryKey: i.ItemQueryKey = [auctionHouseId!, itemId];
   const { data, isLoading, isFetching, isError, refetch } = useQuery({
     queryKey: ['item', ...queryKey],
-    queryFn: fetchItem,
+    queryFn: !!auctionHouseId && !!itemId ? fetchItem : skipToken,
     refetchOnWindowFocus: true,
     retry: false, // Let user retry on demand with button
-    enabled: !!auctionHouseId && !!itemId,
     ...options,
   });
 

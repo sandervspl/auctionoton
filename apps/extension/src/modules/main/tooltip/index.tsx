@@ -5,16 +5,15 @@ import cn from 'classnames';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useQuery } from '@tanstack/react-query';
 
-import LoadingSvg from 'static/loading.svg';
 // import WarningSvg from 'static/exclamation-circle-regular.svg';
-import { ELEMENT_ID } from 'src/constants';
-import useItemFetcher from 'hooks/useItemFetcher';
-import { useWowhead } from 'hooks/useWowhead';
-import useStorageQuery from 'hooks/useStorageQuery';
+import { ELEMENT_ID } from '@/constants';
+import useItemFetcher from '@/hooks/useItemFetcher';
+import { useWowhead } from '@/hooks/useWowhead';
+import useStorageQuery from '@/hooks/useStorageQuery';
+import { useRealm } from '@/hooks/useRealm';
 
 import { SellPrice } from './SellPrice';
 import { TooltipBody } from './TooltipBody';
-import { useRealm } from 'hooks/useRealm';
 
 dayjs.extend(relativeTime);
 
@@ -24,7 +23,7 @@ dayjs.extend(relativeTime);
  * - add tooltip with text to add your server with a link to the form
  */
 
-const Tooltip: React.FC<Props> = (props) => {
+const Tooltip: React.FC<Props> = ({ amount = 1, ...props }) => {
   const { data: user } = useStorageQuery('user');
   const { error, isFetching, isLoading, item, refetch } = useItemFetcher(props.itemId);
   const { isEra } = useWowhead();
@@ -51,14 +50,15 @@ const Tooltip: React.FC<Props> = (props) => {
     refetchInterval: 60 * 1000,
   });
 
-  if (!user?.realms) {
-    return null;
-  }
-
   /** @TODO Show link to change realm, let user know to set realm */
-
-  if (!activeRealm) {
-    return null;
+  if (!user?.realms || !activeRealm) {
+    return (
+      <TooltipBody id={ELEMENT_ID.TOOLTIP}>
+        <tr>
+          <td>Please select a realm!</td>
+        </tr>
+      </TooltipBody>
+    );
   }
 
   const errorStr = `Error: ${error || 'Something went wrong. Try again later.'}`;
@@ -69,7 +69,7 @@ const Tooltip: React.FC<Props> = (props) => {
       header={
         <>
           {lastUpdated && (
-            <div className="whtt-sellprice mb-2">
+            <div className="whtt-sellprice auc-mb-2">
               Last updated:&nbsp;
               <span
                 className={cn({
@@ -85,30 +85,30 @@ const Tooltip: React.FC<Props> = (props) => {
       }
     >
       {item ? (
-        <tr className="block w-full">
-          <td className="block w-full">
+        <tr className="auc-block auc-w-full">
+          <td className="auc-block auc-w-full">
             {!item?.stats?.current?.minBuyout ? (
               'No data is available for this realm.'
             ) : (
               <>
                 <SellPrice
                   heading="Market Value"
-                  amount={props.amount}
+                  amount={amount}
                   value={item.stats.current.marketValue}
                 />
                 <SellPrice
                   heading="Historical Value"
-                  amount={props.amount}
+                  amount={amount}
                   value={item.stats.current.historicalValue}
                 />
                 <SellPrice
                   heading="Minimum Buyout"
-                  amount={props.amount}
+                  amount={amount}
                   value={item.stats.current.minBuyout}
                 />
                 <SellPrice
                   heading="Quantity"
-                  amount={props.amount}
+                  amount={amount}
                   value={`${item.stats.current.quantity} auction${
                     item.stats.current.quantity === 1 ? '' : 's'
                   }`}
@@ -120,7 +120,11 @@ const Tooltip: React.FC<Props> = (props) => {
             {item && (isLoading || isFetching) ? (
               <div className="mt-2 flex">
                 {/* @ts-ignore */}
-                <LoadingSvg className="mr-1 inline-block w-4" />
+                <img
+                  src="~/assets/loading.svg"
+                  alt="loading"
+                  className="auc-mr-1 auc-inline-block auc-w-4"
+                />
                 Fetching latest price info...
               </div>
             ) : null}
@@ -130,28 +134,17 @@ const Tooltip: React.FC<Props> = (props) => {
       {(!item || !item) && (isLoading || isFetching) ? (
         <tr>
           <td>
-            {/* @ts-ignore */}
-            <LoadingSvg />
+            <img src="~/assets/loading.svg" alt="loading" />
           </td>
         </tr>
       ) : null}
       {error && !item ? (
         <tr>
           <td>
-            <div className="mt-2 flex text-red-500">{errorStr}</div>
+            <div className="auc-mt-2 auc-flex auc-text-red-500">{errorStr}</div>
           </td>
         </tr>
       ) : null}
-      {/* {warning ? (
-                  <tr>
-                    <td>
-                      <div className="mt-1">
-                        <WarningSvg className="h-3" />
-                        {warning}
-                      </div>
-                    </td>
-                  </tr>
-                ) : null} */}
       <tr>
         <td>
           {typeof props.children === 'function'
@@ -166,10 +159,6 @@ const Tooltip: React.FC<Props> = (props) => {
       </tr>
     </TooltipBody>
   );
-};
-
-Tooltip.defaultProps = {
-  amount: 1,
 };
 
 interface ChildrenFuncArgs {

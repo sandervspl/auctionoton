@@ -1,10 +1,11 @@
 import * as i from 'types';
 import * as React from 'react';
-import { ELEMENT_ID } from 'src/constants';
-import LoadingSvg from 'static/loading.svg';
+
+import { ELEMENT_ID } from '@/constants';
+import { useWowhead } from '@/hooks/useWowhead';
+
 import { TooltipBody } from './tooltip/TooltipBody';
 import { Value } from './tooltip/Value';
-import { useWowhead } from 'hooks/useWowhead';
 
 type Props = {
   items: { data: i.CachedItemDataClassic | undefined; isLoading: boolean }[];
@@ -32,7 +33,7 @@ export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
         const { minBuyout } = item.data!.stats.current;
         const value = typeof minBuyout !== 'object' ? Number(minBuyout) : minBuyout.raw;
 
-        if (isNaN(value)) {
+        if (Number.isNaN(value)) {
           return acc;
         }
 
@@ -43,17 +44,21 @@ export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
     <>
       <TooltipBody
         id={ELEMENT_ID.TOOLTIP}
-        className="!w-full"
+        className="!auc-w-full"
         header={<div>Crafting cost breakdown</div>}
       >
-        <div className="grid mt-2 gap-x-4" style={{ gridTemplateColumns: 'auto 30px auto' }}>
-          <span className="font-bold">Item</span>
-          <span className="font-bold text-right">Qty</span>
-          <span className="font-bold mb-2 text-right">Cost</span>
+        <div
+          className="auc-grid auc-mt-2 auc-gap-x-4"
+          style={{ gridTemplateColumns: 'auto 30px auto' }}
+        >
+          <span className="auc-font-bold">Item</span>
+          <span className="auc-font-bold auc-text-right">Qty</span>
+          <span className="auc-font-bold auc-mb-2 auc-text-right">Cost</span>
 
           {props.items.map((item) => (
             <React.Fragment key={item.data!.itemId}>
-              <div className="flex gap-1 items-center">
+              <div className="auc-flex auc-gap-1 auc-items-center">
+                {/* biome-ignore lint/a11y/useAnchorContent: Wowhead script will add content */}
                 <a
                   href={`${wowheadBaseUrl}/item=${item.data!.itemId}`}
                   className={getQualityClassFromTags(
@@ -68,23 +73,23 @@ export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
                       itemId={item.data.itemId}
                       slug={item.data.uniqueName}
                     />
-                    <a href={`${wowheadBaseUrl}/item=${item.data!.itemId}`} className="flex-1">
+                    <a href={`${wowheadBaseUrl}/item=${item.data!.itemId}`} className="auc-flex-1">
                       {item.data.name}
                     </a>
                   </>
                 )}
               </div>
-              <div className="flex items-center justify-end">
+              <div className="auc-flex auc-items-center auc-justify-end">
                 {getReagentAmount(item.data!.itemId) * craftAmount}
               </div>
-              <div className="flex items-center justify-end">
+              <div className="auc-flex auc-items-center auc-justify-end">
                 {item.data?.stats ? (
                   <Value
                     value={item.data.stats.current.minBuyout}
                     amount={getReagentAmount(item.data.itemId) * craftAmount}
                   />
                 ) : item.isLoading ? (
-                  <LoadingSvg style={{ width: '15px' }} />
+                  <img src="~/assets/loading.svg" alt="loading" style={{ width: '15px' }} />
                 ) : (
                   'N/A'
                 )}
@@ -92,11 +97,11 @@ export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
             </React.Fragment>
           ))}
 
-          <div className="col-span-3 h-4" />
+          <div className="auc-col-span-3 auc-h-4" />
 
-          <div className="flex items-center font-bold">Total</div>
+          <div className="auc-flex auc-items-center auc-font-bold">Total</div>
           <div />
-          <div className="flex justify-end items-center">
+          <div className="auc-flex auc-justify-end auc-items-center">
             <Value value={total} />
           </div>
         </div>
@@ -112,6 +117,7 @@ const ItemIcon = (props: { url: string; itemId: number; slug: string }) => {
     <div className="iconsmall" data-env="wrath" data-tree="wrath" data-game="wow">
       <ins style={{ backgroundImage: `url(${props.url})` }} />
       <del />
+      {/* biome-ignore lint/a11y/useAnchorContent: Wowhead script will add content */}
       <a aria-label="Icon" href={`${wowheadBaseUrl}/item=${props.itemId}`} />
     </div>
   );

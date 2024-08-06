@@ -1,15 +1,12 @@
 import React from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Key } from 'w3c-keys';
-
-import time from 'utils/time';
 
 import { ItemPage } from './routes/ItemPage';
 import { SpellPage } from './routes/SpellPage';
 import ItemsPage from './routes/ItemsPage';
 import HoverTooltip from './HoverTooltip';
 import { uiState } from './state';
+import { Providers } from './Providers';
 
 class AppContainer extends React.Component {
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
@@ -26,15 +23,15 @@ const App: React.FC = () => {
   const isSpellPage = window.location.pathname.includes('spell=');
   const isItemsPage = window.location.pathname.includes('/items/');
 
-  function onKeyDown(e: KeyboardEvent) {
-    uiState.keys[e.key as Key] = true;
-  }
-
-  function onKeyUp(e: KeyboardEvent) {
-    uiState.keys[e.key as Key] = false;
-  }
-
   React.useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      uiState.keys[e.key as Key] = true;
+    }
+
+    function onKeyUp(e: KeyboardEvent) {
+      uiState.keys[e.key as Key] = false;
+    }
+
     document.addEventListener('keydown', onKeyDown);
     document.addEventListener('keyup', onKeyUp);
 
@@ -43,6 +40,8 @@ const App: React.FC = () => {
       document.removeEventListener('keyup', onKeyUp);
     };
   }, []);
+
+  console.log({ isItemPage, isItemsPage, isSpellPage });
 
   return (
     <>
@@ -54,24 +53,10 @@ const App: React.FC = () => {
   );
 };
 
-// Create a client
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: time.minutes(30),
-      gcTime: time.hours(1),
-      retryOnMount: false,
-    },
-  },
-});
-
-const Root = (): JSX.Element => {
+export const Root = (): JSX.Element => {
   return (
-    <QueryClientProvider client={queryClient}>
+    <Providers>
       <AppContainer />
-      <ReactQueryDevtools />
-    </QueryClientProvider>
+    </Providers>
   );
 };
-
-export default Root;

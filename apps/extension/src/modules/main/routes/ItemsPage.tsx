@@ -3,9 +3,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import cn from 'classnames';
 
-import LoadingSvg from 'static/loading.svg';
-import useItemFetcher from 'hooks/useItemFetcher';
-import useIntersectionObserver from 'hooks/useIntersectionObserver';
+// import LoadingSvg from '@/static/loading.svg';
+import useItemFetcher from '@/hooks/useItemFetcher';
+import useIntersectionObserver from '@/hooks/useIntersectionObserver';
 
 import { Value } from '../tooltip/Value';
 
@@ -13,6 +13,10 @@ type Sorting = null | 'asc' | 'desc';
 
 const ItemsPage: React.FC = () => {
   const [sorting, setSorting] = React.useState<Sorting>(null);
+
+  const resetSorting = React.useCallback(() => {
+    setSorting(null);
+  }, []);
 
   const sortByBuyout = React.useCallback(
     function sortByBuyout() {
@@ -111,12 +115,8 @@ const ItemsPage: React.FC = () => {
         resetBtn?.addEventListener('click', resetSorting);
       };
     },
-    [sorting, setSorting],
+    [sorting, resetSorting],
   );
-
-  function resetSorting() {
-    setSorting(null);
-  }
 
   React.useEffect(() => {
     window.addEventListener('hashchange', resetSorting);
@@ -124,13 +124,14 @@ const ItemsPage: React.FC = () => {
     return function cleanup() {
       window.removeEventListener('hashchange', resetSorting);
     };
-  }, []);
+  }, [resetSorting]);
 
   return (
     <>
       {ReactDOM.createPortal(
         <th id="buyout-header">
           <div>
+            {/* biome-ignore lint/a11y/useValidAnchor: Valid error but this is what Wowhead does */}
             <a onClick={sortByBuyout}>
               <span
                 className={cn({
@@ -195,16 +196,17 @@ const TableCell: React.FC<Props> = (props) => {
   return (
     <td ref={cellRef} className="text-left">
       {isError && !item ? (
-        <span className="flex">Error!</span>
+        <span className="auc-flex">Error!</span>
       ) : item && (isLoading || isFetching) ? (
-        <div className="flex gap-2">
-          <LoadingSvg style={{ width: '15px' }} />
+        <div className="auc-flex auc-gap-2">
+          {/* <LoadingSvg style={{ width: '15px' }} /> */}
           <Value value={item.stats.current.minBuyout} />
         </div>
       ) : item ? (
         <Value value={item.stats.current.minBuyout} />
       ) : isFetchingItem && isVisible ? (
-        <LoadingSvg />
+        'Loading...'
+        // <LoadingSvg />
       ) : (
         'N/A'
       )}
