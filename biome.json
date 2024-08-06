@@ -29,7 +29,8 @@
         "useKeyWithClickEvents": "off"
       },
       "suspicious": {
-        "noExplicitAny": "off"
+        "noExplicitAny": "off",
+        "noConsoleLog": "warn"
       }
     }
   }
