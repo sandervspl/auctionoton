@@ -1,5 +1,4 @@
 import { defineConfig } from 'wxt';
-import svgr from 'vite-plugin-svgr';
 import banner from 'vite-plugin-banner';
 
 const nodeEnv = process.env.NODE_ENV || 'development';
@@ -41,7 +40,6 @@ export default defineConfig({
         content: 'var addon = (chrome || browser);',
         outDir: '.output',
       }),
-      svgr(),
     ],
     define: {
       'process.env.NODE_ENV': JSON.stringify(nodeEnv),

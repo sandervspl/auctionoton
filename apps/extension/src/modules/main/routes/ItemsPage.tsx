@@ -2,8 +2,8 @@ import 'typed-query-selector';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import cn from 'classnames';
+import { Loader2Icon } from 'lucide-react';
 
-// import LoadingSvg from '@/static/loading.svg';
 import useItemFetcher from '@/hooks/useItemFetcher';
 import useIntersectionObserver from '@/hooks/useIntersectionObserver';
 
@@ -199,14 +199,13 @@ const TableCell: React.FC<Props> = (props) => {
         <span className="auc-flex">Error!</span>
       ) : item && (isLoading || isFetching) ? (
         <div className="auc-flex auc-gap-2">
-          {/* <LoadingSvg style={{ width: '15px' }} /> */}
+          <Loader2Icon size={15} className="auc-animate-spin" />
           <Value value={item.stats.current.minBuyout} />
         </div>
       ) : item ? (
         <Value value={item.stats.current.minBuyout} />
       ) : isFetchingItem && isVisible ? (
-        'Loading...'
-        // <LoadingSvg />
+        <Loader2Icon className="auc-animate-spin" />
       ) : (
         'N/A'
       )}

@@ -4,8 +4,6 @@ import ReactDOM from 'react-dom/client';
 
 import { ELEMENT_ID } from '@/constants';
 import generateContainer from '@/modules/main/generateContainer';
-// import HoverTooltip from '@/modules/main/HoverTooltip';
-// import { Providers } from '@/modules/main/Providers';
 import { Root } from '@/modules/main/Root';
 
 function getItemIdFromUrl(url?: string): number | undefined {

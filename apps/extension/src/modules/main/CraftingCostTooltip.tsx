@@ -1,5 +1,6 @@
 import * as i from 'types';
 import * as React from 'react';
+import { Loader2Icon } from 'lucide-react';
 
 import { ELEMENT_ID } from '@/constants';
 import { useWowhead } from '@/hooks/useWowhead';
@@ -89,7 +90,7 @@ export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
                     amount={getReagentAmount(item.data.itemId) * craftAmount}
                   />
                 ) : item.isLoading ? (
-                  <img src="~/assets/loading.svg" alt="loading" style={{ width: '15px' }} />
+                  <Loader2Icon size={15} className="auc-animate-spin" />
                 ) : (
                   'N/A'
                 )}

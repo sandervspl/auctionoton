@@ -4,8 +4,8 @@ import dayjs from 'dayjs';
 import cn from 'classnames';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useQuery } from '@tanstack/react-query';
+import { Loader2Icon } from 'lucide-react';
 
-// import WarningSvg from 'static/exclamation-circle-regular.svg';
 import { ELEMENT_ID } from '@/constants';
 import useItemFetcher from '@/hooks/useItemFetcher';
 import { useWowhead } from '@/hooks/useWowhead';
@@ -120,11 +120,7 @@ const Tooltip: React.FC<Props> = ({ amount = 1, ...props }) => {
             {item && (isLoading || isFetching) ? (
               <div className="mt-2 flex">
                 {/* @ts-ignore */}
-                <img
-                  src="~/assets/loading.svg"
-                  alt="loading"
-                  className="auc-mr-1 auc-inline-block auc-w-4"
-                />
+                <Loader2Icon className="auc-mr-1 auc-inline-block auc-w-4 auc-animate-spin" />
                 Fetching latest price info...
               </div>
             ) : null}
@@ -134,7 +130,7 @@ const Tooltip: React.FC<Props> = ({ amount = 1, ...props }) => {
       {(!item || !item) && (isLoading || isFetching) ? (
         <tr>
           <td>
-            <img src="~/assets/loading.svg" alt="loading" />
+            <Loader2Icon className="auc-animate-spin" />
           </td>
         </tr>
       ) : null}

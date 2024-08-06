@@ -1,7 +1,7 @@
 import * as i from 'types';
 import * as React from 'react';
+import { ExternalLinkIcon, RotateCwIcon } from 'lucide-react';
 
-// import ExternalLinkSvg from '@/static/external-link.svg';
 import useStorageQuery from '@/hooks/useStorageQuery';
 import { useWowhead } from '@/hooks/useWowhead';
 
@@ -37,7 +37,7 @@ export const ItemPriceTooltip = (props: Props) => {
                   onClick={() => getItem()}
                   title="Try loading item data again for Auctionoton"
                 >
-                  <img src="~/assets/redo-solid.svg" alt="redo" className="auc-h-2 auc-pr-1" />
+                  <RotateCwIcon className="auc-h-2 auc-pr-1" />
                   <span>Try again</span>
                 </button>
               </div>
@@ -50,7 +50,7 @@ export const ItemPriceTooltip = (props: Props) => {
                 className="auc-q auc-flex auc-place-items-center auc-gap-1"
               >
                 More information on Nexushub.co
-                <img src="~/assets/external-link.svg" alt="external link" />
+                <ExternalLinkIcon />
               </a>
             )}
           </div>
