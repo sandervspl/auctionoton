@@ -1,8 +1,5 @@
-'use client';
-
 import * as React from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { $path } from 'next-typesafe-url';
+import { useParams, useNavigate } from '@tanstack/react-router';
 
 import { useMediaQuery } from 'hooks/use-media-query';
 import { Button } from 'shadcn-ui/button';
@@ -16,7 +13,6 @@ import {
 } from 'shadcn-ui/command';
 import { Drawer, DrawerContent, DrawerTrigger } from 'shadcn-ui/drawer';
 import { Popover, PopoverContent, PopoverTrigger } from 'shadcn-ui/popover';
-import type { ItemParam } from 'src/app/item/[...item]/page';
 
 type Props = {
   options: Option[];
@@ -73,9 +69,8 @@ function StatusList(props: {
   setSelectedRealm: (status: Option | null) => void;
   options: Option[];
 }) {
-  const router = useRouter();
-  const params = useParams() as { item: ItemParam };
-  const itemId = params.item?.[3]?.split('-').pop();
+  const navigate = useNavigate();
+  const params = useParams({ strict: false });
 
   return (
     <Command>
@@ -92,14 +87,18 @@ function StatusList(props: {
 
                 const [realm, region] = value.split('_');
 
-                router.push(
-                  $path({
-                    route: '/item/[...item]',
-                    routeParams: {
-                      item: [realm!, region!, params.item[2], `${params.item[3]}-${itemId}`],
+                props.setSelectedRealm(option);
+                if (realm && region && params.itemSlug && params.faction) {
+                  void navigate({
+                    to: '/item/$realmSlug/$region/$faction/$itemSlug',
+                    params: {
+                      realmSlug: realm,
+                      region,
+                      faction: params.faction,
+                      itemSlug: params.itemSlug,
                     },
-                  }),
-                );
+                  });
+                }
               }}
             >
               {option.label}

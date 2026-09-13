@@ -5,7 +5,11 @@
     "lineWidth": 100
   },
   "javascript": {
-    "globals": ["__DEV__", "__PROD__", "__VITE_ENV__"],
+    "globals": [
+      "__DEV__",
+      "__PROD__",
+      "__VITE_ENV__"
+    ],
     "formatter": {
       "enabled": true,
       "quoteStyle": "single",
@@ -46,17 +50,16 @@
   "files": {
     "ignore": [
       "**/node_modules/**",
-      "**/.next/**",
       "**/.wxt/**",
       "**/.output/**",
       "**/build/**",
       "**/dist/**",
       "**/src/styled-system/**",
       "**/src/db/drizzle/**",
-      "**/_next-typesafe-url_.d.ts",
-      "**/next-env.d.ts",
       "**/*.tsbuildinfo",
-      "**/public/**"
+      "**/public/**",
+      "**/routeTree.gen.ts",
+      "**/.tanstack/**"
     ]
   }
 }

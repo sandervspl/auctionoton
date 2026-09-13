@@ -1,13 +1,9 @@
-'use client';
-
 import * as React from 'react';
-import Image, { type ImageProps } from 'next/image';
-import type { O } from 'ts-toolbelt';
 
 import { getRingQualityColor } from 'services/colors';
 import { cn } from 'services/cn';
 
-type Props = O.Optional<ImageProps, 'src' | 'alt'> & {
+type Props = React.ImgHTMLAttributes<HTMLImageElement> & {
   item: {
     icon: string | null;
     name: string | null;
@@ -17,7 +13,9 @@ type Props = O.Optional<ImageProps, 'src' | 'alt'> & {
 
 export const ItemImage = ({ item, className, ...props }: Props) => {
   return (
-    <Image
+    <img
+      loading="lazy"
+      decoding="async"
       {...props}
       src={item.icon ?? '/images/questionmark.webp'}
       alt={item.name ?? 'item'}
@@ -26,8 +24,9 @@ export const ItemImage = ({ item, className, ...props }: Props) => {
         ...getRingQualityColor(item.quality),
       }}
       onError={(e) => {
-        (e.target as any).src = '/images/questionmark.webp';
-        (e.target as any).removeAttribute('srcset');
+        e.currentTarget.onerror = null;
+        e.currentTarget.src = '/images/questionmark.webp';
+        e.currentTarget.removeAttribute('srcset');
       }}
     />
   );

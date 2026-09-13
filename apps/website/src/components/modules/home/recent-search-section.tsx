@@ -1,10 +1,12 @@
-import { getRecentSearches } from 'queries/search';
+import type { getRecentSearches } from 'queries/search';
 
 import { RecentSearchItem } from './recent-search-item';
 
-export const RecentSearchSection = async () => {
-  const recentSearches = await getRecentSearches();
-
+export const RecentSearchSection = ({
+  recentSearches,
+}: {
+  recentSearches: Awaited<ReturnType<typeof getRecentSearches>>;
+}) => {
   if (recentSearches.length === 0) {
     return null;
   }

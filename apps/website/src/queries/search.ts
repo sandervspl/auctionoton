@@ -1,5 +1,6 @@
-import { cookies } from 'next/headers';
-import { auth } from '@clerk/nextjs';
+import { createServerFn } from '@tanstack/react-start';
+import { getCookie } from '@tanstack/react-start/server';
+import { auth } from '@clerk/tanstack-react-start/server';
 import { eq, desc, sql } from 'drizzle-orm';
 
 import { db } from 'db';
@@ -21,13 +22,13 @@ type RecentSearchItem = {
   name: string;
 };
 
-export async function getRecentSearches() {
-  const { userId } = auth();
+export const getRecentSearches = createServerFn({ method: 'GET' }).handler(async () => {
+  const { userId } = await auth();
   if (!userId) {
     return [];
   }
 
-  const auctionHouseId = cookies().get('auctionhouse_id');
+  const auctionHouseId = getCookie('auctionhouse_id');
 
   if (!auctionHouseId) {
     return [];
@@ -45,6 +46,7 @@ export async function getRecentSearches() {
     })
     .from(recentSearches)
     .leftJoin(itemsMetadata, eq(recentSearches.itemId, itemsMetadata.id))
+    .where(eq(recentSearches.userId, userId))
     .orderBy(desc(recentSearches.timestamp))
     .limit(10);
 
@@ -68,7 +70,7 @@ items_cte AS (
     ROW_NUMBER() OVER (PARTITION BY i.item_id ORDER BY i.timestamp DESC) as rn
   FROM items i
   JOIN recent_searches_cte rsc ON i.item_id = rsc.item_id
-  AND i.auction_house_id = ${auctionHouseId.value}
+  AND i.auction_house_id = ${auctionHouseId}
 )
 SELECT
   rsc.id as recent_search_id,
@@ -119,4 +121,4 @@ ORDER BY rsc.timestamp DESC, i.item_id, i.timestamp DESC;
   });
 
   return results;
-}
+});

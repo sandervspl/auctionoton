@@ -6,7 +6,7 @@ Download the extension for [Chrome, Brave, Edge, and Opera](https://chrome.googl
 
 ## Get started
 
-Use Node.js 22 or newer (`.node-version` pins the development and CI version), pnpm 10.7.1, and Bun 1.3.14 for the API.
+Use Node.js 22.12 or newer (`.node-version` pins the development and CI version), pnpm 10.7.1, and Bun 1.3.14 for the API.
 
 ```sh
 npm install --global pnpm@10.7.1
@@ -32,7 +32,7 @@ The API listens on `http://localhost:3000`; the website uses `http://localhost:3
 | --- | --- | --- |
 | `apps/extension` | `@auctionoton/extension` | WXT extension for Chrome and Firefox |
 | `apps/server` | `@auctionoton/server` | Elysia API, ingestion scripts, and database migrations; runs on Bun |
-| `apps/website` | `@auctionoton/website` | Next.js website |
+| `apps/website` | `@auctionoton/website` | TanStack Start website |
 | `packages/typescript-config` | `@auctionoton/typescript-config` | Shared TypeScript defaults, with app-specific options kept in each app |
 
 Install dependencies from the repository root. `pnpm-lock.yaml` is the only lockfile; Bun runs the API but does not manage workspace dependencies.
@@ -75,7 +75,7 @@ Keep `.env` files inside the app that consumes them. Turbo hashes app environmen
 
 ## Build outputs and releases
 
-The API writes `apps/server/build/`, Next.js writes `apps/website/.next/`, and WXT writes browser bundles in `apps/extension/.output/`.
+The API writes `apps/server/build/`, TanStack Start writes `apps/website/.output/`, and WXT writes browser bundles in `apps/extension/.output/`.
 
 ```sh
 pnpm cs:add
@@ -90,8 +90,14 @@ Changesets commands run at the root because they manage versions across the work
 
 ## CI and deployment
 
+`pnpm exec turbo run test:smoke --filter=@auctionoton/website` builds and tests the production website with placeholder credentials. It checks SSR, static assets, signed-out redirects, 404s, and SEO endpoints without accessing a database.
+
 CI uses the pinned Node, pnpm, and Bun versions, installs with a frozen lockfile, checks all workspaces, and builds all apps plus Firefox. It caches pnpm downloads and Turbo outputs through GitHub Actions; no remote cache account is required. The website build uses a nonfunctional Clerk publishable key solely to compile without production credentials.
 
-The Chrome workflow packages and checks the extension on pushes to `main`, saves the ZIP as a workflow artifact, and uploads it using the existing Chrome Web Store secrets. Nixpacks installs dependencies at the workspace root and filters its build to the API. For a website deployment, install from the repository root and run `pnpm exec turbo run build --filter=@auctionoton/website` with the website's real environment variables.
+The Chrome workflow packages and checks the extension on pushes to `main`, saves the ZIP as a workflow artifact, and uploads it using the existing Chrome Web Store secrets. Nixpacks installs dependencies at the workspace root and filters its build to the API. For a website deployment, install from the repository root and run `pnpm exec turbo run build --filter=@auctionoton/website` with the website's real environment variables. Start the production server with `pnpm --filter @auctionoton/website start`; set `PORT=3001` when running it alongside the API. The server also loads the website's `.env` and `.env.local` files.
+
+The website uses [TanStack Start](https://tanstack.com/start/latest/docs/framework/react/overview), file routes in `apps/website/src/routes`, Vite, and [Nitro's Node server output](https://tanstack.com/start/latest/docs/framework/react/guide/hosting#nodejs--docker). Route loaders call validated server functions for database access; dashboard mutations check the current Clerk user and refresh route data. Keep `DB_URL` and `CLERK_SECRET_KEY` server-side. The browser's Clerk key is named `VITE_CLERK_PUBLISHABLE_KEY` in `.env.local` and deployment settings.
+
+`/api/health`, `/robots.txt`, and `/sitemap.xml` are server routes. The sitemap includes the public homepage; private dashboards are excluded. `APP_ENV` chooses `TEST_SITE_URL`, `ACC_SITE_URL`, or `PROD_SITE_URL` for the sitemap's public origin.
 
 Database migrations use `apps/server/src/db/drizzle`. Read [the database setup notes](apps/server/README.md) before applying them to an existing database.

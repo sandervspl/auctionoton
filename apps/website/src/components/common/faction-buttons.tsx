@@ -1,76 +1,66 @@
-'use client';
-
-import * as React from 'react';
-import Link from 'next/link';
-
+import { Link } from '@tanstack/react-router';
+import { Loader2Icon } from 'lucide-react';
 import { setAuctionHouseIdCookie } from 'actions/cookie';
-import { useServerActionMutation } from 'hooks/server-action-hooks';
+import { useServerMutation } from 'hooks/use-server-mutation';
 import { useSettings } from 'hooks/use-settings';
 import { Button } from 'shadcn-ui/button';
-import { Loader2Icon } from 'lucide-react';
 
 type Props = {
-  href?: {
-    a: string;
-    h: string;
-  };
+  itemParams?: { realmSlug: string; region: string; faction: string; itemSlug: string };
   initialValue?: string;
 };
 
-export const FactionButtons = (props: Props) => {
+export function FactionButtons(props: Props) {
   return (
     <div className="flex gap-2 items-center">
-      <FactionButton faction="alliance" initialFaction={props.initialValue} href={props.href?.a} />
-      <FactionButton faction="horde" initialFaction={props.initialValue} href={props.href?.h} />
+      <FactionButton {...props} faction="alliance" />
+      <FactionButton {...props} faction="horde" />
     </div>
   );
-};
+}
 
-const FactionButton = (props: {
-  faction: 'alliance' | 'horde';
-  initialFaction?: string;
-  href?: string;
-}) => {
-  const { settings, setFaction } = useSettings({ faction: props.initialFaction });
-  const [isPending, startTransition] = React.useTransition();
-  const setAuctionHouseCookie = useServerActionMutation(setAuctionHouseIdCookie);
+function FactionButton({
+  itemParams,
+  initialValue,
+  faction,
+}: Props & { faction: 'alliance' | 'horde' }) {
+  const { settings, setSettings } = useSettings({ faction: initialValue });
+  const cookie = useServerMutation(setAuctionHouseIdCookie);
+  const activeFaction = initialValue ?? settings.faction;
 
-  async function onFactionClick() {
-    startTransition(async () => {
-      setFaction(props.faction);
-
-      await setAuctionHouseCookie.mutateAsync({
-        region: settings.region,
-        realmSlug: settings.realm,
-        faction: props.faction,
-      });
-    });
+  function onFactionClick() {
+    const region = itemParams?.region ?? settings.region;
+    const realm = itemParams?.realmSlug ?? settings.realm;
+    setSettings({ region, realm, faction });
+    if (region === 'eu' || region === 'us') {
+      cookie.mutate({ region, realmSlug: realm, faction });
+    }
   }
 
-  if (!props.href) {
-    return (
-      <Button
-        variant={settings.faction === props.faction ? 'default' : 'outline'}
-        className="flex items-center gap-2"
-        onClick={onFactionClick}
-      >
-        {props.faction}
-        {isPending && <Loader2Icon className="animate-spin" size={16} />}
-      </Button>
-    );
-  }
-
+  const content = (
+    <>
+      {faction}
+      {cookie.isPending && <Loader2Icon className="animate-spin" size={16} />}
+    </>
+  );
   return (
-    <Button variant={settings.faction === props.faction ? 'default' : 'outline'} asChild>
-      <Link
-        href={props.href}
-        className="capitalize flex items-center gap-2"
-        onClick={onFactionClick}
-        replace
-      >
-        {props.faction}
-        {isPending && <Loader2Icon className="animate-spin" size={16} />}
-      </Link>
+    <Button
+      variant={activeFaction === faction ? 'default' : 'outline'}
+      className="capitalize flex items-center gap-2"
+      asChild={!!itemParams}
+      onClick={onFactionClick}
+    >
+      {itemParams ? (
+        <Link
+          to="/item/$realmSlug/$region/$faction/$itemSlug"
+          params={{ ...itemParams, faction }}
+          replace
+        >
+          {content}
+        </Link>
+      ) : (
+        content
+      )}
     </Button>
   );
-};
+}

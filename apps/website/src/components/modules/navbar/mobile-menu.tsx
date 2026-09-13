@@ -1,10 +1,7 @@
-'use client';
-
 import * as React from 'react';
-import Link from 'next/link';
+import { Link } from '@tanstack/react-router';
 import { MenuIcon, XIcon } from 'lucide-react';
-import { $path } from 'next-typesafe-url';
-import { UserButton, SignInButton } from '@clerk/nextjs';
+import { UserButton, SignInButton } from '@clerk/tanstack-react-start';
 
 import * as Drawer from 'park-ui/drawer';
 import { IconButton } from 'park-ui/icon-button';
@@ -38,7 +35,7 @@ export const MobileMenu = ({ userId, ...props }: Props) => {
             <RealmDropdown onOpen={() => setOpen(false)} />
             {userId && (
               <Button asChild variant="outline">
-                <Link href={$path({ route: '/user/dashboard' })} onClick={() => setOpen(false)}>
+                <Link to="/user/dashboard" onClick={() => setOpen(false)}>
                   Dashboard
                 </Link>
               </Button>

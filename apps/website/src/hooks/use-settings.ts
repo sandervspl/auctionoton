@@ -1,5 +1,3 @@
-'use client';
-
 import useLocalStorageState from 'use-local-storage-state';
 
 type Settings = {
@@ -18,24 +16,15 @@ export function useSettings(initialValues?: Partial<Settings>) {
   });
 
   function setRealm(realm: string) {
-    setSettings((settings) => {
-      settings.realm = realm;
-      return settings;
-    });
+    setSettings((settings) => ({ ...settings, realm }));
   }
 
   function setRegion(region: string) {
-    setSettings((settings) => {
-      settings.region = region;
-      return settings;
-    });
+    setSettings((settings) => ({ ...settings, region }));
   }
 
   function setFaction(faction: string) {
-    setSettings((settings) => {
-      settings.faction = faction;
-      return settings;
-    });
+    setSettings((settings) => ({ ...settings, faction }));
   }
 
   return {

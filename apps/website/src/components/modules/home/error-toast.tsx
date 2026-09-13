@@ -1,24 +1,14 @@
-'use client';
-
-import * as React from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import { toast } from 'sonner';
-import { $path } from 'next-typesafe-url';
 
-const ERROR_MAP = {
-  unauthorized: 'You are not signed in',
-};
-
-export const ErrorToast = () => {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-
-  React.useEffect(() => {
-    if (searchParams.has('error')) {
-      toast.error(ERROR_MAP[searchParams.get('error')!] || 'Oops, something went wrong!');
-      router.push($path({ route: '/' }));
-    }
-  }, [searchParams, router]);
-
+export function ErrorToast() {
+  const { error } = useSearch({ from: '/' });
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!error) return;
+    toast.error(error === 'unauthorized' ? 'You are not signed in' : 'Something went wrong');
+    void navigate({ to: '/', search: {}, replace: true });
+  }, [error, navigate]);
   return null;
-};
+}

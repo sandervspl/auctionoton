@@ -1,6 +1,4 @@
-import { ReadonlyURLSearchParams } from 'next/navigation';
-
-export const getActiveFaction = (searchParams?: { faction?: string } | ReadonlyURLSearchParams) => {
+export const getActiveFaction = (searchParams?: { faction?: string } | URLSearchParams) => {
   const faction =
     searchParams && 'get' in searchParams
       ? searchParams.get('faction')

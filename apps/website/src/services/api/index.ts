@@ -2,8 +2,8 @@ import { ofetch } from 'ofetch';
 
 import { getBaseURL, handleStatusCodes } from './utils';
 
-/** Next.js API client */
-export const nextApi = ofetch.create({
+/** Website API client */
+export const websiteApi = ofetch.create({
   baseURL: getBaseURL({
     development: 'http://localhost:3000/api',
     acceptance: 'http://localhost:3000/api',

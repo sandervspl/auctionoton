@@ -1,7 +1,4 @@
-'use client';
-
-import Link from 'next/link';
-import { $path } from 'next-typesafe-url';
+import { Link } from '@tanstack/react-router';
 import { MoveDownRightIcon, MoveUpRightIcon } from 'lucide-react';
 
 import { useSettings } from 'hooks/use-settings';
@@ -34,17 +31,13 @@ export const RecentSearchItem = (props: Props) => {
   return (
     <Card key={props.item.id} className="hover:border-white/30">
       <Link
-        href={$path({
-          route: '/item/[...item]',
-          routeParams: {
-            item: [
-              settings.realm,
-              settings.region,
-              settings.faction,
-              `${props.item.slug}-${props.item.itemId}`,
-            ],
-          },
-        })}
+        to="/item/$realmSlug/$region/$faction/$itemSlug"
+        params={{
+          realmSlug: settings.realm,
+          region: settings.region,
+          faction: settings.faction,
+          itemSlug: `${props.item.slug}-${props.item.itemId}`,
+        }}
       >
         <CardHeader
           className="flex flex-row items-center pb-2 gap-2"

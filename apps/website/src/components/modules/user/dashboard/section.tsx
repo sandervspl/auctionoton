@@ -1,10 +1,6 @@
-'use client';
-
 import * as React from 'react';
 import { Loader2Icon, PlusIcon, XIcon } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { $path } from 'next-typesafe-url';
+import { Link } from '@tanstack/react-router';
 import { toast } from 'sonner';
 
 import { Card, CardContent, CardHeader, CardTitle } from 'shadcn-ui/card';
@@ -20,7 +16,7 @@ import {
   deleteDashboardSectionItem,
 } from 'actions/dashboard';
 import { IconButton } from 'park-ui/icon-button';
-import { useServerActionMutation } from 'hooks/server-action-hooks';
+import { useServerMutation } from 'hooks/use-server-mutation';
 
 type Props = {
   section: {
@@ -48,16 +44,14 @@ type Props = {
 };
 
 export const DashboardSection = ({ section }: Props) => {
-  const router = useRouter();
   const { settings } = useSettings();
   const [isSearching, setIsSearching] = React.useState(false);
   const ref = React.useRef<HTMLInputElement>(null);
-  const deleteSection = useServerActionMutation(deleteDashboardSection);
+  const deleteSection = useServerMutation(deleteDashboardSection);
 
   function onDeleteSectionClick() {
     if (window.confirm('Are you sure you want to delete this section?')) {
       deleteSection.mutateAsync({ sectionId: section.id }).then(() => {
-        router.refresh();
         toast.success('Section deleted');
       });
     }
@@ -131,15 +125,13 @@ type ItemLinkProps = {
 };
 
 const ItemLink = ({ item, settings, sectionId, sectionItemid }: ItemLinkProps) => {
-  const router = useRouter();
-  const deleteItem = useServerActionMutation(deleteDashboardSectionItem);
+  const deleteItem = useServerMutation(deleteDashboardSectionItem);
 
   function onDeleteItemClick(sectionItemId: number) {
     if (window.confirm('Are you sure you want to delete this item?')) {
       deleteItem
         .mutateAsync({ sectionId, sectionItemId })
         .then(() => {
-          router.refresh();
           toast.success('Item removed from section');
         })
         .catch((err) => {
@@ -151,12 +143,13 @@ const ItemLink = ({ item, settings, sectionId, sectionItemid }: ItemLinkProps) =
   return (
     <Link
       key={item.id}
-      href={$path({
-        route: '/item/[...item]',
-        routeParams: {
-          item: [settings.realm, settings.region, settings.faction, `${item.slug}-${item.id}`],
-        },
-      })}
+      to="/item/$realmSlug/$region/$faction/$itemSlug"
+      params={{
+        realmSlug: settings.realm,
+        region: settings.region,
+        faction: settings.faction,
+        itemSlug: `${item.slug}-${item.id}`,
+      }}
       className={cn('group/item flex items-center gap-2 hover:underline underline-offset-4', {
         'opacity-50': deleteItem.isPending,
       })}
@@ -192,7 +185,7 @@ const SearchItemComponent = (props: SearchItemProps) => {
   const highestOrder = props.section.items.reduce((acc, { dashboardSectionItem: { order } }) => {
     return order > acc ? order : acc;
   }, 0);
-  const addItem = useServerActionMutation(addDashboardSectionItem);
+  const addItem = useServerMutation(addDashboardSectionItem);
 
   const onItemClick = () => {
     addItem

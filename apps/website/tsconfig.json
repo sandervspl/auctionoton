@@ -8,10 +8,10 @@
     "allowJs": false,
     "isolatedModules": true,
     "incremental": true,
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "target": "esnext",
     "module": "esnext",
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "lib": ["dom", "esnext"],
     "baseUrl": ".",
     "paths": {
@@ -33,14 +33,10 @@
       "vectors/*": ["public/vectors/*"],
       "styled-system/*": ["src/styled-system/*"]
     },
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "tsBuildInfoFile": "node_modules/.cache/typecheck.tsbuildinfo"
+    "tsBuildInfoFile": "node_modules/.cache/typecheck.tsbuildinfo",
+    "types": ["vite/client", "node"]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/**/*.d.ts", ".next/types/**/*.ts"],
-  "exclude": ["dist", ".next", "out", "next.config.js", "node_modules"],
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["dist", ".output", ".tanstack", "node_modules"],
   "extends": "@auctionoton/typescript-config/base.json"
 }

@@ -8,8 +8,7 @@ node_modules
 # testing
 coverage
 
-# next.js
-.next/
+# build output
 out/
 build
 
@@ -43,8 +42,9 @@ db.json
 # Generated code and compiler state
 *.tsbuildinfo
 apps/website/src/styled-system/
-apps/website/_next-typesafe-url_.d.ts
-apps/website/public/sitemap*.xml
+apps/website/src/routeTree.gen.ts
+apps/website/.output/
+apps/website/.tanstack/
 
 # App-local environment files
 .env.*

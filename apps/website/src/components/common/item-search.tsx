@@ -1,15 +1,15 @@
-'use client';
-
 import * as React from 'react';
 import { Loader2Icon } from 'lucide-react';
 import { useDebounce } from 'use-debounce';
 import * as Combobox from 'park-ui/combobox';
 import { Input } from 'park-ui/input';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from '@tanstack/react-router';
+import { useQuery } from '@tanstack/react-query';
+import { useServerFn } from '@tanstack/react-start';
+import { toast } from 'sonner';
 
 import { addRecentSearch, searchItem } from 'actions/search';
 import { useSettings } from 'hooks/use-settings';
-import { useServerActionQuery } from 'hooks/server-action-hooks';
 import { getTextQualityColor } from 'services/colors';
 import { cn } from 'services/cn';
 
@@ -34,12 +34,15 @@ export const ItemSearch = React.forwardRef((props: Props, ref) => {
   const [open, setOpen] = React.useState(false);
   const [selectedItem, setSelectedItem] = React.useState<number>();
   const [inputValue, setValue] = React.useState('');
-  const [pending, startTransition] = React.useTransition();
+  const [pending, setPending] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const router = useRouter();
+  const navigate = useNavigate();
+  const search = useServerFn(searchItem);
+  const recordSearch = useServerFn(addRecentSearch);
   const [value] = useDebounce(inputValue, 500);
-  const searchQuery = useServerActionQuery(searchItem, {
-    input: value,
+  const searchQuery = useQuery({
+    queryFn: () => search({ data: value }),
+    enabled: value.trim().length > 0,
     queryKey: ['search', value],
   });
   const { settings } = useSettings();
@@ -79,15 +82,23 @@ export const ItemSearch = React.forwardRef((props: Props, ref) => {
             setSelectedItem(itemId);
           }
 
-          startTransition(async () => {
-            if (itemId) {
-              await addRecentSearch(inputValue, itemId);
-            }
-
-            router.push(
-              `/item/${settings.realm}/${settings.region}/${settings.faction}/${details.value[0]}-${itemId}`,
-            );
-          });
+          if (!itemId || !slug) return;
+          setPending(true);
+          void recordSearch({ data: { search: inputValue, itemId } })
+            .catch(() => toast.error('Could not save your recent search'))
+            .then(() =>
+              navigate({
+                to: '/item/$realmSlug/$region/$faction/$itemSlug',
+                params: {
+                  realmSlug: settings.realm,
+                  region: settings.region,
+                  faction: settings.faction,
+                  itemSlug: `${slug}-${itemId}`,
+                },
+              }),
+            )
+            .catch(() => toast.error('Could not open this item'))
+            .finally(() => setPending(false));
         }
       }}
     >
@@ -108,7 +119,11 @@ export const ItemSearch = React.forwardRef((props: Props, ref) => {
       </Combobox.Control>
       <Combobox.Positioner>
         <Combobox.Content className={cn({ 'p-1': !!searchQuery.data })}>
-          {searchQuery.data && searchQuery.data.length === 0 ? (
+          {searchQuery.isError ? (
+            <div className="p-2 text-sm" role="alert">
+              Could not search items. Please try again.
+            </div>
+          ) : searchQuery.data && searchQuery.data.length === 0 ? (
             <div className="p-2 flex items-center text-sm gap-2">No items found.</div>
           ) : !searchQuery.data && inputValue.length > 0 ? (
             <div className="p-2 flex items-center text-sm gap-2">

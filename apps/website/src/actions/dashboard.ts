@@ -1,103 +1,108 @@
-'use server';
-
-import { $path } from 'next-typesafe-url';
-import { revalidatePath } from 'next/cache';
-import { auth } from '@clerk/nextjs';
-import { redirect } from 'next/navigation';
+import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
-import { createServerAction } from 'zsa';
-import { and, eq } from 'drizzle-orm';
-
+import { and, eq, inArray, notExists } from 'drizzle-orm';
 import { db } from 'db';
 import { dashboardSectionItems, dashboardSections, dashboardSectionsSectionItems } from 'db/schema';
+import { requireUser } from 'services/auth';
 
-export const createDashboardSection = createServerAction()
-  .input(
-    z.object({
-      section_name: z.string().min(1).max(100),
-    }),
-  )
-  .handler(async ({ input }) => {
-    const { userId } = auth();
-    if (!userId) {
-      redirect('/');
-    }
-
-    await db
-      .insert(dashboardSections)
-      .values({ name: input.section_name, userId, order: 0 })
-      .returning({ id: dashboardSections.id });
-
-    revalidatePath('/user/dashboard');
+export const createDashboardSection = createServerFn({ method: 'POST' })
+  .validator(z.object({ section_name: z.string().trim().min(1).max(100) }))
+  .handler(async ({ data }) => {
+    const { userId } = await requireUser();
+    await db.insert(dashboardSections).values({ name: data.section_name, userId, order: 0 });
   });
 
-export const addDashboardSectionItem = createServerAction()
-  .input(
+export const addDashboardSectionItem = createServerFn({ method: 'POST' })
+  .validator(
     z.object({
-      section_id: z.number(),
-      item_id: z.number(),
-      highest_order: z.number(),
+      section_id: z.number().int().positive(),
+      item_id: z.number().int().positive(),
+      highest_order: z.number().int().nonnegative(),
     }),
   )
-  .handler(async ({ input }) => {
-    const { userId } = auth();
-    if (!userId) {
-      redirect('/');
-    }
-
+  .handler(async ({ data }) => {
+    const { userId } = await requireUser();
     await db.transaction(async (tx) => {
+      const section = await tx.query.dashboardSections.findFirst({
+        where: and(eq(dashboardSections.id, data.section_id), eq(dashboardSections.userId, userId)),
+      });
+      if (!section) throw new Error('Collection not found');
       const [sectionItem] = await tx
         .insert(dashboardSectionItems)
-        .values({
-          itemId: input.item_id,
-          order: input.highest_order + 1,
-        })
+        .values({ itemId: data.item_id, order: data.highest_order + 1 })
         .returning({ id: dashboardSectionItems.id });
-
-      if (!sectionItem) {
-        throw new Error('Error adding dashboard section item');
-      }
-
+      if (!sectionItem) throw new Error('Error adding dashboard section item');
       await tx.insert(dashboardSectionsSectionItems).values({
-        dashboardSectionId: input.section_id,
+        dashboardSectionId: data.section_id,
         dashboardSectionItemId: sectionItem.id,
       });
     });
-
-    revalidatePath($path({ route: '/user/dashboard' }));
   });
 
-export const deleteDashboardSection = createServerAction()
-  .input(
-    z.object({
-      sectionId: z.number(),
-    }),
-  )
-  .handler(async ({ input }) => {
-    await db.delete(dashboardSections).where(eq(dashboardSections.id, input.sectionId));
-    revalidatePath('/user/dashboard');
-  });
-
-export const deleteDashboardSectionItem = createServerAction()
-  .input(
-    z.object({
-      sectionId: z.number(),
-      sectionItemId: z.number(),
-    }),
-  )
-  .handler(async ({ input }) => {
+export const deleteDashboardSection = createServerFn({ method: 'POST' })
+  .validator(z.object({ sectionId: z.number().int().positive() }))
+  .handler(async ({ data }) => {
+    const { userId } = await requireUser();
     await db.transaction(async (tx) => {
-      await tx
+      const section = await tx.query.dashboardSections.findFirst({
+        where: and(eq(dashboardSections.id, data.sectionId), eq(dashboardSections.userId, userId)),
+      });
+      if (!section) throw new Error('Collection not found');
+      const removed = await tx
+        .delete(dashboardSectionsSectionItems)
+        .where(eq(dashboardSectionsSectionItems.dashboardSectionId, data.sectionId))
+        .returning({ itemId: dashboardSectionsSectionItems.dashboardSectionItemId });
+      await tx.delete(dashboardSections).where(eq(dashboardSections.id, data.sectionId));
+      if (removed.length > 0) {
+        await tx.delete(dashboardSectionItems).where(
+          and(
+            inArray(
+              dashboardSectionItems.id,
+              removed.map(({ itemId }) => itemId),
+            ),
+            notExists(
+              tx
+                .select()
+                .from(dashboardSectionsSectionItems)
+                .where(
+                  eq(
+                    dashboardSectionsSectionItems.dashboardSectionItemId,
+                    dashboardSectionItems.id,
+                  ),
+                ),
+            ),
+          ),
+        );
+      }
+    });
+  });
+
+export const deleteDashboardSectionItem = createServerFn({ method: 'POST' })
+  .validator(
+    z.object({
+      sectionId: z.number().int().positive(),
+      sectionItemId: z.number().int().positive(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const { userId } = await requireUser();
+    await db.transaction(async (tx) => {
+      const section = await tx.query.dashboardSections.findFirst({
+        where: and(eq(dashboardSections.id, data.sectionId), eq(dashboardSections.userId, userId)),
+      });
+      if (!section) throw new Error('Collection not found');
+      const removed = await tx
         .delete(dashboardSectionsSectionItems)
         .where(
           and(
-            eq(dashboardSectionsSectionItems.dashboardSectionId, input.sectionId),
-            eq(dashboardSectionsSectionItems.dashboardSectionItemId, input.sectionItemId),
+            eq(dashboardSectionsSectionItems.dashboardSectionId, data.sectionId),
+            eq(dashboardSectionsSectionItems.dashboardSectionItemId, data.sectionItemId),
           ),
-        );
+        )
+        .returning();
+      if (removed.length === 0) throw new Error('Collection item not found');
       await tx
         .delete(dashboardSectionItems)
-        .where(eq(dashboardSectionItems.id, input.sectionItemId));
+        .where(eq(dashboardSectionItems.id, data.sectionItemId));
     });
-    revalidatePath('/user/dashboard');
   });

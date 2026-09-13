@@ -1,49 +1,28 @@
-import 'server-only';
-import { and, eq, asc, gt } from 'drizzle-orm';
+import { createServerFn } from '@tanstack/react-start';
+import { notFound } from '@tanstack/react-router';
+import { z } from 'zod';
+import { getAuctionHouseId } from 'services/auction-house';
+import { getItemHistory, getItemWithId } from './items.server';
 
-import { db } from 'db';
-import { items, itemsMetadata } from 'db/schema';
-
-export async function getItemFromSlug(slug: string) {
-  return db.query.itemsMetadata.findFirst({
-    where: (itemsMetadata, { eq }) => eq(itemsMetadata.slug, slug),
-    columns: { name: true },
+export const getItemDetail = createServerFn({ method: 'GET' })
+  .validator(
+    z.object({
+      realmSlug: z.string(),
+      region: z.string(),
+      faction: z.string(),
+      itemSlug: z.string(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const itemId = Number(data.itemSlug.split('-').pop());
+    const auctionHouseId = getAuctionHouseId(data.region, data.realmSlug, data.faction);
+    if (!Number.isSafeInteger(itemId) || itemId <= 0 || auctionHouseId == null) {
+      throw notFound();
+    }
+    const [itemMetadata, itemHistory] = await Promise.all([
+      getItemWithId(itemId),
+      getItemHistory(itemId, auctionHouseId),
+    ]);
+    if (!itemMetadata) throw notFound();
+    return { itemMetadata, itemHistory };
   });
-}
-
-export async function getItemWithId(id: number | string) {
-  return db.query.itemsMetadata.findFirst({
-    where: (itemsMetadata, { eq }) => eq(itemsMetadata.id, Number(id)),
-  });
-}
-
-export async function getItemHistory(itemId: number | string, auctionHouseId: number | string) {
-  const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-  const itemHistory = await db
-    .select({
-      minBuyout: items.minBuyout,
-      quantity: items.quantity,
-      marketValue: items.marketValue,
-      historical: items.historical,
-      numAuctions: items.numAuctions,
-      timestamp: items.timestamp,
-      icon: itemsMetadata.icon,
-      name: itemsMetadata.name,
-      quality: itemsMetadata.quality,
-    })
-    .from(items)
-    .where(
-      and(
-        eq(itemsMetadata.id, Number(itemId)),
-        eq(items.auctionHouseId, Number(auctionHouseId)),
-        gt(items.timestamp, new Date(sevenDaysAgo)),
-      ),
-    )
-    .leftJoin(itemsMetadata, eq(items.itemId, itemsMetadata.id))
-    .orderBy(asc(items.timestamp));
-
-  return itemHistory.map((item) => ({
-    ...item,
-    minBuyout: Number(item.minBuyout),
-  }));
-}

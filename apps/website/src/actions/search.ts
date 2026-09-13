@@ -1,16 +1,14 @@
-'use server';
-
 import { and, isNotNull, like, or, sql } from 'drizzle-orm';
-import { auth } from '@clerk/nextjs';
-import { createServerAction } from 'zsa';
+import { auth } from '@clerk/tanstack-react-start/server';
+import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 
 import { db } from 'db';
 import { itemsMetadata, recentSearches } from 'db/schema';
 
-export const searchItem = createServerAction()
-  .input(z.string())
-  .handler(async ({ input: search }) => {
+export const searchItem = createServerFn({ method: 'GET' })
+  .validator(z.string().trim().min(1).max(200))
+  .handler(async ({ data: search }) => {
     const results = await db
       .select({
         id: itemsMetadata.id,
@@ -32,11 +30,10 @@ export const searchItem = createServerAction()
     return results;
   });
 
-export async function addRecentSearch(search: string, itemId: number) {
-  const { userId } = auth();
-  if (!userId) {
-    return;
-  }
-
-  await db.insert(recentSearches).values({ search, itemId, userId });
-}
+export const addRecentSearch = createServerFn({ method: 'POST' })
+  .validator(z.object({ search: z.string().max(200), itemId: z.number().int().positive() }))
+  .handler(async ({ data }) => {
+    const { userId } = await auth();
+    if (!userId) return;
+    await db.insert(recentSearches).values({ ...data, userId });
+  });

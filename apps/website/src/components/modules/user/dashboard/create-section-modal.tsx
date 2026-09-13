@@ -1,7 +1,4 @@
-'use client';
-
 import * as React from 'react';
-import { useFormStatus } from 'react-dom';
 import { Loader2Icon, SquarePlusIcon } from 'lucide-react';
 
 import {
@@ -17,12 +14,12 @@ import { Button } from 'shadcn-ui/button';
 import { Input } from 'shadcn-ui/input';
 import { Label } from 'shadcn-ui/label';
 import { createDashboardSection } from 'actions/dashboard';
-import { useServerActionMutation } from 'hooks/server-action-hooks';
+import { useServerMutation } from 'hooks/use-server-mutation';
 import { toast } from 'sonner';
 
 export const CreateSectionModal = () => {
   const [isOpen, setOpen] = React.useState(false);
-  const addSection = useServerActionMutation(createDashboardSection);
+  const addSection = useServerMutation(createDashboardSection);
 
   function onSubmit(formdata: FormData) {
     addSection
@@ -48,7 +45,12 @@ export const CreateSectionModal = () => {
           <DialogTitle>Create item collection</DialogTitle>
           <DialogDescription>Add a new dashboard section to organize your items.</DialogDescription>
         </DialogHeader>
-        <form action={onSubmit}>
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            onSubmit(new FormData(event.currentTarget));
+          }}
+        >
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-6 items-center gap-4">
               <Label htmlFor="section_name" className="text-right col-span-2">
@@ -67,7 +69,7 @@ export const CreateSectionModal = () => {
             )}
           </div>
           <DialogFooter>
-            <SubmitButton />
+            <SubmitButton pending={addSection.isPending} />
           </DialogFooter>
         </form>
       </DialogContent>
@@ -75,9 +77,7 @@ export const CreateSectionModal = () => {
   );
 };
 
-const SubmitButton = () => {
-  const { pending } = useFormStatus();
-
+const SubmitButton = ({ pending }: { pending: boolean }) => {
   return (
     <Button type="submit" disabled={pending} className="gap-2">
       {pending && <Loader2Icon className="animate-spin" size={16} />}

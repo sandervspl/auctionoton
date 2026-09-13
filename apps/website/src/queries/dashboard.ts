@@ -1,14 +1,10 @@
-import 'server-only';
-import { auth } from '@clerk/nextjs';
-import { redirect } from 'next/navigation';
+import { createServerFn } from '@tanstack/react-start';
+import { requireUser } from 'services/auth';
 
 import { db } from 'db';
 
-export async function getDashboardSections() {
-  const { userId } = auth();
-  if (!userId) {
-    redirect('/?error=unauthorized');
-  }
+export const getDashboardSections = createServerFn({ method: 'GET' }).handler(async () => {
+  const { userId } = await requireUser();
 
   return db.query.dashboardSections.findMany({
     with: {
@@ -25,4 +21,4 @@ export async function getDashboardSections() {
     where: (dashboardSections, { eq }) => eq(dashboardSections.userId, userId),
     orderBy: (dashboardSections, { asc }) => asc(dashboardSections.order),
   });
-}
+});

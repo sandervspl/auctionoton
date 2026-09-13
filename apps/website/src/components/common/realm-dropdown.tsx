@@ -1,14 +1,11 @@
-'use client';
-
 import * as React from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { $path } from 'next-typesafe-url';
+import { useParams, useNavigate } from '@tanstack/react-router';
 import { Loader2Icon } from 'lucide-react';
 
 import { setAuctionHouseIdCookie } from 'actions/cookie';
 import { useMediaQuery } from 'hooks/use-media-query';
 import { useSettings } from 'hooks/use-settings';
-import { useServerActionMutation } from 'hooks/server-action-hooks';
+import { useServerMutation } from 'hooks/use-server-mutation';
 import { Button } from 'shadcn-ui/button';
 import {
   Command,
@@ -21,7 +18,6 @@ import {
 import { Drawer, DrawerContent, DrawerTrigger } from 'shadcn-ui/drawer';
 import { Popover, PopoverContent, PopoverTrigger } from 'shadcn-ui/popover';
 import { realmDropdownValues } from 'services/realms';
-import type { ItemParam } from 'src/app/item/[...item]/page';
 
 type Props = {
   onOpen?: () => void;
@@ -69,17 +65,14 @@ export function RealmDropdown({ onOpen }: Props) {
 }
 
 function RealmList(props: { setOpen: (open: boolean) => void }) {
-  const { setRealm, setRegion, settings } = useSettings();
+  const { setSettings, settings } = useSettings();
   const [selected, setSelected] = React.useState<string>();
-  const [isPending, startTransition] = React.useTransition();
-  const router = useRouter();
-  const params = useParams() as { item?: ItemParam };
-  const itemId = params.item?.[3]?.split('-').pop();
-  const setAuctionHouseCookie = useServerActionMutation(setAuctionHouseIdCookie);
+  const [isNavigating, setNavigating] = React.useState(false);
+  const navigate = useNavigate();
+  const params = useParams({ strict: false });
+  const setAuctionHouseCookie = useServerMutation(setAuctionHouseIdCookie);
 
-  if (!isPending && selected) {
-    setSelected(undefined);
-  }
+  const isPending = isNavigating || setAuctionHouseCookie.isPending;
 
   return (
     <Command>
@@ -92,35 +85,30 @@ function RealmList(props: { setOpen: (open: boolean) => void }) {
               key={realm.value}
               value={realm.value}
               className="flex items-center justify-between gap-2"
-              onSelect={(value) => {
+              onSelect={async (value) => {
                 setSelected(value);
-
-                startTransition(async () => {
+                setNavigating(true);
+                try {
                   props.setOpen(false);
                   const [realm, region] = value.split('_');
-
-                  if (realm && region) {
-                    setRealm(realm);
-                    setRegion(region);
-
-                    await setAuctionHouseCookie.mutateAsync({
-                      region,
-                      realmSlug: realm,
-                      faction: settings.faction,
-                    });
-
-                    if (params.item) {
-                      router.push(
-                        $path({
-                          route: '/item/[...item]',
-                          routeParams: {
-                            item: [realm, region, 'alliance', `${params.item[3]}-${itemId}`],
-                          },
-                        }),
-                      );
+                  if (realm && (region === 'eu' || region === 'us')) {
+                    const activeFaction = params.faction ?? settings.faction;
+                    const faction = activeFaction === 'horde' ? 'horde' : 'alliance';
+                    setSettings({ realm, region, faction });
+                    await setAuctionHouseCookie.mutateAsync({ region, realmSlug: realm, faction });
+                    if (params.itemSlug) {
+                      await navigate({
+                        to: '/item/$realmSlug/$region/$faction/$itemSlug',
+                        params: { realmSlug: realm, region, faction, itemSlug: params.itemSlug },
+                      });
                     }
                   }
-                });
+                } catch {
+                  // The mutation hook reports request failures to the user.
+                } finally {
+                  setNavigating(false);
+                  setSelected(undefined);
+                }
               }}
             >
               {realm.label}

@@ -37,7 +37,13 @@ jobs:
         run: pnpm build
         env:
           # Build-only Clerk placeholder; CI never authenticates against a real tenant.
-          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_Y2xlcmsuZXhhbXBsZS5jb20k
+          VITE_CLERK_PUBLISHABLE_KEY: pk_test_Y2xlcmsuZXhhbXBsZS5jb20k
+          APP_ENV: development
+          TEST_SITE_URL: http://localhost:3001
+      - name: Smoke test the production website
+        run: pnpm exec turbo run test:smoke --filter=@auctionoton/website
+        env:
+          VITE_CLERK_PUBLISHABLE_KEY: pk_test_Y2xlcmsuZXhhbXBsZS5jb20k
           APP_ENV: development
           TEST_SITE_URL: http://localhost:3001
       - name: Build Firefox extension

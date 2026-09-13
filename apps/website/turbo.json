@@ -2,14 +2,7 @@
   "extends": ["//"],
   "tasks": {
     "build": {
-      "outputs": [
-        ".next/**",
-        "!.next/cache/**",
-        "src/styled-system/**",
-        "_next-typesafe-url_.d.ts",
-        "public/sitemap*.xml",
-        "public/robots.txt"
-      ],
+      "outputs": [".output/**", "dist/**", "src/styled-system/**", "src/routeTree.gen.ts"],
       "env": [
         "$TURBO_EXTENDS$",
         "APP_ENV",
@@ -17,31 +10,26 @@
         "ACC_SITE_URL",
         "PROD_SITE_URL",
         "DB_URL",
-        "CLERK_SECRET_KEY",
         "CLERK_*",
-        "NEXT_PUBLIC_*"
+        "VITE_*"
       ],
       "dependsOn": ["^build", "generate"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!src/styled-system/**",
-        "!_next-typesafe-url_.d.ts",
+        "!src/routeTree.gen.ts",
         "!*.tsbuildinfo",
-        "!public/sitemap*.xml",
-        "!public/robots.txt",
         ".env",
         ".env.*"
       ]
     },
     "generate": {
-      "outputs": ["src/styled-system/**", "_next-typesafe-url_.d.ts"],
+      "outputs": ["src/styled-system/**", "src/routeTree.gen.ts"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!src/styled-system/**",
-        "!_next-typesafe-url_.d.ts",
-        "!*.tsbuildinfo",
-        "!public/sitemap*.xml",
-        "!public/robots.txt"
+        "!src/routeTree.gen.ts",
+        "!*.tsbuildinfo"
       ]
     },
     "typecheck": {
@@ -49,10 +37,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!src/styled-system/**",
-        "!_next-typesafe-url_.d.ts",
-        "!*.tsbuildinfo",
-        "!public/sitemap*.xml",
-        "!public/robots.txt"
+        "!src/routeTree.gen.ts",
+        "!*.tsbuildinfo"
       ]
     },
     "dev": {
@@ -62,9 +48,10 @@
         "ACC_SITE_URL",
         "PROD_SITE_URL",
         "DB_URL",
-        "CLERK_SECRET_KEY",
         "CLERK_*",
-        "NEXT_PUBLIC_*"
+        "VITE_*",
+        "PORT",
+        "HOST"
       ]
     },
     "start": {
@@ -74,10 +61,15 @@
         "ACC_SITE_URL",
         "PROD_SITE_URL",
         "DB_URL",
-        "CLERK_SECRET_KEY",
         "CLERK_*",
-        "NEXT_PUBLIC_*"
+        "VITE_*",
+        "PORT",
+        "HOST"
       ]
+    },
+    "test:smoke": {
+      "dependsOn": ["build"],
+      "cache": false
     }
   }
 }

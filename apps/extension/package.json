@@ -69,6 +69,7 @@
     "vite-plugin-banner": "^0.7.1",
     "wxt": "^0.19.4",
     "@auctionoton/typescript-config": "workspace:*",
-    "@biomejs/biome": "catalog:"
+    "@biomejs/biome": "catalog:",
+    "vite": "6.4.3"
   }
 }

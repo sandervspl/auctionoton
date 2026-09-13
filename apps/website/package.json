@@ -3,19 +3,18 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently --kill-others \"next dev --turbo --port 3001\" \"next-typesafe-url --watch\"",
-    "start": "NODE_ENV=production next start",
-    "build": "next build && next-sitemap",
-    "analyze": "ANALYZE=true pnpm run build",
+    "dev": "vite --port 3001",
+    "start": "NODE_ENV=production node --env-file-if-exists=.env --env-file-if-exists=.env.local .output/server/index.mjs",
+    "build": "vite build",
     "typecheck": "tsc --noEmit",
     "lint": "biome lint .",
     "format": "biome format --write .",
     "format:check": "biome format .",
-    "generate": "panda codegen && next-typesafe-url"
+    "generate": "panda codegen && tsr generate",
+    "test:smoke": "node --test tests/smoke.test.mjs"
   },
   "dependencies": {
     "@ark-ui/react": "^3.6.0",
-    "@clerk/nextjs": "^4.29.9",
     "@nivo/bar": "^0.85.1",
     "@nivo/core": "^0.85.1",
     "@nivo/line": "^0.85.1",
@@ -27,7 +26,6 @@
     "@radix-ui/react-slot": "^1.0.2",
     "@sindresorhus/slugify": "^2.2.1",
     "@tanstack/react-query": "^5.28.4",
-    "@tanstack/react-query-next-experimental": "^5.28.4",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "cmdk": "^1.0.0",
@@ -35,15 +33,12 @@
     "drizzle-orm": "^0.30.4",
     "drizzle-zod": "^0.5.1",
     "lucide-react": "^0.359.0",
-    "next": "^14.1.4",
-    "next-typesafe-url": "^4.0.6",
     "ofetch": "^1.3.3",
     "pg": "^8.11.3",
     "postgres": "^3.4.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hotkeys-hook": "^4.5.0",
-    "server-only": "^0.0.1",
     "sonner": "^1.4.32",
     "tailwind-merge": "^2.2.2",
     "tailwind-variants": "^0.2.1",
@@ -52,12 +47,12 @@
     "use-local-storage-state": "^19.1.0",
     "vaul": "^0.9.0",
     "zod": "^3.23.8",
-    "zsa": "^0.5.1",
-    "zsa-react": "^0.2.2",
-    "zsa-react-query": "^0.2.1"
+    "@clerk/tanstack-react-start": "^1.5.13",
+    "@tanstack/react-start": "1.168.52",
+    "@tanstack/react-router": "1.170.35",
+    "@fontsource-variable/inter": "^5.3.0"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "^14.1.4",
     "@pandacss/dev": "^0.44.0",
     "@park-ui/panda-preset": "^0.39.0",
     "@tanstack/react-query-devtools": "^5.28.4",
@@ -66,14 +61,21 @@
     "@types/react": "^18.2.67",
     "@types/react-dom": "^18.2.22",
     "autoprefixer": "^10.4.18",
-    "concurrently": "^8.2.2",
     "drizzle-kit": "^0.20.14",
-    "next-sitemap": "^4.2.3",
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.1",
     "ts-toolbelt": "^9.6.0",
     "typescript": "catalog:",
     "@auctionoton/typescript-config": "workspace:*",
-    "@biomejs/biome": "catalog:"
+    "@biomejs/biome": "catalog:",
+    "@tanstack/router-cli": "1.167.35",
+    "@vitejs/plugin-react": "^5.2.0",
+    "vite": "^8.3.0",
+    "nitro": "3.0.260903-beta",
+    "esbuild": "^0.28.2"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
   }
 }
