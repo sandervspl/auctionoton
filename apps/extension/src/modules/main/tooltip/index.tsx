@@ -84,21 +84,19 @@ const Tooltip: React.FC<Props> = ({ amount = 1, ...props }) => {
     <TooltipBody
       id={ELEMENT_ID.TOOLTIP}
       header={
-        <>
-          {lastUpdated && (
-            <div className="whtt-sellprice auc-mb-2">
-              Last updated:&nbsp;
-              <span
-                className={cn({
-                  q2: lastUpdated.hours < (isEra ? 24 : 3),
-                  q10: lastUpdated.hours >= (isEra ? 24 : 3),
-                })}
-              >
-                {lastUpdated.text}
-              </span>
-            </div>
-          )}
-        </>
+        lastUpdated && (
+          <div className="whtt-sellprice auc-mb-2">
+            Last updated:&nbsp;
+            <span
+              className={cn({
+                q2: lastUpdated.hours < (isEra ? 24 : 3),
+                q10: lastUpdated.hours >= (isEra ? 24 : 3),
+              })}
+            >
+              {lastUpdated.text}
+            </span>
+          </div>
+        )
       }
     >
       {item ? (

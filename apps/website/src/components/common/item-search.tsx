@@ -108,15 +108,13 @@ export const ItemSearch = React.forwardRef((props: Props, ref) => {
       </Combobox.Control>
       <Combobox.Positioner>
         <Combobox.Content className={cn({ 'p-1': !!searchQuery.data })}>
-          <>
-            {searchQuery.data && searchQuery.data.length === 0 ? (
-              <div className="p-2 flex items-center text-sm gap-2">No items found.</div>
-            ) : !searchQuery.data && inputValue.length > 0 ? (
-              <div className="p-2 flex items-center text-sm gap-2">
-                <Loader2Icon className="animate-spin size-4" /> Searching...
-              </div>
-            ) : null}
-          </>
+          {searchQuery.data && searchQuery.data.length === 0 ? (
+            <div className="p-2 flex items-center text-sm gap-2">No items found.</div>
+          ) : !searchQuery.data && inputValue.length > 0 ? (
+            <div className="p-2 flex items-center text-sm gap-2">
+              <Loader2Icon className="animate-spin size-4" /> Searching...
+            </div>
+          ) : null}
 
           <Combobox.ItemGroup id="items">
             {searchQuery.data?.map((item) => (

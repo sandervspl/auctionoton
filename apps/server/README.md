@@ -1,18 +1,15 @@
-# Elysia with Bun runtime
+# Auctionoton API
 
-## Getting Started
-To get started with this template, simply paste this command into your terminal:
-```bash
-bun create elysia ./elysia-example
+The Elysia API runs on Bun 1.3.14 or newer. Install workspace dependencies with pnpm at the repository root:
+
+```sh
+pnpm install --frozen-lockfile
+cp apps/server/.env.example apps/server/.env
 ```
 
-## Development
-To start the development server run:
-```bash
-bun run dev
-```
+Set `DB_URL` and `REDIS_URL` to your development PostgreSQL and Redis instances. Fill in Blizzard and TradeSkillMaster credentials for ingestion scripts. Start the API with `pnpm dev:server`; its health endpoint is `http://localhost:3000/health`.
 
-Open http://localhost:3000/ with your browser to see the result.
+Build with `pnpm exec turbo run build --filter=@auctionoton/server`, then run `pnpm --filter @auctionoton/server start`. The website runs separately on port 3001 during development.
 
 ## Database migrations
 

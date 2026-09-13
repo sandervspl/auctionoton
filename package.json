@@ -4,18 +4,38 @@
   "private": true,
   "license": "ISC",
   "scripts": {
-    "build": "cd apps/extension && pnpm run build",
-    "prettier": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "cs:add": "npx changeset",
-    "cs:ver": "npx changeset version",
-    "e:version": "pnpm run build && cd apps/extension && npm run version"
+    "dev": "turbo run dev",
+    "dev:extension": "turbo run dev --filter=@auctionoton/extension",
+    "dev:website": "turbo run dev --filter=@auctionoton/website",
+    "dev:server": "turbo run dev --filter=@auctionoton/server",
+    "build": "turbo run build",
+    "build:firefox": "turbo run build:firefox --filter=@auctionoton/extension",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "format": "turbo run format",
+    "format:check": "turbo run format:check",
+    "check": "turbo run lint typecheck",
+    "zip": "turbo run zip --filter=@auctionoton/extension",
+    "zip:firefox": "turbo run zip:firefox --filter=@auctionoton/extension",
+    "db:migrate": "turbo run db:migrate --filter=@auctionoton/server",
+    "cs:add": "changeset",
+    "cs:ver": "changeset version",
+    "e:version": "turbo run zip zip:firefox --filter=@auctionoton/extension"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.8.3",
+    "@biomejs/biome": "catalog:",
     "@changesets/cli": "^2.27.1",
-    "concurrently": "^7.5.0",
-    "cross-env": "^7.0.3",
-    "prettier": "^2.7.1",
-    "typescript": "^5.5.3"
+    "turbo": "2.10.12",
+    "typescript": "catalog:"
+  },
+  "packageManager": "pnpm@10.7.1",
+  "engines": {
+    "node": ">=22",
+    "pnpm": "10.7.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "@wxt-dev/module-react>@vitejs/plugin-react": "4.7.0"
+    }
   }
 }

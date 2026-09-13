@@ -1,2 +1,18 @@
 packages:
   - apps/*
+  - packages/*
+
+catalog:
+  '@biomejs/biome': 1.9.4
+  typescript: 5.9.3
+
+onlyBuiltDependencies:
+  - '@biomejs/biome'
+  - '@clerk/shared'
+  - '@swc/core'
+  - esbuild
+  - sharp
+
+ignoredBuiltDependencies:
+  - es5-ext
+  - spawn-sync

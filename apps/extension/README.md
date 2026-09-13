@@ -1,44 +1,24 @@
-# Auctionoton
+# Auctionoton extension
 
-Display current Auction House price data for items on classic.wowhead.com.
+WXT builds the Wowhead extension for Chrome and Firefox. Run commands from the repository root, using Node.js 22 or newer and pnpm 10.7.1. The exact development Node version is in `.node-version`.
 
-This extension adds a second tooltip to items on classic.wowhead.com containing the latest Auction House price information for your selected server. You can select the region, server and faction you want to be displayed.
+```sh
+pnpm install --frozen-lockfile
+pnpm dev:extension
+```
 
-All Chromium based browsers are supported. This includes: Chrome, Firefox, Brave, Edge and Opera.
+The development extension calls the Bun API at `http://localhost:3000`. Start it with `pnpm dev:server` after configuring its environment. Production builds call `https://auctionoton-api.sandervspl.dev`.
 
-There are currently no plans to support Safari.
+For Firefox development, run `pnpm --filter @auctionoton/extension dev:firefox`.
 
-# Download
+## Rebuild from source for Mozilla
 
-- Chrome/Brave/Edge/Opera: https://chrome.google.com/webstore/detail/auctionoton-auction-house/ffflgkmjodhdladikaglbeofemhbojio?hl=en&authuser=0
-- Firefox: https://addons.mozilla.org/en-US/firefox/addon/auctionoton/
+Extract `auctionoton-sources.zip` and open a terminal in its root directory, where `pnpm-workspace.yaml` lives. Install Node.js using the version in `.node-version`, then run:
 
-# Build instructions (for Mozilla)
+```sh
+npm install --global pnpm@10.7.1
+pnpm install --frozen-lockfile
+pnpm build:firefox
+```
 
-A step by step guide for building the compiled code
-
-## Requirements
-
-These are the programs used to compile the current version
-
-- MacOS Catalina >= v10.15.4
-- Node >= v10.16.0
-- NPM >= v6.14.5
-
-## Building
-
-Run the following commands in order
-
-1. `$ npm install`
-2. `$ npm run build`
-
-# Development Workflow
-
-- Navigate to this project in your terminal
-- Start the dev server with `dev`
-- Open your browser (preferably a chromium browser)
-- Go to the extensions page (i.e. brave://extensions/)
-- If not loaded yet, click on `Load unpacked`
-  - Go to the project folder and click `Select` (no need to select a file)
-- After a rebuild, click the refresh button
-- Reload the page where you are testing the extension
+The extension does not require Bun to build. The Firefox bundle appears in `apps/extension/.output/firefox-mv3/`. Run `pnpm zip:firefox` to produce `apps/extension/.output/auctionoton-firefox.zip` and a new source archive. The source archive includes the workspace files and shared TypeScript configuration needed for a reproducible build.

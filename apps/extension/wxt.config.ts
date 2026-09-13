@@ -1,5 +1,6 @@
 import { defineConfig } from 'wxt';
 import banner from 'vite-plugin-banner';
+import { fileURLToPath } from 'node:url';
 
 const nodeEnv = process.env.NODE_ENV || 'development';
 const DEV = nodeEnv !== 'production';
@@ -10,6 +11,33 @@ export default defineConfig({
   manifestVersion: 3,
   modules: ['@wxt-dev/module-react'],
   modulesDir: 'src/wxtModules',
+  zip: {
+    artifactTemplate: 'auctionoton-{{browser}}.zip',
+    sourcesTemplate: 'auctionoton-sources.zip',
+    // Firefox reviewers need the workspace lockfile and shared configuration too.
+    sourcesRoot: fileURLToPath(new URL('../..', import.meta.url)),
+    includeSources: ['.node-version', '.npmrc'],
+    excludeSources: [
+      '**/build/**',
+      '**/dist/**',
+      '**/store/**',
+      '**/src/styled-system/**',
+      '**/*.tsbuildinfo',
+      '**/*.zip',
+      '**/*.log',
+      // WXT's source archiver does not read .gitignore.
+      '**/deploy.secrets.sh',
+      '**/*.pem',
+      '**/*.key',
+      '**/*.db',
+      '**/*.db-*',
+      '**/*.sqlite',
+      '**/*.sqlite3',
+      '**/AuctionDB.lua',
+      '**/db.json',
+      '**/auctionoton-server/**',
+    ],
+  },
   runner: {
     chromiumArgs: ['--disable-search-engine-choice-screen', '--start-maximized'],
     startUrls: [

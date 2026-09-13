@@ -18,7 +18,7 @@ export function useEventListener<K extends keyof HTMLElementEventMap>(
 
   useEffect(() => {
     // Make sure element supports addEventListener
-    const isSupported = element && element.addEventListener;
+    const isSupported = element?.addEventListener;
     if (!isSupported) return;
 
     // Create event listener that calls handler function stored in ref

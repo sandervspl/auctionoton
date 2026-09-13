@@ -1,0 +1,38 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "outputs": ["build/**"]
+    },
+    "dev": {
+      "passThroughEnv": [
+        "PORT",
+        "DB_URL",
+        "REDIS_URL",
+        "AUC_SECRET",
+        "BNET_CLIENT_ID",
+        "BNET_CLIENT_SECRET",
+        "TSM_CLIENT_ID",
+        "TSM_API_KEY",
+        "TSM_API_KEY_B",
+        "TSM_API_KEY_C",
+        "TSM_API_KEY_D"
+      ]
+    },
+    "start": {
+      "passThroughEnv": [
+        "PORT",
+        "DB_URL",
+        "REDIS_URL",
+        "AUC_SECRET",
+        "BNET_CLIENT_ID",
+        "BNET_CLIENT_SECRET",
+        "TSM_CLIENT_ID",
+        "TSM_API_KEY",
+        "TSM_API_KEY_B",
+        "TSM_API_KEY_C",
+        "TSM_API_KEY_D"
+      ]
+    }
+  }
+}

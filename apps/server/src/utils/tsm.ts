@@ -84,11 +84,11 @@ export async function getRealms(regionq: i.Region, version: i.GameVersion) {
   // Fetch from TSM if not in cache
   if (regions.items.length === 0) {
     const tsmApiKey = tsmApiKeys[version];
-    const response = await fetch(`https://realm-api.tradeskillmaster.com/realms`, {
+    const response = await fetch('https://realm-api.tradeskillmaster.com/realms', {
       headers: await headers(tsmApiKey),
     });
     if (response.status !== 200) {
-      throw new Error(`Failed to fetch realms`);
+      throw new Error('Failed to fetch realms');
     }
 
     regions = await response.json();

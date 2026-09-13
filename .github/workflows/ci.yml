@@ -1,52 +1,44 @@
 name: CI
 
-# Run this on every push and pull
-on:
-  pull_request:
-    branches: '*'
-  push:
-    branches:
-      - '*'
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build:
+  check:
     runs-on: ubuntu-latest
-
     steps:
-      # Checkout to branch to execute from
-      - uses: actions/checkout@v3
-      - uses: oven-sh/setup-bun@v1
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
         with:
-          node-version: 18
-
+          fetch-depth: 0
       - uses: pnpm/action-setup@v4
-        name: Install pnpm
+      - uses: actions/setup-node@v4
         with:
-          version: 8
-          run_install: false
-
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
+          node-version-file: .node-version
+          cache: pnpm
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
       - uses: actions/cache@v4
-        name: Setup pnpm cache
         with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Typecheck
-        run: |
-          cd apps/extension
-          pnpm run tc
-          cd ../..
-
-      - name: Build monorepo
-        run: pnpm run build
+            turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+      - run: pnpm install --frozen-lockfile
+      - name: Check every workspace
+        run: pnpm check
+      - name: Build every app
+        run: pnpm build
+        env:
+          # Build-only Clerk placeholder; CI never authenticates against a real tenant.
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_Y2xlcmsuZXhhbXBsZS5jb20k
+          APP_ENV: development
+          TEST_SITE_URL: http://localhost:3001
+      - name: Build Firefox extension
+        run: pnpm build:firefox

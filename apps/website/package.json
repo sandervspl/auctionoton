@@ -3,12 +3,15 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently 'next dev --turbo' 'next-typesafe-url --watch'",
+    "dev": "concurrently --kill-others \"next dev --turbo --port 3001\" \"next-typesafe-url --watch\"",
     "start": "NODE_ENV=production next start",
-    "build": "next-typesafe-url && DEBUG=true NODE_ENV=production next build",
-    "postbuild": "next-sitemap",
-    "analyze": "ANALYZE=true npm run build",
-    "typecheck": "tsc --noEmit"
+    "build": "next build && next-sitemap",
+    "analyze": "ANALYZE=true pnpm run build",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "generate": "panda codegen && next-typesafe-url"
   },
   "dependencies": {
     "@ark-ui/react": "^3.6.0",
@@ -69,6 +72,8 @@
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.1",
     "ts-toolbelt": "^9.6.0",
-    "typescript": "^5.4.3"
+    "typescript": "catalog:",
+    "@auctionoton/typescript-config": "workspace:*",
+    "@biomejs/biome": "catalog:"
   }
 }

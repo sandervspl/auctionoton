@@ -39,3 +39,13 @@ auctionoton-server/
 sqlite.db
 AuctionDB.lua
 db.json
+
+# Generated code and compiler state
+*.tsbuildinfo
+apps/website/src/styled-system/
+apps/website/_next-typesafe-url_.d.ts
+apps/website/public/sitemap*.xml
+
+# App-local environment files
+.env.*
+!.env.example

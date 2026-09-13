@@ -20,9 +20,9 @@ function useItemFromPage(): UseGetItemFromPage {
       return false;
     }
 
-    str = str.toLowerCase();
+    const normalized = str.toLowerCase();
 
-    return !str.includes('picked up') && !str.includes('quest item');
+    return !normalized.includes('picked up') && !normalized.includes('quest item');
   }
 
   function getItemIdFromUrl(url?: string): number | undefined {

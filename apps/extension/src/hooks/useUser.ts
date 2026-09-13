@@ -13,6 +13,7 @@ function useUser() {
       user.realms = { ...user.server } as any;
     }
 
+    // biome-ignore lint/performance/noDelete: Remove the legacy field after migrating stored settings.
     delete user.server;
   }
 

@@ -1,0 +1,83 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        "src/styled-system/**",
+        "_next-typesafe-url_.d.ts",
+        "public/sitemap*.xml",
+        "public/robots.txt"
+      ],
+      "env": [
+        "$TURBO_EXTENDS$",
+        "APP_ENV",
+        "TEST_SITE_URL",
+        "ACC_SITE_URL",
+        "PROD_SITE_URL",
+        "DB_URL",
+        "CLERK_SECRET_KEY",
+        "CLERK_*",
+        "NEXT_PUBLIC_*"
+      ],
+      "dependsOn": ["^build", "generate"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!src/styled-system/**",
+        "!_next-typesafe-url_.d.ts",
+        "!*.tsbuildinfo",
+        "!public/sitemap*.xml",
+        "!public/robots.txt",
+        ".env",
+        ".env.*"
+      ]
+    },
+    "generate": {
+      "outputs": ["src/styled-system/**", "_next-typesafe-url_.d.ts"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!src/styled-system/**",
+        "!_next-typesafe-url_.d.ts",
+        "!*.tsbuildinfo",
+        "!public/sitemap*.xml",
+        "!public/robots.txt"
+      ]
+    },
+    "typecheck": {
+      "outputs": ["node_modules/.cache/typecheck.tsbuildinfo"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!src/styled-system/**",
+        "!_next-typesafe-url_.d.ts",
+        "!*.tsbuildinfo",
+        "!public/sitemap*.xml",
+        "!public/robots.txt"
+      ]
+    },
+    "dev": {
+      "passThroughEnv": [
+        "APP_ENV",
+        "TEST_SITE_URL",
+        "ACC_SITE_URL",
+        "PROD_SITE_URL",
+        "DB_URL",
+        "CLERK_SECRET_KEY",
+        "CLERK_*",
+        "NEXT_PUBLIC_*"
+      ]
+    },
+    "start": {
+      "passThroughEnv": [
+        "APP_ENV",
+        "TEST_SITE_URL",
+        "ACC_SITE_URL",
+        "PROD_SITE_URL",
+        "DB_URL",
+        "CLERK_SECRET_KEY",
+        "CLERK_*",
+        "NEXT_PUBLIC_*"
+      ]
+    }
+  }
+}

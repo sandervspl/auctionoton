@@ -4,6 +4,6 @@ import axios from 'axios';
 export const auctionotonAPI = rateLimit(axios.create(), { maxRequests: 3, perMilliseconds: 500 });
 
 export const auctionotonAPIUrl = {
-  development: 'http://localhost:3000/api',
+  development: 'http://localhost:3000',
   production: 'https://auctionoton-api.sandervspl.dev',
 }[process.env.NODE_ENV || 'development'];

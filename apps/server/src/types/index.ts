@@ -106,7 +106,7 @@ export interface Config {
   dns?: Dns;
 }
 
-export interface Init {}
+export type Init = Record<string, never>;
 
 export interface Restart {
   policy?: string;
@@ -146,7 +146,7 @@ export interface Env {
   WOWVALOR_SECRET: string;
 }
 
-export interface Dns {}
+export type Dns = Record<string, never>;
 
 export interface ImageRef {
   registry: string;
