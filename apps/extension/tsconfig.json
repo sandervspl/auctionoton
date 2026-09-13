@@ -2,7 +2,6 @@
   "extends": "./.wxt/tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "module": "commonjs",
     "target": "es2020",
     "jsx": "react",
     "removeComments": true,

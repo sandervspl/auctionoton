@@ -34,7 +34,12 @@
       "suspicious": {
         "noExplicitAny": "off",
         "noConsoleLog": "warn"
-      }
-    }
+      },
+      "recommended": true
+    },
+    "enabled": true
+  },
+  "organizeImports": {
+    "enabled": true
   }
 }

@@ -1,6 +1,4 @@
 {
-  "id": "38fd37ab-0d40-4750-a8b9-25d4a2fbee0b",
-  "prevId": "03ab9ad6-742c-452d-94b6-9857493b1baf",
   "version": "6",
   "dialect": "postgresql",
   "tables": {
@@ -34,7 +32,7 @@
         },
         "min_buyout": {
           "name": "min_buyout",
-          "type": "numeric",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
@@ -143,6 +141,13 @@
           "primaryKey": false,
           "notNull": false,
           "default": 0
+        },
+        "icon": {
+          "name": "icon",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'https://wow.zamimg.com/images/wow/icons/large/inv_misc_questionmark.jpg'"
         }
       },
       "indexes": {
@@ -167,10 +172,10 @@
       "uniqueConstraints": {
         "items_metadata_id_unq": {
           "name": "items_metadata_id_unq",
-          "nullsNotDistinct": false,
           "columns": [
             "id"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       }
     }
@@ -178,8 +183,10 @@
   "enums": {},
   "schemas": {},
   "_meta": {
-    "columns": {},
     "schemas": {},
-    "tables": {}
-  }
+    "tables": {},
+    "columns": {}
+  },
+  "id": "227e2ba8-ff0b-4585-9434-67c6fa4c2c61",
+  "prevId": "03ab9ad6-742c-452d-94b6-9857493b1baf"
 }

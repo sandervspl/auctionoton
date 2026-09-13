@@ -18,9 +18,107 @@
     },
     {
       "idx": 2,
-      "version": "6",
-      "when": 1721419759043,
-      "tag": "0002_funny_scorpion",
+      "version": "5",
+      "when": 1709826578474,
+      "tag": "0002_smooth_havok",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1710091960417,
+      "tag": "0003_talented_ken_ellis",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1710454683205,
+      "tag": "0004_striped_loa",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1710458102252,
+      "tag": "0005_brainy_sheva_callister",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1710458280325,
+      "tag": "0006_sad_cassandra_nova",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1710458369424,
+      "tag": "0007_mature_franklin_richards",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1710458813779,
+      "tag": "0008_solid_lake",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1710459770727,
+      "tag": "0009_clear_cargill",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1710460072691,
+      "tag": "0010_groovy_spectrum",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1710876277569,
+      "tag": "0011_tranquil_mentallo",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1722418176038,
+      "tag": "0012_oval_microbe",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "5",
+      "when": 1722427474811,
+      "tag": "0013_misty_starhawk",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "5",
+      "when": 1722432492718,
+      "tag": "0014_open_dracula",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "5",
+      "when": 1722432829317,
+      "tag": "0015_open_lady_mastermind",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "5",
+      "when": 1722432829318,
+      "tag": "0016_funny_scorpion",
       "breakpoints": true
     }
   ]

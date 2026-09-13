@@ -1,0 +1,136 @@
+'use client';
+
+import * as React from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { $path } from 'next-typesafe-url';
+import { Loader2Icon } from 'lucide-react';
+
+import { setAuctionHouseIdCookie } from 'actions/cookie';
+import { useMediaQuery } from 'hooks/use-media-query';
+import { useSettings } from 'hooks/use-settings';
+import { useServerActionMutation } from 'hooks/server-action-hooks';
+import { Button } from 'shadcn-ui/button';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from 'shadcn-ui/command';
+import { Drawer, DrawerContent, DrawerTrigger } from 'shadcn-ui/drawer';
+import { Popover, PopoverContent, PopoverTrigger } from 'shadcn-ui/popover';
+import { realmDropdownValues } from 'services/realms';
+import type { ItemParam } from 'src/app/item/[...item]/page';
+
+type Props = {
+  onOpen?: () => void;
+};
+
+export function RealmDropdown({ onOpen }: Props) {
+  const { settings } = useSettings();
+  const [open, setOpen] = React.useState(false);
+  const isDesktop = useMediaQuery('(min-width: 768px)');
+
+  function onOpenChange(isOpen: boolean) {
+    onOpen?.();
+    setOpen(isOpen);
+  }
+
+  if (isDesktop) {
+    return (
+      <Popover open={open} onOpenChange={onOpenChange}>
+        <PopoverTrigger asChild>
+          <Button variant="outline" className="w-[150px] justify-start capitalize">
+            {settings.realm.replaceAll('-', ' ')} ({settings.region.toUpperCase()})
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[200px] p-0" align="end">
+          <RealmList setOpen={setOpen} />
+        </PopoverContent>
+      </Popover>
+    );
+  }
+
+  return (
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerTrigger asChild>
+        <Button variant="outline" className="justify-start">
+          Realm
+        </Button>
+      </DrawerTrigger>
+      <DrawerContent>
+        <div className="mt-4 border-t">
+          <RealmList setOpen={setOpen} />
+        </div>
+      </DrawerContent>
+    </Drawer>
+  );
+}
+
+function RealmList(props: { setOpen: (open: boolean) => void }) {
+  const { setRealm, setRegion, settings } = useSettings();
+  const [selected, setSelected] = React.useState<string>();
+  const [isPending, startTransition] = React.useTransition();
+  const router = useRouter();
+  const params = useParams() as { item?: ItemParam };
+  const itemId = params.item?.[3]?.split('-').pop();
+  const setAuctionHouseCookie = useServerActionMutation(setAuctionHouseIdCookie);
+
+  if (!isPending && selected) {
+    setSelected(undefined);
+  }
+
+  return (
+    <Command>
+      <CommandInput placeholder="Search realm" />
+      <CommandList>
+        <CommandEmpty>No realm found.</CommandEmpty>
+        <CommandGroup>
+          {realmDropdownValues.map((realm) => (
+            <CommandItem
+              key={realm.value}
+              value={realm.value}
+              className="flex items-center justify-between gap-2"
+              onSelect={(value) => {
+                setSelected(value);
+
+                startTransition(async () => {
+                  props.setOpen(false);
+                  const [realm, region] = value.split('_');
+
+                  if (realm && region) {
+                    setRealm(realm);
+                    setRegion(region);
+
+                    await setAuctionHouseCookie.mutateAsync({
+                      region,
+                      realmSlug: realm,
+                      faction: settings.faction,
+                    });
+
+                    if (params.item) {
+                      router.push(
+                        $path({
+                          route: '/item/[...item]',
+                          routeParams: {
+                            item: [realm, region, 'alliance', `${params.item[3]}-${itemId}`],
+                          },
+                        }),
+                      );
+                    }
+                  }
+                });
+              }}
+            >
+              {realm.label}
+              {isPending && selected === realm.value && (
+                <Loader2Icon className="animate-spin" size={16} />
+              )}
+            </CommandItem>
+          ))}
+        </CommandGroup>
+      </CommandList>
+    </Command>
+  );
+}

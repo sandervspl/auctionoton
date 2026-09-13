@@ -1,0 +1,1 @@
+ALTER TABLE "items_metadata" ADD COLUMN "icon" text DEFAULT 'https://wow.zamimg.com/images/wow/icons/large/inv_misc_questionmark.jpg';

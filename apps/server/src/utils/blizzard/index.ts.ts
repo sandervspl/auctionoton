@@ -1,5 +1,5 @@
 import * as i from '../../types';
-import { AccessToken, GameItem } from './types';
+import type { AccessToken, BattlenetItemMediaResponse, BattlenetItemResponse } from './types';
 import { kv } from '../../kv';
 
 export async function getAccessToken() {
@@ -65,8 +65,32 @@ export async function getItemFromBnet(id: number, version: i.GameVersion, locale
     throw new Error('Failed to get item');
   }
 
-  const data = (await response.json()) as GameItem;
+  const data = (await response.json()) as BattlenetItemResponse;
   console.info('3. done');
+
+  return data;
+}
+
+export async function getItemMediaFromBnet(id: number) {
+  const accessToken = await getAccessToken();
+
+  const params = new URLSearchParams({
+    namespace: 'static-classic1x-us',
+    access_token: accessToken,
+    locale: 'en_US',
+  });
+
+  const response = await fetch(`https://us.api.blizzard.com/data/wow/media/item/${id}?${params}`);
+
+  if (response.status !== 200) {
+    try {
+      await response.body?.cancel?.();
+    } catch (err) {}
+    console.error(`Failed to get item media ${id}: ${response.status} ${response.statusText}`);
+    throw new Error('Failed to get item media');
+  }
+
+  const data = (await response.json()) as BattlenetItemMediaResponse;
 
   return data;
 }

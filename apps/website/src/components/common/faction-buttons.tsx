@@ -1,0 +1,76 @@
+'use client';
+
+import * as React from 'react';
+import Link from 'next/link';
+
+import { setAuctionHouseIdCookie } from 'actions/cookie';
+import { useServerActionMutation } from 'hooks/server-action-hooks';
+import { useSettings } from 'hooks/use-settings';
+import { Button } from 'shadcn-ui/button';
+import { Loader2Icon } from 'lucide-react';
+
+type Props = {
+  href?: {
+    a: string;
+    h: string;
+  };
+  initialValue?: string;
+};
+
+export const FactionButtons = (props: Props) => {
+  return (
+    <div className="flex gap-2 items-center">
+      <FactionButton faction="alliance" initialFaction={props.initialValue} href={props.href?.a} />
+      <FactionButton faction="horde" initialFaction={props.initialValue} href={props.href?.h} />
+    </div>
+  );
+};
+
+const FactionButton = (props: {
+  faction: 'alliance' | 'horde';
+  initialFaction?: string;
+  href?: string;
+}) => {
+  const { settings, setFaction } = useSettings({ faction: props.initialFaction });
+  const [isPending, startTransition] = React.useTransition();
+  const setAuctionHouseCookie = useServerActionMutation(setAuctionHouseIdCookie);
+
+  async function onFactionClick() {
+    startTransition(async () => {
+      setFaction(props.faction);
+
+      await setAuctionHouseCookie.mutateAsync({
+        region: settings.region,
+        realmSlug: settings.realm,
+        faction: props.faction,
+      });
+    });
+  }
+
+  if (!props.href) {
+    return (
+      <Button
+        variant={settings.faction === props.faction ? 'default' : 'outline'}
+        className="flex items-center gap-2"
+        onClick={onFactionClick}
+      >
+        {props.faction}
+        {isPending && <Loader2Icon className="animate-spin" size={16} />}
+      </Button>
+    );
+  }
+
+  return (
+    <Button variant={settings.faction === props.faction ? 'default' : 'outline'} asChild>
+      <Link
+        href={props.href}
+        className="capitalize flex items-center gap-2"
+        onClick={onFactionClick}
+        replace
+      >
+        {props.faction}
+        {isPending && <Loader2Icon className="animate-spin" size={16} />}
+      </Link>
+    </Button>
+  );
+};

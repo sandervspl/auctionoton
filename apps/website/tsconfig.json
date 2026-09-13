@@ -1,0 +1,52 @@
+{
+  "compilerOptions": {
+    "noUncheckedIndexedAccess": true,
+    "sourceMap": true,
+    "pretty": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noImplicitAny": false,
+    "allowJs": false,
+    "isolatedModules": true,
+    "incremental": true,
+    "moduleResolution": "node",
+    "target": "esnext",
+    "module": "esnext",
+    "jsx": "preserve",
+    "lib": ["dom", "esnext"],
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./src/*"],
+      "actions/*": ["src/actions/*"],
+      "common/*": ["src/components/common/*"],
+      "db": ["src/db/index.ts"],
+      "db/*": ["src/db/*"],
+      "shadcn-ui/*": ["src/components/ui/*"],
+      "park-ui/*": ["src/components/park-ui/*"],
+      "hooks/*": ["src/hooks/*"],
+      "images/*": ["public/images/*"],
+      "modules/*": ["src/components/modules/*"],
+      "queries/*": ["src/queries/*"],
+      "services/*": ["src/services/*"],
+      "styles/*": ["src/styles/*"],
+      "tests/*": ["src/__tests__/*"],
+      "types": ["src/types/index"],
+      "vectors/*": ["public/vectors/*"],
+      "styled-system/*": ["src/styled-system/*"]
+    },
+    "plugins": [{ "name": "next" }]
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "src/**/*.d.ts",
+    ".next/types/**/*.ts",
+    "../server/src/migrate.ts"
+  ],
+  "exclude": ["dist", ".next", "out", "next.config.js", "node_modules"]
+}

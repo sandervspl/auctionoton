@@ -4,9 +4,6 @@ import postgres from 'postgres';
 
 import * as schema from './schema';
 
-// const migrationClient = postgres(process.env.DB_URL!, { max: 1 });
-// migrate(drizzle(migrationClient), { migrationsFolder: './src/db/migrations' });
-
 export function createDbClient() {
   const client = postgres(process.env.DB_URL!, {
     onclose(connId) {
@@ -19,3 +16,5 @@ export function createDbClient() {
 
   return { db: drizzle(client, { schema }), client };
 }
+
+export const { db } = createDbClient();

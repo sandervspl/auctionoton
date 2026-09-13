@@ -121,7 +121,7 @@ async function queryItem(id: number, auctionHouseId: number, version: i.GameVers
     }
 
     const { items: item, items_metadata: metadata } = queryResult[0];
-    let itemFromBnet: i.GameItem | null = null;
+    let itemFromBnet: i.BattlenetItemResponse | null = null;
     let itemFromBnetSlug = '';
 
     if (!metadata) {
