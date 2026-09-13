@@ -1,17 +1,19 @@
 import '@fontsource-variable/inter';
 import 'styles/globals.css';
 
-import { ClerkProvider } from '@clerk/tanstack-react-start';
 import { HeadContent, Outlet, Scripts, createRootRoute } from '@tanstack/react-router';
-import type { ReactNode } from 'react';
-import { Toaster } from 'sonner';
-import { Navbar } from 'modules/navbar';
 import { SizeIndicator } from 'common/SizeIndicator';
-import { NotFound } from 'common/not-found';
+import { AccessProvider } from 'common/access-auth';
 import { AuthSync } from 'common/auth-sync';
+import { NotFound } from 'common/not-found';
 import { RouteError } from 'common/route-error';
+import { Navbar } from 'modules/navbar';
+import type { ReactNode } from 'react';
+import { getSession } from 'services/auth';
+import { Toaster } from 'sonner';
 
 export const Route = createRootRoute({
+  beforeLoad: async () => ({ session: await getSession() }),
   head: () => ({
     meta: [
       { charSet: 'utf-8' },
@@ -34,6 +36,7 @@ export const Route = createRootRoute({
 });
 
 function RootDocument({ children }: { children: ReactNode }) {
+  const { session } = Route.useRouteContext();
   return (
     <html lang="en" className="dark h-dvh min-h-full antialiased">
       <head>
@@ -45,7 +48,7 @@ function RootDocument({ children }: { children: ReactNode }) {
         />
       </head>
       <body className="h-full min-h-full" style={{ fontFamily: 'Inter Variable, sans-serif' }}>
-        <ClerkProvider>
+        <AccessProvider initialSession={session ?? null}>
           <AuthSync />
           <div className="flex flex-col w-full min-h-screen">
             <Navbar />
@@ -53,7 +56,7 @@ function RootDocument({ children }: { children: ReactNode }) {
             {import.meta.env.DEV && <SizeIndicator />}
           </div>
           <Toaster richColors />
-        </ClerkProvider>
+        </AccessProvider>
         <Scripts />
       </body>
     </html>

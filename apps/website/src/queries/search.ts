@@ -1,10 +1,10 @@
 import { createServerFn } from '@tanstack/react-start';
 import { getCookie } from '@tanstack/react-start/server';
-import { auth } from '@clerk/tanstack-react-start/server';
-import { eq, desc, sql } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
+import { getAccessSession } from 'services/access.server';
 
 import { db } from 'db';
-import { recentSearches, itemsMetadata } from 'db/schema';
+import { itemsMetadata, recentSearches } from 'db/schema';
 
 type RecentSearchItem = {
   recent_search_id: number;
@@ -23,10 +23,11 @@ type RecentSearchItem = {
 };
 
 export const getRecentSearches = createServerFn({ method: 'GET' }).handler(async () => {
-  const { userId } = await auth();
-  if (!userId) {
+  const session = await getAccessSession();
+  if (!session) {
     return [];
   }
+  const { userId } = session;
 
   const auctionHouseId = getCookie('auctionhouse_id');
 

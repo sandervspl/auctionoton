@@ -1,5 +1,4 @@
-import { clerkMiddleware } from '@clerk/tanstack-react-start/server';
-import { createMiddleware, createStart } from '@tanstack/react-start';
+import { createCsrfMiddleware, createMiddleware, createStart } from '@tanstack/react-start';
 import { setResponseHeader } from '@tanstack/react-start/server';
 
 const responseHeaders = createMiddleware().server(async ({ next }) => {
@@ -13,5 +12,8 @@ const responseHeaders = createMiddleware().server(async ({ next }) => {
 });
 
 export const startInstance = createStart(() => ({
-  requestMiddleware: [responseHeaders, clerkMiddleware()],
+  requestMiddleware: [
+    responseHeaders,
+    createCsrfMiddleware({ filter: (context) => context.handlerType === 'serverFn' }),
+  ],
 }));

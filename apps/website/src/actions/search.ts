@@ -1,6 +1,6 @@
-import { and, isNotNull, like, or, sql } from 'drizzle-orm';
-import { auth } from '@clerk/tanstack-react-start/server';
 import { createServerFn } from '@tanstack/react-start';
+import { and, isNotNull, like, or, sql } from 'drizzle-orm';
+import { getAccessSession } from 'services/access.server';
 import { z } from 'zod';
 
 import { db } from 'db';
@@ -33,7 +33,7 @@ export const searchItem = createServerFn({ method: 'GET' })
 export const addRecentSearch = createServerFn({ method: 'POST' })
   .validator(z.object({ search: z.string().max(200), itemId: z.number().int().positive() }))
   .handler(async ({ data }) => {
-    const { userId } = await auth();
-    if (!userId) return;
-    await db.insert(recentSearches).values({ ...data, userId });
+    const session = await getAccessSession();
+    if (!session) return;
+    await db.insert(recentSearches).values({ ...data, userId: session.userId });
   });

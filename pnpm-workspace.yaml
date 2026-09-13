@@ -12,6 +12,7 @@ onlyBuiltDependencies:
   - '@swc/core'
   - esbuild
   - sharp
+  - workerd
 
 ignoredBuiltDependencies:
   - es5-ext

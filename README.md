@@ -24,7 +24,7 @@ cp apps/website/.env.example apps/website/.env.local
 pnpm dev
 ```
 
-The API listens on `http://localhost:3000`; the website uses `http://localhost:3001`. WXT runs its own development server. The API needs PostgreSQL and Redis, while the website needs PostgreSQL and Clerk keys. `pnpm dev:server` and `pnpm dev:website` start either app alone.
+The API listens on `http://localhost:3000`; the website uses `http://localhost:3001`. WXT runs its own development server. The API needs PostgreSQL and Redis. Website data routes still need PostgreSQL; authentication now verifies Cloudflare Access sessions. Local public pages work without a login provider, while interactive sign-in needs a configured Access hostname. `pnpm dev:server` and `pnpm dev:website` start either app alone.
 
 ## Workspace
 
@@ -33,6 +33,8 @@ The API listens on `http://localhost:3000`; the website uses `http://localhost:3
 | `apps/extension` | `@auctionoton/extension` | WXT extension for Chrome and Firefox |
 | `apps/server` | `@auctionoton/server` | Elysia API, ingestion scripts, and database migrations; runs on Bun |
 | `apps/website` | `@auctionoton/website` | TanStack Start website |
+| `apps/cloudflare` | `@auctionoton/cloudflare` | Staging Worker API, D1 auth, and durable auction ingestion |
+| `packages/infrastructure` | `@auctionoton/infrastructure` | Alchemy stack and Cloudflare deployment tools |
 | `packages/typescript-config` | `@auctionoton/typescript-config` | Shared TypeScript defaults, with app-specific options kept in each app |
 
 Install dependencies from the repository root. `pnpm-lock.yaml` is the only lockfile; Bun runs the API but does not manage workspace dependencies.
@@ -90,14 +92,18 @@ Changesets commands run at the root because they manage versions across the work
 
 ## CI and deployment
 
-`pnpm exec turbo run test:smoke --filter=@auctionoton/website` builds and tests the production website with placeholder credentials. It checks SSR, static assets, signed-out redirects, 404s, and SEO endpoints without accessing a database.
+`pnpm exec turbo run test:smoke --filter=@auctionoton/website` builds and tests the production website with locally signed test tokens. It checks SSR, static assets, Access sessions, login redirects, sign-out, anonymous rejection, 404s, and SEO endpoints without accessing a database. `pnpm --filter @auctionoton/website test:auth` checks JWT verification and owner mapping independently.
 
-CI uses the pinned Node, pnpm, and Bun versions, installs with a frozen lockfile, checks all workspaces, and builds all apps plus Firefox. It caches pnpm downloads and Turbo outputs through GitHub Actions; no remote cache account is required. The website build uses a nonfunctional Clerk publishable key solely to compile without production credentials.
+CI uses the pinned Node, pnpm, and Bun versions, installs with a frozen lockfile, checks all workspaces, and builds all apps plus Firefox. It caches pnpm downloads and Turbo outputs through GitHub Actions; no remote cache account is required. Website compilation and authentication tests need no production credentials.
 
 The Chrome workflow packages and checks the extension on pushes to `main`, saves the ZIP as a workflow artifact, and uploads it using the existing Chrome Web Store secrets. Nixpacks installs dependencies at the workspace root and filters its build to the API. For a website deployment, install from the repository root and run `pnpm exec turbo run build --filter=@auctionoton/website` with the website's real environment variables. Start the production server with `pnpm --filter @auctionoton/website start`; set `PORT=3001` when running it alongside the API. The server also loads the website's `.env` and `.env.local` files.
 
-The website uses [TanStack Start](https://tanstack.com/start/latest/docs/framework/react/overview), file routes in `apps/website/src/routes`, Vite, and [Nitro's Node server output](https://tanstack.com/start/latest/docs/framework/react/guide/hosting#nodejs--docker). Route loaders call validated server functions for database access; dashboard mutations check the current Clerk user and refresh route data. Keep `DB_URL` and `CLERK_SECRET_KEY` server-side. The browser's Clerk key is named `VITE_CLERK_PUBLISHABLE_KEY` in `.env.local` and deployment settings.
+The website uses [TanStack Start](https://tanstack.com/start/latest/docs/framework/react/overview), file routes in `apps/website/src/routes`, Vite, and [Nitro's Node server output](https://tanstack.com/start/latest/docs/framework/react/guide/hosting#nodejs--docker). Route loaders call validated server functions for database access; dashboard mutations check the verified Access identity and record ownership. Keep `DB_URL` and Access configuration server-side. The [Access migration notes](docs/cloudflare-access.md) cover infrastructure ownership, sign-in setup, legacy user IDs, and the remaining deployment gates.
 
 `/api/health`, `/robots.txt`, and `/sitemap.xml` are server routes. The sitemap includes the public homepage; private dashboards are excluded. `APP_ENV` chooses `TEST_SITE_URL`, `ACC_SITE_URL`, or `PROD_SITE_URL` for the sitemap's public origin.
 
 Database migrations use `apps/server/src/db/drizzle`. Read [the database setup notes](apps/server/README.md) before applying them to an existing database.
+
+The [Cloudflare migration assessment](docs/cloudflare-migration.md) evaluates Alchemy and maps the work to move hosting, storage, authentication, builds, and all background jobs to Cloudflare, starting with one auction-data refresh per day.
+
+The [staging trial runbook](packages/infrastructure/README.md) covers the deployed Workers, daily import verification, and the remaining migration gates.

@@ -10,7 +10,7 @@
         "ACC_SITE_URL",
         "PROD_SITE_URL",
         "DB_URL",
-        "CLERK_*",
+        "CLOUDFLARE_ACCESS_*",
         "VITE_*"
       ],
       "dependsOn": ["^build", "generate"],
@@ -48,7 +48,7 @@
         "ACC_SITE_URL",
         "PROD_SITE_URL",
         "DB_URL",
-        "CLERK_*",
+        "CLOUDFLARE_ACCESS_*",
         "VITE_*",
         "PORT",
         "HOST"
@@ -61,7 +61,7 @@
         "ACC_SITE_URL",
         "PROD_SITE_URL",
         "DB_URL",
-        "CLERK_*",
+        "CLOUDFLARE_ACCESS_*",
         "VITE_*",
         "PORT",
         "HOST"

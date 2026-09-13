@@ -1,12 +1,12 @@
-import * as React from 'react';
 import { Link } from '@tanstack/react-router';
+import { AccountButton, SignInLink } from 'common/access-auth';
 import { MenuIcon, XIcon } from 'lucide-react';
-import { UserButton, SignInButton } from '@clerk/tanstack-react-start';
+import * as React from 'react';
 
+import { RealmDropdown } from 'common/realm-dropdown';
 import * as Drawer from 'park-ui/drawer';
 import { IconButton } from 'park-ui/icon-button';
 import { Button } from 'shadcn-ui/button';
-import { RealmDropdown } from 'common/realm-dropdown';
 
 type Props = Drawer.RootProps & { userId: string | null };
 
@@ -43,13 +43,7 @@ export const MobileMenu = ({ userId, ...props }: Props) => {
           </Drawer.Body>
           <Drawer.Footer gap="3">
             <div className="flex items-center gap-2">
-              {userId ? (
-                <UserButton />
-              ) : (
-                <Button asChild variant="outline">
-                  <SignInButton mode="modal" />
-                </Button>
-              )}
+              {userId ? <AccountButton /> : <SignInLink />}
             </div>
           </Drawer.Footer>
         </Drawer.Content>

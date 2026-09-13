@@ -33,17 +33,18 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Check every workspace
         run: pnpm check
+      - name: Test Cloudflare bindings and workflows
+        run: pnpm test:cloudflare
+      - name: Test Access authentication
+        run: pnpm --filter @auctionoton/website test:auth
       - name: Build every app
         run: pnpm build
         env:
-          # Build-only Clerk placeholder; CI never authenticates against a real tenant.
-          VITE_CLERK_PUBLISHABLE_KEY: pk_test_Y2xlcmsuZXhhbXBsZS5jb20k
           APP_ENV: development
           TEST_SITE_URL: http://localhost:3001
       - name: Smoke test the production website
         run: pnpm exec turbo run test:smoke --filter=@auctionoton/website
         env:
-          VITE_CLERK_PUBLISHABLE_KEY: pk_test_Y2xlcmsuZXhhbXBsZS5jb20k
           APP_ENV: development
           TEST_SITE_URL: http://localhost:3001
       - name: Build Firefox extension

@@ -11,7 +11,11 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
-    plugins: [tanstackStart(), nitro({ preset: 'node-server' }), viteReact()],
+    plugins: [
+      tanstackStart(),
+      ...(process.env.AUCTIONOTON_CLOUDFLARE === '1' ? [] : [nitro({ preset: 'node-server' })]),
+      viteReact(),
+    ],
     resolve: { tsconfigPaths: true },
     server: { port: 3001, strictPort: true },
   };

@@ -49,3 +49,9 @@ apps/website/.tanstack/
 # App-local environment files
 .env.*
 !.env.example
+
+# Cloudflare local state and secrets
+.alchemy/
+.wrangler/
+.dev.vars
+.dev.vars.*

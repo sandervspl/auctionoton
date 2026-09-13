@@ -15,6 +15,10 @@
     "format": "turbo run format",
     "format:check": "turbo run format:check",
     "check": "turbo run lint typecheck",
+    "test:cloudflare": "turbo run test --filter=@auctionoton/cloudflare",
+    "cf:plan": "turbo run cf:plan --filter=@auctionoton/infrastructure",
+    "cf:deploy": "turbo run cf:deploy --filter=@auctionoton/infrastructure",
+    "cf:dev": "turbo run cf:dev --filter=@auctionoton/infrastructure",
     "zip": "turbo run zip --filter=@auctionoton/extension",
     "zip:firefox": "turbo run zip:firefox --filter=@auctionoton/extension",
     "db:migrate": "turbo run db:migrate --filter=@auctionoton/server",
@@ -35,7 +39,12 @@
   },
   "pnpm": {
     "overrides": {
-      "@wxt-dev/module-react>@vitejs/plugin-react": "4.7.0"
+      "@wxt-dev/module-react>@vitejs/plugin-react": "4.7.0",
+      "effect": "4.0.0-rc.112",
+      "@effect/platform-node-shared": "4.0.0-rc.112",
+      "@effect/sql-d1": "4.0.0-rc.112",
+      "@effect/sql-sqlite-do": "4.0.0-rc.112",
+      "@effect/vitest": "4.0.0-rc.112"
     }
   }
 }

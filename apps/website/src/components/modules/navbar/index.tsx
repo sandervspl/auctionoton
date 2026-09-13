@@ -1,14 +1,15 @@
 import { Link } from '@tanstack/react-router';
-import { SignInButton, UserButton, useAuth } from '@clerk/tanstack-react-start';
+import { AccountButton, SignInLink, useAccessAuth } from 'common/access-auth';
 
-import { Button } from 'shadcn-ui/button';
-import { RealmDropdown } from 'common/realm-dropdown';
 import { ItemSearch } from 'common/item-search';
+import { RealmDropdown } from 'common/realm-dropdown';
+import { Button } from 'shadcn-ui/button';
 
 import { MobileMenu } from './mobile-menu';
 
 export const Navbar = () => {
-  const { userId } = useAuth();
+  const { session } = useAccessAuth();
+  const userId = session?.userId;
 
   return (
     <header className="relative h-16 px-4 border-b shrink-0 md:px-6 gap-4">
@@ -29,12 +30,10 @@ export const Navbar = () => {
                 <Button asChild variant="outline">
                   <Link to="/user/dashboard">Dashboard</Link>
                 </Button>
-                <UserButton />
+                <AccountButton />
               </>
             ) : (
-              <Button asChild variant="outline">
-                <SignInButton mode="modal" />
-              </Button>
+              <SignInLink />
             )}
           </div>
         </div>
