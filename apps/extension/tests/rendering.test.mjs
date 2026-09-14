@@ -22,7 +22,7 @@ test(
       write: false,
       format: 'iife',
       platform: 'browser',
-      define: { 'process.env.NODE_ENV': '"development"' },
+      define: { 'process.env.NODE_ENV': '"development"', __DEV__: 'false' },
       tsconfig: 'tests/fixtures/tsconfig.json',
       plugins: [
         {
@@ -125,6 +125,9 @@ test(
       );
       const { stdout: errors } = await browser('errors');
       assert.ok(!errors.trim() || errors.includes('No errors'), errors);
+    } catch (error) {
+      const { stdout: errors } = await browser('errors');
+      throw new Error(`${error.message}\nBrowser errors: ${errors}`, { cause: error });
     } finally {
       await browser('close').catch(() => undefined);
       server.close();

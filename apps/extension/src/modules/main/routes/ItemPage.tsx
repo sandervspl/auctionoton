@@ -30,7 +30,7 @@ export const ItemPage = (): React.ReactPortal | null => {
 
   const container = generateContainer(tooltipElement, 'page');
 
-  if (!container || !pageItem || !auctionHouseId) {
+  if (!container || !pageItem) {
     return null;
   }
 
@@ -45,9 +45,13 @@ export const ItemPage = (): React.ReactPortal | null => {
         Auction House Prices for Wowhead
       </p>
 
-      {showTabs && <Tabs tabs={tabs} onTabChange={setActiveTab} />}
-      {activeTab === 0 && <ItemPriceTooltip itemId={pageItem.id} auctionHouseId={auctionHouseId} />}
-      {activeTab === 1 && <CraftingCostTooltip {...{ reagentItems, auctionHouseId }} />}
+      {auctionHouseId && showTabs && <Tabs tabs={tabs} onTabChange={setActiveTab} />}
+      {auctionHouseId && activeTab === 0 && (
+        <ItemPriceTooltip itemId={pageItem.id} auctionHouseId={auctionHouseId} />
+      )}
+      {auctionHouseId && activeTab === 1 && (
+        <CraftingCostTooltip {...{ reagentItems, auctionHouseId }} />
+      )}
 
       <div className="auc-h-1" />
       <ChangeRealmButton />

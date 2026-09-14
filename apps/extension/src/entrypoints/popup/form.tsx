@@ -37,6 +37,18 @@ interface FormInput {
   version: i.GameVersion;
 }
 
+const requestedVersionValue = new URLSearchParams(window.location.search).get('version');
+const requestedVersion = [
+  'classic',
+  'anniversary',
+  'era',
+  'hardcore',
+  'seasonal',
+  'forever',
+].includes(requestedVersionValue ?? '')
+  ? (requestedVersionValue as i.GameVersion)
+  : undefined;
+
 // Create a client
 const queryClient = new QueryClient();
 
@@ -55,7 +67,8 @@ export const RealmForm: React.FC = () => {
   const form = useForm<FormInput>({
     mode: 'onSubmit',
     defaultValues: {
-      version: 'classic',
+      version:
+        requestedVersion && isVersionAvailable(requestedVersion) ? requestedVersion : 'classic',
       realm: '',
     },
   });
@@ -63,6 +76,12 @@ export const RealmForm: React.FC = () => {
   const watchVersion = form.watch('version');
   const watchRealm = form.watch('realm');
   const realms = useRealmsList(watchRegion, watchVersion);
+  const foreverCatalog = useRealmsList(watchRegion ?? user?.region, 'forever');
+  const available = React.useCallback(
+    (version: i.GameVersion) =>
+      isVersionAvailable(version, now, foreverCatalog.isSuccess ? foreverCatalog.data : undefined),
+    [now, foreverCatalog.isSuccess, foreverCatalog.data],
+  );
   const watchFaction = form.watch('faction');
   const hydrated = React.useRef(false);
   const selectedRealm = realms.data?.find((realm) => realm.name === watchRealm);
@@ -70,9 +89,11 @@ export const RealmForm: React.FC = () => {
 
   React.useEffect(() => {
     if (hydrated.current || user === undefined) return;
+    if ((requestedVersion ?? user?.version) === 'forever' && foreverCatalog.isFetching) return;
     hydrated.current = true;
     if (!user || form.formState.isDirty) return;
-    const version = user.version && isVersionAvailable(user.version) ? user.version : 'classic';
+    const preferredVersion = requestedVersion ?? user.version;
+    const version = preferredVersion && available(preferredVersion) ? preferredVersion : 'classic';
     const realm = user.realms?.[version]?.name || '';
     form.reset({
       region: user.region,
@@ -80,7 +101,7 @@ export const RealmForm: React.FC = () => {
       faction: user.faction?.[realm],
       version,
     });
-  }, [user, form.formState.isDirty, form.reset]);
+  }, [user, foreverCatalog.isFetching, available, form.formState.isDirty, form.reset]);
 
   React.useEffect(() => {
     if (!realms.data) return;
@@ -115,7 +136,7 @@ export const RealmForm: React.FC = () => {
   ]);
 
   function changeVersion(version: i.GameVersion) {
-    if (!isVersionAvailable(version)) return;
+    if (!available(version)) return;
     form.setValue('realm', '');
     form.setValue('version', version, { shouldDirty: true });
   }
@@ -128,7 +149,7 @@ export const RealmForm: React.FC = () => {
   async function userMutateFn(data: FormInput) {
     const realm = realms.data?.find((realm) => realm.name === data.realm);
     const house = realm?.auctionHouses.find((house) => house.type === data.faction);
-    if (!isVersionAvailable(data.version) || !data.region || !realm || !house || realms.isError) {
+    if (!available(data.version) || !data.region || !realm || !house || realms.isError) {
       throw Error('Select an available realm and faction before saving.');
     }
 
@@ -188,10 +209,8 @@ export const RealmForm: React.FC = () => {
                       <option value="era">Era</option>
                       <option value="hardcore">Hardcore</option>
                       <option value="seasonal">Season of Discovery</option>
-                      <option value="forever" disabled={!isVersionAvailable('forever', now)}>
-                        {isVersionAvailable('forever', now)
-                          ? 'Forever'
-                          : 'Forever (November 4, 2026)'}
+                      <option value="forever" disabled={!available('forever')}>
+                        {available('forever') ? 'Forever' : 'Forever (awaiting realms)'}
                       </option>
                     </NativeSelect>
                   </FormControl>
@@ -330,7 +349,7 @@ export const RealmForm: React.FC = () => {
             className="auc-w-full"
             type="submit"
             disabled={
-              !isVersionAvailable(watchVersion) ||
+              !available(watchVersion) ||
               !watchRegion ||
               !selectedHouse ||
               realms.isError ||

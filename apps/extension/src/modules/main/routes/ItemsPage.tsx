@@ -8,6 +8,7 @@ import useItemFetcher from '@/hooks/useItemFetcher';
 import useIntersectionObserver from '@/hooks/useIntersectionObserver';
 import { useAuctionHouse } from '@/hooks/useAuctionHouse';
 
+import { ChangeRealmButton } from '../ChangeRealmButton';
 import { Value } from '../tooltip/Value';
 import { sortBuyoutRows } from '@/utils/sortBuyoutRows';
 
@@ -71,17 +72,23 @@ const ItemsPage: React.FC = () => {
       {ReactDOM.createPortal(
         <th id="buyout-header">
           <div>
-            {/* biome-ignore lint/a11y/useValidAnchor: Valid error but this is what Wowhead does */}
-            <a onClick={sortByBuyout}>
-              <span
-                className={cn({
-                  'listview-sort-asc': sorting === 'asc',
-                  'listview-sort-desc': sorting === 'desc',
-                })}
-              >
-                <span>AH Buyout</span>
-              </span>
-            </a>
+            {!auctionHouseId ? (
+              <ChangeRealmButton />
+            ) : (
+              <>
+                {/* biome-ignore lint/a11y/useValidAnchor: Valid error but this is what Wowhead does */}
+                <a onClick={sortByBuyout}>
+                  <span
+                    className={cn({
+                      'listview-sort-asc': sorting === 'asc',
+                      'listview-sort-desc': sorting === 'desc',
+                    })}
+                  >
+                    <span>AH Buyout</span>
+                  </span>
+                </a>
+              </>
+            )}
           </div>
         </th>,
         header,

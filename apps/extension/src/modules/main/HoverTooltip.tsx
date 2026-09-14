@@ -13,6 +13,7 @@ import { useEventListener } from '@/hooks/useEventListener';
 import { useAuctionHouse } from '@/hooks/useAuctionHouse';
 
 import Tooltip from './tooltip';
+import { ChangeRealmButton } from './ChangeRealmButton';
 import generateContainer from './generateContainer';
 import { uiState } from './state';
 import { produce } from 'immer';
@@ -94,6 +95,7 @@ const HoverTooltip = () => {
     'mouseover',
     (e: MouseEvent) => {
       const target = e.target as HTMLAnchorElement;
+      if (containerEl.current?.contains(target)) return;
       const parent = target.parentNode as HTMLAnchorElement;
       const selector = 'a[href*="item="]';
 
@@ -167,18 +169,26 @@ const HoverTooltip = () => {
     return observer;
   }
 
-  if (!visible || !itemId || !containerEl.current || !hoverEl.current || !auctionHouseId) {
+  if (!visible || !itemId || !containerEl.current || !hoverEl.current) {
     return null;
   }
 
   return ReactDOM.createPortal(
-    <Tooltip itemId={itemId} auctionHouseId={auctionHouseId} amount={shiftKeyPressed ? amount : 1}>
-      {ui?.showTip.shiftKey && amount > 1 ? (
-        <div className="blizzard-blue auc-mt-2">
-          Tip: press shift to see the price for the stack!
-        </div>
-      ) : null}
-    </Tooltip>,
+    auctionHouseId ? (
+      <Tooltip
+        itemId={itemId}
+        auctionHouseId={auctionHouseId}
+        amount={shiftKeyPressed ? amount : 1}
+      >
+        {ui?.showTip.shiftKey && amount > 1 ? (
+          <div className="blizzard-blue auc-mt-2">
+            Tip: press shift to see the price for the stack!
+          </div>
+        ) : null}
+      </Tooltip>
+    ) : (
+      <ChangeRealmButton />
+    ),
     containerEl.current,
   );
 };

@@ -1,7 +1,7 @@
 import * as i from 'types';
 import { useQuery } from '@tanstack/react-query';
 import { auctionotonAPI, auctionotonAPIUrl } from 'utils';
-import { foreverRealms, isVersionAvailable } from '@/utils/gameVersions';
+import { foreverRealms, isVersionReleased } from '@/utils/gameVersions';
 import { parseRealms } from '@/utils/realms';
 
 function useRealmsList(region: i.Regions | undefined, version: i.GameVersion | undefined) {
@@ -19,7 +19,7 @@ function useRealmsList(region: i.Regions | undefined, version: i.GameVersion | u
           )
         : realms;
     },
-    enabled: !!region && !!version && isVersionAvailable(version),
+    enabled: !!region && !!version && isVersionReleased(version),
     staleTime: 5 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
     refetchInterval: 5 * 60 * 1000,

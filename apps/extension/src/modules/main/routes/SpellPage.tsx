@@ -21,7 +21,7 @@ export const SpellPage: React.FC = () => {
   const { reagentItems } = useGetReagentItems();
   useWowheadAmountInput(setCraftAmount);
 
-  if (!container || !auctionHouseId) {
+  if (!container) {
     return null;
   }
 
@@ -37,7 +37,7 @@ export const SpellPage: React.FC = () => {
         Auction House Prices for Wowhead
       </p>
 
-      <CraftingCostTooltip {...{ reagentItems, auctionHouseId, craftAmount }} />
+      {auctionHouseId && <CraftingCostTooltip {...{ reagentItems, auctionHouseId, craftAmount }} />}
 
       <div className="auc-h-1" />
       <ChangeRealmButton />

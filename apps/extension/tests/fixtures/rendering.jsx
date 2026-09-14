@@ -2,9 +2,13 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ItemPage } from '../../src/modules/main/routes/ItemPage';
+import { SpellPage } from '../../src/modules/main/routes/SpellPage';
 import ItemsPage from '../../src/modules/main/routes/ItemsPage';
 import { CraftingCostTooltip } from '../../src/modules/main/CraftingCostTooltip';
 
+const browserErrors = [];
+window.addEventListener('error', (event) => browserErrors.push(event.message || String(event.error)));
 const values = {
   user: {
     region: 'eu',
@@ -49,7 +53,7 @@ const assert = (condition, message) => {
 const waitFor = async (condition, message) => {
   const deadline = Date.now() + 5000;
   while (!condition()) {
-    if (Date.now() > deadline) throw new Error(`Timed out: ${message}`);
+    if (Date.now() > deadline) throw new Error(`Timed out: ${message}; Errors: ${browserErrors.join("; ")}; DOM: ${document.body.innerHTML.slice(0, 3000)}`);
     await new Promise((resolve) => setTimeout(resolve, 20));
   }
 };
@@ -113,6 +117,46 @@ window.runRenderingChecks = async () => {
   await waitFor(() => mount.textContent.includes('Unavailable'), 'missing reagent state');
   assert(mount.textContent.includes('Item 999'), 'Missing reagent disappeared');
   assert(mount.textContent.includes('N/A'), 'Missing reagent has no unavailable price');
+  // A saved realm in another game must not hide the setup prompt or fetch prices.
+  values.user = {
+    ...values.user,
+    version: 'classic',
+    realms: { classic: { name: 'Other game', auctionHouseId: 999 } },
+  };
+  client.setQueryData(['storage', 'user'], values.user);
+  render();
+  await waitFor(
+    () => host.querySelector('#buyout-header')?.textContent.includes('Add your realm!'),
+    'list realm setup prompt',
+  );
+  assert(!host.querySelector('#buyout-header a'), 'Missing realm still exposes price sorting');
+  for (const [path, Page] of [
+    ['/classic/item=1', ItemPage],
+    ['/classic/spell=1', SpellPage],
+  ]) {
+    window.history.replaceState({}, '', path);
+    const tooltip = document.createElement('div');
+    tooltip.id = 'tt1';
+    tooltip.textContent = 'Trade goods';
+    document.body.append(tooltip);
+    const reagents = document.createElement('div');
+    reagents.innerHTML =
+      '<div id="icon-list-heading-reagents"><input value="1"></div><table><tr><td><a href="/classic/item=1" class="q1">Reagent</a></td></tr></table>';
+    document.body.append(reagents);
+    root.render(
+      <QueryClientProvider client={client}>
+        <Page />
+      </QueryClientProvider>,
+    );
+    await waitFor(
+      () => tooltip.textContent.includes('Add your realm!'),
+      `${path} realm setup prompt`,
+    );
+    root.render(null);
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    tooltip.remove();
+    reagents.remove();
+  }
   root.unmount();
   await new Promise((resolve) => requestAnimationFrame(resolve));
   assert(

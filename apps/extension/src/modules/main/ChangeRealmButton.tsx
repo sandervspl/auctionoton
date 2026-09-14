@@ -4,13 +4,15 @@ import { useRealm } from '@/hooks/useRealm';
 import { GlobeIcon } from '@/components/icons';
 
 export const ChangeRealmButton: React.FC = () => {
-  const { activeRealm } = useRealm();
+  const { activeRealm, activeVersion } = useRealm();
 
   return (
     <button
       type="button"
       className="btn btn-small btn !auc-flex auc-items-center"
-      onClick={() => window.open(`${chrome.runtime.getURL('popup.html')}?large=true`)}
+      onClick={() =>
+        window.open(`${chrome.runtime.getURL('popup.html')}?large=true&version=${activeVersion}`)
+      }
       title="Change server for Auctionoton"
     >
       <GlobeIcon className="auc-h-3 auc-pr-1" />

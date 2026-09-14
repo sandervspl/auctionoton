@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { cn } from '@/utils/cn';
 
 export const GlobeIcon = ({ className }: { className?: string }) => {
   return (

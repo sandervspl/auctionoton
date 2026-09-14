@@ -29,9 +29,28 @@ test('TBC Anniversary has independent realm settings and links', () => {
   assert.equal(context.wowheadBaseUrl, 'https://wowhead.com/tbc');
 });
 
-test('Forever unlocks on November 4, 2026 UTC and lists its four realms', () => {
-  assert.equal(isVersionAvailable('forever', foreverReleaseDate - 1), false);
-  assert.equal(isVersionAvailable('forever', foreverReleaseDate), true);
+test('Forever requires release and usable realm data, including after November 4', () => {
+  const realms = foreverRealms.map((name, index) => ({
+    name,
+    localizedName: name,
+    realmId: index + 1,
+    auctionHouses: [{ auctionHouseId: index + 1, type: 'Alliance', lastModified: 0 }],
+  }));
+  assert.equal(isVersionAvailable('forever', foreverReleaseDate - 1, realms), false);
+  assert.equal(isVersionAvailable('forever', foreverReleaseDate, realms), true);
+  assert.equal(isVersionAvailable('forever', foreverReleaseDate + 86400000), false);
+  assert.equal(isVersionAvailable('forever', foreverReleaseDate, []), false);
+  assert.equal(
+    isVersionAvailable(
+      'forever',
+      foreverReleaseDate,
+      realms.map((realm) => ({ ...realm, auctionHouses: [] })),
+    ),
+    false,
+  );
+  assert.equal(
+    isVersionAvailable('forever', foreverReleaseDate, [{ ...realms[0], name: 'Unrelated realm' }]),
+    false,
+  );
   assert.equal(isVersionAvailable('anniversary', foreverReleaseDate - 1), true);
-  assert.deepEqual(foreverRealms, ['Normal', 'PvP', 'RP', 'Hardcore']);
 });
