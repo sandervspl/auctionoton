@@ -186,7 +186,7 @@ export const RealmForm: React.FC = () => {
                         <SelectValue placeholder="Select game version" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent position="item-aligned">
+                    <SelectContent position="popper" collisionPadding={8}>
                       <SelectItem value="classic">Classic (progression)</SelectItem>
                       <SelectItem value="era">Era</SelectItem>
                       <SelectItem value="hardcore">Hardcore</SelectItem>
@@ -217,7 +217,7 @@ export const RealmForm: React.FC = () => {
                         <SelectValue placeholder="Select Region" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent position="item-aligned">
+                    <SelectContent position="popper" collisionPadding={8}>
                       <SelectItem value="eu">Europe</SelectItem>
                       <SelectItem value="us">North America</SelectItem>
                     </SelectContent>
@@ -249,7 +249,7 @@ export const RealmForm: React.FC = () => {
                           />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent position="item-aligned">
+                      <SelectContent position="popper" collisionPadding={8}>
                         {realms.data?.map((realm) => (
                           <SelectItem key={realm.realmId} value={realm.name}>
                             {realm.localizedName}
@@ -308,7 +308,7 @@ export const RealmForm: React.FC = () => {
                           <SelectValue placeholder="Select faction" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent position="item-aligned">
+                      <SelectContent position="popper" collisionPadding={8}>
                         <SelectItem value="Alliance">Alliance</SelectItem>
                         <SelectItem value="Horde">Horde</SelectItem>
                       </SelectContent>
@@ -349,6 +349,8 @@ export const RealmForm: React.FC = () => {
 const root = document.getElementById('root');
 
 if (root) {
+  document.documentElement.dataset.view =
+    new URLSearchParams(window.location.search).get('large') === 'true' ? 'tab' : 'popup';
   ReactDOM.createRoot(root).render(
     <QueryClientProvider client={queryClient}>
       <RealmForm />

@@ -1,0 +1,22 @@
+/* Browser action popups auto-size from document contents. Keep the viewport
+   stable when Radix portals mount and lock body scrolling: Select dismisses
+   itself on window resize. The full-page ?large=true form keeps its own layout. */
+html[data-view='popup'] {
+  width: 360px;
+  height: 560px;
+  overflow: hidden;
+}
+
+html[data-view='popup'] body {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+}
+
+html[data-view='popup'] #root {
+  min-width: 0;
+  height: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+}

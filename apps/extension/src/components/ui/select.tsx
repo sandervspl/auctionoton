@@ -72,9 +72,10 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        'auc-relative auc-z-50 auc-max-h-96 auc-min-w-[8rem] auc-overflow-hidden auc-rounded-md auc-border auc-bg-popover auc-text-popover-foreground auc-shadow-md data-[state=open]:auc-animate-in data-[state=closed]:auc-animate-out data-[state=closed]:auc-fade-out-0 data-[state=open]:auc-fade-in-0 data-[state=closed]:auc-zoom-out-95 data-[state=open]:auc-zoom-in-95 data-[side=bottom]:auc-slide-in-from-top-2 data-[side=left]:auc-slide-in-from-right-2 data-[side=right]:auc-slide-in-from-left-2 data-[side=top]:auc-slide-in-from-bottom-2',
-        position === 'popper' &&
-          'data-[side=bottom]:auc-translate-y-1 data-[side=left]:-auc-translate-x-1 data-[side=right]:auc-translate-x-1 data-[side=top]:-auc-translate-y-1',
+        'auc-relative auc-z-50 auc-min-w-[8rem] auc-overflow-hidden auc-rounded-md auc-border auc-bg-popover auc-text-popover-foreground auc-shadow-md data-[state=open]:auc-animate-in data-[state=closed]:auc-animate-out data-[state=closed]:auc-fade-out-0 data-[state=open]:auc-fade-in-0 data-[state=closed]:auc-zoom-out-95 data-[state=open]:auc-zoom-in-95 data-[side=bottom]:auc-slide-in-from-top-2 data-[side=left]:auc-slide-in-from-right-2 data-[side=right]:auc-slide-in-from-left-2 data-[side=top]:auc-slide-in-from-bottom-2',
+        position === 'popper'
+          ? 'auc-max-h-[min(24rem,var(--radix-select-content-available-height))] data-[side=bottom]:auc-translate-y-1 data-[side=left]:-auc-translate-x-1 data-[side=right]:auc-translate-x-1 data-[side=top]:-auc-translate-y-1'
+          : 'auc-max-h-96',
         className,
       )}
       position={position}
