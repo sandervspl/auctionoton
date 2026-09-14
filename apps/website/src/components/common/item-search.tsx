@@ -63,9 +63,19 @@ export const ItemSearch = React.forwardRef((props: Props, ref) => {
     setOpen(false);
   }
 
+  const collectionItems = React.useMemo(
+    () =>
+      (searchQuery.data ?? []).map((item) => ({
+        ...item,
+        value: String(item.id),
+        label: item.name ?? String(item.id),
+      })),
+    [searchQuery.data],
+  );
+
   return (
     <Combobox.Root
-      items={searchQuery.data ?? []}
+      items={collectionItems}
       selectionBehavior="clear"
       className={props.className}
       open={open}
@@ -75,8 +85,9 @@ export const ItemSearch = React.forwardRef((props: Props, ref) => {
 
         // If we have a custom item component we don't want to use the default action
         if (!props.searchItem) {
-          const slug = details.value[0];
-          const itemId = searchQuery.data?.find((item) => item.slug === slug)?.id;
+          const selected = searchQuery.data?.find((item) => String(item.id) === details.value[0]);
+          const itemId = selected?.id;
+          const slug = selected?.slug;
 
           if (itemId) {
             setSelectedItem(itemId);
@@ -132,12 +143,8 @@ export const ItemSearch = React.forwardRef((props: Props, ref) => {
           ) : null}
 
           <Combobox.ItemGroup id="items">
-            {searchQuery.data?.map((item) => (
-              <Combobox.Item
-                key={item.id}
-                item={item.slug}
-                className="px-2 h-10 leading-6 text-base"
-              >
+            {collectionItems.map((item) => (
+              <Combobox.Item key={item.id} item={item} className="px-2 h-10 leading-6 text-base">
                 <Combobox.ItemText asChild>
                   {props.searchItem ? (
                     <props.searchItem item={item} />

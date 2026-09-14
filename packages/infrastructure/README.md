@@ -37,7 +37,7 @@ Use one build owner for the entire stack: `auctionoton-staging-backend`. The web
 | Non-production branch deployment | Disabled for this shared staging stack |
 | Build variables/secrets | All keys in `.env.example`; mark credential values as secrets |
 
-`cf:deploy` runs website code generation, Workers integration tests, and backend type checks before Alchemy. The deployment token needs the resource permissions for Workers, D1, R2, Queues/Workflows, Durable Objects, and Secrets Store. Configuring the build trigger separately requires **Workers CI Write**. The saved Wrangler grant returned HTTP 403 on Workers Builds during this trial, so the Git connection and first hosted build still need that access. [Cloudflare build-trigger API](https://developers.cloudflare.com/api/resources/workers_builds/subresources/triggers/methods/create/)
+`cf:deploy` runs website code generation, Workers integration tests, type checks, authentication tests, and the built website’s D1 smoke tests before Alchemy. The deployment token needs the resource permissions for Workers, D1, R2, Queues/Workflows, Durable Objects, and Secrets Store. Configuring the build trigger separately requires **Workers CI Write**. The saved Wrangler grant returned HTTP 403 on Workers Builds during this trial, so the Git connection and first hosted build still need that access. [Cloudflare build-trigger API](https://developers.cloudflare.com/api/resources/workers_builds/subresources/triggers/methods/create/)
 
 **Import recovery and limits**
 
@@ -57,6 +57,20 @@ Terminal import errors persist in D1 and send a separate failure Queue message. 
 
 The trial caps a decoded raw snapshot at 64 MiB and an individual row at 64 KiB. Interrupted multipart uploads are aborted; R2 also removes orphan uploads after a day. A malformed HTTP 200 payload remains archived for diagnosis: restarting intentionally replays those same bytes. A controlled replacement-archive recovery path is still required before full ingestion rollout; do not delete only the raw object and leave old partial D1 rows or chunks behind.
 
-The deployed staging website now uses Cloudflare Access; its deployment status and Google/permanent-password integration are recorded in the [Access migration notes](../../docs/cloudflare-access.md). The staging website deliberately has no working PostgreSQL connection. The trial API returns the existing price response structure with placeholder item names; metadata, media, realms, full API parity, user import, search, dashboards, cleanup, analytics, email, releases, and production cutover are separate migration work. The backend's isolated Better Auth proof is not used by the website. Do not redirect production traffic to this trial.
+The deployed staging website now uses Cloudflare Access; its deployment status and Google/permanent-password integration are recorded in the [Access migration notes](../../docs/cloudflare-access.md). The staging website uses its MARKET and USERS D1 bindings for item search, item detail/history, recent searches, and dashboard collections. The Node deployment retains its PostgreSQL path. The trial API returns the existing price response structure with placeholder item names; media, realms, full API parity, legacy user-data import, cleanup, analytics, email, releases, and production cutover remain separate migration work. The backend's isolated Better Auth proof is not used by the website. Do not redirect production traffic to this trial.
 
 See the [migration assessment](../../docs/cloudflare-migration.md) for the full inventory and acceptance gates, and [read-only PostgreSQL sizing SQL](../../docs/sql/postgres-sizing.sql) for the production measurements still needed.
+
+## Website data and item catalog
+
+After the first deployment with the website D1 tables, populate real item names with:
+
+```sh
+node packages/infrastructure/scripts/import-item-catalog.mjs
+```
+
+This staging-only command uses `BNET_CLIENT_ID` and `BNET_CLIENT_SECRET` from the environment or `apps/server/.env`, downloads Blizzard’s Classic Era/Season of Discovery catalog with ID pagination, and upserts item metadata through Wrangler. It preserves existing item icons. Wrangler must already be authenticated. Rerunning is safe; no player records or price snapshots are deleted. Alchemy owns schema migrations; do not apply them separately with Wrangler.
+
+Access session verification and owner-ID mappings apply before every private D1 operation. Recent searches are unique per owner/item and retain the latest ten. Dashboard items belong directly to their collection with cascading deletion and server-computed ordering. Item pages show complete seasonal snapshots for the selected region and auction house within seven days; absent prices display an empty state. Existing PostgreSQL collections and search history have not been imported because that database refuses connections. The trial still publishes only Wild Growth EU Alliance, and its daily cron remains disabled.
+
+Validation includes workerd/D1 repository tests plus the actual production website bundle with isolated D1 bindings and signed Access fixtures. The latter exercises public search, item pages, signed-in home with an auction-house cookie, repeat searches, collection CRUD, and owner isolation. A generic health response alone does not verify data access.

@@ -26,7 +26,9 @@ type Props = {
 
 export const RecentSearchItem = (props: Props) => {
   const { settings } = useSettings();
-  const minBuyoutDiffPrct = (props.item.diffMinBuyout! / props.item.min_buyout!) * 100;
+  const minBuyoutDiffPrct = props.item.min_buyout
+    ? ((props.item.diffMinBuyout ?? 0) / props.item.min_buyout) * 100
+    : 0;
 
   return (
     <Card key={props.item.id} className="hover:border-white/30">
@@ -51,7 +53,11 @@ export const RecentSearchItem = (props: Props) => {
 
         <CardContent>
           <div className="flex gap-2 items-center">
-            <CoinValue value={props.item.min_buyout!} />
+            {props.item.min_buyout == null ? (
+              <span className="text-sm text-muted-foreground">No recent prices</span>
+            ) : (
+              <CoinValue value={props.item.min_buyout} />
+            )}
 
             <div
               className={cn('flex items-center gap-1 text-green-400', {
@@ -64,7 +70,7 @@ export const RecentSearchItem = (props: Props) => {
                 <MoveDownRightIcon size={18} />
               ) : null}
               <small className="text-xs">
-                {Number.isNaN(minBuyoutDiffPrct) ? null : `${minBuyoutDiffPrct.toFixed(2)}%`}
+                {props.item.min_buyout == null ? null : `${minBuyoutDiffPrct.toFixed(2)}%`}
               </small>
             </div>
           </div>

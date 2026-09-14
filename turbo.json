@@ -15,7 +15,8 @@
         "@auctionoton/cloudflare#test",
         "@auctionoton/cloudflare#typecheck",
         "@auctionoton/website#typecheck",
-        "@auctionoton/website#test:auth"
+        "@auctionoton/website#test:auth",
+        "@auctionoton/website#test:smoke"
       ],
       "cache": false,
       "passThroughEnv": ["CF_TRIAL_*", "CLOUDFLARE_*", "TSM_*"]

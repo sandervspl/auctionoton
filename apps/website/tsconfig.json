@@ -34,7 +34,7 @@
       "styled-system/*": ["src/styled-system/*"]
     },
     "tsBuildInfoFile": "node_modules/.cache/typecheck.tsbuildinfo",
-    "types": ["vite/client", "node"]
+    "types": ["vite/client", "node", "@cloudflare/workers-types"]
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["dist", ".output", ".tanstack", "node_modules"],

@@ -17,6 +17,8 @@ export default defineConfig(({ mode }) => {
       viteReact(),
     ],
     resolve: { tsconfigPaths: true },
+    // Loaded only by the D1 runtime branch; Node builds keep this import dormant.
+    build: { rolldownOptions: { external: ['cloudflare:workers'] } },
     server: { port: 3001, strictPort: true },
   };
 });

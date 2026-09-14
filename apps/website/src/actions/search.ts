@@ -1,3 +1,4 @@
+import { getCloudflareData } from 'db/cloudflare.server';
 import { createServerFn } from '@tanstack/react-start';
 import { and, isNotNull, like, or, sql } from 'drizzle-orm';
 import { getAccessSession } from 'services/access.server';
@@ -9,6 +10,8 @@ import { itemsMetadata, recentSearches } from 'db/schema';
 export const searchItem = createServerFn({ method: 'GET' })
   .validator(z.string().trim().min(1).max(200))
   .handler(async ({ data: search }) => {
+    const cloudflare = await getCloudflareData();
+    if (cloudflare) return cloudflare.search(search);
     const results = await db
       .select({
         id: itemsMetadata.id,
@@ -35,5 +38,7 @@ export const addRecentSearch = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     const session = await getAccessSession();
     if (!session) return;
+    const cloudflare = await getCloudflareData();
+    if (cloudflare) return cloudflare.addRecentSearch(session.userId, data);
     await db.insert(recentSearches).values({ ...data, userId: session.userId });
   });

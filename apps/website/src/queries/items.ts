@@ -21,7 +21,7 @@ export const getItemDetail = createServerFn({ method: 'GET' })
     }
     const [itemMetadata, itemHistory] = await Promise.all([
       getItemWithId(itemId),
-      getItemHistory(itemId, auctionHouseId),
+      getItemHistory(itemId, auctionHouseId, data.region),
     ]);
     if (!itemMetadata) throw notFound();
     return { itemMetadata, itemHistory };

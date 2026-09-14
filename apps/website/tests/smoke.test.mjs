@@ -6,7 +6,7 @@ import { createServer } from 'node:net';
 import { after, before, test } from 'node:test';
 import { setTimeout as delay } from 'node:timers/promises';
 import { SignJWT, exportJWK, generateKeyPair } from 'jose';
-import { toJSON } from 'seroval';
+import { toJSON, fromCrossJSON } from 'seroval';
 
 let server;
 let origin;
@@ -56,10 +56,16 @@ before(async () => {
     .setExpirationTime('1h')
     .sign(privateKey)}`;
 
-  // These signed-out checks use no real credentials or database connection.
+  // Test credentials and isolated workerd D1 exercise the production website bundle.
   server = spawn(
     process.execPath,
-    ['--import', './tests/fixtures/access-jwks.mjs', '.output/server/index.mjs'],
+    [
+      '--import',
+      './tests/fixtures/access-jwks.mjs',
+      '--import',
+      './tests/fixtures/d1-bindings.mjs',
+      '.output/server/index.mjs',
+    ],
     {
       cwd: new URL('..', import.meta.url),
       env: {
@@ -75,6 +81,7 @@ before(async () => {
         CLOUDFLARE_ACCESS_USER_ID_MAP: '{}',
         ACCESS_TEST_JWKS: JSON.stringify({ keys: [publicJwk] }),
         DB_URL: 'postgres://smoke:smoke@127.0.0.1:1/smoke',
+        DATA_BACKEND: 'd1',
       },
       stdio: 'ignore',
     },
@@ -173,9 +180,10 @@ test('the production build verifies a signed Access session and renders its acco
   assert.equal(session.userId, 'access:https://test-team.cloudflareaccess.com#smoke-user');
   assert.equal(session.token, undefined);
   assert.match(response.headers.get('cache-control'), /private.*no-store/);
-  const home = await fetch(origin, { headers });
+  const home = await fetch(origin, { headers: { Cookie: `${accessCookie}; auctionhouse_id=509` } });
   assert.equal(home.status, 200);
   const html = await home.text();
+  assert.doesNotMatch(html, /Unable to load this page/);
   assert.match(html, /Sign out/);
   assert.match(html, /href="\/user\/dashboard"/);
   assert.doesNotMatch(html, /clerk/i);
@@ -271,4 +279,87 @@ test('SEO endpoints use the runtime public origin and exclude private pages', as
     await robots.text(),
     /Disallow: \/user\/\n\nSitemap: https:\/\/auctionoton\.example\/sitemap\.xml/,
   );
+});
+
+async function rpc(name, data, { method = 'GET', cookie = accessCookie } = {}) {
+  const payload = JSON.stringify(toJSON({ data, context: {} }));
+  const url = new URL(`/_serverFn/${rpcIds[name]}`, origin);
+  if (method === 'GET') url.searchParams.set('payload', payload);
+  const response = await fetch(url, {
+    method,
+    headers: {
+      Cookie: `${cookie}; auctionhouse_id=509`,
+      Origin: origin,
+      'x-tsr-serverFn': 'true',
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    ...(method === 'POST' ? { body: payload } : {}),
+  });
+  const body = await response.text();
+  assert.equal(response.status, 200, `${name}: ${body}`);
+  return fromCrossJSON(JSON.parse(body), {});
+}
+
+test('search and item pages use D1 through the built server functions', async () => {
+  const result = await rpc('searchItem', 'linen', { cookie: '' });
+  assert.equal(result.result[0].name, 'Linen Cloth');
+  for (const cookie of ['', accessCookie]) {
+    const response = await fetch(`${origin}/item/wild-growth/eu/alliance/linen-cloth-2589`, {
+      headers: { Cookie: cookie },
+    });
+    assert.equal(response.status, 200);
+    const html = await response.text();
+    assert.match(html, /Linen Cloth/);
+    assert.doesNotMatch(html, /Unable to load this page/);
+  }
+});
+
+test('signed-in users can repeat searches and manage their own dashboard through server functions', async () => {
+  for (let i = 0; i < 2; i++) {
+    const added = await rpc(
+      'addRecentSearch',
+      { itemId: 2589, search: 'linen' },
+      { method: 'POST' },
+    );
+    assert.equal(added.error, undefined);
+  }
+  const home = await fetch(origin, { headers: { Cookie: `${accessCookie}; auctionhouse_id=509` } });
+  const html = await home.text();
+  assert.equal(home.status, 200);
+  assert.match(html, /Recent Searches/);
+  assert.match(html, /Linen Cloth/);
+  assert.doesNotMatch(html, /Unable to load this page/);
+  assert.equal(
+    (await rpc('getRecentSearches', undefined, { cookie: googleCookie })).result.length,
+    0,
+  );
+  await rpc('createDashboardSection', { section_name: 'Smoke materials' }, { method: 'POST' });
+  const sections = (await rpc('getDashboardSections')).result;
+  assert.equal(sections.length, 1);
+  const sectionId = sections[0].id;
+  await rpc(
+    'addDashboardSectionItem',
+    { section_id: sectionId, item_id: 2589, highest_order: 0 },
+    { method: 'POST' },
+  );
+  const dashboard = await fetch(`${origin}/user/dashboard`, { headers: { Cookie: accessCookie } });
+  const dashboardHtml = await dashboard.text();
+  assert.equal(dashboard.status, 200);
+  assert.match(dashboardHtml, /Smoke materials/);
+  assert.match(dashboardHtml, /Linen Cloth/);
+  assert.doesNotMatch(dashboardHtml, /Unable to load this page/);
+  assert.deepEqual(
+    (await rpc('getDashboardSections', undefined, { cookie: googleCookie })).result,
+    [],
+  );
+  const populated = (await rpc('getDashboardSections')).result;
+  await rpc(
+    'deleteDashboardSectionItem',
+    { sectionId, sectionItemId: populated[0].items[0].dashboardSectionItemId },
+    { method: 'POST' },
+  );
+  assert.equal((await rpc('getDashboardSections')).result[0].items.length, 0);
+  await rpc('deleteDashboardSection', { sectionId }, { method: 'POST' });
+  assert.deepEqual((await rpc('getDashboardSections')).result, []);
 });

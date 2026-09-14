@@ -41,7 +41,7 @@ Example shape, using placeholders only:
 
 Export the old user's verified identity from Clerk, obtain the corresponding verified Access identity, and reconcile against database owners. Ambiguous or unverified matches need an explicit recovery process. A browser-supplied email never links accounts. The same email on a different subject does not automatically inherit ownership. Use separate maps per environment and retain reviewed mappings through the later D1 data import. Do not delete Clerk or its identity export before reconciliation.
 
-The existing PostgreSQL connection remains unreachable, so owner reconciliation and authenticated database CRUD have not been verified. The map mechanism is implemented and tested, but no production mappings have been imported.
+The existing PostgreSQL connection remains unreachable, so legacy owner reconciliation remains unverified. The staging website now stores new collections and recent searches in D1; authenticated D1 CRUD is covered by signed-session website smoke tests and workerd integration tests. The map mechanism is implemented and tested, but no production mappings have been imported.
 
 ## Deployment and validation
 

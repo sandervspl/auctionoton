@@ -1,3 +1,5 @@
+import { getAuctionHouseRegion } from 'services/auction-house';
+import { getCloudflareData } from 'db/cloudflare.server';
 import { createServerFn } from '@tanstack/react-start';
 import { getCookie } from '@tanstack/react-start/server';
 import { desc, eq, sql } from 'drizzle-orm';
@@ -33,6 +35,13 @@ export const getRecentSearches = createServerFn({ method: 'GET' }).handler(async
 
   if (!auctionHouseId) {
     return [];
+  }
+
+  const cloudflare = await getCloudflareData();
+  if (cloudflare) {
+    const region = getAuctionHouseRegion(Number(auctionHouseId));
+    if (!region) return [];
+    return cloudflare.recentSearches(userId, Number(auctionHouseId), region);
   }
 
   const searches = await db

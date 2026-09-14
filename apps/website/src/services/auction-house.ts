@@ -8,3 +8,19 @@ export function getAuctionHouseId(region: string, realmSlug: string, faction: st
 
   return houses[region!]?.[realmSlug!]?.[faction!];
 }
+
+export function getAuctionHouseRegion(id: number) {
+  if (
+    seasonalRealmsEU.some((realm) =>
+      realm.auctionHouses.some((house) => house.auctionHouseId === id),
+    )
+  )
+    return 'eu';
+  if (
+    seasonalRealmsUS.some((realm) =>
+      realm.auctionHouses.some((house) => house.auctionHouseId === id),
+    )
+  )
+    return 'us';
+  return undefined;
+}

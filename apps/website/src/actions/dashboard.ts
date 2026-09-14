@@ -1,3 +1,4 @@
+import { getCloudflareData } from 'db/cloudflare.server';
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { and, eq, inArray, notExists } from 'drizzle-orm';
@@ -9,6 +10,8 @@ export const createDashboardSection = createServerFn({ method: 'POST' })
   .validator(z.object({ section_name: z.string().trim().min(1).max(100) }))
   .handler(async ({ data }) => {
     const { userId } = await requireUser();
+    const cloudflare = await getCloudflareData();
+    if (cloudflare) return cloudflare.createSection(userId, data.section_name);
     await db.insert(dashboardSections).values({ name: data.section_name, userId, order: 0 });
   });
 
@@ -22,6 +25,8 @@ export const addDashboardSectionItem = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     const { userId } = await requireUser();
+    const cloudflare = await getCloudflareData();
+    if (cloudflare) return cloudflare.addSectionItem(userId, data.section_id, data.item_id);
     await db.transaction(async (tx) => {
       const section = await tx.query.dashboardSections.findFirst({
         where: and(eq(dashboardSections.id, data.section_id), eq(dashboardSections.userId, userId)),
@@ -43,6 +48,8 @@ export const deleteDashboardSection = createServerFn({ method: 'POST' })
   .validator(z.object({ sectionId: z.number().int().positive() }))
   .handler(async ({ data }) => {
     const { userId } = await requireUser();
+    const cloudflare = await getCloudflareData();
+    if (cloudflare) return cloudflare.deleteSection(userId, data.sectionId);
     await db.transaction(async (tx) => {
       const section = await tx.query.dashboardSections.findFirst({
         where: and(eq(dashboardSections.id, data.sectionId), eq(dashboardSections.userId, userId)),
@@ -86,6 +93,8 @@ export const deleteDashboardSectionItem = createServerFn({ method: 'POST' })
   )
   .handler(async ({ data }) => {
     const { userId } = await requireUser();
+    const cloudflare = await getCloudflareData();
+    if (cloudflare) return cloudflare.deleteSectionItem(userId, data.sectionId, data.sectionItemId);
     await db.transaction(async (tx) => {
       const section = await tx.query.dashboardSections.findFirst({
         where: and(eq(dashboardSections.id, data.sectionId), eq(dashboardSections.userId, userId)),

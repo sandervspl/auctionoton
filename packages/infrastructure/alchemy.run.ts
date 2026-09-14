@@ -15,12 +15,12 @@ const resourceName = (suffix: string) =>
 const market = Cloudflare.D1.Database('Market', {
   name: resourceName('market'),
   primaryLocationHint: 'weur',
-  migrations: '../../apps/cloudflare/migrations/market',
+  migrations: { dir: '../../apps/cloudflare/migrations/market' },
 }).pipe(RemovalPolicy.retain());
 const users = Cloudflare.D1.Database('Users', {
   name: resourceName('users'),
   primaryLocationHint: 'weur',
-  migrations: '../../apps/cloudflare/migrations/auth',
+  migrations: { dir: '../../apps/cloudflare/migrations/auth' },
 }).pipe(RemovalPolicy.retain());
 const snapshots = Cloudflare.R2.Bucket('Snapshots', {
   name: resourceName('snapshots'),
@@ -98,7 +98,14 @@ export default Alchemy.Stack(
       name: resourceName('website'),
       rootDir: '../../apps/website',
       memo: {
-        include: ['src/**', 'public/**', '*.ts', '*.json', '../../packages/typescript-config/**'],
+        include: [
+          'src/**',
+          'public/**',
+          '*.ts',
+          '*.json',
+          '../../packages/typescript-config/**',
+          '../../apps/cloudflare/src/website-data.ts',
+        ],
         exclude: ['src/styled-system/**', 'src/routeTree.gen.ts', '**/node_modules/**'],
         lockfile: true,
       },
@@ -106,14 +113,17 @@ export default Alchemy.Stack(
       observability,
       env: {
         TRIAL_BACKEND: backend,
+        MARKET: market,
+        USERS: users,
+        DATA_BACKEND: 'd1',
+        APP_ENV: 'production',
+        PROD_SITE_URL: Cloudflare.Worker.URL,
         CLOUDFLARE_ACCESS_ISSUER: Config.string('CLOUDFLARE_ACCESS_ISSUER'),
         CLOUDFLARE_ACCESS_AUD: Config.string('CLOUDFLARE_ACCESS_AUD'),
         CLOUDFLARE_ACCESS_GOOGLE_AUD: Config.string('CLOUDFLARE_ACCESS_GOOGLE_AUD'),
         CLOUDFLARE_ACCESS_USER_ID_MAP: Config.string('CLOUDFLARE_ACCESS_USER_ID_MAP').pipe(
           Config.withDefault('{}'),
         ),
-        // Existing database routes are migrated in phase 2.
-        DB_URL: 'postgres://trial:trial@127.0.0.1:5432/trial',
       },
     });
     return {
