@@ -16,10 +16,14 @@ function getItemIdFromUrl(url?: string): number | undefined {
 
 export default defineContentScript({
   matches: [
-    'https://wowhead.com/cata/*',
-    'https://www.wowhead.com/cata/*',
+    'https://wowhead.com/tbc/*',
+    'https://www.wowhead.com/tbc/*',
+    'https://wowhead.com/mop-classic/*',
+    'https://www.wowhead.com/mop-classic/*',
     'https://wowhead.com/classic/*',
     'https://www.wowhead.com/classic/*',
+    'https://wowhead.com/forever/*',
+    'https://www.wowhead.com/forever/*',
   ],
   main: async (ctx) => {
     const itemId = getItemIdFromUrl(window.location.pathname);

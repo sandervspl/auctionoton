@@ -27,6 +27,7 @@ import { NativeSelect } from '@/components/ui/native-select';
 import { Skeleton } from '@/components/ui/skeleton';
 import useRealmsList from '@/hooks/useRealmsList';
 import useStorageQuery from '@/hooks/useStorageQuery';
+import { foreverRealms, isVersionAvailable, versionGroup } from '@/utils/gameVersions';
 import { selectRealm } from '@/utils/realms';
 
 interface FormInput {
@@ -41,6 +42,11 @@ const queryClient = new QueryClient();
 
 export const RealmForm: React.FC = () => {
   const { data: user } = useStorageQuery('user');
+  const [now, setNow] = React.useState(Date.now);
+  React.useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 60_000);
+    return () => window.clearInterval(timer);
+  }, []);
   const client = useQueryClient();
   const userMutation = useMutation({
     mutationFn: userMutateFn,
@@ -66,7 +72,7 @@ export const RealmForm: React.FC = () => {
     if (hydrated.current || user === undefined) return;
     hydrated.current = true;
     if (!user || form.formState.isDirty) return;
-    const version = user.version || 'classic';
+    const version = user.version && isVersionAvailable(user.version) ? user.version : 'classic';
     const realm = user.realms?.[version]?.name || '';
     form.reset({
       region: user.region,
@@ -109,6 +115,7 @@ export const RealmForm: React.FC = () => {
   ]);
 
   function changeVersion(version: i.GameVersion) {
+    if (!isVersionAvailable(version)) return;
     form.setValue('realm', '');
     form.setValue('version', version, { shouldDirty: true });
   }
@@ -121,7 +128,7 @@ export const RealmForm: React.FC = () => {
   async function userMutateFn(data: FormInput) {
     const realm = realms.data?.find((realm) => realm.name === data.realm);
     const house = realm?.auctionHouses.find((house) => house.type === data.faction);
-    if (!data.region || !realm || !house || realms.isError) {
+    if (!isVersionAvailable(data.version) || !data.region || !realm || !house || realms.isError) {
       throw Error('Select an available realm and faction before saving.');
     }
 
@@ -135,8 +142,8 @@ export const RealmForm: React.FC = () => {
         auctionHouseId: house.auctionHouseId,
       };
       draft.isActive = {
-        classic: 'classic',
-        era: data.version === 'classic' ? user?.isActive?.era : data.version,
+        ...draft.isActive,
+        [versionGroup(data.version)]: data.version,
       };
 
       draft.faction = {
@@ -177,11 +184,20 @@ export const RealmForm: React.FC = () => {
                       onChange={(event) => changeVersion(event.target.value as i.GameVersion)}
                     >
                       <option value="classic">Classic (progression)</option>
+                      <option value="anniversary">TBC Anniversary</option>
                       <option value="era">Era</option>
                       <option value="hardcore">Hardcore</option>
                       <option value="seasonal">Season of Discovery</option>
+                      <option value="forever" disabled={!isVersionAvailable('forever', now)}>
+                        {isVersionAvailable('forever', now)
+                          ? 'Forever'
+                          : 'Forever (November 4, 2026)'}
+                      </option>
                     </NativeSelect>
                   </FormControl>
+                  <p className="auc-text-sm auc-text-zinc-500">
+                    Forever realms: {foreverRealms.join(', ')}
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}
@@ -234,6 +250,19 @@ export const RealmForm: React.FC = () => {
                         <option value="" disabled>
                           {watchRegion ? 'Select realm' : 'Choose a region first'}
                         </option>
+                        {watchVersion === 'forever' &&
+                          foreverRealms
+                            .filter(
+                              (name) =>
+                                !realms.data?.some(
+                                  (realm) => realm.name.toLowerCase() === name.toLowerCase(),
+                                ),
+                            )
+                            .map((name) => (
+                              <option key={name} value={name} disabled>
+                                {name} (awaiting realm data)
+                              </option>
+                            ))}
                         {realms.data?.map((realm) => (
                           <option key={realm.realmId} value={realm.name}>
                             {realm.localizedName}
@@ -301,6 +330,7 @@ export const RealmForm: React.FC = () => {
             className="auc-w-full"
             type="submit"
             disabled={
+              !isVersionAvailable(watchVersion) ||
               !watchRegion ||
               !selectedHouse ||
               realms.isError ||

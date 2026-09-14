@@ -1,9 +1,9 @@
 import type { ItemMarket } from '@/utils/itemCache';
 import useStorageQuery from './useStorageQuery';
-import { useWowhead } from './useWowhead';
+import { useRealm } from './useRealm';
 
 export function useItemMarket(auctionHouseId: number): ItemMarket {
   const { data: user } = useStorageQuery('user');
-  const { version } = useWowhead();
-  return { region: user?.region ?? 'eu', version: user?.version ?? version, auctionHouseId };
+  const { activeVersion } = useRealm();
+  return { region: user?.region ?? 'eu', version: activeVersion, auctionHouseId };
 }

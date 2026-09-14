@@ -12,12 +12,33 @@ export const realmCatalogLifetime = 60 * 60 * 1000;
 const progressionLabels = ['Mists of Pandaria', 'Cataclysm', 'Wrath'];
 
 export function selectRealmRegion(catalog: ProviderRegion[], region: Region, version: Version) {
-  const labels = version === 'classic' ? progressionLabels : [providerVersions[version]];
+  const labels =
+    version === 'classic'
+      ? progressionLabels
+      : version === 'anniversary'
+        ? ['Burning Crusade Anniversary', 'Classic Anniversary', 'Anniversary']
+        : version === 'forever'
+          ? ['Classic Forever', 'Forever']
+          : [providerVersions[version]];
   for (const label of labels) {
     const match = catalog.find(
       (entry) => entry.regionPrefix === region && entry.gameVersion === label,
     );
     if (match) return match;
+  }
+  // Anniversary has moved from Vanilla to TBC; identify its realms even if
+  // the provider still uses an older expansion label. Keep real provider IDs.
+  if (version === 'anniversary') {
+    const names =
+      region === 'eu'
+        ? ['Spineshatter', 'Thunderstrike']
+        : ['Nightslayer', 'Dreamscythe', 'Maladath'];
+    const realms = catalog
+      .filter((entry) => entry.regionPrefix === region)
+      .flatMap((entry) => entry.realms)
+      .filter((realm) => names.includes(realm.name));
+    if (realms.length)
+      return { regionPrefix: region, gameVersion: providerVersions.anniversary, realms };
   }
   // An unknown provider label is a contract error, not a successful empty list.
   throw new Error(`No provider realm catalog for ${region}/${version}`);

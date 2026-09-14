@@ -35,6 +35,7 @@ export type UserData = {
   version: i.GameVersion | undefined;
   isActive?: {
     classic?: 'classic';
+    anniversary?: 'anniversary';
     era?: i.GameVersion;
   };
   /** @deprecated use "realms" */

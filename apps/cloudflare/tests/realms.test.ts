@@ -170,3 +170,46 @@ it('uses the same progression mapping for price imports and realm selection', ()
   expect(jobs).toHaveLength(1);
   expect(jobs[0].auctionHouseId).toBe(501);
 });
+
+it('maps Anniversary realms independently from progression and Era', () => {
+  const items = parseRealmCatalog({
+    items: [
+      {
+        regionPrefix: 'eu',
+        gameVersion: 'Classic Anniversary',
+        realms: [realm('Spineshatter', 10), realm('Thunderstrike', 11)],
+      },
+      {
+        regionPrefix: 'us',
+        gameVersion: 'Classic Anniversary',
+        realms: [realm('Nightslayer', 12), realm('Dreamscythe', 13), realm('Maladath', 14)],
+      },
+      { regionPrefix: 'eu', gameVersion: 'Wrath', realms: [realm('Progression', 15)] },
+    ],
+  }).items;
+  expect(selectRealmRegion(items, 'eu', 'anniversary').realms.map((realm) => realm.name)).toEqual([
+    'Spineshatter',
+    'Thunderstrike',
+  ]);
+  expect(selectRealmRegion(items, 'us', 'anniversary').realms.map((realm) => realm.name)).toEqual([
+    'Nightslayer',
+    'Dreamscythe',
+    'Maladath',
+  ]);
+});
+
+it('finds Anniversary realms after a provider label change without including other realms', () => {
+  const items = parseRealmCatalog({
+    items: [
+      {
+        regionPrefix: 'eu',
+        gameVersion: 'Renamed TBC catalog',
+        realms: [realm('Spineshatter', 10), realm('Thunderstrike', 11), realm('Soulseeker', 12)],
+      },
+    ],
+  }).items;
+  expect(selectRealmRegion(items, 'eu', 'anniversary').realms.map((realm) => realm.name)).toEqual([
+    'Spineshatter',
+    'Thunderstrike',
+  ]);
+});

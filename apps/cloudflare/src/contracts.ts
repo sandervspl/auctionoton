@@ -1,4 +1,11 @@
-export const versions = ['seasonal', 'era', 'classic', 'hardcore'] as const;
+export const versions = [
+  'seasonal',
+  'era',
+  'classic',
+  'hardcore',
+  'anniversary',
+  'forever',
+] as const;
 export type Version = (typeof versions)[number];
 export type Region = 'eu' | 'us';
 export type AuctionJob = {
@@ -38,6 +45,8 @@ export type ProviderRegion = {
   realms: ProviderRealm[];
 };
 export const providerVersions: Record<Version, string> = {
+  anniversary: 'Classic Anniversary',
+  forever: 'Classic Forever',
   seasonal: 'Season of Discovery',
   era: 'Classic Era',
   classic: 'Wrath',

@@ -4,6 +4,8 @@ import type { Env } from './env';
 import { readBoundedText } from './http';
 
 const apiKeys = (env: Env): Record<Version, string> => ({
+  anniversary: env.TSM_API_KEY,
+  forever: env.TSM_API_KEY,
   seasonal: env.TSM_API_KEY,
   classic: env.TSM_API_KEY_B,
   hardcore: env.TSM_API_KEY_C,
@@ -120,7 +122,9 @@ export class ProviderCoordinator extends DurableObject<Env> {
 }
 
 export async function providerFetch(env: Env, version: Version, url: string): Promise<Response> {
-  const coordinator = env.PROVIDER.getByName(`tsm-${version}`);
+  const coordinator = env.PROVIDER.getByName(
+    `tsm-${version === 'anniversary' || version === 'forever' ? 'seasonal' : version}`,
+  );
   const token = await coordinator.token(version);
   let wait = await coordinator.reserve();
   while (wait > 0) {
@@ -152,7 +156,12 @@ export function providerRetry(env: Env, version: Version) {
     retries: {
       limit: 4,
       delay: async () =>
-        Math.max(30_000, await env.PROVIDER.getByName(`tsm-${version}`).remainingCooldown()),
+        Math.max(
+          30_000,
+          await env.PROVIDER.getByName(
+            `tsm-${version === 'anniversary' || version === 'forever' ? 'seasonal' : version}`,
+          ).remainingCooldown(),
+        ),
     },
     timeout: '5 minutes',
   } as const;
