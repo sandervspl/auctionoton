@@ -1,20 +1,24 @@
+import * as i from 'types';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { useMutation } from '@tanstack/react-query';
 import { Key } from 'w3c-keys';
 import { useSnapshot } from 'valtio';
+import { storage } from 'wxt/storage';
 
-import getBodyElement from 'utils/getBodyElement';
-import asyncStorage from 'utils/asyncStorage';
-import useStorageQuery from 'hooks/useStorageQuery';
-import useItemFromPage from 'hooks/useItemFromPage';
+import { getBodyElement } from 'utils';
+import useStorageQuery from '@/hooks/useStorageQuery';
+import useItemFromPage from '@/hooks/useItemFromPage';
+import { useEventListener } from '@/hooks/useEventListener';
+import { useAuctionHouse } from '@/hooks/useAuctionHouse';
 
-import { useEventListener } from 'hooks/useEventListener';
 import Tooltip from './tooltip';
+import { ChangeRealmButton } from './ChangeRealmButton';
 import generateContainer from './generateContainer';
 import { uiState } from './state';
+import { produce } from 'immer';
 
-const HoverTooltip = (): React.ReactPortal | null => {
+const HoverTooltip = () => {
   const [itemId, setItemId] = React.useState<number>();
   const [visible, setVisible] = React.useState(false);
   const [amount, setAmount] = React.useState(1);
@@ -27,11 +31,14 @@ const HoverTooltip = (): React.ReactPortal | null => {
   const containerEl = React.useRef<HTMLElement | null>(null);
   const isAuctionableItem = getIsAuctionableItem(tooltipEl.current?.innerHTML);
   const uiMutation = useMutation({
-    mutationFn: async () =>
-      asyncStorage.set('ui', (draft) => {
-        draft!.showTip.shiftKey = false;
-      }),
+    mutationFn: async () => {
+      const nextUi = produce(ui ?? ({} as i.UiData), (draft) => {
+        draft.showTip.shiftKey = false;
+      });
+      storage.setItem('local:ui', nextUi);
+    },
   });
+  const auctionHouseId = useAuctionHouse();
 
   const shiftKeyPressed = uiSnap.keys[Key.Shift];
 
@@ -73,14 +80,14 @@ const HoverTooltip = (): React.ReactPortal | null => {
       currentEl = currentEl.parentNode as HTMLAnchorElement;
       depth++;
     }
-  }, [visible, itemId]);
+  }, [visible, itemId, getItemIdFromUrl, isAuctionableItem]);
 
   React.useEffect(() => {
     // Remove shift key tip if user has never pressed shift, has pressed shift and we hover an item with an amount shown
     if (ui?.showTip.shiftKey && shiftKeyPressed && hoverEl.current && amount > 1) {
       uiMutation.mutate();
     }
-  }, [ui?.showTip.shiftKey, shiftKeyPressed, hoverEl.current]);
+  }, [ui?.showTip.shiftKey, shiftKeyPressed, amount, uiMutation.mutate]);
 
   // Listen to bubbled events and check if we are targeting a link to an item
   // Event Delegation: https://davidwalsh.name/event-delegate
@@ -88,6 +95,7 @@ const HoverTooltip = (): React.ReactPortal | null => {
     'mouseover',
     (e: MouseEvent) => {
       const target = e.target as HTMLAnchorElement;
+      if (containerEl.current?.contains(target)) return;
       const parent = target.parentNode as HTMLAnchorElement;
       const selector = 'a[href*="item="]';
 
@@ -166,13 +174,21 @@ const HoverTooltip = (): React.ReactPortal | null => {
   }
 
   return ReactDOM.createPortal(
-    <Tooltip itemId={itemId} amount={shiftKeyPressed ? amount : 1}>
-      {ui?.showTip.shiftKey && amount > 1 ? (
-        <div className="blizzard-blue auc-mt-2">
-          Tip: press shift to see the price for the stack!
-        </div>
-      ) : null}
-    </Tooltip>,
+    auctionHouseId ? (
+      <Tooltip
+        itemId={itemId}
+        auctionHouseId={auctionHouseId}
+        amount={shiftKeyPressed ? amount : 1}
+      >
+        {ui?.showTip.shiftKey && amount > 1 ? (
+          <div className="blizzard-blue auc-mt-2">
+            Tip: press shift to see the price for the stack!
+          </div>
+        ) : null}
+      </Tooltip>
+    ) : (
+      <ChangeRealmButton />
+    ),
     containerEl.current,
   );
 };

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as TabsPrimitive from '@radix-ui/react-tabs';
 
-import { cn } from 'src/utils';
+import { cn } from 'utils';
 
 const Tabs = TabsPrimitive.Root;
 
@@ -27,7 +27,7 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      'auc-inline-flex auc-items-center auc-justify-center auc-whitespace-nowrap auc-rounded-sm auc-px-3 auc-py-1.5 auc-text-sm auc-font-medium auc-ring-offset-background auc-transition-all focus-visible:auc-outline-none focus-visible:auc-ring-2 focus-visible:auc-ring-ring focus-visible:auc-ring-offset-2 disabled:auc-pointer-events-none disabled:auc-opacity-50 data-[state=active]:auc-bg-background data-[state=active]:auc-text-foreground data-[state=active]:auc-shadow-sm',
+      'auc-inline-flex auc-items-center auc-justify-center auc-whitespace-nowrap auc-rounded-sm auc-px-3 auc-py-1.5 auc-text-sm auc-font-medium auc-ring-offset-background auc-transition-all focus-visible:auc-outline-none focus-visible:auc-ring-2 focus-visible:auc-ring-offset-2 disabled:auc-pointer-events-none disabled:auc-opacity-50 data-[state=active]:auc-bg-background data-[state=active]:auc-text-foreground data-[state=active]:auc-shadow-sm',
       className,
     )}
     {...props}
@@ -42,7 +42,7 @@ const TabsContent = React.forwardRef<
   <TabsPrimitive.Content
     ref={ref}
     className={cn(
-      'auc-mt-2 auc-ring-offset-background focus-visible:auc-outline-none focus-visible:auc-ring-2 focus-visible:auc-ring-ring focus-visible:auc-ring-offset-2',
+      'auc-mt-2 auc-ring-offset-background focus-visible:auc-outline-none focus-visible:auc-ring-2 auc-focus-visible:auc-ring-offset-2',
       className,
     )}
     {...props}

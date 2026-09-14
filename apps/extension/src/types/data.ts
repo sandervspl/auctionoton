@@ -35,6 +35,7 @@ export type UserData = {
   version: i.GameVersion | undefined;
   isActive?: {
     classic?: 'classic';
+    anniversary?: 'anniversary';
     era?: i.GameVersion;
   };
   /** @deprecated use "realms" */
@@ -60,7 +61,7 @@ export type UserData = {
 };
 
 export type ItemsData = {
-  [ItemQueryKeyString: string]: i.AnyCachedItem;
+  [ItemQueryKeyString: `${number}:${number}`]: i.AnyCachedItem;
 };
 
 export type UiData = {

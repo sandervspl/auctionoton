@@ -1,0 +1,1 @@
+ALTER TABLE "user_dashboard" RENAME COLUMN "item_id" TO "section_id";

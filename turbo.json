@@ -1,0 +1,88 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "tasks": {
+    "test": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "cf:plan": {
+      "cache": false,
+      "passThroughEnv": ["CF_TRIAL_*", "CLOUDFLARE_*", "TSM_*"]
+    },
+    "cf:deploy": {
+      "dependsOn": [
+        "@auctionoton/website#generate",
+        "@auctionoton/cloudflare#test",
+        "@auctionoton/cloudflare#typecheck",
+        "@auctionoton/website#typecheck",
+        "@auctionoton/website#test:auth",
+        "@auctionoton/website#test:smoke"
+      ],
+      "cache": false,
+      "passThroughEnv": ["CF_TRIAL_*", "CLOUDFLARE_*", "TSM_*"]
+    },
+    "cf:dev": {
+      "cache": false,
+      "persistent": true,
+      "passThroughEnv": ["CF_TRIAL_*", "CLOUDFLARE_*", "TSM_*"]
+    },
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env", ".env.*"],
+      "env": ["NODE_ENV"]
+    },
+    "generate": {
+      "dependsOn": ["^generate"]
+    },
+    "transit": {
+      "dependsOn": ["^transit"]
+    },
+    "typecheck": {
+      "dependsOn": ["transit", "generate"],
+      "outputs": []
+    },
+    "lint": {
+      "dependsOn": ["transit"],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/biome.json", "$TURBO_ROOT$/.gitignore"],
+      "outputs": []
+    },
+    "format": {
+      "cache": false
+    },
+    "format:check": {
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/biome.json", "$TURBO_ROOT$/.gitignore"],
+      "outputs": []
+    },
+    "dev": {
+      "dependsOn": ["generate"],
+      "cache": false,
+      "persistent": true
+    },
+    "start": {
+      "cache": false,
+      "persistent": true
+    },
+    "build:firefox": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env", ".env.*"],
+      "env": ["NODE_ENV"]
+    },
+    "zip": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env", ".env.*"],
+      "env": ["NODE_ENV"]
+    },
+    "zip:firefox": {
+      "dependsOn": ["zip"],
+      "cache": false,
+      "env": ["NODE_ENV"]
+    },
+    "db:migrate": {
+      "cache": false,
+      "env": ["DB_URL"]
+    },
+    "test:auth": {
+      "outputs": []
+    }
+  }
+}

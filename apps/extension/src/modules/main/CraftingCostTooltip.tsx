@@ -1,43 +1,39 @@
 import * as i from 'types';
 import * as React from 'react';
-import { ELEMENT_ID } from 'src/constants';
-import LoadingSvg from 'static/loading.svg';
+import { Loader2Icon } from 'lucide-react';
+
+import { ELEMENT_ID } from '@/constants';
+import { useWowhead } from '@/hooks/useWowhead';
+import { useItemsFetcher } from '@/hooks/useItemsFetcher';
+
 import { TooltipBody } from './tooltip/TooltipBody';
 import { Value } from './tooltip/Value';
-import { useWowhead } from 'hooks/useWowhead';
 
 type Props = {
-  items: { data: i.CachedItemDataClassic | undefined; isLoading: boolean }[];
   reagentItems: i.ReagentItem[];
+  auctionHouseId: number;
   reagents?: Map<number, number>;
   craftAmount?: number;
 };
 
 export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
   const { wowheadBaseUrl } = useWowhead();
-
-  function getReagentAmount(id: number) {
-    return props.reagentItems.find((reagentItem) => reagentItem.id === id)?.amount ?? 1;
-  }
-
-  function getReagentIcon(id: number) {
-    return props.reagentItems.find((reagentItem) => reagentItem.id === id)?.icon ?? '';
-  }
-
-  const total =
-    props.items
-      .filter((item) => item.data?.stats)
-      .reduce((acc, item) => {
-        const reagentAmount = getReagentAmount(item.data!.itemId);
-        const { minBuyout } = item.data!.stats.current;
-        const value = typeof minBuyout !== 'object' ? Number(minBuyout) : minBuyout.raw;
-
-        if (isNaN(value)) {
-          return acc;
-        }
-
-        return acc + value * reagentAmount * craftAmount;
-      }, 0) || 0;
+  const reagents = React.useMemo(
+    () => [...new Map(props.reagentItems.map((item) => [item.id, item])).values()],
+    [props.reagentItems],
+  );
+  const items = useItemsFetcher(
+    reagents.map((item) => item.id),
+    props.auctionHouseId,
+  );
+  const complete = items.length === reagents.length && items.every((item) => !!item.data?.stats);
+  const total = complete
+    ? items.reduce((sum, item, index) => {
+        const buyout = item.data!.stats.current.minBuyout;
+        const raw = typeof buyout === 'object' ? buyout.raw : Number(buyout);
+        return sum + raw * reagents[index].amount * craftAmount;
+      }, 0)
+    : undefined;
 
   return (
     <>
@@ -54,49 +50,51 @@ export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
           <span className="auc-font-bold auc-text-right">Qty</span>
           <span className="auc-font-bold auc-mb-2 auc-text-right">Cost</span>
 
-          {props.items.map((item) => (
-            <React.Fragment key={item.data!.itemId}>
-              <a
-                href={`${wowheadBaseUrl}/item=${item.data!.itemId}`}
-                className={`auc-flex auc-gap-1 auc-items-center ${getQualityClassFromTags(
-                  item.data?.tags?.length ? item.data.tags : ['common'],
-                )}`}
-              >
-                {item.data && (
-                  <>
-                    <ItemIcon
-                      url={getReagentIcon(item.data.itemId)}
-                      itemId={item.data.itemId}
-                      slug={item.data.uniqueName}
+          {reagents.map((reagent, index) => {
+            const query = items[index];
+            const item = query?.data;
+            return (
+              <React.Fragment key={reagent.id}>
+                <div className="auc-flex auc-gap-1 auc-items-center">
+                  <ItemIcon url={reagent.icon} itemId={reagent.id} />
+                  <a
+                    href={`${wowheadBaseUrl}/item=${reagent.id}`}
+                    className={getQualityClassFromTags(item?.tags?.length ? item.tags : ['common'])}
+                  >
+                    {item?.name ?? `Item ${reagent.id}`}
+                  </a>
+                </div>
+                <div className="auc-flex auc-items-center auc-justify-end">
+                  {reagent.amount * craftAmount}
+                </div>
+                <div className="auc-flex auc-items-center auc-justify-end">
+                  {item?.stats ? (
+                    <Value
+                      value={item.stats.current.minBuyout}
+                      amount={reagent.amount * craftAmount}
                     />
-                    <span className="auc-flex-1">{item.data.name}</span>
-                  </>
-                )}
-              </a>
-              <div className="auc-flex auc-items-center auc-justify-end">
-                {getReagentAmount(item.data!.itemId) * craftAmount}
-              </div>
-              <div className="auc-flex auc-items-center auc-justify-end">
-                {item.data?.stats ? (
-                  <Value
-                    value={item.data.stats.current.minBuyout}
-                    amount={getReagentAmount(item.data.itemId) * craftAmount}
-                  />
-                ) : item.isLoading ? (
-                  <LoadingSvg style={{ width: '15px' }} />
-                ) : (
-                  'N/A'
-                )}
-              </div>
-            </React.Fragment>
-          ))}
+                  ) : query?.isLoading ? (
+                    <Loader2Icon size={15} className="auc-animate-spin" />
+                  ) : (
+                    <span title={query?.error?.message}>N/A</span>
+                  )}
+                </div>
+              </React.Fragment>
+            );
+          })}
 
           <div className="auc-col-span-3 auc-h-4" />
 
           <div className="auc-flex auc-items-center auc-font-bold">Total</div>
           <div />
           <div className="auc-flex auc-justify-end auc-items-center">
-            <Value value={total} />
+            {total !== undefined ? (
+              <Value value={total} />
+            ) : items.some((item) => item.isLoading) ? (
+              'Loading…'
+            ) : (
+              'Unavailable'
+            )}
           </div>
         </div>
       </TooltipBody>
@@ -104,13 +102,14 @@ export const CraftingCostTooltip = ({ craftAmount = 1, ...props }: Props) => {
   );
 };
 
-const ItemIcon = (props: { url: string; itemId: number; slug: string }) => {
+const ItemIcon = (props: { url: string; itemId: number }) => {
   const { wowheadBaseUrl } = useWowhead();
 
   return (
     <div className="iconsmall" data-env="wrath" data-tree="wrath" data-game="wow">
       <ins style={{ backgroundImage: `url(${props.url})` }} />
       <del />
+      {/* biome-ignore lint/a11y/useAnchorContent: Wowhead script will add content */}
       <a aria-label="Icon" href={`${wowheadBaseUrl}/item=${props.itemId}`} />
     </div>
   );

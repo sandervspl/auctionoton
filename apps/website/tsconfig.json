@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "noUncheckedIndexedAccess": true,
+    "sourceMap": true,
+    "pretty": true,
+    "resolveJsonModule": true,
+    "noImplicitAny": false,
+    "allowJs": false,
+    "isolatedModules": true,
+    "incremental": true,
+    "moduleResolution": "Bundler",
+    "target": "esnext",
+    "module": "esnext",
+    "jsx": "react-jsx",
+    "lib": ["dom", "esnext"],
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./src/*"],
+      "actions/*": ["src/actions/*"],
+      "common/*": ["src/components/common/*"],
+      "db": ["src/db/index.ts"],
+      "db/*": ["src/db/*"],
+      "shadcn-ui/*": ["src/components/ui/*"],
+      "park-ui/*": ["src/components/park-ui/*"],
+      "hooks/*": ["src/hooks/*"],
+      "images/*": ["public/images/*"],
+      "modules/*": ["src/components/modules/*"],
+      "queries/*": ["src/queries/*"],
+      "services/*": ["src/services/*"],
+      "styles/*": ["src/styles/*"],
+      "tests/*": ["src/__tests__/*"],
+      "types": ["src/types/index"],
+      "vectors/*": ["public/vectors/*"],
+      "styled-system/*": ["src/styled-system/*"]
+    },
+    "tsBuildInfoFile": "node_modules/.cache/typecheck.tsbuildinfo",
+    "types": ["vite/client", "node", "@cloudflare/workers-types"]
+  },
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["dist", ".output", ".tanstack", "node_modules"],
+  "extends": "@auctionoton/typescript-config/base.json"
+}

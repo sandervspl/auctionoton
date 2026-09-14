@@ -1,0 +1,26 @@
+{
+  "name": "@auctionoton/cloudflare",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "format:check": "biome format ."
+  },
+  "dependencies": {
+    "@streamparser/json": "0.0.26",
+    "better-auth": "1.7.4",
+    "hono": "4.13.7"
+  },
+  "devDependencies": {
+    "@auctionoton/typescript-config": "workspace:*",
+    "@biomejs/biome": "catalog:",
+    "@cloudflare/vitest-plugin": "1.1.8",
+    "@cloudflare/workers-types": "5.20260911.1",
+    "@types/node": "^24.0.0",
+    "typescript": "catalog:",
+    "vitest": "4.1.11"
+  }
+}

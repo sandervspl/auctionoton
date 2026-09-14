@@ -1,0 +1,26 @@
+/* Match native controls to the form's dark theme in both popup and tab views. */
+html.dark {
+  color-scheme: dark;
+}
+
+/* Keep the browser action viewport stable as loading and status content changes.
+   The full-page ?large=true form keeps its own layout. */
+html[data-view='popup'] {
+  width: 360px;
+  height: 560px;
+  overflow: hidden;
+}
+
+html[data-view='popup'] body {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+}
+
+html[data-view='popup'] #root {
+  min-width: 0;
+  height: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+}

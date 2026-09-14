@@ -1,0 +1,84 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "outputs": [".output/**", "dist/**", "src/styled-system/**", "src/routeTree.gen.ts"],
+      "env": [
+        "$TURBO_EXTENDS$",
+        "APP_ENV",
+        "TEST_SITE_URL",
+        "ACC_SITE_URL",
+        "PROD_SITE_URL",
+        "DB_URL",
+        "DATA_BACKEND",
+        "CLOUDFLARE_ACCESS_*",
+        "VITE_*"
+      ],
+      "dependsOn": ["^build", "generate"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/apps/cloudflare/src/website-data.ts",
+        "$TURBO_ROOT$/apps/cloudflare/src/item-icons.ts",
+        "!src/styled-system/**",
+        "!src/routeTree.gen.ts",
+        "!*.tsbuildinfo",
+        ".env",
+        ".env.*"
+      ]
+    },
+    "generate": {
+      "outputs": ["src/styled-system/**", "src/routeTree.gen.ts"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/apps/cloudflare/src/website-data.ts",
+        "$TURBO_ROOT$/apps/cloudflare/src/item-icons.ts",
+        "!src/styled-system/**",
+        "!src/routeTree.gen.ts",
+        "!*.tsbuildinfo"
+      ]
+    },
+    "typecheck": {
+      "outputs": ["node_modules/.cache/typecheck.tsbuildinfo"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/apps/cloudflare/src/website-data.ts",
+        "$TURBO_ROOT$/apps/cloudflare/src/item-icons.ts",
+        "!src/styled-system/**",
+        "!src/routeTree.gen.ts",
+        "!*.tsbuildinfo"
+      ]
+    },
+    "dev": {
+      "passThroughEnv": [
+        "APP_ENV",
+        "TEST_SITE_URL",
+        "ACC_SITE_URL",
+        "PROD_SITE_URL",
+        "DB_URL",
+        "DATA_BACKEND",
+        "CLOUDFLARE_ACCESS_*",
+        "VITE_*",
+        "PORT",
+        "HOST"
+      ]
+    },
+    "start": {
+      "passThroughEnv": [
+        "APP_ENV",
+        "TEST_SITE_URL",
+        "ACC_SITE_URL",
+        "PROD_SITE_URL",
+        "DB_URL",
+        "DATA_BACKEND",
+        "CLOUDFLARE_ACCESS_*",
+        "VITE_*",
+        "PORT",
+        "HOST"
+      ]
+    },
+    "test:smoke": {
+      "dependsOn": ["build"],
+      "cache": false
+    }
+  }
+}

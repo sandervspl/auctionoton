@@ -1,8 +1,6 @@
-import useStorageQuery from './useStorageQuery';
+import { useRealm } from './useRealm';
 
 export function useAuctionHouse() {
-  const { data: user } = useStorageQuery('user');
-  const auctionHouseId = user?.version ? user.realms?.[user.version]?.auctionHouseId : undefined;
-
-  return auctionHouseId;
+  const { activeRealm } = useRealm();
+  return activeRealm?.auctionHouseId;
 }

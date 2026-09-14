@@ -4,17 +4,16 @@ import dayjs from 'dayjs';
 import cn from 'classnames';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useQuery } from '@tanstack/react-query';
+import { Loader2Icon } from 'lucide-react';
 
-import LoadingSvg from 'static/loading.svg';
-// import WarningSvg from 'static/exclamation-circle-regular.svg';
-import { ELEMENT_ID } from 'src/constants';
-import useItemFetcher from 'hooks/useItemFetcher';
-import { useWowhead } from 'hooks/useWowhead';
-import useStorageQuery from 'hooks/useStorageQuery';
+import { ELEMENT_ID } from '@/constants';
+import useItemFetcher from '@/hooks/useItemFetcher';
+import { useWowhead } from '@/hooks/useWowhead';
+import useStorageQuery from '@/hooks/useStorageQuery';
+import { useRealm } from '@/hooks/useRealm';
 
 import { SellPrice } from './SellPrice';
 import { TooltipBody } from './TooltipBody';
-import { useRealm } from 'hooks/useRealm';
 
 dayjs.extend(relativeTime);
 
@@ -24,9 +23,26 @@ dayjs.extend(relativeTime);
  * - add tooltip with text to add your server with a link to the form
  */
 
-const Tooltip: React.FC<Props> = (props) => {
+type Props = {
+  itemId: number;
+  auctionHouseId: number;
+  amount?: number;
+  children: null | JSX.Element | ((args: ChildrenFuncArgs) => JSX.Element | null);
+};
+
+type ChildrenFuncArgs = {
+  error: boolean;
+  loading: boolean;
+  item: i.MaybeAnyItem;
+  getItem: i.ItemRefetchFn;
+};
+
+const Tooltip: React.FC<Props> = ({ amount = 1, ...props }) => {
   const { data: user } = useStorageQuery('user');
-  const { error, isFetching, isLoading, item, refetch } = useItemFetcher(props.itemId);
+  const { error, isFetching, isLoading, item, refetch } = useItemFetcher(
+    props.itemId,
+    props.auctionHouseId,
+  );
   const { isEra } = useWowhead();
   const { activeRealm } = useRealm();
   const { data: lastUpdated } = useQuery({
@@ -51,14 +67,15 @@ const Tooltip: React.FC<Props> = (props) => {
     refetchInterval: 60 * 1000,
   });
 
-  if (!user?.realms) {
-    return null;
-  }
-
   /** @TODO Show link to change realm, let user know to set realm */
-
-  if (!activeRealm) {
-    return null;
+  if (!user?.realms || !activeRealm) {
+    return (
+      <TooltipBody id={ELEMENT_ID.TOOLTIP}>
+        <tr>
+          <td>Please select a realm!</td>
+        </tr>
+      </TooltipBody>
+    );
   }
 
   const errorStr = `Error: ${error || 'Something went wrong. Try again later.'}`;
@@ -67,21 +84,19 @@ const Tooltip: React.FC<Props> = (props) => {
     <TooltipBody
       id={ELEMENT_ID.TOOLTIP}
       header={
-        <>
-          {lastUpdated && (
-            <div className="whtt-sellprice auc-mb-2">
-              Last updated:&nbsp;
-              <span
-                className={cn({
-                  q2: lastUpdated.hours < (isEra ? 24 : 3),
-                  q10: lastUpdated.hours >= (isEra ? 24 : 3),
-                })}
-              >
-                {lastUpdated.text}
-              </span>
-            </div>
-          )}
-        </>
+        lastUpdated && (
+          <div className="whtt-sellprice auc-mb-2">
+            Last updated:&nbsp;
+            <span
+              className={cn({
+                q2: lastUpdated.hours < (isEra ? 24 : 3),
+                q10: lastUpdated.hours >= (isEra ? 24 : 3),
+              })}
+            >
+              {lastUpdated.text}
+            </span>
+          </div>
+        )
       }
     >
       {item ? (
@@ -93,22 +108,22 @@ const Tooltip: React.FC<Props> = (props) => {
               <>
                 <SellPrice
                   heading="Market Value"
-                  amount={props.amount}
+                  amount={amount}
                   value={item.stats.current.marketValue}
                 />
                 <SellPrice
                   heading="Historical Value"
-                  amount={props.amount}
+                  amount={amount}
                   value={item.stats.current.historicalValue}
                 />
                 <SellPrice
                   heading="Minimum Buyout"
-                  amount={props.amount}
+                  amount={amount}
                   value={item.stats.current.minBuyout}
                 />
                 <SellPrice
                   heading="Quantity"
-                  amount={props.amount}
+                  amount={amount}
                   value={`${item.stats.current.quantity} auction${
                     item.stats.current.quantity === 1 ? '' : 's'
                   }`}
@@ -118,9 +133,9 @@ const Tooltip: React.FC<Props> = (props) => {
 
             {/* Only show this loading indicator if we can show a cached item */}
             {item && (isLoading || isFetching) ? (
-              <div className="auc-mt-2 auc-flex">
+              <div className="mt-2 flex">
                 {/* @ts-ignore */}
-                <LoadingSvg className="auc-mr-1 auc-inline-block auc-w-4" />
+                <Loader2Icon className="auc-mr-1 auc-inline-block auc-w-4 auc-animate-spin" />
                 Fetching latest price info...
               </div>
             ) : null}
@@ -130,8 +145,7 @@ const Tooltip: React.FC<Props> = (props) => {
       {(!item || !item) && (isLoading || isFetching) ? (
         <tr>
           <td>
-            {/* @ts-ignore */}
-            <LoadingSvg />
+            <Loader2Icon className="auc-animate-spin" />
           </td>
         </tr>
       ) : null}
@@ -142,16 +156,6 @@ const Tooltip: React.FC<Props> = (props) => {
           </td>
         </tr>
       ) : null}
-      {/* {warning ? (
-                  <tr>
-                    <td>
-                      <div className="auc-mt-1">
-                        <WarningSvg className="auc-h-3" />
-                        {warning}
-                      </div>
-                    </td>
-                  </tr>
-                ) : null} */}
       <tr>
         <td>
           {typeof props.children === 'function'
@@ -167,22 +171,5 @@ const Tooltip: React.FC<Props> = (props) => {
     </TooltipBody>
   );
 };
-
-Tooltip.defaultProps = {
-  amount: 1,
-};
-
-interface ChildrenFuncArgs {
-  error: boolean;
-  loading: boolean;
-  item: i.MaybeAnyItem;
-  getItem: i.ItemRefetchFn;
-}
-
-interface Props {
-  itemId: number;
-  amount?: number;
-  children: null | JSX.Element | ((args: ChildrenFuncArgs) => JSX.Element | null);
-}
 
 export default Tooltip;
