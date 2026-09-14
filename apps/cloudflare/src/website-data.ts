@@ -3,7 +3,10 @@ import { itemIconUrl } from './item-icons';
 
 // Shared by the website's authenticated server functions and workerd integration tests.
 // Callers must derive userId from a verified Access session, never from browser input.
-export type WebsiteDatabases = { MARKET: D1Database; USERS: D1Database };
+export type WebsiteDatabases = {
+  MARKET: Pick<D1Database, 'prepare' | 'batch'>;
+  USERS: Pick<D1Database, 'prepare' | 'batch'>;
+};
 export type ItemMetadata = {
   id: number;
   name: string;
@@ -17,6 +20,9 @@ export type ItemMetadata = {
 };
 const metadataColumns = `id, name, slug, locale, quality, tags,
   item_level AS itemLevel, required_level AS requiredLevel, icon`;
+const joinedMetadataColumns = `m.id, m.name, m.slug, m.locale, m.quality, m.tags,
+  m.item_level AS itemLevel, m.required_level AS requiredLevel, m.icon`;
+const placeholders = (ids: number[]) => ids.map(() => '?').join(',');
 
 type Price = {
   minBuyout: number;
@@ -35,28 +41,41 @@ export function websiteData({ MARKET: market, USERS: users }: WebsiteDatabases) 
       .first<ItemMetadata>();
     return row ? { ...row, icon: itemIconUrl(row.icon) } : undefined;
   }
+  async function itemsByIds(itemIds: number[]) {
+    const ids = [...new Set(itemIds)];
+    const result = new Map<number, ItemMetadata>();
+    // Leave room below D1's 100-parameter limit and bound each result set.
+    for (let offset = 0; offset < ids.length; offset += 90) {
+      const chunk = ids.slice(offset, offset + 90);
+      const rows = await market
+        .prepare(`SELECT ${metadataColumns} FROM item_metadata
+        WHERE id IN (${placeholders(chunk)})`)
+        .bind(...chunk)
+        .all<ItemMetadata>();
+      for (const row of rows.results) result.set(row.id, { ...row, icon: itemIconUrl(row.icon) });
+    }
+    return result;
+  }
   async function history(itemId: number, auctionHouseId: number, region: string) {
     const rows = await market
       .prepare(`SELECT p.min_buyout AS minBuyout, p.quantity,
       p.market_value AS marketValue, p.historical, p.num_auctions AS numAuctions,
-      s.fetched_at AS timestamp
+      s.fetched_at AS timestamp, m.icon, m.name, m.quality
       FROM snapshots s JOIN prices p ON p.snapshot_id = s.id
+      LEFT JOIN item_metadata m ON m.id = p.item_id
       WHERE s.status = 'complete' AND s.house_key = ?
       AND p.item_id = ? AND p.pet_species_id = 0
-      AND s.fetched_at > ? ORDER BY s.fetched_at ASC`)
+      AND s.fetched_at > ? ORDER BY s.fetched_at ASC, s.id ASC`)
       .bind(
         `seasonal-${region}-${auctionHouseId}`,
         itemId,
         new Date(Date.now() - 7 * 86400000).toISOString(),
       )
-      .all<Price>();
-    const metadata = await item(itemId);
+      .all<Price & { icon: string | null; name: string | null; quality: number | null }>();
     return rows.results.map((row) => ({
       ...row,
       timestamp: new Date(row.timestamp),
-      icon: metadata?.icon ?? null,
-      name: metadata?.name ?? null,
-      quality: metadata?.quality ?? null,
+      icon: row.icon === null ? null : itemIconUrl(row.icon),
     }));
   }
   async function sectionOwned(userId: string, sectionId: number) {
@@ -77,18 +96,34 @@ export function websiteData({ MARKET: market, USERS: users }: WebsiteDatabases) 
           .first<{ name: string }>()) ?? undefined
       );
     },
-    async search(search: string) {
-      // Escape LIKE metacharacters: the query is literal, case-insensitive text.
+    async search(input: string) {
+      const search = input.trim();
+      if (!search) return [];
+      if (/^\d+$/.test(search) && Number.isSafeInteger(Number(search))) {
+        const exact = await item(Number(search));
+        if (exact) return [exact];
+      }
+      // Prefix LIKE can use the existing NOCASE name index. Only scan for
+      // substring matches when the prefix results do not fill the ten slots.
       const term = search.replace(/[\\%_]/g, '\\$&');
-      return (
+      const prefix = `${term}%`;
+      const matches = (
         await market
           .prepare(`SELECT ${metadataColumns} FROM item_metadata
-        WHERE name LIKE ? ESCAPE '\\' OR id = ?
-        ORDER BY CASE WHEN lower(name) = lower(?) THEN 0 WHEN name LIKE ? ESCAPE '\\' THEN 1 ELSE 2 END,
-        length(name), name, id LIMIT 10`)
-          .bind(`%${term}%`, /^\d+$/.test(search) ? Number(search) : -1, search, `${term}%`)
+        WHERE name LIKE ? ESCAPE '\\' ORDER BY length(name), name, id LIMIT 10`)
+          .bind(prefix)
           .all<ItemMetadata>()
-      ).results.map((row) => ({ ...row, icon: itemIconUrl(row.icon) }));
+      ).results;
+      if (matches.length < 10) {
+        const remaining = await market
+          .prepare(`SELECT ${metadataColumns} FROM item_metadata
+          WHERE name LIKE ? ESCAPE '\\' AND name NOT LIKE ? ESCAPE '\\'
+          ORDER BY length(name), name, id LIMIT ?`)
+          .bind(`%${term}%`, prefix, 10 - matches.length)
+          .all<ItemMetadata>();
+        matches.push(...remaining.results);
+      }
+      return matches.map((row) => ({ ...row, icon: itemIconUrl(row.icon) }));
     },
     async addRecentSearch(userId: string, data: { itemId: number; search: string }) {
       if (!(await item(data.itemId))) throw new Error('Item not found');
@@ -112,30 +147,58 @@ export function websiteData({ MARKET: market, USERS: users }: WebsiteDatabases) 
           .bind(userId)
           .all<{ id: number; itemId: number; search: string }>()
       ).results;
-      const results = await Promise.all(
-        searches.map(async (search) => {
-          const metadata = await item(search.itemId);
-          if (!metadata) return null;
-          const prices = await history(search.itemId, auctionHouseId, region);
-          const current = prices.at(-1);
-          const previous = prices.at(-2);
-          return {
+      if (!searches.length) return [];
+      const ids = searches.map((search) => search.itemId);
+      type RecentRow = ItemMetadata & {
+        minBuyout: number | null;
+        marketValue: number | null;
+        quantity: number | null;
+        timestamp: string | null;
+        priceRank: number | null;
+      };
+      const rows = await market
+        .prepare(`WITH ranked AS (
+        SELECT p.item_id, p.min_buyout AS minBuyout, p.market_value AS marketValue,
+          p.quantity, s.fetched_at AS timestamp,
+          ROW_NUMBER() OVER (PARTITION BY p.item_id ORDER BY s.fetched_at DESC, s.id DESC) AS priceRank
+        FROM snapshots s JOIN prices p ON p.snapshot_id = s.id
+        WHERE s.status = 'complete' AND s.house_key = ? AND s.fetched_at > ?
+          AND p.pet_species_id = 0 AND p.item_id IN (${placeholders(ids)})
+      ) SELECT ${joinedMetadataColumns}, r.minBuyout, r.marketValue, r.quantity, r.timestamp, r.priceRank
+        FROM item_metadata m LEFT JOIN ranked r ON r.item_id = m.id AND r.priceRank <= 2
+        WHERE m.id IN (${placeholders(ids)}) ORDER BY m.id, r.priceRank`)
+        .bind(
+          `seasonal-${region}-${auctionHouseId}`,
+          new Date(Date.now() - 7 * 86400000).toISOString(),
+          ...ids,
+          ...ids,
+        )
+        .all<RecentRow>();
+      const byId = new Map<number, RecentRow[]>();
+      for (const row of rows.results) byId.set(row.id, [...(byId.get(row.id) ?? []), row]);
+      return searches.flatMap((search) => {
+        const rows = byId.get(search.itemId);
+        const metadata = rows?.[0];
+        if (!metadata) return [];
+        const current = rows?.find((row) => row.priceRank === 1);
+        const previous = rows?.find((row) => row.priceRank === 2);
+        return [
+          {
             ...search,
             name: metadata.name,
             slug: metadata.slug,
-            icon: metadata.icon,
+            icon: itemIconUrl(metadata.icon),
             quality: metadata.quality,
             item_id: search.itemId,
-            min_buyout: current?.minBuyout,
-            market_value: current?.marketValue,
-            quantity: current?.quantity,
-            item_timestamp: current?.timestamp.toISOString(),
-            diffMinBuyout: current && previous ? current.minBuyout - previous.minBuyout : 0,
-            diffMarketValue: current && previous ? current.marketValue - previous.marketValue : 0,
-          };
-        }),
-      );
-      return results.filter((result) => result !== null);
+            min_buyout: current?.minBuyout ?? undefined,
+            market_value: current?.marketValue ?? undefined,
+            quantity: current?.quantity ?? undefined,
+            item_timestamp: current?.timestamp ?? undefined,
+            diffMinBuyout: current && previous ? current.minBuyout! - previous.minBuyout! : 0,
+            diffMarketValue: current && previous ? current.marketValue! - previous.marketValue! : 0,
+          },
+        ];
+      });
     },
     async sections(userId: string) {
       const sections = (
@@ -153,32 +216,31 @@ export function websiteData({ MARKET: market, USERS: users }: WebsiteDatabases) 
           .bind(userId)
           .all<{ id: number; sectionId: number; itemId: number; order: number }>()
       ).results;
-      const metadata = new Map(
-        await Promise.all(
-          [...new Set(entries.map((entry) => entry.itemId))].map(
-            async (id) => [id, await item(id)] as const,
-          ),
-        ),
-      );
+      const metadata = await itemsByIds(entries.map((entry) => entry.itemId));
+      const bySection = new Map<number, typeof entries>();
+      for (const entry of entries) {
+        const group = bySection.get(entry.sectionId) ?? [];
+        group.push(entry);
+        bySection.set(entry.sectionId, group);
+      }
       return sections.map((section) => ({
         ...section,
-        items: entries
-          .filter(
-            (entry) =>
-              entry.sectionId === section.id &&
-              metadata.has(entry.itemId) &&
-              metadata.get(entry.itemId),
-          )
-          .map((entry) => ({
-            dashboardSectionId: section.id,
-            dashboardSectionItemId: entry.id,
-            dashboardSectionItem: {
-              id: entry.id,
-              itemId: entry.itemId,
-              order: entry.order,
-              item: metadata.get(entry.itemId)!,
+        items: (bySection.get(section.id) ?? []).flatMap((entry) => {
+          const item = metadata.get(entry.itemId);
+          if (!item) return [];
+          return [
+            {
+              dashboardSectionId: section.id,
+              dashboardSectionItemId: entry.id,
+              dashboardSectionItem: {
+                id: entry.id,
+                itemId: entry.itemId,
+                order: entry.order,
+                item,
+              },
             },
-          })),
+          ];
+        }),
       }));
     },
     async createSection(userId: string, name: string) {

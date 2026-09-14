@@ -22,7 +22,8 @@
     "postinstall": "wxt prepare",
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
-    "test:dev": "node --experimental-strip-types --test tests/dev-server.test.mjs"
+    "test:dev": "node --experimental-strip-types --test tests/dev-server.test.mjs",
+    "test:browser": "node --test tests/rendering.test.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

@@ -1,9 +1,9 @@
 import * as i from 'types';
 import { storage } from 'wxt/storage';
+import { itemCache } from '@/utils/storage';
 
 export default defineBackground(() => {
-  // Reset storage
-  // storage.removeItem('local:items');
+  void itemCache.prune().catch(() => undefined);
 
   async function init() {
     const items: i.ItemsData = {};

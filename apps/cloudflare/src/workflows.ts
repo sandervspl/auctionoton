@@ -1,4 +1,4 @@
-import { WorkflowEntrypoint } from 'cloudflare:workers';
+import { WorkflowEntrypoint, exports } from 'cloudflare:workers';
 import type { WorkflowEvent, WorkflowStep } from 'cloudflare:workers';
 import { parseJob, snapshotId } from './contracts';
 import { discoverHouseJobs, enabledHouseJobs } from './discovery';
@@ -47,11 +47,29 @@ export class AuctionImport extends WorkflowEntrypoint<Env, AuctionJob> {
   async run(event: WorkflowEvent<AuctionJob>, step: WorkflowStep) {
     const job = parseJob(event.payload);
     const id = snapshotId(job);
+    const invalidateCache = () =>
+      step.do('invalidate-price-cache', retry, async () => {
+        const response = await exports.default.fetch(
+          new Request('https://cache.internal/admin/cache/market', {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${this.env.ADMIN_TOKEN}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(job),
+          }),
+        );
+        await response.body?.cancel();
+        if (!response.ok) throw new Error('Market cache invalidation failed');
+      });
     try {
       const needed = await step.do('begin-snapshot', retry, () =>
         beginSnapshot(this.env.MARKET, job),
       );
-      if (!needed) return { id, alreadyComplete: true };
+      if (!needed) {
+        await invalidateCache();
+        return { id, alreadyComplete: true };
+      }
       const archive = await step.do(
         'archive-provider-response',
         providerRetry(this.env, job.version),
@@ -63,9 +81,11 @@ export class AuctionImport extends WorkflowEntrypoint<Env, AuctionJob> {
       for (let index = 0; index < manifest.chunks; index++) {
         await step.do(`write-chunk-${index}`, retry, () => writeChunk(this.env, job, index));
       }
-      return await step.do('publish-snapshot', retry, () =>
+      const published = await step.do('publish-snapshot', retry, () =>
         publishSnapshot(this.env.MARKET, job, manifest),
       );
+      await invalidateCache();
+      return published;
     } catch (error) {
       await step.do('record-failure', retry, async () => {
         const message = error instanceof Error ? error.message.slice(0, 500) : 'Import failed';

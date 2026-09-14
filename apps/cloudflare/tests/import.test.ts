@@ -124,6 +124,11 @@ describe('atomic daily snapshots', () => {
     await workflow.modify(async (modifier) => {
       await modifier.disableRetryDelays();
       await modifier.mockStepError({ name: 'write-chunk-0' }, new Error('Transient D1 failure'), 1);
+      await modifier.mockStepError(
+        { name: 'invalidate-price-cache' },
+        new Error('Transient cache failure'),
+        1,
+      );
     });
     await env.AUCTION_IMPORT.createBatch([{ id, params: retryJob }]);
     await workflow.waitForStatus('complete');

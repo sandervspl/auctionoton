@@ -25,7 +25,7 @@ test(
         outDir: '.output/dev-test',
         hooks: {
           'vite:devServer:extendConfig': (config) => {
-            for (const path of ['/realms/', '/item/']) {
+            for (const path of ['/realms/', '/item/', '/items/']) {
               const proxy = config.server?.proxy?.[path];
               assert.ok(proxy && typeof proxy === 'object', `Missing dev proxy for ${path}`);
               assert.equal(proxy.target, apiOrigin);
@@ -40,6 +40,7 @@ test(
         '/realms/eu/seasonal',
         '/realms/us/classic',
         '/item/2589/ah/509/seasonal',
+        '/items/ah/509/seasonal?region=eu&ids=2589,2592',
       ]) {
         const response = await fetch(`${server.origin}${path}`);
         assert.equal(response.status, 200);

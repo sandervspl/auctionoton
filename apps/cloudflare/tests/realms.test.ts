@@ -5,6 +5,7 @@ import worker from '../src/index';
 import { versions, providerVersions } from '../src/contracts';
 import { parseRealmCatalog, realmCatalogLifetime, selectRealmRegion } from '../src/realms';
 import { discoverHouseJobs } from '../src/discovery';
+import { PUBLIC_CACHE_CONTROL } from '../src/public-cache';
 
 const realm = (name: string, realmId: number) => ({
   name,
@@ -66,6 +67,8 @@ it('serves sorted realms and provider auction-house IDs for every region/version
       );
       expect(response.status).toBe(200);
       expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*');
+      expect(response.headers.get('Cache-Control')).toBe(PUBLIC_CACHE_CONTROL);
+      expect(response.headers.get('Cache-Tag')).toBe('realm-catalog');
       expect(await response.json()).toEqual([
         expect.objectContaining({
           name: `${region} Alpha`,

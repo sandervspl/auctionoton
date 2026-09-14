@@ -57,6 +57,7 @@ export const DAILY_CRON = '0 4 * * *';
 
 export const Backend = Cloudflare.Worker('Backend', {
   name: resourceName('backend'),
+  cache: { enabled: true },
   main: '../../apps/cloudflare/src/index.ts',
   compatibility: { date: '2026-09-13', flags: ['nodejs_compat'] },
   observability,

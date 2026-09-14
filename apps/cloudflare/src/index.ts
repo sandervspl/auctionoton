@@ -4,17 +4,24 @@ import { createAuth } from './auth';
 import { houseKey, parseJob, snapshotId, versions } from './contracts';
 import type { AuctionJob } from './contracts';
 import type { Env } from './env';
-import { websiteData } from './website-data';
+import { publicItems } from './public-items';
 import { MAINTENANCE_CRON } from './retention';
 import { enabledHouseJobs } from './discovery';
 import { getRealms } from './realms';
 import type { Region, Version } from './contracts';
+import { PUBLIC_CACHE_CONTROL, purgeMarketCache } from './public-cache';
 export { ProviderCoordinator } from './provider';
 export { AuctionImport, DailyDiscovery, MarketMaintenance } from './workflows';
 
 const app = new Hono<{ Bindings: Env }>();
+app.use('*', async (c, next) => {
+  // Native Workers Cache otherwise applies heuristic caching to some statuses.
+  c.header('Cache-Control', 'no-store');
+  await next();
+});
 app.get('/health', (c) => c.text('OK'));
 app.use('/item/*', cors({ origin: '*', allowMethods: ['GET', 'OPTIONS'] }));
+app.use('/items/*', cors({ origin: '*', allowMethods: ['GET', 'OPTIONS'] }));
 app.use('/realms/*', cors({ origin: '*', allowMethods: ['GET', 'OPTIONS'] }));
 app.get('/realms/:region/:version', async (c) => {
   const region = c.req.param('region');
@@ -24,7 +31,8 @@ app.get('/realms/:region/:version', async (c) => {
     return c.json({ error: 'Invalid region or game version' }, 400);
   try {
     const realms = await getRealms(c.env, region as Region, version as Version);
-    c.header('Cache-Control', 'public, max-age=300');
+    c.header('Cache-Control', PUBLIC_CACHE_CONTROL);
+    c.header('Cache-Tag', 'realm-catalog');
     return c.json(realms);
   } catch (error) {
     console.error('Realm catalog unavailable', { region, version, error });
@@ -36,6 +44,16 @@ app.use('/admin/*', async (c, next) => {
   if (c.req.header('Authorization') !== `Bearer ${c.env.ADMIN_TOKEN}`)
     return c.json({ error: 'Unauthorized' }, 401);
   await next();
+});
+app.post('/admin/cache/market', async (c) => {
+  let job: AuctionJob;
+  try {
+    job = parseJob(await c.req.json());
+  } catch {
+    return c.json({ error: 'Invalid market' }, 400);
+  }
+  // Purging here targets the default API entrypoint's cache, not the Workflow's.
+  return c.json(await purgeMarketCache((c.executionCtx as ExecutionContext).cache, job));
 });
 app.post('/admin/daily', async (c) => {
   const day = new Date().toISOString().slice(0, 10);
@@ -110,72 +128,9 @@ app.get('/api/session', async (c) => {
     ? c.json({ user: { id: session.user.id, name: session.user.name, email: session.user.email } })
     : c.json({ error: 'Unauthorized' }, 401);
 });
-app.get('/item/:id/ah/:ah_id/:version', async (c) => {
-  const itemId = Number(c.req.param('id'));
-  const ah = Number(c.req.param('ah_id'));
-  const version = c.req.param('version');
-  if (
-    !Number.isSafeInteger(itemId) ||
-    itemId <= 0 ||
-    !Number.isSafeInteger(ah) ||
-    ah <= 0 ||
-    !versions.includes(version as (typeof versions)[number])
-  )
-    return c.json({ error: true, reason: 'Invalid item query' }, 400);
-  const rows =
-    await c.env.MARKET.prepare(`SELECT p.*, s.fetched_at, s.provider_modified_at, s.region FROM published_houses h
-    JOIN snapshots s ON s.id = h.snapshot_id AND s.status = 'complete'
-    JOIN prices p ON p.snapshot_id = s.id
-    WHERE s.auction_house_id = ? AND s.version = ? AND p.item_id = ? AND p.pet_species_id = 0 LIMIT 2`)
-      .bind(ah, version, itemId)
-      .all<{
-        item_id: number;
-        min_buyout: number;
-        quantity: number;
-        market_value: number;
-        historical: number;
-        num_auctions: number;
-        fetched_at: string;
-        provider_modified_at: string | null;
-        region: string;
-      }>();
-  if (rows.results.length > 1)
-    return c.json({ error: true, reason: 'Ambiguous auction house region' }, 409);
-  const price = rows.results[0];
-  if (!price) return c.json({ error: true, reason: 'Item not found' });
-  const metadata = await websiteData(c.env).item(itemId);
-  c.header('Cache-Control', 'public, max-age=300');
-  c.header(
-    'X-Auctionoton-Stale',
-    String(Date.now() - Date.parse(price.fetched_at) > 26 * 60 * 60_000),
-  );
-  return c.json({
-    server: '',
-    itemId,
-    name: metadata?.name ?? `Item ${itemId}`,
-    sellPrice: 0,
-    vendorPrice: 0,
-    tooltip: [{ label: metadata?.name ?? `Item ${itemId}` }],
-    itemLink: '',
-    uniqueName: metadata?.slug ?? `item-${itemId}`,
-    stats: {
-      lastUpdated: price.fetched_at,
-      current: {
-        numAuctions: price.num_auctions,
-        marketValue: price.market_value,
-        historicalValue: price.historical,
-        minBuyout: price.min_buyout,
-        quantity: price.quantity,
-      },
-      previous: null,
-    },
-    tags: [],
-    icon: metadata?.icon ?? null,
-    itemLevel: metadata?.itemLevel ?? null,
-    requiredLevel: metadata?.requiredLevel ?? null,
-  });
-});
+app.route('/', publicItems);
 app.onError((error, c) => {
+  c.header('Cache-Control', 'no-store');
   console.error('Request failed', { path: c.req.path, error: error.name });
   return c.json({ error: true, reason: 'Service unavailable' }, 503);
 });

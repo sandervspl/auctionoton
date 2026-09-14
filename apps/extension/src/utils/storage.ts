@@ -1,27 +1,7 @@
-import * as i from 'types';
-import { storage } from 'wxt/storage';
-import { produce } from 'immer';
+import { createItemCache } from './itemCache';
 
-export async function getItemsFromStorage() {
-  const curItems = (await storage.getItem<i.ItemsData>('local:items')) ?? ({} as i.ItemsData);
-  return curItems;
-}
-
-export async function getItemFromStorage(auctionHouseId: number, itemId: number) {
-  const curItems = (await storage.getItem<i.ItemsData>('local:items')) ?? ({} as i.ItemsData);
-  const itemFromStorage = curItems[`${auctionHouseId}:${itemId}`];
-
-  return itemFromStorage as i.CachedItemDataClassic | undefined;
-}
-
-export async function addItemToStorage(
-  auctionHouseId: number,
-  itemId: number,
-  item: i.CachedItemDataClassic,
-) {
-  const curItems = await getItemsFromStorage();
-  const nextItems = produce(curItems, (draft) => {
-    draft[`${auctionHouseId}:${itemId}`] = item;
-  });
-  await storage.setItem('local:items', nextItems);
-}
+export const itemCache = createItemCache({
+  get: (key) => browser.storage.local.get(key),
+  set: (values) => browser.storage.local.set(values),
+  remove: (keys) => browser.storage.local.remove(keys),
+});

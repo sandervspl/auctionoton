@@ -8,6 +8,7 @@ import ItemsPage from './routes/ItemsPage';
 import HoverTooltip from './HoverTooltip';
 import { uiState } from './state';
 import { Providers } from './Providers';
+import { syncStorageChanges } from '@/utils/storageChanges';
 
 class AppContainer extends React.Component {
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
@@ -25,9 +26,12 @@ const App: React.FC = () => {
   const isSpellPage = window.location.pathname.includes('spell=');
   const isItemsPage = window.location.pathname.includes('/items/');
 
-  const onStorageChange = React.useCallback(() => {
-    queryClient.invalidateQueries({ refetchType: 'all' });
-  }, [queryClient.invalidateQueries]);
+  const onStorageChange = React.useCallback(
+    (changes: Record<string, { newValue?: unknown }>, area: string) => {
+      syncStorageChanges(queryClient, changes, area);
+    },
+    [queryClient],
+  );
 
   React.useEffect(() => {
     if (!browser.storage.onChanged.hasListener(onStorageChange)) {

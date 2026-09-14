@@ -4,4 +4,5 @@ export const apiOrigin = 'https://auctionoton-staging-backend.sandervispoel.work
 export const apiProxy = {
   '/realms/': { target: apiOrigin, changeOrigin: true },
   '/item/': { target: apiOrigin, changeOrigin: true },
+  '/items/': { target: apiOrigin, changeOrigin: true },
 };
