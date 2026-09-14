@@ -5,6 +5,16 @@ import { itemCache } from '@/utils/storage';
 export default defineBackground(() => {
   void itemCache.prune().catch(() => undefined);
 
+  // Open private extension pages from the background, not the host web page.
+  browser.runtime.onMessage.addListener((message) => {
+    if (message?.type !== 'open-realm-settings' || typeof message.version !== 'string') return;
+
+    const url = new URL(browser.runtime.getURL('/popup.html'));
+    url.searchParams.set('large', 'true');
+    url.searchParams.set('version', message.version);
+    return browser.tabs.create({ url: url.href }).then(() => undefined);
+  });
+
   async function init() {
     const items: i.ItemsData = {};
     const user: Partial<i.UserData> = {

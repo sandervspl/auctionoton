@@ -11,7 +11,7 @@ export const ChangeRealmButton: React.FC = () => {
       type="button"
       className="btn btn-small btn !auc-flex auc-items-center"
       onClick={() =>
-        window.open(`${chrome.runtime.getURL('popup.html')}?large=true&version=${activeVersion}`)
+        browser.runtime.sendMessage({ type: 'open-realm-settings', version: activeVersion })
       }
       title="Change server for Auctionoton"
     >
