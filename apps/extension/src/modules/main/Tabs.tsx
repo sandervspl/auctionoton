@@ -9,25 +9,24 @@ export const Tabs: React.FC<Props> = (props) => {
   const [activeTabIndex, setActiveTabIndex] = React.useState(0);
 
   return (
-    <div className="tabs-container auc-mb-2">
-      <ul className="tabs">
+    <div className="tabs-container !auc-mx-0 auc-mb-2 !auc-w-fit auc-max-w-full">
+      <div className="tabs">
         {props.tabs.map((tab, i) => (
-          <li
+          <button
             key={tab}
+            type="button"
+            className="!auc-px-2 !auc-py-1 !auc-text-xs"
             data-selected={activeTabIndex === i}
-            data-first-in-row={i === 0}
+            aria-pressed={activeTabIndex === i}
             onClick={() => {
               setActiveTabIndex(i);
               props.onTabChange?.(i);
             }}
           >
-            {/* biome-ignore lint/a11y/useValidAnchor: Wowhead uses this markup style */}
-            <a rel="np">
-              <div>{tab}</div>
-            </a>
-          </li>
+            <div>{tab}</div>
+          </button>
         ))}
-      </ul>
+      </div>
     </div>
   );
 };
