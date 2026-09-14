@@ -22,7 +22,6 @@ import {
   Select,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import useRealmsList from '@/hooks/useRealmsList';
 import useStorageQuery from '@/hooks/useStorageQuery';
 import {
@@ -65,7 +64,6 @@ export const RealmForm: React.FC = () => {
   const watchRealm = form.watch('realm');
   const realms = useRealmsList(watchRegion, watchVersion);
   const watchFaction = form.watch('faction');
-  const versionTab = watchVersion === 'classic' ? 'classic' : 'era';
   const hydrated = React.useRef(false);
   const selectedRealm = realms.data?.find((realm) => realm.name === watchRealm);
   const selectedHouse = selectedRealm?.auctionHouses.find((house) => house.type === watchFaction);
@@ -172,22 +170,6 @@ export const RealmForm: React.FC = () => {
           </p>
         </div>
         <div className="auc-space-y-6 auc-w-full">
-          <Tabs
-            defaultValue="classic"
-            className="auc-w-full"
-            value={versionTab}
-            onValueChange={(value) => changeVersion(value === 'classic' ? 'classic' : 'seasonal')}
-          >
-            <TabsList className="auc-w-full">
-              <TabsTrigger value="classic" className="auc-w-full">
-                Classic
-              </TabsTrigger>
-              <TabsTrigger value="era" className="auc-w-full">
-                Era
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-
           <div>
             <FormField
               control={form.control}
@@ -198,7 +180,6 @@ export const RealmForm: React.FC = () => {
                   <Select
                     onValueChange={(value) => changeVersion(value as i.GameVersion)}
                     value={field.value}
-                    disabled={versionTab === 'classic'}
                   >
                     <FormControl>
                       <SelectTrigger id="version">
@@ -206,9 +187,7 @@ export const RealmForm: React.FC = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent position="item-aligned">
-                      {versionTab === 'classic' && (
-                        <SelectItem value="classic">Classic (progression)</SelectItem>
-                      )}
+                      <SelectItem value="classic">Classic (progression)</SelectItem>
                       <SelectItem value="era">Era</SelectItem>
                       <SelectItem value="hardcore">Hardcore</SelectItem>
                       <SelectItem value="seasonal">Season of Discovery</SelectItem>
