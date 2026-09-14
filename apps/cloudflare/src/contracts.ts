@@ -6,6 +6,7 @@ export type AuctionJob = {
   version: Version;
   auctionHouseId: number;
   day: string;
+  providerModifiedAt?: string | null;
 };
 export type Price = {
   auctionHouseId: number;
@@ -54,11 +55,20 @@ export function parseJob(value: unknown): AuctionJob {
     new Date(job.day).toISOString().slice(0, 10) !== job.day
   )
     throw new Error('Invalid import job');
+  if (
+    job.providerModifiedAt != null &&
+    (typeof job.providerModifiedAt !== 'string' ||
+      !Number.isFinite(Date.parse(job.providerModifiedAt)))
+  )
+    throw new Error('Invalid provider timestamp');
   return {
     region: job.region,
     version: job.version,
     auctionHouseId: job.auctionHouseId,
     day: job.day,
+    ...(job.providerModifiedAt != null
+      ? { providerModifiedAt: new Date(job.providerModifiedAt).toISOString() }
+      : {}),
   };
 }
 export const houseKey = (job: AuctionJob) => `${job.version}-${job.region}-${job.auctionHouseId}`;

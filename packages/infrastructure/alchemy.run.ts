@@ -5,6 +5,7 @@ import * as Config from 'effect/Config';
 import * as Effect from 'effect/Effect';
 import type { AuctionJob } from '../../apps/cloudflare/src/contracts';
 import type { ProviderCoordinator } from '../../apps/cloudflare/src/provider';
+import { MAINTENANCE_CRON } from '../../apps/cloudflare/src/retention';
 
 // The existing Node build remains available during the compatibility trial.
 process.env.AUCTIONOTON_CLOUDFLARE = '1';
@@ -12,16 +13,28 @@ process.env.AUCTIONOTON_CLOUDFLARE = '1';
 const resourceName = (suffix: string) =>
   Effect.map(Alchemy.Stack, (stack) => `auctionoton-${stack.stage}-${suffix}`);
 
-const market = Cloudflare.D1.Database('Market', {
-  name: resourceName('market'),
-  primaryLocationHint: 'weur',
-  migrations: { dir: '../../apps/cloudflare/migrations/market' },
-}).pipe(RemovalPolicy.retain());
-const users = Cloudflare.D1.Database('Users', {
-  name: resourceName('users'),
-  primaryLocationHint: 'weur',
-  migrations: { dir: '../../apps/cloudflare/migrations/auth' },
-}).pipe(RemovalPolicy.retain());
+// Resolve names before registering D1 props: this Alchemy version skips its
+// migration-file diff when a prop still contains an Effect at plan time.
+const market = Cloudflare.D1.Database(
+  'Market',
+  Effect.gen(function* () {
+    return {
+      name: yield* resourceName('market'),
+      primaryLocationHint: 'weur' as const,
+      migrations: { dir: '../../apps/cloudflare/migrations/market' },
+    };
+  }),
+).pipe(RemovalPolicy.retain());
+const users = Cloudflare.D1.Database(
+  'Users',
+  Effect.gen(function* () {
+    return {
+      name: yield* resourceName('users'),
+      primaryLocationHint: 'weur' as const,
+      migrations: { dir: '../../apps/cloudflare/migrations/auth' },
+    };
+  }),
+).pipe(RemovalPolicy.retain());
 const snapshots = Cloudflare.R2.Bucket('Snapshots', {
   name: resourceName('snapshots'),
   lifecycleRules: [
@@ -48,7 +61,7 @@ export const Backend = Cloudflare.Worker('Backend', {
   compatibility: { date: '2026-09-13', flags: ['nodejs_compat'] },
   observability,
   // Enable only after the representative import and production sizing gates pass.
-  crons: [],
+  crons: [MAINTENANCE_CRON],
   env: {
     MARKET: market,
     USERS: users,
@@ -58,6 +71,7 @@ export const Backend = Cloudflare.Worker('Backend', {
     PROVIDER: Cloudflare.DurableObject<ProviderCoordinator>('ProviderCoordinator'),
     AUCTION_IMPORT: Cloudflare.Workflow<AuctionJob>('AuctionImport'),
     DAILY_DISCOVERY: Cloudflare.Workflow<{ day: string }>('DailyDiscovery'),
+    MARKET_MAINTENANCE: Cloudflare.Workflow<{ now: string }>('MarketMaintenance'),
     BASE_URL: Cloudflare.Worker.URL,
     ADMIN_TOKEN: Config.redacted('CF_TRIAL_ADMIN_TOKEN'),
     BETTER_AUTH_SECRET: Config.redacted('CF_TRIAL_AUTH_SECRET'),
@@ -70,6 +84,8 @@ export const Backend = Cloudflare.Worker('Backend', {
     TRIAL_REGION: 'eu',
     TRIAL_VERSION: 'seasonal',
     DAILY_ENABLED: 'false' as string,
+    // Empty uses the trial house; expand the allowlist after representative sizing.
+    ENABLED_HOUSES: '' as string,
   },
 });
 export type BackendEnv = Cloudflare.InferEnv<typeof Backend>;
@@ -105,6 +121,7 @@ export default Alchemy.Stack(
           '*.json',
           '../../packages/typescript-config/**',
           '../../apps/cloudflare/src/website-data.ts',
+          '../../apps/cloudflare/src/item-icons.ts',
         ],
         exclude: ['src/styled-system/**', 'src/routeTree.gen.ts', '**/node_modules/**'],
         lockfile: true,

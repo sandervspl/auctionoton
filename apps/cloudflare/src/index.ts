@@ -1,11 +1,14 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { createAuth } from './auth';
-import { parseJob, snapshotId, versions } from './contracts';
+import { houseKey, parseJob, snapshotId, versions } from './contracts';
 import type { AuctionJob } from './contracts';
 import type { Env } from './env';
+import { websiteData } from './website-data';
+import { MAINTENANCE_CRON } from './retention';
+import { enabledHouseJobs } from './discovery';
 export { ProviderCoordinator } from './provider';
-export { AuctionImport, DailyDiscovery } from './workflows';
+export { AuctionImport, DailyDiscovery, MarketMaintenance } from './workflows';
 
 const app = new Hono<{ Bindings: Env }>();
 app.get('/health', (c) => c.text('OK'));
@@ -22,6 +25,12 @@ app.post('/admin/daily', async (c) => {
   await c.env.DAILY_DISCOVERY.createBatch([{ id, params: { day } }]);
   return c.json({ id }, 202);
 });
+app.post('/admin/maintenance', async (c) => {
+  const now = new Date().toISOString();
+  const id = `maintenance-${now.slice(0, 10)}`;
+  await c.env.MARKET_MAINTENANCE.createBatch([{ id, params: { now } }]);
+  return c.json({ id }, 202);
+});
 app.post('/admin/import', async (c) => {
   let job: AuctionJob;
   try {
@@ -29,12 +38,8 @@ app.post('/admin/import', async (c) => {
   } catch {
     return c.json({ error: 'Invalid import job' }, 400);
   }
-  if (
-    job.auctionHouseId !== Number(c.env.TRIAL_HOUSE_ID) ||
-    job.region !== c.env.TRIAL_REGION ||
-    job.version !== c.env.TRIAL_VERSION
-  ) {
-    return c.json({ error: 'Only the configured trial house is enabled' }, 400);
+  if (!enabledHouseJobs(c.env, job.day).some((target) => houseKey(target) === houseKey(job))) {
+    return c.json({ error: 'Only configured auction houses are enabled' }, 400);
   }
   await c.env.AUCTION_JOBS.send(job);
   return c.json({ id: snapshotId(job) }, 202);
@@ -43,7 +48,14 @@ app.get('/admin/status', async (c) => {
   const snapshots =
     await c.env.MARKET.prepare(`SELECT s.*, (SELECT COUNT(*) FROM prices p WHERE p.snapshot_id = s.id) AS written_rows
     FROM snapshots s ORDER BY day DESC LIMIT 30`).all();
-  return c.json({ dailyEnabled: c.env.DAILY_ENABLED === 'true', snapshots: snapshots.results });
+  return c.json({
+    dailyEnabled: c.env.DAILY_ENABLED === 'true',
+    snapshots: snapshots.results.map((row) => ({
+      ...row,
+      storage_id: row.id,
+      id: row.snapshot_key,
+    })),
+  });
 });
 app.get('/admin/workflow/:id', async (c) => {
   const instance = await c.env.AUCTION_IMPORT.get(c.req.param('id'));
@@ -113,6 +125,7 @@ app.get('/item/:id/ah/:ah_id/:version', async (c) => {
     return c.json({ error: true, reason: 'Ambiguous auction house region' }, 409);
   const price = rows.results[0];
   if (!price) return c.json({ error: true, reason: 'Item not found' });
+  const metadata = await websiteData(c.env).item(itemId);
   c.header('Cache-Control', 'public, max-age=300');
   c.header(
     'X-Auctionoton-Stale',
@@ -121,12 +134,12 @@ app.get('/item/:id/ah/:ah_id/:version', async (c) => {
   return c.json({
     server: '',
     itemId,
-    name: `Item ${itemId}`,
+    name: metadata?.name ?? `Item ${itemId}`,
     sellPrice: 0,
     vendorPrice: 0,
-    tooltip: [{ label: `Item ${itemId}` }],
+    tooltip: [{ label: metadata?.name ?? `Item ${itemId}` }],
     itemLink: '',
-    uniqueName: `item-${itemId}`,
+    uniqueName: metadata?.slug ?? `item-${itemId}`,
     stats: {
       lastUpdated: price.fetched_at,
       current: {
@@ -139,9 +152,9 @@ app.get('/item/:id/ah/:ah_id/:version', async (c) => {
       previous: null,
     },
     tags: [],
-    icon: null,
-    itemLevel: null,
-    requiredLevel: null,
+    icon: metadata?.icon ?? null,
+    itemLevel: metadata?.itemLevel ?? null,
+    requiredLevel: metadata?.requiredLevel ?? null,
   });
 });
 app.onError((error, c) => {
@@ -152,6 +165,13 @@ app.onError((error, c) => {
 export default {
   fetch: app.fetch,
   async scheduled(event, env) {
+    if (event.cron === MAINTENANCE_CRON) {
+      const now = new Date(event.scheduledTime).toISOString();
+      await env.MARKET_MAINTENANCE.createBatch([
+        { id: `maintenance-${now.slice(0, 10)}`, params: { now } },
+      ]);
+      return;
+    }
     if (env.DAILY_ENABLED !== 'true') return;
     const day = new Date(event.scheduledTime).toISOString().slice(0, 10);
     await env.DAILY_DISCOVERY.createBatch([{ id: `daily-${day}`, params: { day } }]);

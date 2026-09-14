@@ -9,6 +9,7 @@ declare global {
       mainModule: typeof import('../src/index');
     }
     interface Env extends BackendEnv {
+      MIGRATION_TEST: D1Database;
       MARKET_MIGRATIONS: Parameters<typeof applyD1Migrations>[1];
       AUTH_MIGRATIONS: Parameters<typeof applyD1Migrations>[1];
     }

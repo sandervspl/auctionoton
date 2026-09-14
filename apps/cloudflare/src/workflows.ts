@@ -1,10 +1,12 @@
 import { WorkflowEntrypoint } from 'cloudflare:workers';
 import type { WorkflowEvent, WorkflowStep } from 'cloudflare:workers';
-import { parseJob, providerVersions, snapshotId } from './contracts';
-import type { AuctionJob, ProviderRegion, Version } from './contracts';
+import { parseJob, snapshotId } from './contracts';
+import { discoverHouseJobs, enabledHouseJobs } from './discovery';
+import type { AuctionJob, ProviderRegion } from './contracts';
 import type { Env } from './env';
 import { readBoundedText } from './http';
 import { providerFetch, providerRetry } from './provider';
+import { cleanArchiveBatch, prunePriceBatch } from './retention';
 import {
   archiveHouse,
   beginSnapshot,
@@ -17,6 +19,29 @@ const retry = {
   retries: { limit: 4, delay: '30 seconds', backoff: 'exponential' },
   timeout: '5 minutes',
 } as const;
+
+export class MarketMaintenance extends WorkflowEntrypoint<Env, { now: string }> {
+  async run(event: WorkflowEvent<{ now: string }>, step: WorkflowStep) {
+    const now = new Date(event.payload.now).toISOString();
+    let rows = 0;
+    let objects = 0;
+    for (let index = 0; ; index++) {
+      const result = await step.do(`prune-prices-${index}`, retry, () =>
+        prunePriceBatch(this.env.MARKET, now),
+      );
+      rows += result.rows;
+      if (result.done) break;
+    }
+    for (let index = 0; ; index++) {
+      const result = await step.do(`clean-archives-${index}`, retry, () =>
+        cleanArchiveBatch(this.env, now),
+      );
+      objects += result.objects;
+      if (result.done) break;
+    }
+    return { rows, objects, now };
+  }
+}
 
 export class AuctionImport extends WorkflowEntrypoint<Env, AuctionJob> {
   async run(event: WorkflowEvent<AuctionJob>, step: WorkflowStep) {
@@ -45,7 +70,7 @@ export class AuctionImport extends WorkflowEntrypoint<Env, AuctionJob> {
       await step.do('record-failure', retry, async () => {
         const message = error instanceof Error ? error.message.slice(0, 500) : 'Import failed';
         await this.env.MARKET.prepare(
-          "UPDATE snapshots SET status = 'failed', error = ? WHERE id = ? AND status != 'complete'",
+          "UPDATE snapshots SET status = 'failed', error = ? WHERE snapshot_key = ? AND status != 'complete'",
         )
           .bind(message, id)
           .run();
@@ -59,14 +84,10 @@ export class AuctionImport extends WorkflowEntrypoint<Env, AuctionJob> {
 
 export class DailyDiscovery extends WorkflowEntrypoint<Env, { day: string }> {
   async run(event: WorkflowEvent<{ day: string }>, step: WorkflowStep) {
-    const job = parseJob({
-      day: event.payload.day,
-      region: this.env.TRIAL_REGION,
-      version: this.env.TRIAL_VERSION,
-      auctionHouseId: Number(this.env.TRIAL_HOUSE_ID),
-    });
+    const selected = enabledHouseJobs(this.env, event.payload.day);
+    const job = selected[0]!;
     const catalogKey = await step.do(
-      'discover-trial-house',
+      'discover-houses',
       providerRetry(this.env, job.version),
       async () => {
         const response = await providerFetch(
@@ -76,18 +97,7 @@ export class DailyDiscovery extends WorkflowEntrypoint<Env, { day: string }> {
         );
         const body = await readBoundedText(response, 2 * 1024 * 1024);
         const catalog = JSON.parse(body) as { items: ProviderRegion[] };
-        const region = catalog.items.find(
-          (item) =>
-            item.regionPrefix === job.region &&
-            item.gameVersion === providerVersions[job.version as Version],
-        );
-        if (
-          !region?.realms.some((realm) =>
-            realm.auctionHouses.some((house) => house.auctionHouseId === job.auctionHouseId),
-          )
-        ) {
-          throw new Error('Configured trial auction house is absent from the provider catalog');
-        }
+        discoverHouseJobs(catalog, selected);
         const key = `catalog/${job.day}.json`;
         await this.env.SNAPSHOTS.put(key, body, {
           httpMetadata: { contentType: 'application/json' },
@@ -95,7 +105,25 @@ export class DailyDiscovery extends WorkflowEntrypoint<Env, { day: string }> {
         return key;
       },
     );
-    await step.do('enqueue-trial-house', retry, () => this.env.AUCTION_JOBS.send(job));
-    return { day: job.day, expectedHouses: 1, catalogKey, snapshotId: snapshotId(job) };
+    const jobs = await step.do('read-selected-houses', retry, async () => {
+      const object = await this.env.SNAPSHOTS.get(catalogKey);
+      if (!object || object.size > 2 * 1024 * 1024)
+        throw new Error('Missing or oversized realm catalog');
+      return discoverHouseJobs(await object.json<{ items: ProviderRegion[] }>(), selected);
+    });
+    for (let offset = 0; offset < jobs.length; offset += 100) {
+      await step.do(`enqueue-houses-${offset}`, retry, () =>
+        this.env.AUCTION_JOBS.sendBatch(
+          jobs.slice(offset, offset + 100).map((job) => ({ body: job })),
+        ),
+      );
+    }
+    return {
+      day: job.day,
+      expectedHouses: jobs.length,
+      catalogKey,
+      snapshotId: jobs.length === 1 ? snapshotId(jobs[0]!) : undefined,
+      snapshotIds: jobs.map(snapshotId),
+    };
   }
 }

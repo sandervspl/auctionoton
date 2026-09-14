@@ -1,4 +1,5 @@
 import type { D1Database } from '@cloudflare/workers-types';
+import { itemIconUrl } from './item-icons';
 
 // Shared by the website's authenticated server functions and workerd integration tests.
 // Callers must derive userId from a verified Access session, never from browser input.
@@ -28,12 +29,11 @@ type Price = {
 
 export function websiteData({ MARKET: market, USERS: users }: WebsiteDatabases) {
   async function item(id: number) {
-    return (
-      (await market
-        .prepare(`SELECT ${metadataColumns} FROM item_metadata WHERE id = ?`)
-        .bind(id)
-        .first<ItemMetadata>()) ?? undefined
-    );
+    const row = await market
+      .prepare(`SELECT ${metadataColumns} FROM item_metadata WHERE id = ?`)
+      .bind(id)
+      .first<ItemMetadata>();
+    return row ? { ...row, icon: itemIconUrl(row.icon) } : undefined;
   }
   async function history(itemId: number, auctionHouseId: number, region: string) {
     const rows = await market
@@ -41,10 +41,14 @@ export function websiteData({ MARKET: market, USERS: users }: WebsiteDatabases) 
       p.market_value AS marketValue, p.historical, p.num_auctions AS numAuctions,
       s.fetched_at AS timestamp
       FROM snapshots s JOIN prices p ON p.snapshot_id = s.id
-      WHERE s.status = 'complete' AND s.version = 'seasonal' AND s.region = ?
-      AND s.auction_house_id = ? AND p.item_id = ? AND p.pet_species_id = 0
+      WHERE s.status = 'complete' AND s.house_key = ?
+      AND p.item_id = ? AND p.pet_species_id = 0
       AND s.fetched_at > ? ORDER BY s.fetched_at ASC`)
-      .bind(region, auctionHouseId, itemId, new Date(Date.now() - 7 * 86400000).toISOString())
+      .bind(
+        `seasonal-${region}-${auctionHouseId}`,
+        itemId,
+        new Date(Date.now() - 7 * 86400000).toISOString(),
+      )
       .all<Price>();
     const metadata = await item(itemId);
     return rows.results.map((row) => ({
@@ -84,7 +88,7 @@ export function websiteData({ MARKET: market, USERS: users }: WebsiteDatabases) 
         length(name), name, id LIMIT 10`)
           .bind(`%${term}%`, /^\d+$/.test(search) ? Number(search) : -1, search, `${term}%`)
           .all<ItemMetadata>()
-      ).results;
+      ).results.map((row) => ({ ...row, icon: itemIconUrl(row.icon) }));
     },
     async addRecentSearch(userId: string, data: { itemId: number; search: string }) {
       if (!(await item(data.itemId))) throw new Error('Item not found');

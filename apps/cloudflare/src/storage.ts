@@ -3,6 +3,7 @@ import { houseKey, snapshotId, validatePrice } from './contracts';
 import type { Archive, AuctionJob, Manifest, Price } from './contracts';
 import type { Env } from './env';
 import { providerFetch } from './provider';
+import { oldestPriceDay } from './retention';
 
 export const CHUNK_ROWS = 500;
 export const MAX_RAW_BYTES = 64 * 1024 * 1024;
@@ -78,7 +79,9 @@ export async function archiveHouse(env: Env, job: AuctionJob): Promise<Archive> 
   }
   const fetchedAt = new Date().toISOString();
   const modified = Date.parse(response.headers.get('last-modified') ?? '');
-  const providerModifiedAt = Number.isFinite(modified) ? new Date(modified).toISOString() : null;
+  const providerModifiedAt = Number.isFinite(modified)
+    ? new Date(modified).toISOString()
+    : (job.providerModifiedAt ?? null);
   const bytes = await archiveStream(env.SNAPSHOTS, rawKey, response.body, {
     httpMetadata: { contentType: 'application/json' },
     customMetadata: {
@@ -155,20 +158,33 @@ export async function normalizeArchive(
 export async function beginSnapshot(db: D1Database, job: AuctionJob) {
   const id = snapshotId(job);
   const existing = await db
-    .prepare('SELECT status FROM snapshots WHERE id = ?')
+    .prepare('SELECT status FROM snapshots WHERE snapshot_key = ?')
     .bind(id)
     .first<{ status: string }>();
   if (existing?.status === 'complete') return false;
+  // Collected daily keys must never be reused while an R2 cleanup may retry.
+  if (!existing && job.day < oldestPriceDay(new Date().toISOString()))
+    throw new Error('New snapshots must be within the 30-day retention window');
   await db
-    .prepare(`INSERT INTO snapshots(id, house_key, region, version, auction_house_id, day, status)
+    .prepare(`INSERT INTO snapshots(snapshot_key, house_key, region, version, auction_house_id, day, status)
     VALUES (?, ?, ?, ?, ?, ?, 'writing')
-    ON CONFLICT(id) DO UPDATE SET status = 'writing', error = NULL WHERE status != 'complete'`)
+    ON CONFLICT(snapshot_key) DO UPDATE SET status = 'writing', error = NULL WHERE status != 'complete'`)
     .bind(id, houseKey(job), job.region, job.version, job.auctionHouseId, job.day)
     .run();
   return true;
 }
 
+export async function snapshotStorageId(db: D1Database, job: AuctionJob): Promise<number> {
+  const row = await db
+    .prepare('SELECT id FROM snapshots WHERE snapshot_key = ?')
+    .bind(snapshotId(job))
+    .first<{ id: number }>();
+  if (!row) throw new Error('Snapshot has not been started');
+  return row.id;
+}
+
 export async function writeChunk(env: Env, job: AuctionJob, index: number) {
+  const storageId = await snapshotStorageId(env.MARKET, job);
   const object = await env.SNAPSHOTS.get(chunkKey(snapshotId(job), index));
   if (!object || object.size > 512 * 1024) throw new Error('Missing or oversized normalized chunk');
   const values = await object.json<unknown[]>();
@@ -185,7 +201,7 @@ export async function writeChunk(env: Env, job: AuctionJob, index: number) {
       VALUES ${batch.map(() => '(?, ?, ?, ?, ?, ?, ?, ?)').join(',')}
       ON CONFLICT(snapshot_id, item_id, pet_species_id) DO NOTHING`).bind(
         ...batch.flatMap((row) => [
-          snapshotId(job),
+          storageId,
           row.itemId,
           row.petSpeciesId ?? 0,
           row.minBuyout,
@@ -203,9 +219,10 @@ export async function writeChunk(env: Env, job: AuctionJob, index: number) {
 
 export async function publishSnapshot(db: D1Database, job: AuctionJob, manifest: Manifest) {
   const id = snapshotId(job);
+  const storageId = await snapshotStorageId(db, job);
   const count = await db
     .prepare('SELECT COUNT(*) AS count FROM prices WHERE snapshot_id = ?')
-    .bind(id)
+    .bind(storageId)
     .first<{ count: number }>();
   if (count?.count !== manifest.rows)
     throw new Error('Snapshot row count mismatch; publication refused');
@@ -221,13 +238,13 @@ export async function publishSnapshot(db: D1Database, job: AuctionJob, manifest:
         manifest.rows,
         manifest.bytes,
         new Date().toISOString(),
-        id,
+        storageId,
       ),
     db
       .prepare(`INSERT INTO published_houses(house_key, snapshot_id, day) VALUES (?, ?, ?)
       ON CONFLICT(house_key) DO UPDATE SET snapshot_id = excluded.snapshot_id, day = excluded.day
       WHERE published_houses.day < excluded.day`)
-      .bind(houseKey(job), id, job.day),
+      .bind(houseKey(job), storageId, job.day),
   ]);
   return { id, rows: manifest.rows, bytes: manifest.bytes, fetchedAt: manifest.fetchedAt };
 }

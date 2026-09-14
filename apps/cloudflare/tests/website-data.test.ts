@@ -1,4 +1,4 @@
-import { env } from 'cloudflare:workers';
+import { env, exports } from 'cloudflare:workers';
 import { beforeEach, expect, it } from 'vitest';
 import { websiteData } from '../src/website-data';
 
@@ -74,14 +74,17 @@ it('only charts complete recent snapshots for the selected region and excludes p
   ] as const) {
     const id = `website-${suffix}`;
     await env.MARKET.prepare(`INSERT OR REPLACE INTO snapshots
-      (id, house_key, region, version, auction_house_id, day, status, fetched_at)
+      (snapshot_key, house_key, region, version, auction_house_id, day, status, fetched_at)
       VALUES (?, ?, ?, 'seasonal', 509, ?, ?, ?)`)
-      .bind(id, id, region, suffix, status, timestamp)
+      .bind(id, `seasonal-${region}-509`, region, suffix, status, timestamp)
       .run();
+    const storageId = await env.MARKET.prepare('SELECT id FROM snapshots WHERE snapshot_key = ?')
+      .bind(id)
+      .first<number>('id');
     await env.MARKET.prepare(`INSERT OR REPLACE INTO prices
       (snapshot_id, item_id, pet_species_id, min_buyout, quantity, market_value, historical, num_auctions)
       VALUES (?, 2589, 0, ?, 2, 120, 110, 1), (?, 2589, 42, 999, 2, 120, 110, 1)`)
-      .bind(id, price, id)
+      .bind(storageId, price, storageId)
       .run();
   }
   const history = await data.history(2589, 509, 'eu');
@@ -92,4 +95,35 @@ it('only charts complete recent snapshots for the selected region and excludes p
     min_buyout: 125,
     diffMinBuyout: 25,
   });
+});
+
+it('expands item-specific icon tokens across search, item reads, collections, and the public API', async () => {
+  await env.MARKET.prepare(
+    "UPDATE item_metadata SET icon='inv_fabric_linen_01' WHERE id=2589",
+  ).run();
+  const expected =
+    'https://render.worldofwarcraft.com/classic1x-eu/icons/56/inv_fabric_linen_01.jpg';
+  expect((await data.item(2589))?.icon).toBe(expected);
+  expect((await data.search('linen'))[0]?.icon).toBe(expected);
+  await data.createSection('icons-user', 'Materials');
+  const section = (await data.sections('icons-user'))[0]!;
+  await data.addSectionItem('icons-user', section.id, 2589);
+  expect((await data.sections('icons-user'))[0]!.items[0]!.dashboardSectionItem.item.icon).toBe(
+    expected,
+  );
+  const id = await env.MARKET.prepare(`INSERT INTO snapshots
+    (snapshot_key,house_key,region,version,auction_house_id,day,status,fetched_at)
+    VALUES ('icon-test','seasonal-eu-999','eu','seasonal',999,'2026-09-14','complete','2026-09-14T04:00:00Z') RETURNING id`).first<number>(
+    'id',
+  );
+  await env.MARKET.batch([
+    env.MARKET.prepare('INSERT INTO prices VALUES (?,2589,0,100,1,100,100,1)').bind(id),
+    env.MARKET.prepare(
+      "INSERT INTO published_houses VALUES ('seasonal-eu-999',?,'2026-09-14')",
+    ).bind(id),
+  ]);
+  const response = await exports.default.fetch(
+    'https://trial.example.com/item/2589/ah/999/seasonal',
+  );
+  expect(await response.json()).toMatchObject({ name: 'Linen Cloth', icon: expected });
 });

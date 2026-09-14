@@ -1,9 +1,21 @@
 import { introspectWorkflowInstance } from 'cloudflare:test';
 import { env, exports } from 'cloudflare:workers';
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { snapshotId } from '../src/contracts';
 import type { AuctionJob, Price } from '../src/contracts';
-import { beginSnapshot, normalizeArchive, publishSnapshot, writeChunk } from '../src/storage';
+import {
+  beginSnapshot,
+  normalizeArchive,
+  publishSnapshot,
+  snapshotStorageId,
+  writeChunk,
+} from '../src/storage';
+
+beforeAll(() => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-09-14T12:00:00Z'));
+});
+afterAll(() => vi.useRealTimers());
 
 const job = (day: string): AuctionJob => ({
   region: 'eu',
@@ -72,7 +84,7 @@ describe('atomic daily snapshots', () => {
     expect(current.stats.lastUpdated).toBe('2026-09-02T04:00:00.000Z');
     expect(await beginSnapshot(env.MARKET, next)).toBe(false);
     const count = await env.MARKET.prepare('SELECT COUNT(*) AS n FROM prices WHERE snapshot_id = ?')
-      .bind(snapshotId(next))
+      .bind(await snapshotStorageId(env.MARKET, next))
       .first<{ n: number }>();
     expect(count?.n).toBe(501);
   });
@@ -87,7 +99,7 @@ describe('atomic daily snapshots', () => {
     const pets = job('2026-09-05');
     await importDirect(pets, [item(123), { ...item(123), petSpeciesId: 10 }]);
     const count = await env.MARKET.prepare('SELECT COUNT(*) AS n FROM prices WHERE snapshot_id = ?')
-      .bind(snapshotId(pets))
+      .bind(await snapshotStorageId(env.MARKET, pets))
       .first<{ n: number }>();
     expect(count?.n).toBe(2);
     await importDirect(job('2026-09-06'), []);
@@ -120,7 +132,7 @@ describe('atomic daily snapshots', () => {
     const stored = await env.MARKET.prepare(
       'SELECT COUNT(*) AS n FROM prices WHERE snapshot_id = ?',
     )
-      .bind(id)
+      .bind(await snapshotStorageId(env.MARKET, retryJob))
       .first<{ n: number }>();
     expect(stored?.n).toBe(1);
     expect((await readPrice()).stats.lastUpdated).toBe('2026-09-10T04:00:00.000Z');
