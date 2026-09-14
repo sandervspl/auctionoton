@@ -8,7 +8,8 @@ export const Route = createFileRoute('/api/logout')({
         if (request.headers.get('Origin') !== url.origin)
           return new Response('Forbidden', { status: 403 });
         // Access needs its cookie to revoke the session. Let its logout endpoint
-        // clear that cookie; clearing it here makes Access report "No cookie".
+        // clear that cookie via the browser's credentialed background request;
+        // clearing it here makes Access report "No cookie".
         return Response.json(
           { logoutUrl: '/cdn-cgi/access/logout' },
           {

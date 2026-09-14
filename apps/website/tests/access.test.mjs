@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { SignJWT, createLocalJWKSet, exportJWK, generateKeyPair } from 'jose';
 import { accessToken, safeReturnTo, verifyAccessSession } from '../src/services/access-token.ts';
+import { signOutOfAccess } from '../src/services/access-logout.ts';
 
 const { privateKey, publicKey } = await generateKeyPair('RS256');
 const jwks = createLocalJWKSet({
@@ -173,3 +174,44 @@ test('login redirects remain local and cannot re-enter authentication endpoints'
     '/user/dashboard?view=all#collection',
   );
 });
+
+for (const type of ['basic', 'opaqueredirect']) {
+  test(`logout clears the session without following the Access ${type} response`, async () => {
+    const calls = [];
+    await signOutOfAccess(async (url, options) => {
+      calls.push(url);
+      assert.equal(options.credentials, 'same-origin');
+      if (url === '/api/logout') {
+        assert.equal(options.method, 'POST');
+        return Response.json({ logoutUrl: '/cdn-cgi/access/logout' });
+      }
+      assert.equal(options.cache, 'no-store');
+      if (url === '/cdn-cgi/access/logout') {
+        assert.equal(options.redirect, 'manual');
+        return type === 'opaqueredirect'
+          ? { ok: false, type, status: 0 }
+          : new Response('<html>Logged out</html>');
+      }
+      assert.equal(url, '/api/session');
+      return Response.json({ session: null }, { status: 401 });
+    });
+    assert.deepEqual(calls, ['/api/logout', '/cdn-cgi/access/logout', '/api/session']);
+  });
+}
+
+for (const failure of ['csrf', 'network', 'access', 'active-session', 'session-outage']) {
+  test(`logout does not report success after ${failure}`, async () => {
+    await assert.rejects(
+      signOutOfAccess(async (url) => {
+        if (url === '/api/logout')
+          return new Response(null, { status: failure === 'csrf' ? 403 : 200 });
+        if (url === '/cdn-cgi/access/logout') {
+          if (failure === 'network') throw new TypeError('Network unavailable');
+          return new Response(null, { status: failure === 'access' ? 503 : 200 });
+        }
+        if (failure === 'session-outage') return new Response(null, { status: 503 });
+        return Response.json({ session: { email: 'still-signed-in@example.com' } });
+      }),
+    );
+  });
+}

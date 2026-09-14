@@ -9,6 +9,7 @@ import {
   useState,
 } from 'react';
 import type { AccessSession } from 'services/access-token';
+import { signOutOfAccess } from 'services/access-logout';
 import { Button } from 'shadcn-ui/button';
 import {
   Dialog,
@@ -109,13 +110,12 @@ export function AccessProvider({
   }, [session, refresh]);
 
   async function signOut() {
-    const response = await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
-    if (!response.ok) throw new Error('Could not sign out. Please try again.');
+    await signOutOfAccess();
     generation.current++;
     inFlight.current = null;
     setSession(null);
     channel.current?.postMessage('signed-out');
-    window.location.assign('/cdn-cgi/access/logout');
+    window.location.assign('/');
   }
 
   return (
