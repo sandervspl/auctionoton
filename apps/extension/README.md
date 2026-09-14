@@ -7,7 +7,11 @@ pnpm install --frozen-lockfile
 pnpm dev:extension
 ```
 
-The development extension calls the Bun API at `http://localhost:3000`. Start it with `pnpm dev:server` after configuring its environment. Production builds call `https://auctionoton-api.sandervspl.dev`.
+Development and packaged extensions call `https://auctionoton-staging-backend.sandervispoel.workers.dev`. No local API or Bun process is needed. `api.config.ts` supplies the API origin, manifest permission, and WXT development proxy from one place. WXT normally serves development assets on port 3000; legacy `/realms/` and `/item/` requests to that port are forwarded to staging.
+
+After updating source, restart `pnpm dev:extension` and reload the extension in the browser. Previously extracted source ZIPs are independent copies: use the current checkout or regenerate them with `pnpm zip:firefox`. Staging lists all supported realms, but currently stores auction prices only for the configured trial market.
+
+`pnpm --filter @auctionoton/extension test:dev` starts WXT without opening a browser and checks that localhost realm/item paths proxy to the configured upstream. It uses a local fixture, so CI needs no provider credentials.
 
 For Firefox development, run `pnpm --filter @auctionoton/extension dev:firefox`.
 

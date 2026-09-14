@@ -9,7 +9,9 @@ import { blizzardCatalog } from './blizzard-catalog.mjs';
 // An explicit staging-only data import. Alchemy remains the schema migration owner.
 // --output prepares a reviewable SQL file without writing to Cloudflare.
 const root = fileURLToPath(new URL('../../..', import.meta.url));
-const local = parseEnv(await readFile(resolve(root, 'apps/server/.env'), 'utf8').catch(() => ''));
+const local = parseEnv(
+  await readFile(resolve(root, 'packages/infrastructure/.env.local'), 'utf8').catch(() => ''),
+);
 const clientId = process.env.BNET_CLIENT_ID || local.BNET_CLIENT_ID;
 const clientSecret = process.env.BNET_CLIENT_SECRET || local.BNET_CLIENT_SECRET;
 if (!clientId || !clientSecret) throw new Error('Missing BNET_CLIENT_ID or BNET_CLIENT_SECRET');

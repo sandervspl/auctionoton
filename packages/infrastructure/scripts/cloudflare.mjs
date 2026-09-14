@@ -24,11 +24,7 @@ const allowed = new Set([
   'CLOUDFLARE_ACCESS_GOOGLE_AUD',
   'CLOUDFLARE_ACCESS_USER_ID_MAP',
 ]);
-for (const path of [
-  'packages/infrastructure/.env.local',
-  'apps/server/.env',
-  'apps/website/.env.local',
-]) {
+for (const path of ['packages/infrastructure/.env.local', 'apps/website/.env.local']) {
   const filename = resolve(root, path);
   if (!existsSync(filename)) continue;
   for (const [key, value] of Object.entries(parseEnv(readFileSync(filename, 'utf8')))) {

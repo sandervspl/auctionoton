@@ -1,6 +1,7 @@
 import { defineConfig } from 'wxt';
 import banner from 'vite-plugin-banner';
 import { fileURLToPath } from 'node:url';
+import { apiOrigin, apiProxy } from './api.config';
 
 const nodeEnv = process.env.NODE_ENV || 'development';
 const DEV = nodeEnv !== 'production';
@@ -27,6 +28,7 @@ export default defineConfig({
       '**/*.log',
       // WXT's source archiver does not read .gitignore.
       '**/deploy.secrets.sh',
+      '**/.secrets/**',
       '**/*.pem',
       '**/*.key',
       '**/*.db',
@@ -53,11 +55,12 @@ export default defineConfig({
   },
   manifest: {
     permissions: ['storage'],
-    host_permissions: [
-      'https://auctionoton-staging-backend.sandervispoel.workers.dev/*',
-    ],
+    host_permissions: [`${apiOrigin}/*`],
   },
   vite: (env) => ({
+    // Older loaded dev bundles call the WXT origin. Keep those API paths working
+    // while the popup/content scripts reload; localhost only serves development assets.
+    server: { proxy: apiProxy },
     plugins: [
       banner({
         content: 'var addon = (chrome || browser);',

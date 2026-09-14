@@ -21,9 +21,6 @@ jobs:
         with:
           node-version-file: .node-version
           cache: pnpm
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: 1.3.14
       - uses: actions/cache@v4
         with:
           path: .turbo
@@ -35,6 +32,8 @@ jobs:
         run: pnpm check
       - name: Test extension realm selection
         run: pnpm --filter @auctionoton/extension test
+      - name: Test extension development API routing
+        run: pnpm --filter @auctionoton/extension test:dev
       - name: Test Cloudflare bindings and workflows
         run: pnpm test:cloudflare
       - name: Test Access authentication

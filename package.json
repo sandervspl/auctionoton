@@ -7,7 +7,6 @@
     "dev": "turbo run dev",
     "dev:extension": "turbo run dev --filter=@auctionoton/extension",
     "dev:website": "turbo run dev --filter=@auctionoton/website",
-    "dev:server": "turbo run dev --filter=@auctionoton/server",
     "build": "turbo run build",
     "build:firefox": "turbo run build:firefox --filter=@auctionoton/extension",
     "typecheck": "turbo run typecheck",
@@ -21,7 +20,7 @@
     "cf:dev": "turbo run cf:dev --filter=@auctionoton/infrastructure",
     "zip": "turbo run zip --filter=@auctionoton/extension",
     "zip:firefox": "turbo run zip:firefox --filter=@auctionoton/extension",
-    "db:migrate": "turbo run db:migrate --filter=@auctionoton/server",
+    "db:migrate": "turbo run db:migrate --filter=@auctionoton/website",
     "cs:add": "changeset",
     "cs:ver": "changeset version",
     "e:version": "turbo run zip zip:firefox --filter=@auctionoton/extension"

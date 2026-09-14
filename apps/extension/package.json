@@ -21,7 +21,8 @@
     "generate": "wxt prepare",
     "postinstall": "wxt prepare",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test tests/*.test.ts"
+    "test": "node --experimental-strip-types --test tests/*.test.ts",
+    "test:dev": "node --experimental-strip-types --test tests/dev-server.test.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
