@@ -10,6 +10,14 @@ import {
 } from 'react';
 import type { AccessSession } from 'services/access-token';
 import { Button } from 'shadcn-ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from 'shadcn-ui/dialog';
 
 type AuthState = {
   session: AccessSession | null;
@@ -121,12 +129,35 @@ export function useAccessAuth() {
   return auth;
 }
 
-export function SignInLink() {
+export function SignInOptions() {
   const location = useLocation();
+  const returnTo = encodeURIComponent(location.href);
   return (
-    <Button asChild variant="outline">
-      <a href={`/auth/login?returnTo=${encodeURIComponent(location.href)}`}>Sign in</a>
-    </Button>
+    <div className="grid gap-3">
+      <Button asChild variant="outline" className="min-h-11">
+        <a href={`/auth/google?returnTo=${returnTo}`}>Continue with Google</a>
+      </Button>
+      <Button asChild variant="outline" className="min-h-11">
+        <a href={`/auth/login?returnTo=${returnTo}`}>Continue with email and password</a>
+      </Button>
+    </div>
+  );
+}
+
+export function SignInLink() {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline">Sign in</Button>
+      </DialogTrigger>
+      <DialogContent className="w-[calc(100%-2rem)] max-w-sm rounded-lg">
+        <DialogHeader>
+          <DialogTitle>Sign in to Auctionoton</DialogTitle>
+          <DialogDescription>Choose how you’d like to sign in.</DialogDescription>
+        </DialogHeader>
+        <SignInOptions />
+      </DialogContent>
+    </Dialog>
   );
 }
 

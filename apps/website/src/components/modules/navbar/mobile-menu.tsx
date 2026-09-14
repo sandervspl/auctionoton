@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { AccountButton, SignInLink } from 'common/access-auth';
+import { AccountButton, SignInOptions } from 'common/access-auth';
 import { MenuIcon, XIcon } from 'lucide-react';
 import * as React from 'react';
 
@@ -42,8 +42,15 @@ export const MobileMenu = ({ userId, ...props }: Props) => {
             )}
           </Drawer.Body>
           <Drawer.Footer gap="3">
-            <div className="flex items-center gap-2">
-              {userId ? <AccountButton /> : <SignInLink />}
+            <div className="w-full">
+              {userId ? (
+                <AccountButton />
+              ) : (
+                <div className="space-y-3">
+                  <h3 className="text-sm font-medium">Sign in</h3>
+                  <SignInOptions />
+                </div>
+              )}
             </div>
           </Drawer.Footer>
         </Drawer.Content>

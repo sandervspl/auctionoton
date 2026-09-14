@@ -108,6 +108,7 @@ export default Alchemy.Stack(
         TRIAL_BACKEND: backend,
         CLOUDFLARE_ACCESS_ISSUER: Config.string('CLOUDFLARE_ACCESS_ISSUER'),
         CLOUDFLARE_ACCESS_AUD: Config.string('CLOUDFLARE_ACCESS_AUD'),
+        CLOUDFLARE_ACCESS_GOOGLE_AUD: Config.string('CLOUDFLARE_ACCESS_GOOGLE_AUD'),
         CLOUDFLARE_ACCESS_USER_ID_MAP: Config.string('CLOUDFLARE_ACCESS_USER_ID_MAP').pipe(
           Config.withDefault('{}'),
         ),

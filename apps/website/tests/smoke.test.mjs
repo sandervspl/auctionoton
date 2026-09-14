@@ -11,6 +11,7 @@ import { toJSON } from 'seroval';
 let server;
 let origin;
 let accessCookie;
+let googleCookie;
 let rpcIds;
 
 before(async () => {
@@ -46,6 +47,14 @@ before(async () => {
     .setExpirationTime('1h')
     .sign(privateKey);
   accessCookie = `CF_Authorization=${token}`;
+  googleCookie = `CF_Authorization=${await new SignJWT({ type: 'app', email: 'google@example.com' })
+    .setProtectedHeader({ alg: 'RS256', kid: 'smoke-key' })
+    .setIssuer('https://test-team.cloudflareaccess.com')
+    .setAudience('smoke-test-google-audience')
+    .setSubject('google-user')
+    .setIssuedAt()
+    .setExpirationTime('1h')
+    .sign(privateKey)}`;
 
   // These signed-out checks use no real credentials or database connection.
   server = spawn(
@@ -62,6 +71,7 @@ before(async () => {
         PROD_SITE_URL: 'https://auctionoton.example',
         CLOUDFLARE_ACCESS_ISSUER: 'https://test-team.cloudflareaccess.com',
         CLOUDFLARE_ACCESS_AUD: 'smoke-test-audience',
+        CLOUDFLARE_ACCESS_GOOGLE_AUD: 'smoke-test-google-audience',
         CLOUDFLARE_ACCESS_USER_ID_MAP: '{}',
         ACCESS_TEST_JWKS: JSON.stringify({ keys: [publicJwk] }),
         DB_URL: 'postgres://smoke:smoke@127.0.0.1:1/smoke',
@@ -105,7 +115,7 @@ test('homepage renders server HTML and serves its stylesheet and module script',
   assert.match(html, /<title>Auctionoton<\/title>/);
   assert.match(html, /Auction House prices for all World of Warcraft classic realms/);
   assert.match(html, /<html[^>]*lang="en"/);
-  assert.match(html, /href="\/auth\/login\?returnTo=/);
+  assert.match(html, /<button[^>]*aria-haspopup="dialog"[^>]*>Sign in<\/button>/);
   assert.doesNotMatch(html, /clerk/i);
   for (const extension of ['css', 'js']) {
     const asset = html.match(new RegExp(`(?:href|src)="([^" ]+\\.${extension})"`))?.[1];
@@ -120,7 +130,7 @@ test('homepage renders server HTML and serves its stylesheet and module script',
 });
 
 test('Access routes reject anonymous and forged identities before using a database', async () => {
-  for (const path of ['/api/session', '/auth/login']) {
+  for (const path of ['/api/session', '/auth/login', '/auth/google']) {
     for (const headers of [
       {},
       { Cookie: 'CF_Authorization=forged' },
@@ -131,6 +141,26 @@ test('Access routes reject anonymous and forged identities before using a databa
       assert.equal(response.status, 401, path);
       assert.match(response.headers.get('cache-control'), /no-store/);
     }
+  }
+});
+
+test('Google login verifies its own audience and safely returns to the website', async () => {
+  const headers = { Cookie: googleCookie };
+  const response = await fetch(`${origin}/api/session`, { headers });
+  assert.equal(response.status, 200);
+  assert.equal((await response.json()).session.email, 'google@example.com');
+  for (const [returnTo, expected] of [
+    ['/user/dashboard?view=all#collection', '/user/dashboard?view=all#collection'],
+    ['//attacker.example', '/'],
+    ['/auth/google', '/'],
+  ]) {
+    const login = await fetch(`${origin}/auth/google?returnTo=${encodeURIComponent(returnTo)}`, {
+      headers,
+      redirect: 'manual',
+    });
+    assert.equal(login.status, 303);
+    assert.equal(login.headers.get('location'), expected);
+    assert.match(login.headers.get('cache-control'), /no-store/);
   }
 });
 

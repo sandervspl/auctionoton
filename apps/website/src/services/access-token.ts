@@ -10,6 +10,7 @@ export type AccessSession = {
 export type AccessConfig = {
   issuer: string;
   audience: string;
+  googleAudience?: string;
   userIdMap?: string;
 };
 
@@ -66,7 +67,7 @@ export async function verifyAccessSession(
   try {
     const { payload } = await jwtVerify(token, keys, {
       issuer: config.issuer,
-      audience: config.audience,
+      audience: [config.audience, ...(config.googleAudience ? [config.googleAudience] : [])],
       algorithms: ['RS256'],
       requiredClaims: ['exp', 'iat', 'sub', 'email', 'type'],
     });

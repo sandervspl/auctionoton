@@ -21,6 +21,7 @@ const allowed = new Set([
   'TSM_API_KEY_D',
   'CLOUDFLARE_ACCESS_ISSUER',
   'CLOUDFLARE_ACCESS_AUD',
+  'CLOUDFLARE_ACCESS_GOOGLE_AUD',
   'CLOUDFLARE_ACCESS_USER_ID_MAP',
 ]);
 for (const path of [

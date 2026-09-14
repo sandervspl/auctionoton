@@ -10,6 +10,7 @@ const jwks = createLocalJWKSet({
 const config = {
   issuer: 'https://test-team.cloudflareaccess.com',
   audience: 'auctionoton-staging',
+  googleAudience: 'auctionoton-staging-google',
 };
 const now = Math.floor(Date.now() / 1000);
 const claims = {
@@ -47,12 +48,23 @@ test('accepts signed Access browser cookies and assertion headers without exposi
   }
 });
 
+test('accepts the configured Google audience with the same stable owner identity', async () => {
+  const password = await verifyAccessSession(request(await sign()), config, jwks);
+  const googleToken = await sign({ aud: [config.googleAudience] });
+  assert.deepEqual(await verifyAccessSession(request(googleToken), config, jwks), password);
+  assert.equal(
+    await verifyAccessSession(request(googleToken), { ...config, googleAudience: undefined }, jwks),
+    null,
+  );
+});
+
 for (const [name, changes] of Object.entries({
   expired: { exp: now - 10 },
   future: { nbf: now + 600 },
   futureIssueTime: { iat: now + 600 },
   wrongAudience: { aud: ['bingo'] },
   productionAudience: { aud: ['auctionoton-production'] },
+  productionGoogleAudience: { aud: ['auctionoton-production-google'] },
   wrongIssuer: { iss: 'https://other.cloudflareaccess.com' },
   wrongType: { type: 'org' },
   noExpiry: { exp: undefined },
