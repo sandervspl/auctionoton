@@ -1,7 +1,4 @@
 import 'typed-query-selector';
-import * as i from 'types';
-import React from 'react';
-import ReactDOM from 'react-dom/client';
 import {
   QueryClient,
   QueryClientProvider,
@@ -9,21 +6,15 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { produce } from 'immer';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 import { type SubmitHandler, useForm } from 'react-hook-form';
 import slugify from 'slugify';
-import { produce } from 'immer';
+import * as i from 'types';
 import { storage } from 'wxt/storage';
 
-import {
-  SelectValue,
-  SelectTrigger,
-  SelectItem,
-  SelectContent,
-  Select,
-} from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import useRealmsList from '@/hooks/useRealmsList';
-import useStorageQuery from '@/hooks/useStorageQuery';
 import {
   Form,
   FormControl,
@@ -32,7 +23,10 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { NativeSelect } from '@/components/ui/native-select';
 import { Skeleton } from '@/components/ui/skeleton';
+import useRealmsList from '@/hooks/useRealmsList';
+import useStorageQuery from '@/hooks/useStorageQuery';
 import { selectRealm } from '@/utils/realms';
 
 interface FormInput {
@@ -177,22 +171,17 @@ export const RealmForm: React.FC = () => {
               render={({ field }) => (
                 <FormItem className="auc-space-y-1">
                   <FormLabel>Game Version</FormLabel>
-                  <Select
-                    onValueChange={(value) => changeVersion(value as i.GameVersion)}
-                    value={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger id="version">
-                        <SelectValue placeholder="Select game version" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent position="popper" collisionPadding={8}>
-                      <SelectItem value="classic">Classic (progression)</SelectItem>
-                      <SelectItem value="era">Era</SelectItem>
-                      <SelectItem value="hardcore">Hardcore</SelectItem>
-                      <SelectItem value="seasonal">Season of Discovery</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <NativeSelect
+                      {...field}
+                      onChange={(event) => changeVersion(event.target.value as i.GameVersion)}
+                    >
+                      <option value="classic">Classic (progression)</option>
+                      <option value="era">Era</option>
+                      <option value="hardcore">Hardcore</option>
+                      <option value="seasonal">Season of Discovery</option>
+                    </NativeSelect>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -205,23 +194,22 @@ export const RealmForm: React.FC = () => {
               render={({ field }) => (
                 <FormItem className="space-y-1">
                   <FormLabel>Region</FormLabel>
-                  <Select
-                    onValueChange={(value) => {
-                      form.setValue('realm', '');
-                      field.onChange(value);
-                    }}
-                    value={field.value || ''}
-                  >
-                    <FormControl>
-                      <SelectTrigger id="region">
-                        <SelectValue placeholder="Select Region" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent position="popper" collisionPadding={8}>
-                      <SelectItem value="eu">Europe</SelectItem>
-                      <SelectItem value="us">North America</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <NativeSelect
+                      {...field}
+                      value={field.value || ''}
+                      onChange={(event) => {
+                        form.setValue('realm', '');
+                        field.onChange(event);
+                      }}
+                    >
+                      <option value="" disabled>
+                        Select region
+                      </option>
+                      <option value="eu">Europe</option>
+                      <option value="us">North America</option>
+                    </NativeSelect>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -237,26 +225,22 @@ export const RealmForm: React.FC = () => {
                   {realms.isLoading ? (
                     <Skeleton className="auc-h-[40px]" />
                   ) : (
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value || ''}
-                      disabled={!watchRegion || !realms.data?.length || realms.isError}
-                    >
-                      <FormControl>
-                        <SelectTrigger id="realm">
-                          <SelectValue
-                            placeholder={watchRegion ? 'Select realm' : 'Choose a region first'}
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent position="popper" collisionPadding={8}>
+                    <FormControl>
+                      <NativeSelect
+                        {...field}
+                        value={field.value || ''}
+                        disabled={!watchRegion || !realms.data?.length || realms.isError}
+                      >
+                        <option value="" disabled>
+                          {watchRegion ? 'Select realm' : 'Choose a region first'}
+                        </option>
                         {realms.data?.map((realm) => (
-                          <SelectItem key={realm.realmId} value={realm.name}>
+                          <option key={realm.realmId} value={realm.name}>
                             {realm.localizedName}
-                          </SelectItem>
+                          </option>
                         ))}
-                      </SelectContent>
-                    </Select>
+                      </NativeSelect>
+                    </FormControl>
                   )}
                   {realms.isError && (
                     <p role="alert" className="auc-text-sm auc-text-red-600 dark:auc-text-red-400">
@@ -298,21 +282,15 @@ export const RealmForm: React.FC = () => {
                   {realms.isLoading ? (
                     <Skeleton className="auc-h-[40px]" />
                   ) : (
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      disabled={!selectedRealm}
-                    >
-                      <FormControl>
-                        <SelectTrigger id="faction">
-                          <SelectValue placeholder="Select faction" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent position="popper" collisionPadding={8}>
-                        <SelectItem value="Alliance">Alliance</SelectItem>
-                        <SelectItem value="Horde">Horde</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                      <NativeSelect {...field} value={field.value || ''} disabled={!selectedRealm}>
+                        <option value="" disabled>
+                          Select faction
+                        </option>
+                        <option value="Alliance">Alliance</option>
+                        <option value="Horde">Horde</option>
+                      </NativeSelect>
+                    </FormControl>
                   )}
                   <FormMessage />
                 </FormItem>
