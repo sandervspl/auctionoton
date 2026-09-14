@@ -1,4 +1,5 @@
-import { houseKey, parseJob, providerVersions } from './contracts';
+import { houseKey, parseJob } from './contracts';
+import { selectRealmRegion } from './realms';
 import type { AuctionJob, ProviderRegion } from './contracts';
 import type { Env } from './env';
 
@@ -27,30 +28,28 @@ export function enabledHouseJobs(
 
 export function discoverHouseJobs(catalog: { items: ProviderRegion[] }, selected: AuctionJob[]) {
   const found = new Map<string, AuctionJob>();
-  for (const region of catalog.items) {
-    for (const job of selected) {
-      if (
-        region.regionPrefix !== job.region ||
-        region.gameVersion !== providerVersions[job.version]
-      )
-        continue;
-      for (const realm of region.realms) {
-        for (const house of realm.auctionHouses) {
-          if (house.auctionHouseId !== job.auctionHouseId) continue;
-          const milliseconds =
-            house.lastModified < 1e12 ? house.lastModified * 1000 : house.lastModified;
-          const modified =
-            Number.isFinite(milliseconds) && milliseconds > 0
-              ? new Date(milliseconds).toISOString()
-              : null;
-          const key = houseKey(job);
-          const previous = found.get(key)?.providerModifiedAt;
-          found.set(key, {
-            ...job,
-            providerModifiedAt:
-              previous && (!modified || previous > modified) ? previous : modified,
-          });
-        }
+  for (const job of selected) {
+    let region: ProviderRegion;
+    try {
+      region = selectRealmRegion(catalog.items, job.region, job.version);
+    } catch {
+      continue;
+    }
+    for (const realm of region.realms) {
+      for (const house of realm.auctionHouses) {
+        if (house.auctionHouseId !== job.auctionHouseId) continue;
+        const milliseconds =
+          house.lastModified < 1e12 ? house.lastModified * 1000 : house.lastModified;
+        const modified =
+          Number.isFinite(milliseconds) && milliseconds > 0
+            ? new Date(milliseconds).toISOString()
+            : null;
+        const key = houseKey(job);
+        const previous = found.get(key)?.providerModifiedAt;
+        found.set(key, {
+          ...job,
+          providerModifiedAt: previous && (!modified || previous > modified) ? previous : modified,
+        });
       }
     }
   }

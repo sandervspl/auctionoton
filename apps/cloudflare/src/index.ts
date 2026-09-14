@@ -7,12 +7,30 @@ import type { Env } from './env';
 import { websiteData } from './website-data';
 import { MAINTENANCE_CRON } from './retention';
 import { enabledHouseJobs } from './discovery';
+import { getRealms } from './realms';
+import type { Region, Version } from './contracts';
 export { ProviderCoordinator } from './provider';
 export { AuctionImport, DailyDiscovery, MarketMaintenance } from './workflows';
 
 const app = new Hono<{ Bindings: Env }>();
 app.get('/health', (c) => c.text('OK'));
 app.use('/item/*', cors({ origin: '*', allowMethods: ['GET', 'OPTIONS'] }));
+app.use('/realms/*', cors({ origin: '*', allowMethods: ['GET', 'OPTIONS'] }));
+app.get('/realms/:region/:version', async (c) => {
+  const region = c.req.param('region');
+  const version = c.req.param('version');
+  c.header('Cache-Control', 'no-store');
+  if (!['eu', 'us'].includes(region) || !versions.includes(version as Version))
+    return c.json({ error: 'Invalid region or game version' }, 400);
+  try {
+    const realms = await getRealms(c.env, region as Region, version as Version);
+    c.header('Cache-Control', 'public, max-age=300');
+    return c.json(realms);
+  } catch (error) {
+    console.error('Realm catalog unavailable', { region, version, error });
+    return c.json({ error: 'Realms are temporarily unavailable. Please try again.' }, 503);
+  }
+});
 app.use('/admin/*', async (c, next) => {
   c.header('Cache-Control', 'private, no-store');
   if (c.req.header('Authorization') !== `Bearer ${c.env.ADMIN_TOKEN}`)

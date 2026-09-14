@@ -1,50 +1,24 @@
 import * as i from 'types';
 import { useQuery } from '@tanstack/react-query';
-
 import { auctionotonAPI, auctionotonAPIUrl } from 'utils';
+import { parseRealms } from '@/utils/realms';
 
-type Realm = {
-  name: string;
-  localizedName: string;
-  realmId: number;
-  auctionHouses: {
-    auctionHouseId: number;
-    type: 'Alliance' | 'Horde';
-    lastModified: number;
-  }[];
-};
-
-function useRealmsList(region: i.Regions, version: i.GameVersion) {
-  const realms = useQuery<Realm[], Error>({
+function useRealmsList(region: i.Regions | undefined, version: i.GameVersion | undefined) {
+  return useQuery({
     queryKey: ['realms', region, version],
-    queryFn: async () => {
-      const { data, status, statusText } = await auctionotonAPI.get<Realm[]>(
+    queryFn: async ({ signal }) => {
+      const { data } = await auctionotonAPI.get<unknown>(
         `${auctionotonAPIUrl}/realms/${region}/${version}`,
+        { signal, timeout: 30_000 },
       );
-
-      if (status !== 200) {
-        throw new Error(statusText);
-      }
-
-      if (typeof data === 'string') {
-        try {
-          return JSON.parse(data);
-        } catch (err) {
-          console.error(err);
-          return [];
-        }
-      }
-
-      return data;
+      return parseRealms(data);
     },
-    enabled: !!region,
-    // biome-ignore lint/style/useNumberNamespace: <explanation>
-    gcTime: Infinity,
-    // biome-ignore lint/style/useNumberNamespace: <explanation>
-    staleTime: Infinity,
+    enabled: !!region && !!version,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+    refetchInterval: 5 * 60 * 1000,
+    retry: 1,
   });
-
-  return realms;
 }
 
 export default useRealmsList;

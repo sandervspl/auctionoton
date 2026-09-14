@@ -52,15 +52,9 @@ export default defineConfig({
     utils: 'src/utils/index.ts',
   },
   manifest: {
-    permissions: [
-      'storage',
-      'https://*.ngrok.io/*',
-      'https://5d9b-82-168-31-31.ngrok.io/*',
-      'https://auctionoton-edge-api-sandervspl.vercel.app/api/*',
-      'https://auctionoton-edge-api.vercel.app/api/*',
-      'https://auctionoton-api-valor.vercel.app/api/*',
-      'https://auctionoton-api.vercel.app/api/*',
-      'https://auctionoton-api.sandervspl.dev/*',
+    permissions: ['storage'],
+    host_permissions: [
+      'https://auctionoton-staging-backend.sandervispoel.workers.dev/*',
     ],
   },
   vite: (env) => ({

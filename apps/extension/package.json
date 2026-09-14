@@ -20,7 +20,8 @@
     "format:check": "biome format .",
     "generate": "wxt prepare",
     "postinstall": "wxt prepare",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test tests/*.test.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

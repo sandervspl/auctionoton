@@ -33,6 +33,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Check every workspace
         run: pnpm check
+      - name: Test extension realm selection
+        run: pnpm --filter @auctionoton/extension test
       - name: Test Cloudflare bindings and workflows
         run: pnpm test:cloudflare
       - name: Test Access authentication

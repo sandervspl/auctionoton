@@ -3,7 +3,5 @@ import axios from 'axios';
 
 export const auctionotonAPI = rateLimit(axios.create(), { maxRequests: 3, perMilliseconds: 500 });
 
-export const auctionotonAPIUrl = {
-  development: 'http://localhost:3000',
-  production: 'https://auctionoton-api.sandervspl.dev',
-}[process.env.NODE_ENV || 'development'];
+// Both development and packaged extensions use the active staging backend.
+export const auctionotonAPIUrl = 'https://auctionoton-staging-backend.sandervispoel.workers.dev';
