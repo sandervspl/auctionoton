@@ -1,22 +1,24 @@
 import * as i from 'types';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { useAuctionHouse } from '@/hooks/useAuctionHouse';
 
-import useSpellFromPage from 'hooks/useSpellFromPage';
-import { useCraftableItemPage } from 'hooks/useCraftableItemPage';
+import useSpellFromPage from '@/hooks/useSpellFromPage';
+
 import generateContainer from '../generateContainer';
 import { ChangeRealmButton } from '../ChangeRealmButton';
 import { CraftingCostTooltip } from '../CraftingCostTooltip';
 
-export const SpellPage: React.FC = (props) => {
+export const SpellPage: React.FC = () => {
   const { spell: pageSpell } = useSpellFromPage();
+  const auctionHouseId = useAuctionHouse();
+  const [craftAmount, setCraftAmount] = React.useState(1);
   const tooltipElementId = `tt${pageSpell?.id}`;
   const tooltipElement = document.querySelector(`div#${tooltipElementId}`);
   const container = React.useMemo(() => {
     return tooltipElement ? generateContainer(tooltipElement, 'page') : null;
   }, [tooltipElement]);
   const { reagentItems } = useGetReagentItems();
-  const { items, setCraftAmount } = useCraftableItemPage(reagentItems.map((item) => item.id));
   useWowheadAmountInput(setCraftAmount);
 
   if (!container) {
@@ -35,11 +37,7 @@ export const SpellPage: React.FC = (props) => {
         Auction House Prices for Wowhead
       </p>
 
-      <CraftingCostTooltip
-        reagentItems={reagentItems}
-        items={items.data}
-        isLoading={items.isLoading}
-      />
+      {auctionHouseId && <CraftingCostTooltip {...{ reagentItems, auctionHouseId, craftAmount }} />}
 
       <div className="auc-h-1" />
       <ChangeRealmButton />
@@ -108,6 +106,7 @@ function useGetReagentItems() {
       .filter((item): item is i.ReagentItem => !!item?.id);
 
     if (reagentAnchors.length === 0) {
+      // @ts-ignore
       if (__DEV__) {
         console.error('Could not find any reagent anchors');
       }
@@ -143,5 +142,5 @@ function useWowheadAmountInput(setCraftAmount: React.Dispatch<React.SetStateActi
     return () => {
       amountInputEl.removeEventListener('change', onAmountChange);
     };
-  }, []);
+  }, [setCraftAmount]);
 }

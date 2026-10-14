@@ -1,21 +1,12 @@
 import * as i from 'types';
-import * as React from 'react';
-import { useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
+import { storage } from 'wxt/storage';
 
-import asyncStorage from 'utils/asyncStorage';
-
-function useStorageQuery<K extends i.StorageKeys>(key: K): UseQueryResult<i.BrowserStorage[K]> {
-  const queryClient = useQueryClient();
+function useStorageQuery<K extends i.StorageKeys>(key: K) {
   const query = useQuery({
     queryKey: ['storage', key],
-    queryFn: async () => asyncStorage.get(key),
+    queryFn: async () => storage.getItem<i.BrowserStorage[K]>(`local:${key}`),
   });
-
-  React.useEffect(() => {
-    addon.storage.onChanged.addListener(() => {
-      queryClient.invalidateQueries({ queryKey: ['storage', key] });
-    });
-  }, []);
 
   return query;
 }

@@ -3,9 +3,9 @@ import useStorageQuery from './useStorageQuery';
 
 export function useRealm() {
   const { data: user } = useStorageQuery('user');
-  const { isEra } = useWowhead();
-  const activeVersion = user?.isActive?.[isEra ? 'era' : 'classic'];
-  const activeRealm = activeVersion && user.realms?.[activeVersion];
+  const { group, version } = useWowhead();
+  const activeVersion = user?.isActive?.[group] ?? version;
+  const activeRealm = user?.realms?.[activeVersion];
 
   return {
     activeVersion,

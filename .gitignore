@@ -8,8 +8,7 @@ node_modules
 # testing
 coverage
 
-# next.js
-.next/
+# build output
 out/
 build
 
@@ -39,3 +38,20 @@ auctionoton-server/
 sqlite.db
 AuctionDB.lua
 db.json
+
+# Generated code and compiler state
+*.tsbuildinfo
+apps/website/src/styled-system/
+apps/website/src/routeTree.gen.ts
+apps/website/.output/
+apps/website/.tanstack/
+
+# App-local environment files
+.env.*
+!.env.example
+
+# Cloudflare local state and secrets
+.alchemy/
+.wrangler/
+.dev.vars
+.dev.vars.*

@@ -19,16 +19,8 @@ function useIntersectionObserver(
 
   const frozen = entry?.isIntersecting && freezeOnceVisible;
 
-  const updateEntry = (
-    [entry]: IntersectionObserverEntry[],
-    observer: IntersectionObserver,
-  ): void => {
-    if (disconnectOnceVisible && entry.isIntersecting) {
-      observer.disconnect();
-    }
-
-    setEntry(entry);
-  };
+  // Compare array thresholds by value so inline arrays do not recreate the observer.
+  const thresholdKey = JSON.stringify(threshold);
 
   useEffect(() => {
     const node = elementRef?.current; // DOM Ref
@@ -36,13 +28,23 @@ function useIntersectionObserver(
 
     if (!hasIOSupport || frozen || !node) return;
 
-    const observerParams = { threshold, root, rootMargin };
+    const updateEntry = (
+      [entry]: IntersectionObserverEntry[],
+      observer: IntersectionObserver,
+    ): void => {
+      if (disconnectOnceVisible && entry.isIntersecting) {
+        observer.disconnect();
+      }
+      setEntry(entry);
+    };
+
+    const observerParams = { threshold: JSON.parse(thresholdKey), root, rootMargin };
     const observer = new IntersectionObserver(updateEntry, observerParams);
 
     observer.observe(node);
 
     return () => observer.disconnect();
-  }, [elementRef?.current, JSON.stringify(threshold), root, rootMargin, frozen]);
+  }, [elementRef, thresholdKey, root, rootMargin, frozen, disconnectOnceVisible]);
 
   return entry;
 }

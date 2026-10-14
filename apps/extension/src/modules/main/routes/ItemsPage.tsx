@@ -2,221 +2,220 @@ import 'typed-query-selector';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import cn from 'classnames';
+import { Loader2Icon } from 'lucide-react';
 
-import LoadingSvg from 'static/loading.svg';
-import useItemFetcher from 'hooks/useItemFetcher';
-import useIntersectionObserver from 'hooks/useIntersectionObserver';
+import useItemFetcher from '@/hooks/useItemFetcher';
+import useIntersectionObserver from '@/hooks/useIntersectionObserver';
+import { useAuctionHouse } from '@/hooks/useAuctionHouse';
 
+import { ChangeRealmButton } from '../ChangeRealmButton';
 import { Value } from '../tooltip/Value';
+import { sortBuyoutRows } from '@/utils/sortBuyoutRows';
 
 type Sorting = null | 'asc' | 'desc';
 
 const ItemsPage: React.FC = () => {
+  const auctionHouseId = useAuctionHouse();
   const [sorting, setSorting] = React.useState<Sorting>(null);
 
-  const sortByBuyout = React.useCallback(
-    function sortByBuyout() {
-      if (document.querySelectorAll('tr[data-buyout-raw]').length === 0) {
-        console.error('No rows found!');
-        return;
-      }
-
-      // The table displays a reset button when a sorting is active
-      const resetBtn = document.querySelector('.listview-reset-sort') as
-        | HTMLAnchorElement
-        | undefined;
-      if (resetBtn) {
-        // Make button visible
-        resetBtn.style.removeProperty('display');
-
-        // Remove sorting if user clicks the reset button
-        resetBtn.addEventListener('click', resetSorting);
-      }
-
-      // Remove other sorting indicators
-      for (const el of [
-        Array.from(document.querySelectorAll('.listview-sort-desc')),
-        Array.from(document.querySelectorAll('.listview-sort-asc')),
-      ].flat()) {
-        // Remove class which gives the indicator
-        el.classList.remove('listview-sort-desc', 'listview-sort-asc');
-
-        // Remove hash from URL
-        window.history.pushState(
-          '',
-          document.title,
-          window.location.pathname + window.location.search,
-        );
-      }
-
-      const curSorting = sorting || 'asc';
-
-      // Sort rows and append to table
-      let i = 0;
-      let switching = true;
-      let shouldSwitch = false;
-      let switchcount = 0;
-      let loopCount = 0;
-      const MAX_LOOP_COUNT = 500;
-
-      while (switching) {
-        if (++loopCount > MAX_LOOP_COUNT) {
-          throw new Error('Too many loops!');
-        }
-
-        switching = false;
-        const rows = document.querySelectorAll('tr[data-buyout-raw]');
-
-        for (i = 0; i < rows.length; i++) {
-          const a = rows[i];
-          const b = rows[i + 1];
-
-          if (a == null || b == null) {
-            continue;
-          }
-
-          const boa = Number(a.dataset.buyoutRaw);
-          const bob = Number(b.dataset.buyoutRaw);
-
-          if (curSorting === 'asc') {
-            if (boa > bob) {
-              shouldSwitch = true;
-              break;
-            }
-          } else if (curSorting === 'desc') {
-            if (boa < bob) {
-              shouldSwitch = true;
-              break;
-            }
-          }
-        }
-
-        if (shouldSwitch) {
-          if (rows[i]) {
-            rows[i].parentNode?.insertBefore(rows[i + 1], rows[i]);
-            switching = true;
-            switchcount++;
-          }
-        } else {
-          if (switchcount === 0 && curSorting === 'asc') {
-            setSorting('desc');
-            switching = true;
-          }
-        }
-      }
-
-      setSorting(curSorting === 'asc' ? 'desc' : 'asc');
-
-      return function cleanup() {
-        resetBtn?.addEventListener('click', resetSorting);
-      };
-    },
-    [sorting, setSorting],
-  );
-
-  function resetSorting() {
+  const resetSorting = React.useCallback(() => {
     setSorting(null);
-  }
+  }, []);
+
+  const { header, rows } = useListRows();
+  const resetButton = React.useRef<Element | null>(null);
+  const sortByBuyout = () => {
+    const direction = sorting === 'asc' ? 'desc' : 'asc';
+    const groups = new Map<Node, HTMLElement[]>();
+    for (const { rowEl } of rows) {
+      if (!rowEl.parentNode) continue;
+      const group = groups.get(rowEl.parentNode) ?? [];
+      group.push(rowEl);
+      groups.set(rowEl.parentNode, group);
+    }
+    for (const [parent, group] of groups) {
+      const fragment = document.createDocumentFragment();
+      for (const row of sortBuyoutRows(group, direction)) fragment.append(row);
+      parent.appendChild(fragment);
+    }
+    for (const el of Array.from(
+      document.querySelectorAll('.listview-sort-desc, .listview-sort-asc'),
+    )) {
+      el.classList.remove('listview-sort-desc', 'listview-sort-asc');
+    }
+    window.history.replaceState(
+      '',
+      document.title,
+      window.location.pathname + window.location.search,
+    );
+    const button = document.querySelector<HTMLElement>('.listview-reset-sort');
+    resetButton.current?.removeEventListener('click', resetSorting);
+    resetButton.current = button;
+    button?.style.removeProperty('display');
+    button?.addEventListener('click', resetSorting);
+    setSorting(direction);
+  };
 
   React.useEffect(() => {
     window.addEventListener('hashchange', resetSorting);
 
     return function cleanup() {
       window.removeEventListener('hashchange', resetSorting);
+      resetButton.current?.removeEventListener('click', resetSorting);
     };
-  }, []);
+  }, [resetSorting]);
+
+  if (!header) return null;
 
   return (
     <>
       {ReactDOM.createPortal(
         <th id="buyout-header">
           <div>
-            <a onClick={sortByBuyout}>
-              <span
-                className={cn({
-                  'listview-sort-asc': sorting === 'asc',
-                  'listview-sort-desc': sorting === 'desc',
-                })}
-              >
-                <span>AH Buyout</span>
-              </span>
-            </a>
+            {!auctionHouseId ? (
+              <ChangeRealmButton />
+            ) : (
+              <>
+                {/* biome-ignore lint/a11y/useValidAnchor: Valid error but this is what Wowhead does */}
+                <a onClick={sortByBuyout}>
+                  <span
+                    className={cn({
+                      'listview-sort-asc': sorting === 'asc',
+                      'listview-sort-desc': sorting === 'desc',
+                    })}
+                  >
+                    <span>AH Buyout</span>
+                  </span>
+                </a>
+              </>
+            )}
           </div>
         </th>,
-        document.querySelector(
-          '[data-template="item"] > div.listview-scroller-horizontal > div > table > thead > tr',
-        )!,
+        header,
       )}
-      {Array.from(document.querySelectorAll('.listview-row')).map((rowEl, i) => {
-        const anchorEl = rowEl.querySelector('a[href*="/item="]');
-        const itemIdRaw = anchorEl?.href.split('item=')[1].split('/')[0];
-        const itemId = itemIdRaw == null ? null : Number(itemIdRaw);
-
-        return ReactDOM.createPortal(
-          <TableCell num={i} itemId={itemId} rowEl={rowEl} sorting={sorting} />,
-          rowEl,
-        );
-      })}
+      {auctionHouseId &&
+        rows.map(({ rowEl, itemId, key }) =>
+          ReactDOM.createPortal(<TableCell {...{ itemId, auctionHouseId, rowEl }} />, rowEl, key),
+        )}
     </>
   );
 };
 
-const TableCell: React.FC<Props> = (props) => {
+type Props = {
+  itemId: number;
+  auctionHouseId: number;
+  rowEl: Element;
+};
+
+const TableCell = React.memo((props: Props) => {
   const cellRef = React.useRef<HTMLTableCellElement>(null);
   const entry = useIntersectionObserver(cellRef, {
     freezeOnceVisible: true,
     disconnectOnceVisible: true,
   });
   const isVisible = entry?.isIntersecting;
-  const { isError, isLoading, isFetching, item } = useItemFetcher(props.itemId!, {
-    enabled: !!props.itemId && isVisible,
-    retry: false,
-    retryOnMount: false,
-  });
+  const { isError, isLoading, isFetching, item } = useItemFetcher(
+    props.itemId,
+    props.auctionHouseId,
+    {
+      enabled: !!props.auctionHouseId && !!props.itemId && isVisible,
+      retryOnMount: false,
+    },
+  );
   const isFetchingItem = !item || isLoading;
   const buyout = item?.stats.current.minBuyout;
 
   React.useEffect(() => {
-    let val = null;
-
-    if (buyout == null || buyout.toString() === '0') {
-      if (props.sorting !== 'desc') {
-        val = '999999999999999999';
-      } else {
-        val = '0';
-      }
-    } else {
-      val = buyout.toString();
-    }
-
-    props.rowEl.setAttribute('data-buyout-raw', val);
-  }, [props.rowEl, buyout, props.sorting]);
+    const raw = typeof buyout === 'object' ? buyout.raw : Number(buyout);
+    props.rowEl.setAttribute('data-buyout-raw', Number.isFinite(raw) && raw > 0 ? String(raw) : '');
+  }, [props.rowEl, buyout]);
 
   return (
-    <td ref={cellRef} className="auc-text-left">
+    <td ref={cellRef} className="text-left">
       {isError && !item ? (
         <span className="auc-flex">Error!</span>
       ) : item && (isLoading || isFetching) ? (
         <div className="auc-flex auc-gap-2">
-          <LoadingSvg style={{ width: '15px' }} />
+          <Loader2Icon size={15} className="auc-animate-spin" />
           <Value value={item.stats.current.minBuyout} />
         </div>
       ) : item ? (
         <Value value={item.stats.current.minBuyout} />
       ) : isFetchingItem && isVisible ? (
-        <LoadingSvg />
+        <Loader2Icon className="auc-animate-spin" />
       ) : (
         'N/A'
       )}
     </td>
   );
-};
-
-type Props = {
-  num: number;
-  itemId: number | null;
-  rowEl: Element;
-  sorting: Sorting;
-};
+});
 
 export default ItemsPage;
+
+type ListRow = { rowEl: HTMLElement; itemId: number; key: string };
+
+function useListRows() {
+  const [list, setList] = React.useState<{ header: Element | null; rows: ListRow[] }>({
+    header: null,
+    rows: [],
+  });
+  React.useEffect(() => {
+    const keys = new WeakMap<Element, string>();
+    let nextKey = 0;
+    let frame = 0;
+    let observed: Element = document.body;
+    const refresh = () => {
+      const root = document.querySelector('[data-template="item"]');
+      if (observed !== (root ?? document.body)) {
+        observer.disconnect();
+        observed = root ?? document.body;
+        observer.observe(observed, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ['href'],
+        });
+      }
+      const header = root?.querySelector('table > thead > tr') ?? null;
+      const rows: ListRow[] = [];
+      for (const rowEl of Array.from(root?.querySelectorAll<HTMLElement>('.listview-row') ?? [])) {
+        const href = rowEl.querySelector('a[href*="/item="]')?.getAttribute('href');
+        const itemId = Number(href?.match(/item=(\d+)/)?.[1]);
+        if (!itemId) continue;
+        if (!keys.has(rowEl)) keys.set(rowEl, String(nextKey++));
+        rows.push({ rowEl, itemId, key: keys.get(rowEl)! });
+      }
+      setList((previous) =>
+        previous.header === header &&
+        previous.rows.length === rows.length &&
+        rows.every(
+          (row, index) =>
+            row.rowEl === previous.rows[index].rowEl && row.itemId === previous.rows[index].itemId,
+        )
+          ? previous
+          : { header, rows },
+      );
+    };
+    const observer = new MutationObserver(() => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(refresh);
+    });
+    // Host navigation may replace the whole list, outside the scoped observer.
+    // Keep this callback cheap for unrelated page mutations.
+    const lifecycle = new MutationObserver(() => {
+      if (observed === document.body || !observed.isConnected) {
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(refresh);
+      }
+    });
+    lifecycle.observe(document.body, { childList: true, subtree: true });
+    observer.observe(observed, { childList: true, subtree: true });
+    refresh();
+    return () => {
+      observer.disconnect();
+      lifecycle.disconnect();
+      cancelAnimationFrame(frame);
+    };
+  }, []);
+  return list;
+}

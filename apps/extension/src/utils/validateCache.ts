@@ -1,7 +1,8 @@
 import * as i from 'types';
-import time from './time';
 
-function validateCache(data: i.AnyCachedItem | undefined): data is i.AnyCachedItem {
+import { time } from './time';
+
+export function validateCache(data: i.AnyCachedItem | undefined): data is i.AnyCachedItem {
   if (!data) {
     return false;
   }
@@ -12,5 +13,3 @@ function validateCache(data: i.AnyCachedItem | undefined): data is i.AnyCachedIt
   // Valid if less than diff old
   return now - new Date(data.updatedAt).getTime() < diff;
 }
-
-export default validateCache;

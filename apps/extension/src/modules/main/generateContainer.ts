@@ -1,11 +1,11 @@
-import { ELEMENT_ID } from 'src/constants';
+import { ELEMENT_ID } from '@/constants';
 
-function generateContainer(parent: Element, uniqueKey: string): HTMLElement | void {
+function generateContainer(parent: Element | null, uniqueKey: string): HTMLElement | undefined {
   if (!parent) {
     return;
   }
 
-  const id = ELEMENT_ID.CONTAINER + `-${uniqueKey}`;
+  const id = `${ELEMENT_ID.CONTAINER}-${uniqueKey}`;
   const curContainer = document.getElementById(id);
 
   if (curContainer) {

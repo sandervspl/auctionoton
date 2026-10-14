@@ -1,0 +1,17 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "generate": {
+      "cache": false
+    },
+    "build": {
+      "outputs": [".output/chrome-mv3/**"]
+    },
+    "build:firefox": {
+      "outputs": [".output/firefox-mv3/**"]
+    },
+    "zip": {
+      "outputs": [".output/chrome-mv3/**", ".output/auctionoton-chrome.zip"]
+    }
+  }
+}

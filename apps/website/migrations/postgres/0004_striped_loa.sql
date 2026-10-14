@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS "items_metadata_slug_idx" ON "items_metadata" ("slug");
