@@ -53,9 +53,15 @@ export default defineConfig({
     types: 'src/types/index.ts',
     utils: 'src/utils/index.ts',
   },
-  manifest: ({ mode }) => ({
+  manifest: ({ mode, browser }) => ({
+    // Store listing title; without it WXT uses the npm package name.
+    name: 'Auctionoton: Auction House Prices for Wowhead',
     permissions: ['storage'],
     host_permissions: [`${apiOriginFor(mode)}/*`],
+    // Keep the add-on ID that 5.x used on addons.mozilla.org.
+    ...(browser === 'firefox'
+      ? { browser_specific_settings: { gecko: { id: 'auctiono@ton.com' } } }
+      : {}),
   }),
   vite: (env) => ({
     // Older loaded dev bundles call the WXT origin. Keep those API paths working
