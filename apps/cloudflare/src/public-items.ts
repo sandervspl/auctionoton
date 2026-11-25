@@ -10,10 +10,8 @@ type Market = { auctionHouseId: number; version: Version; region?: Region };
 type PriceRow = {
   item_id: number;
   min_buyout: number;
-  quantity: number;
   market_value: number;
   historical: number;
-  num_auctions: number;
   fetched_at: string;
   region: Region;
   name: string | null;
@@ -32,12 +30,12 @@ export async function readPublicItems(
     (region) => `${market.version}-${region}-${market.auctionHouseId}`,
   );
   const rows = await db
-    .prepare(`SELECT p.item_id, p.min_buyout, p.quantity, p.market_value,
-    p.historical, p.num_auctions, s.fetched_at, s.region,
+    .prepare(`SELECT p.item_id, p.min_buyout, p.market_value,
+    p.historical, s.fetched_at, s.region,
     m.name, m.slug, m.icon, m.item_level, m.required_level
     FROM published_houses h
     JOIN snapshots s ON s.id = h.snapshot_id AND s.status = 'complete'
-    JOIN prices p ON p.snapshot_id = s.id AND p.pet_species_id = 0
+    JOIN prices p ON p.snapshot_id = s.id
     LEFT JOIN item_metadata m ON m.id = p.item_id
     WHERE h.house_key IN (${houses.map(() => '?').join(',')})
     AND p.item_id IN (${itemIds.map(() => '?').join(',')})`)
@@ -63,11 +61,9 @@ export async function readPublicItems(
           stats: {
             lastUpdated: price.fetched_at,
             current: {
-              numAuctions: price.num_auctions,
               marketValue: price.market_value,
               historicalValue: price.historical,
               minBuyout: price.min_buyout,
-              quantity: price.quantity,
             },
             previous: null,
           },

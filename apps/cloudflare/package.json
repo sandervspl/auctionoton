@@ -10,7 +10,6 @@
     "format:check": "biome format ."
   },
   "dependencies": {
-    "@streamparser/json": "0.0.26",
     "better-auth": "1.7.4",
     "hono": "4.13.7"
   },

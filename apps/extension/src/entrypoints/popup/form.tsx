@@ -27,7 +27,7 @@ import { NativeSelect } from '@/components/ui/native-select';
 import { Skeleton } from '@/components/ui/skeleton';
 import useRealmsList from '@/hooks/useRealmsList';
 import useStorageQuery from '@/hooks/useStorageQuery';
-import { foreverRealms, isVersionAvailable, versionGroup } from '@/utils/gameVersions';
+import { isVersionAvailable, versionGroup } from '@/utils/gameVersions';
 import { selectRealm } from '@/utils/realms';
 
 interface FormInput {
@@ -214,9 +214,6 @@ export const RealmForm: React.FC = () => {
                       </option>
                     </NativeSelect>
                   </FormControl>
-                  <p className="auc-text-sm auc-text-zinc-500">
-                    Forever realms: {foreverRealms.join(', ')}
-                  </p>
                   <FormMessage />
                 </FormItem>
               )}
@@ -269,19 +266,6 @@ export const RealmForm: React.FC = () => {
                         <option value="" disabled>
                           {watchRegion ? 'Select realm' : 'Choose a region first'}
                         </option>
-                        {watchVersion === 'forever' &&
-                          foreverRealms
-                            .filter(
-                              (name) =>
-                                !realms.data?.some(
-                                  (realm) => realm.name.toLowerCase() === name.toLowerCase(),
-                                ),
-                            )
-                            .map((name) => (
-                              <option key={name} value={name} disabled>
-                                {name} (awaiting realm data)
-                              </option>
-                            ))}
                         {realms.data?.map((realm) => (
                           <option key={realm.realmId} value={realm.name}>
                             {realm.localizedName}

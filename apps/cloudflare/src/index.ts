@@ -10,7 +10,6 @@ import { enabledHouseJobs } from './discovery';
 import { getRealms } from './realms';
 import type { Region, Version } from './contracts';
 import { PUBLIC_CACHE_CONTROL, purgeMarketCache } from './public-cache';
-export { ProviderCoordinator } from './provider';
 export { AuctionImport, DailyDiscovery, MarketMaintenance } from './workflows';
 
 const app = new Hono<{ Bindings: Env }>();
@@ -29,15 +28,9 @@ app.get('/realms/:region/:version', async (c) => {
   c.header('Cache-Control', 'no-store');
   if (!['eu', 'us'].includes(region) || !versions.includes(version as Version))
     return c.json({ error: 'Invalid region or game version' }, 400);
-  try {
-    const realms = await getRealms(c.env, region as Region, version as Version);
-    c.header('Cache-Control', PUBLIC_CACHE_CONTROL);
-    c.header('Cache-Tag', 'realm-catalog');
-    return c.json(realms);
-  } catch (error) {
-    console.error('Realm catalog unavailable', { region, version, error });
-    return c.json({ error: 'Realms are temporarily unavailable. Please try again.' }, 503);
-  }
+  c.header('Cache-Control', PUBLIC_CACHE_CONTROL);
+  c.header('Cache-Tag', 'realm-catalog');
+  return c.json(getRealms(region as Region, version as Version));
 });
 app.use('/admin/*', async (c, next) => {
   c.header('Cache-Control', 'private, no-store');

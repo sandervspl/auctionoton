@@ -2,7 +2,7 @@ import { applyD1Migrations } from 'cloudflare:test';
 import { env } from 'cloudflare:workers';
 import { expect, it } from 'vitest';
 
-it('migrates populated legacy snapshots without losing prices, pet variants, or publication', async () => {
+it('migrates populated legacy snapshots without losing prices or publication', async () => {
   const db = env.MIGRATION_TEST;
   await applyD1Migrations(db, env.MARKET_MIGRATIONS.slice(0, 2));
   await db.batch([
@@ -26,28 +26,17 @@ it('migrates populated legacy snapshots without losing prices, pet variants, or 
   expect(typeof snapshot!.id).toBe('number');
   expect(snapshot!.snapshot_key).toBe('seasonal-eu-509-2026-09-01');
   const prices = await db
-    .prepare(`SELECT p.item_id,p.pet_species_id,p.min_buyout,p.quantity,
-    p.market_value,p.historical,p.num_auctions FROM published_houses h JOIN prices p
-    ON p.snapshot_id=h.snapshot_id ORDER BY p.pet_species_id`)
+    .prepare(`SELECT p.* FROM published_houses h JOIN prices p
+    ON p.snapshot_id=h.snapshot_id ORDER BY p.item_id`)
     .all();
+  // Public CSV data has no pets, quantities or auction counts; pet variants are dropped.
   expect(prices.results).toEqual([
     {
+      snapshot_id: snapshot!.id,
       item_id: 2589,
-      pet_species_id: 0,
       min_buyout: Number.MAX_SAFE_INTEGER,
-      quantity: 10,
       market_value: 1234,
       historical: 9876,
-      num_auctions: 2,
-    },
-    {
-      item_id: 2589,
-      pet_species_id: 42,
-      min_buyout: 100,
-      quantity: 3,
-      market_value: 200,
-      historical: 300,
-      num_auctions: 1,
     },
   ]);
   expect(await db.prepare('SELECT icon FROM item_metadata WHERE id=2589').first('icon')).toBe('');

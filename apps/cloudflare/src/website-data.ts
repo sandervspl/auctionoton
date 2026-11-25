@@ -26,10 +26,8 @@ const placeholders = (ids: number[]) => ids.map(() => '?').join(',');
 
 type Price = {
   minBuyout: number;
-  quantity: number;
   marketValue: number;
   historical: number;
-  numAuctions: number;
   timestamp: string;
 };
 
@@ -58,13 +56,13 @@ export function websiteData({ MARKET: market, USERS: users }: WebsiteDatabases) 
   }
   async function history(itemId: number, auctionHouseId: number, region: string) {
     const rows = await market
-      .prepare(`SELECT p.min_buyout AS minBuyout, p.quantity,
-      p.market_value AS marketValue, p.historical, p.num_auctions AS numAuctions,
+      .prepare(`SELECT p.min_buyout AS minBuyout,
+      p.market_value AS marketValue, p.historical,
       s.fetched_at AS timestamp, m.icon, m.name, m.quality
       FROM snapshots s JOIN prices p ON p.snapshot_id = s.id
       LEFT JOIN item_metadata m ON m.id = p.item_id
       WHERE s.status = 'complete' AND s.house_key = ?
-      AND p.item_id = ? AND p.pet_species_id = 0
+      AND p.item_id = ?
       AND s.fetched_at > ? ORDER BY s.fetched_at ASC, s.id ASC`)
       .bind(
         `seasonal-${region}-${auctionHouseId}`,
@@ -152,19 +150,18 @@ export function websiteData({ MARKET: market, USERS: users }: WebsiteDatabases) 
       type RecentRow = ItemMetadata & {
         minBuyout: number | null;
         marketValue: number | null;
-        quantity: number | null;
         timestamp: string | null;
         priceRank: number | null;
       };
       const rows = await market
         .prepare(`WITH ranked AS (
         SELECT p.item_id, p.min_buyout AS minBuyout, p.market_value AS marketValue,
-          p.quantity, s.fetched_at AS timestamp,
+          s.fetched_at AS timestamp,
           ROW_NUMBER() OVER (PARTITION BY p.item_id ORDER BY s.fetched_at DESC, s.id DESC) AS priceRank
         FROM snapshots s JOIN prices p ON p.snapshot_id = s.id
         WHERE s.status = 'complete' AND s.house_key = ? AND s.fetched_at > ?
-          AND p.pet_species_id = 0 AND p.item_id IN (${placeholders(ids)})
-      ) SELECT ${joinedMetadataColumns}, r.minBuyout, r.marketValue, r.quantity, r.timestamp, r.priceRank
+          AND p.item_id IN (${placeholders(ids)})
+      ) SELECT ${joinedMetadataColumns}, r.minBuyout, r.marketValue, r.timestamp, r.priceRank
         FROM item_metadata m LEFT JOIN ranked r ON r.item_id = m.id AND r.priceRank <= 2
         WHERE m.id IN (${placeholders(ids)}) ORDER BY m.id, r.priceRank`)
         .bind(
@@ -192,7 +189,6 @@ export function websiteData({ MARKET: market, USERS: users }: WebsiteDatabases) 
             item_id: search.itemId,
             min_buyout: current?.minBuyout ?? undefined,
             market_value: current?.marketValue ?? undefined,
-            quantity: current?.quantity ?? undefined,
             item_timestamp: current?.timestamp ?? undefined,
             diffMinBuyout: current && previous ? current.minBuyout! - previous.minBuyout! : 0,
             diffMarketValue: current && previous ? current.marketValue! - previous.marketValue! : 0,

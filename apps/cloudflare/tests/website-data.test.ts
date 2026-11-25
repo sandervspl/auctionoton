@@ -169,9 +169,9 @@ it('only charts complete recent snapshots for the selected region and excludes p
       .bind(id)
       .first<number>('id');
     await env.MARKET.prepare(`INSERT OR REPLACE INTO prices
-      (snapshot_id, item_id, pet_species_id, min_buyout, quantity, market_value, historical, num_auctions)
-      VALUES (?, 2589, 0, ?, 2, 120, 110, 1), (?, 2589, 42, 999, 2, 120, 110, 1)`)
-      .bind(storageId, price, storageId)
+      (snapshot_id, item_id, min_buyout, market_value, historical)
+      VALUES (?, 2589, ?, 120, 110)`)
+      .bind(storageId, price)
       .run();
   }
   const history = await data.history(2589, 509, 'eu');
@@ -204,7 +204,7 @@ it('expands item-specific icon tokens across search, item reads, collections, an
     'id',
   );
   await env.MARKET.batch([
-    env.MARKET.prepare('INSERT INTO prices VALUES (?,2589,0,100,1,100,100,1)').bind(id),
+    env.MARKET.prepare('INSERT INTO prices VALUES (?,2589,100,100,100)').bind(id),
     env.MARKET.prepare(
       "INSERT INTO published_houses VALUES ('seasonal-eu-999',?,'2026-09-14')",
     ).bind(id),

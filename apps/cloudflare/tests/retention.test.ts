@@ -11,10 +11,10 @@ async function seed(key: string, day: string, status: string, published: boolean
     VALUES (?,?,'eu','seasonal',509,?,?,?,?,?) RETURNING id`)
     .bind(key, key, day, status, `${day}T04:00:00.000Z`, `${day}T04:01:00.000Z`, rawKey)
     .first<number>('id');
-  for (let offset = 0; offset < count; offset += 12) {
-    const size = Math.min(12, count - offset);
+  for (let offset = 0; offset < count; offset += 19) {
+    const size = Math.min(19, count - offset);
     await env.MARKET.prepare(
-      `INSERT INTO prices VALUES ${Array.from({ length: size }, () => '(?,?,0,100,1,100,100,1)').join(',')}`,
+      `INSERT INTO prices VALUES ${Array.from({ length: size }, () => '(?,?,100,100,100)').join(',')}`,
     )
       .bind(...Array.from({ length: size }, (_, i) => [id, offset + i + 1]).flat())
       .run();

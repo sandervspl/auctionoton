@@ -1,0 +1,2906 @@
+{
+  "era": {
+    "eu": {
+      "path": "classic/eu",
+      "realms": [
+        {
+          "name": "Transcendence",
+          "localizedName": "Transcendence",
+          "realmId": 871,
+          "slug": "transcendence",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 207,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 208,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Patchwerk",
+          "localizedName": "Patchwerk",
+          "realmId": 872,
+          "slug": "patchwerk",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 207,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 208,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Lucifron",
+          "localizedName": "Lucifron",
+          "realmId": 873,
+          "slug": "lucifron",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 207,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 208,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Zandalar Tribe",
+          "localizedName": "Zandalar Tribe",
+          "realmId": 874,
+          "slug": "zandalar-tribe",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 209,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 210,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Firemaw",
+          "localizedName": "Firemaw",
+          "realmId": 875,
+          "slug": "firemaw",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 211,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 212,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Dragonfang",
+          "localizedName": "Dragonfang",
+          "realmId": 876,
+          "slug": "dragonfang",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 211,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 212,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Earthshaker",
+          "localizedName": "Earthshaker",
+          "realmId": 877,
+          "slug": "earthshaker",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 211,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 212,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Bloodfang",
+          "localizedName": "Bloodfang",
+          "realmId": 878,
+          "slug": "bloodfang",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 211,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 212,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Skullflame",
+          "localizedName": "Skullflame",
+          "realmId": 879,
+          "slug": "skullflame",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 211,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 212,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Ashbringer",
+          "localizedName": "Ashbringer",
+          "realmId": 880,
+          "slug": "ashbringer",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 211,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 212,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Noggenfogger",
+          "localizedName": "Noggenfogger",
+          "realmId": 881,
+          "slug": "noggenfogger",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 211,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 212,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Gandling",
+          "localizedName": "Gandling",
+          "realmId": 882,
+          "slug": "gandling",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 211,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 212,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Mograine",
+          "localizedName": "Mograine",
+          "realmId": 883,
+          "slug": "mograine",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 211,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 212,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Golemagg",
+          "localizedName": "Golemagg",
+          "realmId": 884,
+          "slug": "golemagg",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 211,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 212,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Sulfuron",
+          "localizedName": "Sulfuron",
+          "realmId": 885,
+          "slug": "sulfuron",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 213,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 214,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Finkle",
+          "localizedName": "Finkle",
+          "realmId": 886,
+          "slug": "finkle",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 213,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 214,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Amnennar",
+          "localizedName": "Amnennar",
+          "realmId": 887,
+          "slug": "amnennar",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 213,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 214,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Auberdine",
+          "localizedName": "Auberdine",
+          "realmId": 890,
+          "slug": "auberdine",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 215,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 216,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Everlook",
+          "localizedName": "Everlook",
+          "realmId": 891,
+          "slug": "everlook",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 217,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 218,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Lakeshire",
+          "localizedName": "Lakeshire",
+          "realmId": 892,
+          "slug": "lakeshire",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 217,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 218,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Mandokir",
+          "localizedName": "Mandokir",
+          "realmId": 893,
+          "slug": "mandokir",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 219,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 220,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Celebras",
+          "localizedName": "Celebras",
+          "realmId": 897,
+          "slug": "celebras",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 221,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 222,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Hydraxian Waterlords",
+          "localizedName": "Hydraxian Waterlords",
+          "realmId": 898,
+          "slug": "hydraxian-waterlords",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 223,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 224,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Venoxis",
+          "localizedName": "Venoxis",
+          "realmId": 899,
+          "slug": "venoxis",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 225,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 226,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Heartstriker",
+          "localizedName": "Heartstriker",
+          "realmId": 900,
+          "slug": "heartstriker",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 225,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 226,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Dragon's Call",
+          "localizedName": "Dragon's Call",
+          "realmId": 901,
+          "slug": "dragons-call",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 225,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 226,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Gehennas",
+          "localizedName": "Gehennas",
+          "realmId": 902,
+          "slug": "gehennas",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 227,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 228,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Judgement",
+          "localizedName": "Judgement",
+          "realmId": 903,
+          "slug": "judgement",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 227,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 228,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Ten Storms",
+          "localizedName": "Ten Storms",
+          "realmId": 904,
+          "slug": "ten-storms",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 227,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 228,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Dreadmist",
+          "localizedName": "Dreadmist",
+          "realmId": 905,
+          "slug": "dreadmist",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 227,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 228,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Flamelash",
+          "localizedName": "Flamelash",
+          "realmId": 906,
+          "slug": "flamelash",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 227,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 228,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Stonespine",
+          "localizedName": "Stonespine",
+          "realmId": 907,
+          "slug": "stonespine",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 227,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 228,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Razorgore",
+          "localizedName": "Razorgore",
+          "realmId": 908,
+          "slug": "razorgore",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 227,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 228,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Shazzrah",
+          "localizedName": "Shazzrah",
+          "realmId": 909,
+          "slug": "shazzrah",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 227,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 228,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Flamegor (RU)",
+          "localizedName": "Пламегор (RU)",
+          "realmId": 910,
+          "slug": "flamegor-ru",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 229,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 230,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Harbinger of Doom (RU)",
+          "localizedName": "Вестник Рока (RU)",
+          "realmId": 911,
+          "slug": "harbinger-of-doom-ru",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 229,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 230,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Rhok'delar (RU)",
+          "localizedName": "Рок-Делар (RU)",
+          "realmId": 912,
+          "slug": "rhokdelar-ru",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 229,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 230,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Wyrmthalak (RU)",
+          "localizedName": "Змейталак (RU)",
+          "realmId": 913,
+          "slug": "wyrmthalak-ru",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 229,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 230,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Razorfen",
+          "localizedName": "Razorfen",
+          "realmId": 914,
+          "slug": "razorfen",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 231,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 232,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Pyrewood Village",
+          "localizedName": "Pyrewood Village",
+          "realmId": 915,
+          "slug": "pyrewood-village",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 233,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 234,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Nethergarde Keep",
+          "localizedName": "Nethergarde Keep",
+          "realmId": 916,
+          "slug": "nethergarde-keep",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 233,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 234,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Mirage Raceway",
+          "localizedName": "Mirage Raceway",
+          "realmId": 917,
+          "slug": "mirage-raceway",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 233,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 234,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Chromie (RU)",
+          "localizedName": "Хроми (RU)",
+          "realmId": 918,
+          "slug": "chromie-ru",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 235,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 236,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Penance (Season)",
+          "localizedName": "Исповедь (сезонный)",
+          "realmId": 1080,
+          "slug": "penance-season",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 535,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 536,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Shadowstrike (Season)",
+          "localizedName": "Удар Тьмы (сезонный)",
+          "realmId": 1081,
+          "slug": "shadowstrike-season",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 537,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 538,
+              "type": "Horde"
+            }
+          ]
+        }
+      ]
+    },
+    "us": {
+      "path": "classic/us",
+      "realms": [
+        {
+          "name": "Whitemane",
+          "localizedName": "Whitemane",
+          "realmId": 822,
+          "slug": "whitemane",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 183,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 184,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Arcanite Reaper",
+          "localizedName": "Arcanite Reaper",
+          "realmId": 823,
+          "slug": "arcanite-reaper",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 183,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 184,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Anathema",
+          "localizedName": "Anathema",
+          "realmId": 824,
+          "slug": "anathema",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 183,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 184,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Thunderfury",
+          "localizedName": "Thunderfury",
+          "realmId": 825,
+          "slug": "thunderfury",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 183,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 184,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Smolderweb",
+          "localizedName": "Smolderweb",
+          "realmId": 826,
+          "slug": "smolderweb",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 183,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 184,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Rattlegore",
+          "localizedName": "Rattlegore",
+          "realmId": 827,
+          "slug": "rattlegore",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 183,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 184,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Kurinnaxx",
+          "localizedName": "Kurinnaxx",
+          "realmId": 828,
+          "slug": "kurinnaxx",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 183,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 184,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Bigglesworth",
+          "localizedName": "Bigglesworth",
+          "realmId": 829,
+          "slug": "bigglesworth",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 183,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 184,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Blaumeux",
+          "localizedName": "Blaumeux",
+          "realmId": 830,
+          "slug": "blaumeux",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 183,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 184,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Fairbanks",
+          "localizedName": "Fairbanks",
+          "realmId": 831,
+          "slug": "fairbanks",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 183,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 184,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Arugal",
+          "localizedName": "Arugal",
+          "realmId": 833,
+          "slug": "arugal",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 185,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 186,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Felstriker",
+          "localizedName": "Felstriker",
+          "realmId": 834,
+          "slug": "felstriker",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 185,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 186,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Yojamba",
+          "localizedName": "Yojamba",
+          "realmId": 835,
+          "slug": "yojamba",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 185,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 186,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Remulos",
+          "localizedName": "Remulos",
+          "realmId": 837,
+          "slug": "remulos",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 187,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 188,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Grobbulus",
+          "localizedName": "Grobbulus",
+          "realmId": 840,
+          "slug": "grobbulus",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 189,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 190,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Atiesh",
+          "localizedName": "Atiesh",
+          "realmId": 841,
+          "slug": "atiesh",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 191,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 192,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Azuresong",
+          "localizedName": "Azuresong",
+          "realmId": 842,
+          "slug": "azuresong",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 191,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 192,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Old Blanchy",
+          "localizedName": "Old Blanchy",
+          "realmId": 843,
+          "slug": "old-blanchy",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 191,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 192,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Myzrael",
+          "localizedName": "Myzrael",
+          "realmId": 844,
+          "slug": "myzrael",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 191,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 192,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Loatheb",
+          "localizedName": "Loatheb",
+          "realmId": 845,
+          "slug": "loatheb",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 193,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 194,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Sul'thraze",
+          "localizedName": "Sul'thraze",
+          "realmId": 846,
+          "slug": "sulthraze",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 195,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 196,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Sulfuras",
+          "localizedName": "Sulfuras",
+          "realmId": 850,
+          "slug": "sulfuras",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 197,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 198,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Herod",
+          "localizedName": "Herod",
+          "realmId": 851,
+          "slug": "herod",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 197,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 198,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Earthfury",
+          "localizedName": "Earthfury",
+          "realmId": 852,
+          "slug": "earthfury",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 197,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 198,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Kirtonos",
+          "localizedName": "Kirtonos",
+          "realmId": 853,
+          "slug": "kirtonos",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 197,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 198,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Kromcrush",
+          "localizedName": "Kromcrush",
+          "realmId": 854,
+          "slug": "kromcrush",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 197,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 198,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Skeram",
+          "localizedName": "Skeram",
+          "realmId": 855,
+          "slug": "skeram",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 197,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 198,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Stalagg",
+          "localizedName": "Stalagg",
+          "realmId": 856,
+          "slug": "stalagg",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 197,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 198,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Thalnos",
+          "localizedName": "Thalnos",
+          "realmId": 857,
+          "slug": "thalnos",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 197,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 198,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Bloodsail Buccaneers",
+          "localizedName": "Bloodsail Buccaneers",
+          "realmId": 858,
+          "slug": "bloodsail-buccaneers",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 199,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 200,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Faerlina",
+          "localizedName": "Faerlina",
+          "realmId": 859,
+          "slug": "faerlina",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 201,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 202,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Heartseeker",
+          "localizedName": "Heartseeker",
+          "realmId": 860,
+          "slug": "heartseeker",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 201,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 202,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Netherwind",
+          "localizedName": "Netherwind",
+          "realmId": 861,
+          "slug": "netherwind",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 201,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 202,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Benediction",
+          "localizedName": "Benediction",
+          "realmId": 862,
+          "slug": "benediction",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 201,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 202,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Incendius",
+          "localizedName": "Incendius",
+          "realmId": 863,
+          "slug": "incendius",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 201,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 202,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Deviate Delight",
+          "localizedName": "Deviate Delight",
+          "realmId": 864,
+          "slug": "deviate-delight",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 203,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 204,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Mankrik",
+          "localizedName": "Mankrik",
+          "realmId": 865,
+          "slug": "mankrik",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 205,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 206,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Westfall",
+          "localizedName": "Westfall",
+          "realmId": 866,
+          "slug": "westfall",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 205,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 206,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Ashkandi",
+          "localizedName": "Ashkandi",
+          "realmId": 867,
+          "slug": "ashkandi",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 205,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 206,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Windseeker",
+          "localizedName": "Windseeker",
+          "realmId": 868,
+          "slug": "windseeker",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 205,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 206,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Pagle",
+          "localizedName": "Pagle",
+          "realmId": 869,
+          "slug": "pagle",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 205,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 206,
+              "type": "Horde"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "classic": {
+    "eu": {
+      "path": "classic-progression/eu",
+      "realms": [
+        {
+          "name": "Everlook",
+          "localizedName": "Everlook",
+          "realmId": 706,
+          "slug": "everlook",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 361,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 362,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Auberdine",
+          "localizedName": "Auberdine",
+          "realmId": 707,
+          "slug": "auberdine",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 363,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 364,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Lakeshire",
+          "localizedName": "Lakeshire",
+          "realmId": 708,
+          "slug": "lakeshire",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 365,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 366,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Chromie",
+          "localizedName": "Хроми",
+          "realmId": 709,
+          "slug": "chromie",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 367,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 368,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Pyrewood Village",
+          "localizedName": "Pyrewood Village",
+          "realmId": 710,
+          "slug": "pyrewood-village",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 369,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 370,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Mirage Raceway",
+          "localizedName": "Mirage Raceway",
+          "realmId": 711,
+          "slug": "mirage-raceway",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 371,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 372,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Razorfen",
+          "localizedName": "Razorfen",
+          "realmId": 712,
+          "slug": "razorfen",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 373,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 374,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Nethergarde Keep",
+          "localizedName": "Nethergarde Keep",
+          "realmId": 713,
+          "slug": "nethergarde-keep",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 375,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 376,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Sulfuron",
+          "localizedName": "Sulfuron",
+          "realmId": 715,
+          "slug": "sulfuron",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 379,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 380,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Golemagg",
+          "localizedName": "Golemagg",
+          "realmId": 716,
+          "slug": "golemagg",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 381,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 382,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Patchwerk",
+          "localizedName": "Patchwerk",
+          "realmId": 717,
+          "slug": "patchwerk",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 383,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 384,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Firemaw",
+          "localizedName": "Firemaw",
+          "realmId": 718,
+          "slug": "firemaw",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 385,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 386,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Flamegor",
+          "localizedName": "Пламегор",
+          "realmId": 719,
+          "slug": "flamegor",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 387,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 388,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Gehennas",
+          "localizedName": "Gehennas",
+          "realmId": 721,
+          "slug": "gehennas",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 391,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 392,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Venoxis",
+          "localizedName": "Venoxis",
+          "realmId": 722,
+          "slug": "venoxis",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 393,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 394,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Hydraxian Waterlords",
+          "localizedName": "Hydraxian Waterlords",
+          "realmId": 725,
+          "slug": "hydraxian-waterlords",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 399,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 400,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Mograine",
+          "localizedName": "Mograine",
+          "realmId": 726,
+          "slug": "mograine",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 401,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 402,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Amnennar",
+          "localizedName": "Amnennar",
+          "realmId": 728,
+          "slug": "amnennar",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 405,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 406,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Ashbringer",
+          "localizedName": "Ashbringer",
+          "realmId": 733,
+          "slug": "ashbringer",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 415,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 416,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Transcendence",
+          "localizedName": "Transcendence",
+          "realmId": 736,
+          "slug": "transcendence",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 421,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 422,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Earthshaker",
+          "localizedName": "Earthshaker",
+          "realmId": 738,
+          "slug": "earthshaker",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 425,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 426,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Mandokir",
+          "localizedName": "Mandokir",
+          "realmId": 748,
+          "slug": "mandokir",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 445,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 446,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Giantstalker",
+          "localizedName": "Giantstalker",
+          "realmId": 759,
+          "slug": "giantstalker",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 465,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 466,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Thekal",
+          "localizedName": "Thekal",
+          "realmId": 760,
+          "slug": "thekal",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 467,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 468,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Jin'do",
+          "localizedName": "Jin'do",
+          "realmId": 764,
+          "slug": "jindo",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 475,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 476,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Ook Ook",
+          "localizedName": "Ook Ook",
+          "realmId": 1092,
+          "slug": "ook-ook",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 361,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 362,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Shek'zeer",
+          "localizedName": "Shek'zeer",
+          "realmId": 1093,
+          "slug": "shekzeer",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 371,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 372,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Garalon",
+          "localizedName": "Garalon",
+          "realmId": 1094,
+          "slug": "garalon",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 371,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 372,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Norushen",
+          "localizedName": "Norushen",
+          "realmId": 1095,
+          "slug": "norushen",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 371,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 372,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Hoptallus",
+          "localizedName": "Hoptallus",
+          "realmId": 1096,
+          "slug": "hoptallus",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 371,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 372,
+              "type": "Horde"
+            }
+          ]
+        }
+      ]
+    },
+    "us": {
+      "path": "classic-progression/us",
+      "realms": [
+        {
+          "name": "Atiesh",
+          "localizedName": "Atiesh",
+          "realmId": 665,
+          "slug": "atiesh",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 279,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 280,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Myzrael",
+          "localizedName": "Myzrael",
+          "realmId": 666,
+          "slug": "myzrael",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 281,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 282,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Old Blanchy",
+          "localizedName": "Old Blanchy",
+          "realmId": 667,
+          "slug": "old-blanchy",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 283,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 284,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Azuresong",
+          "localizedName": "Azuresong",
+          "realmId": 668,
+          "slug": "azuresong",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 285,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 286,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Mankrik",
+          "localizedName": "Mankrik",
+          "realmId": 669,
+          "slug": "mankrik",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 287,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 288,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Pagle",
+          "localizedName": "Pagle",
+          "realmId": 670,
+          "slug": "pagle",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 289,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 290,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Ashkandi",
+          "localizedName": "Ashkandi",
+          "realmId": 672,
+          "slug": "ashkandi",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 293,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 294,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Westfall",
+          "localizedName": "Westfall",
+          "realmId": 673,
+          "slug": "westfall",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 295,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 296,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Whitemane",
+          "localizedName": "Whitemane",
+          "realmId": 674,
+          "slug": "whitemane",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 297,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 298,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Faerlina",
+          "localizedName": "Faerlina",
+          "realmId": 681,
+          "slug": "faerlina",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 311,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 312,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Grobbulus",
+          "localizedName": "Grobbulus",
+          "realmId": 684,
+          "slug": "grobbulus",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 317,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 318,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Bloodsail Buccaneers",
+          "localizedName": "Bloodsail Buccaneers",
+          "realmId": 685,
+          "slug": "bloodsail-buccaneers",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 319,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 320,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Remulos",
+          "localizedName": "Remulos",
+          "realmId": 686,
+          "slug": "remulos",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 321,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 322,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Arugal (AU)",
+          "localizedName": "Arugal (AU)",
+          "realmId": 687,
+          "slug": "arugal-au",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 323,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 324,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Yojamba",
+          "localizedName": "Yojamba",
+          "realmId": 688,
+          "slug": "yojamba",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 325,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 326,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Sulfuras",
+          "localizedName": "Sulfuras",
+          "realmId": 697,
+          "slug": "sulfuras",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 343,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 344,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Windseeker",
+          "localizedName": "Windseeker",
+          "realmId": 698,
+          "slug": "windseeker",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 345,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 346,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Benediction",
+          "localizedName": "Benediction",
+          "realmId": 699,
+          "slug": "benediction",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 347,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 348,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Earthfury",
+          "localizedName": "Earthfury",
+          "realmId": 701,
+          "slug": "earthfury",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 351,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 352,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Skyfury",
+          "localizedName": "Skyfury",
+          "realmId": 757,
+          "slug": "skyfury",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 461,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 462,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Maladath",
+          "localizedName": "Maladath",
+          "realmId": 758,
+          "slug": "maladath",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 463,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 464,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Eranikus",
+          "localizedName": "Eranikus",
+          "realmId": 762,
+          "slug": "eranikus",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 471,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 472,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Angerforge",
+          "localizedName": "Angerforge",
+          "realmId": 763,
+          "slug": "angerforge",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 473,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 474,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Nazgrim",
+          "localizedName": "Nazgrim",
+          "realmId": 1087,
+          "slug": "nazgrim",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 289,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 290,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Galakras",
+          "localizedName": "Galakras",
+          "realmId": 1088,
+          "slug": "galakras",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 289,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 290,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Ra-den",
+          "localizedName": "Ra-den",
+          "realmId": 1089,
+          "slug": "raden",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 289,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 290,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Lei Shen",
+          "localizedName": "Lei Shen",
+          "realmId": 1090,
+          "slug": "lei-shen",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 289,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 290,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Immerseus",
+          "localizedName": "Immerseus",
+          "realmId": 1091,
+          "slug": "immerseus",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 289,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 290,
+              "type": "Horde"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "hardcore": {
+    "eu": {
+      "path": "classic/eu-hc",
+      "realms": [
+        {
+          "name": "Stitches",
+          "localizedName": "Stitches",
+          "realmId": 1053,
+          "slug": "stitches",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 481,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 482,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Nek'Rosh",
+          "localizedName": "Nek'Rosh",
+          "realmId": 1054,
+          "slug": "nekrosh",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 483,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 484,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Soulseeker",
+          "localizedName": "Soulseeker",
+          "realmId": 1811,
+          "slug": "soulseeker",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 563,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 564,
+              "type": "Horde"
+            }
+          ]
+        }
+      ]
+    },
+    "us": {
+      "path": "classic/us-hc",
+      "realms": [
+        {
+          "name": "Skull Rock",
+          "localizedName": "Skull Rock",
+          "realmId": 1051,
+          "slug": "skull-rock",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 477,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 478,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Defias Pillager",
+          "localizedName": "Defias Pillager",
+          "realmId": 1052,
+          "slug": "defias-pillager",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 479,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 480,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Doomhowl",
+          "localizedName": "Doomhowl",
+          "realmId": 1808,
+          "slug": "doomhowl",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 557,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 558,
+              "type": "Horde"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "seasonal": {
+    "eu": {
+      "path": "classic/eu-sod",
+      "realms": [
+        {
+          "name": "Wild Growth",
+          "localizedName": "Wild Growth",
+          "realmId": 1067,
+          "slug": "wild-growth",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 509,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 510,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Lone Wolf",
+          "localizedName": "Lone Wolf",
+          "realmId": 1068,
+          "slug": "lone-wolf",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 511,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 512,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Living Flame",
+          "localizedName": "Living Flame",
+          "realmId": 1069,
+          "slug": "living-flame",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 513,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 514,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Crusader Strike",
+          "localizedName": "Crusader Strike",
+          "realmId": 1070,
+          "slug": "crusader-strike",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 515,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 516,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Lava Lash",
+          "localizedName": "Lava Lash",
+          "realmId": 1071,
+          "slug": "lava-lash",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 517,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 518,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Chaos Bolt",
+          "localizedName": "Chaos Bolt",
+          "realmId": 1072,
+          "slug": "chaos-bolt",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 519,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 520,
+              "type": "Horde"
+            }
+          ]
+        }
+      ]
+    },
+    "us": {
+      "path": "classic/us-sod",
+      "realms": [
+        {
+          "name": "Penance (AU)",
+          "localizedName": "Penance (AU)",
+          "realmId": 1059,
+          "slug": "penance-au",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 493,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 494,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Shadowstrike (AU)",
+          "localizedName": "Shadowstrike (AU)",
+          "realmId": 1060,
+          "slug": "shadowstrike-au",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 495,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 496,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Lava Lash",
+          "localizedName": "Lava Lash",
+          "realmId": 1061,
+          "slug": "lava-lash",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 497,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 498,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Wild Growth",
+          "localizedName": "Wild Growth",
+          "realmId": 1062,
+          "slug": "wild-growth",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 499,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 500,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Lone Wolf",
+          "localizedName": "Lone Wolf",
+          "realmId": 1063,
+          "slug": "lone-wolf",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 501,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 502,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Living Flame",
+          "localizedName": "Living Flame",
+          "realmId": 1064,
+          "slug": "living-flame",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 503,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 504,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Crusader Strike",
+          "localizedName": "Crusader Strike",
+          "realmId": 1065,
+          "slug": "crusader-strike",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 505,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 506,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Chaos Bolt",
+          "localizedName": "Chaos Bolt",
+          "realmId": 1066,
+          "slug": "chaos-bolt",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 507,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 508,
+              "type": "Horde"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "anniversary": {
+    "eu": {
+      "path": "classic/eu-fresh",
+      "realms": [
+        {
+          "name": "Thunderstrike",
+          "localizedName": "Thunderstrike",
+          "realmId": 1809,
+          "slug": "thunderstrike",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 559,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 560,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Spineshatter",
+          "localizedName": "Spineshatter",
+          "realmId": 1810,
+          "slug": "spineshatter",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 561,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 562,
+              "type": "Horde"
+            }
+          ]
+        }
+      ]
+    },
+    "us": {
+      "path": "classic/us-fresh",
+      "realms": [
+        {
+          "name": "Maladath (AU)",
+          "localizedName": "Maladath (AU)",
+          "realmId": 1085,
+          "slug": "maladath-au",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 551,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 552,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Dreamscythe",
+          "localizedName": "Dreamscythe",
+          "realmId": 1086,
+          "slug": "dreamscythe",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 553,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 554,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Nightslayer",
+          "localizedName": "Nightslayer",
+          "realmId": 1807,
+          "slug": "nightslayer",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 555,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 556,
+              "type": "Horde"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "forever": {
+    "eu": {
+      "path": "forever/eu",
+      "realms": [
+        {
+          "name": "Normal",
+          "localizedName": "Normal",
+          "realmId": 1101,
+          "slug": "normal",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 573,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 574,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "PvP",
+          "localizedName": "PvP",
+          "realmId": 1102,
+          "slug": "pvp",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 575,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 576,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Roleplay",
+          "localizedName": "Roleplay",
+          "realmId": 1103,
+          "slug": "roleplay",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 577,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 578,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Roleplay PvP",
+          "localizedName": "Roleplay PvP",
+          "realmId": 1114,
+          "slug": "roleplay-pvp",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 599,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 600,
+              "type": "Horde"
+            }
+          ]
+        }
+      ]
+    },
+    "us": {
+      "path": "forever/us",
+      "realms": [
+        {
+          "name": "Normal",
+          "localizedName": "Normal",
+          "realmId": 1097,
+          "slug": "normal",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 565,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 566,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "PvP",
+          "localizedName": "PvP",
+          "realmId": 1098,
+          "slug": "pvp",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 567,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 568,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Roleplay",
+          "localizedName": "Roleplay",
+          "realmId": 1099,
+          "slug": "roleplay",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 569,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 570,
+              "type": "Horde"
+            }
+          ]
+        },
+        {
+          "name": "Roleplay PvP",
+          "localizedName": "Roleplay PvP",
+          "realmId": 1113,
+          "slug": "roleplay-pvp",
+          "auctionHouses": [
+            {
+              "auctionHouseId": 597,
+              "type": "Alliance"
+            },
+            {
+              "auctionHouseId": 598,
+              "type": "Horde"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

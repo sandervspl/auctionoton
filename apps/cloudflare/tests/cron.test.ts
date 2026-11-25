@@ -10,8 +10,7 @@ import worker from '../src/index';
 it('keeps staging cron disabled and uses the scheduled UTC date when enabled', async () => {
   await using workflows = await introspectWorkflow(env.DAILY_DISCOVERY);
   await workflows.modifyAll(async (modifier) => {
-    await modifier.mockStepResult({ name: 'discover-houses' }, 'catalog/2026-09-14.json');
-    await modifier.mockStepResult({ name: 'read-selected-houses' }, [
+    await modifier.mockStepResult({ name: 'discover-houses' }, [
       {
         day: '2026-09-14',
         region: 'eu',

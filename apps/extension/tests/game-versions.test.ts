@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
-  foreverRealms,
   foreverReleaseDate,
   isVersionAvailable,
   versionGroup,
@@ -29,12 +28,12 @@ test('TBC Anniversary has independent realm settings and links', () => {
   assert.equal(context.wowheadBaseUrl, 'https://wowhead.com/tbc');
 });
 
-test('Forever requires release and usable realm data, including after November 4', () => {
-  const realms = foreverRealms.map((name, index) => ({
+test('Forever accepts any released realm with faction auction houses', () => {
+  const realms = ['Living Flame', 'Doomhowl', 'Soulseeker'].map((name, index) => ({
     name,
     localizedName: name,
     realmId: index + 1,
-    auctionHouses: [{ auctionHouseId: index + 1, type: 'Alliance', lastModified: 0 }],
+    auctionHouses: [{ auctionHouseId: index + 1, type: 'Alliance' }],
   }));
   assert.equal(isVersionAvailable('forever', foreverReleaseDate - 1, realms), false);
   assert.equal(isVersionAvailable('forever', foreverReleaseDate, realms), true);
@@ -49,8 +48,8 @@ test('Forever requires release and usable realm data, including after November 4
     false,
   );
   assert.equal(
-    isVersionAvailable('forever', foreverReleaseDate, [{ ...realms[0], name: 'Unrelated realm' }]),
-    false,
+    isVersionAvailable('forever', foreverReleaseDate, [{ ...realms[0], name: 'Any new realm' }]),
+    true,
   );
   assert.equal(isVersionAvailable('anniversary', foreverReleaseDate - 1), true);
 });

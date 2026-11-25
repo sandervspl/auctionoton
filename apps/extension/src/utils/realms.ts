@@ -8,7 +8,6 @@ const realmSchema = z.object({
     z.object({
       auctionHouseId: z.number().int().positive(),
       type: z.string(),
-      lastModified: z.number(),
     }),
   ),
 });
