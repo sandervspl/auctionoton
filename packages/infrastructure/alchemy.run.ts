@@ -18,28 +18,18 @@ export const PRODUCTION_DOMAIN = 'auctionoton-api.sandervspl.dev';
 // creates R2 buckets, Queues and Workers, which only showed up on a fresh stage.
 const resourceName = (suffix: string) => `auctionoton-${stage}-${suffix}`;
 
-// Resolve names before registering D1 props: this Alchemy version skips its
-// migration-file diff when a prop still contains an Effect at plan time.
-const market = Cloudflare.D1.Database(
-  'Market',
-  Effect.gen(function* () {
-    return {
-      name: resourceName('market'),
-      primaryLocationHint: 'weur' as const,
-      migrations: { dir: '../../apps/cloudflare/migrations/market' },
-    };
-  }),
-).pipe(RemovalPolicy.retain());
-const users = Cloudflare.D1.Database(
-  'Users',
-  Effect.gen(function* () {
-    return {
-      name: resourceName('users'),
-      primaryLocationHint: 'weur' as const,
-      migrations: { dir: '../../apps/cloudflare/migrations/auth' },
-    };
-  }),
-).pipe(RemovalPolicy.retain());
+// Props must not contain Effects: this Alchemy version skips its D1 migration-file diff
+// when a prop is still an Effect at plan time.
+const market = Cloudflare.D1.Database('Market', {
+  name: resourceName('market'),
+  primaryLocationHint: 'weur',
+  migrations: { dir: '../../apps/cloudflare/migrations/market' },
+}).pipe(RemovalPolicy.retain());
+const users = Cloudflare.D1.Database('Users', {
+  name: resourceName('users'),
+  primaryLocationHint: 'weur',
+  migrations: { dir: '../../apps/cloudflare/migrations/auth' },
+}).pipe(RemovalPolicy.retain());
 const snapshots = Cloudflare.R2.Bucket('Snapshots', {
   name: resourceName('snapshots'),
   lifecycleRules: [
