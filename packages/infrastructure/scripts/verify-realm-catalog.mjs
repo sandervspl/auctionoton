@@ -28,7 +28,7 @@ for (const [version, regions] of Object.entries(catalog)) {
     }
   }
 }
-console.log(`Checked ${checked} auction houses.`);
+console.info(`Checked ${checked} auction houses.`);
 if (failures.length) {
   console.error(`Missing public CSV files:\n  ${failures.join('\n  ')}`);
   process.exitCode = 1;

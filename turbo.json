@@ -21,6 +21,15 @@
       "cache": false,
       "passThroughEnv": ["CF_TRIAL_*", "CLOUDFLARE_*", "TSM_*"]
     },
+    "cf:plan:production": {
+      "cache": false,
+      "passThroughEnv": ["CF_TRIAL_*", "CLOUDFLARE_*"]
+    },
+    "cf:deploy:production": {
+      "dependsOn": ["@auctionoton/cloudflare#test", "@auctionoton/cloudflare#typecheck"],
+      "cache": false,
+      "passThroughEnv": ["CF_TRIAL_*", "CLOUDFLARE_*"]
+    },
     "cf:dev": {
       "cache": false,
       "persistent": true,
