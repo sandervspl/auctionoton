@@ -25,13 +25,9 @@ export function isItemData(value: unknown, itemId?: number): value is ItemDataCl
     typeof item.uniqueName === 'string' &&
     !!current &&
     Number.isFinite(Date.parse(item.stats.lastUpdated)) &&
-    [
-      current.minBuyout,
-      current.marketValue,
-      current.historicalValue,
-      current.quantity,
-      current.numAuctions,
-    ].every((value) => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0)
+    [current.minBuyout, current.marketValue, current.historicalValue].every(
+      (value) => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0,
+    )
   );
 }
 

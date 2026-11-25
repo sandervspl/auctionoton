@@ -7,13 +7,13 @@ const realms = [
     name: 'Wild Growth',
     localizedName: 'Wild Growth',
     realmId: 1,
-    auctionHouses: [{ auctionHouseId: 509, type: 'Alliance', lastModified: 0 }],
+    auctionHouses: [{ auctionHouseId: 509, type: 'Alliance' }],
   },
   {
     name: 'Living Flame',
     localizedName: 'Living Flame',
     realmId: 2,
-    auctionHouses: [{ auctionHouseId: 511, type: 'Alliance', lastModified: 0 }],
+    auctionHouses: [{ auctionHouseId: 511, type: 'Alliance' }],
   },
 ];
 

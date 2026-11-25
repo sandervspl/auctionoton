@@ -20,16 +20,13 @@ beforeAll(async () => {
       .run();
     await env.MARKET.batch(
       Array.from({ length: 50 }, (_, index) =>
-        env.MARKET.prepare('INSERT INTO prices VALUES (?, ?, 0, ?, 2, 120, 110, 1)').bind(
+        env.MARKET.prepare('INSERT INTO prices VALUES (?, ?, ?, 120, 110)').bind(
           id,
           index + 1,
           value,
         ),
       ),
     );
-    await env.MARKET.prepare('INSERT INTO prices VALUES (?, 1, 42, 999, 2, 120, 110, 1)')
-      .bind(id)
-      .run();
   }
   await env.MARKET.prepare(
     "INSERT OR REPLACE INTO item_metadata(id, name, slug, icon) VALUES (1, 'Cloth', 'cloth', 'inv_fabric_linen_01')",

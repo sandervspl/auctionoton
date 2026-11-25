@@ -8,16 +8,12 @@ export namespace NexusHub {
     historicalValue: number;
     marketValue: number;
     minBuyout: number;
-    numAuctions: number;
-    quantity: number;
   }
 
   export interface Previous {
     marketValue: number;
     minBuyout: number;
-    quantity: number;
     historicalValue: number;
-    numAuctions: number;
   }
 
   export interface Stats {

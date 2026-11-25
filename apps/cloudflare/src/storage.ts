@@ -1,8 +1,8 @@
-import { JSONParser } from '@streamparser/json';
 import { houseKey, snapshotId, validatePrice } from './contracts';
 import type { Archive, AuctionJob, Manifest, Price } from './contracts';
+import { CsvParser } from './csv';
 import type { Env } from './env';
-import { providerFetch } from './provider';
+import { auctionHouseCsvUrl } from './realms';
 import { oldestPriceDay } from './retention';
 
 export const CHUNK_ROWS = 500;
@@ -57,7 +57,7 @@ export async function archiveStream(
 }
 
 export async function archiveHouse(env: Env, job: AuctionJob): Promise<Archive> {
-  const rawKey = `raw/${snapshotId(job)}.json`;
+  const rawKey = `raw/${snapshotId(job)}.csv`;
   const existing = await env.SNAPSHOTS.head(rawKey);
   if (existing?.customMetadata?.fetchedAt) {
     return {
@@ -67,11 +67,16 @@ export async function archiveHouse(env: Env, job: AuctionJob): Promise<Archive> 
       bytes: existing.size,
     };
   }
-  const response = await providerFetch(
-    env,
-    job.version,
-    `https://pricing-api.tradeskillmaster.com/ah/${job.auctionHouseId}`,
-  );
+  const url = auctionHouseCsvUrl(job);
+  if (!url) throw new Error(`Auction house ${houseKey(job)} is absent from the realm catalog`);
+  const response = await fetch(url, {
+    headers: { Accept: 'text/csv' },
+    signal: AbortSignal.timeout(60_000),
+  });
+  if (!response.ok) {
+    await response.body?.cancel();
+    throw new Error(`TSM public data HTTP ${response.status}`);
+  }
   if (!response.body) throw new Error('Empty TSM response body');
   if (Number(response.headers.get('content-length')) > MAX_RAW_BYTES) {
     await response.body.cancel();
@@ -83,7 +88,7 @@ export async function archiveHouse(env: Env, job: AuctionJob): Promise<Archive> 
     ? new Date(modified).toISOString()
     : (job.providerModifiedAt ?? null);
   const bytes = await archiveStream(env.SNAPSHOTS, rawKey, response.body, {
-    httpMetadata: { contentType: 'application/json' },
+    httpMetadata: { contentType: 'text/csv' },
     customMetadata: {
       fetchedAt,
       providerModifiedAt: providerModifiedAt ?? '',
@@ -94,6 +99,14 @@ export async function archiveHouse(env: Env, job: AuctionJob): Promise<Archive> 
   return { rawKey, fetchedAt, providerModifiedAt, bytes };
 }
 
+const requiredColumns = ['itemId', 'marketValue', 'minBuyout', 'historical'] as const;
+
+function csvInteger(value: string | undefined, column: string) {
+  if (value === undefined || !/^\d+$/.test(value))
+    throw new Error(`Invalid CSV integer: ${column}`);
+  return Number(value);
+}
+
 export async function normalizeArchive(
   env: Env,
   job: AuctionJob,
@@ -101,25 +114,36 @@ export async function normalizeArchive(
 ): Promise<Manifest> {
   const raw = await env.SNAPSHOTS.get(archive.rawKey);
   if (!raw || raw.size > MAX_RAW_BYTES) throw new Error('Missing or oversized R2 archive');
-  const parser = new JSONParser({ paths: ['$.*'], keepStack: false });
+  const parser = new CsvParser();
+  const decoder = new TextDecoder('utf-8', { fatal: true, ignoreBOM: false });
+  let columns: Record<(typeof requiredColumns)[number], number> | undefined;
   let pending: Price[] = [];
+  const seen = new Set<number>();
   let rows = 0;
   let chunks = 0;
-  let firstByte = false;
-  let complete = false;
-  let consumed = 0;
-  let lastRowEnd = 0;
-  let tokenOffset = 0;
-  parser.onToken = ({ offset }) => {
-    tokenOffset = offset;
-  };
-  parser.onValue = ({ value, parent }) => {
-    if (!Array.isArray(parent)) throw new Error('TSM payload must be an array');
-    pending.push(validatePrice(value, job.auctionHouseId));
-    lastRowEnd = tokenOffset + 1;
-  };
-  parser.onEnd = () => {
-    complete = true;
+  const accept = (record: string[]) => {
+    if (!columns) {
+      const header = record.map((name) => name.trim());
+      const indexes = requiredColumns.map((name) => header.indexOf(name));
+      if (indexes.some((index) => index < 0)) throw new Error('Unexpected TSM CSV header');
+      columns = Object.fromEntries(requiredColumns.map((name, i) => [name, indexes[i]])) as never;
+      return;
+    }
+    if (record.length === 1 && record[0] === '') return;
+    const price = validatePrice(
+      {
+        auctionHouseId: job.auctionHouseId,
+        itemId: csvInteger(record[columns.itemId], 'itemId'),
+        minBuyout: csvInteger(record[columns.minBuyout], 'minBuyout'),
+        marketValue: csvInteger(record[columns.marketValue], 'marketValue'),
+        historical: csvInteger(record[columns.historical], 'historical'),
+      },
+      job.auctionHouseId,
+    );
+    // A repeated item would make the stored row count disagree with the manifest.
+    if (seen.has(price.itemId)) throw new Error(`Duplicate item ${price.itemId}`);
+    seen.add(price.itemId);
+    pending.push(price);
   };
   const flush = async (count: number) => {
     const items = pending.splice(0, count);
@@ -131,24 +155,15 @@ export async function normalizeArchive(
   for await (const bytes of raw.body) {
     // Feed bounded slices even if the source delivers a single large buffer.
     for (let offset = 0; offset < bytes.length; offset += 16_384) {
-      const slice = bytes.subarray(offset, offset + 16_384);
-      if (!firstByte) {
-        for (const byte of slice) {
-          if ([9, 10, 13, 32].includes(byte)) continue;
-          if (byte !== 91) throw new Error('TSM payload must be an array');
-          firstByte = true;
-          break;
-        }
-      }
-      parser.write(slice);
-      consumed += slice.length;
-      if (consumed - lastRowEnd > 64 * 1024) throw new Error('Oversized auction row');
+      const text = decoder.decode(bytes.subarray(offset, offset + 16_384), { stream: true });
+      for (const record of parser.write(text)) accept(record);
       while (pending.length >= CHUNK_ROWS) await flush(CHUNK_ROWS);
     }
   }
-  if (!parser.isEnded) parser.end();
-  if (!firstByte || !complete) throw new Error('Incomplete TSM JSON');
-  if (pending.length) await flush(pending.length);
+  for (const record of parser.write(decoder.decode())) accept(record);
+  for (const record of parser.end()) accept(record);
+  if (!columns) throw new Error('Incomplete TSM CSV');
+  while (pending.length) await flush(Math.min(CHUNK_ROWS, pending.length));
   pending = [];
   const manifest = { ...archive, chunks, rows };
   await env.SNAPSHOTS.put(`normalized/${snapshotId(job)}/manifest.json`, JSON.stringify(manifest));
@@ -192,23 +207,20 @@ export async function writeChunk(env: Env, job: AuctionJob, index: number) {
     throw new Error('Invalid normalized chunk');
   const rows = values.map((value) => validatePrice(value, job.auctionHouseId));
   const statements: D1PreparedStatement[] = [];
-  // Eight columns x twelve rows = 96, within D1's 100 bound-parameter limit.
-  for (let offset = 0; offset < rows.length; offset += 12) {
-    const batch = rows.slice(offset, offset + 12);
+  // Five columns x nineteen rows = 95, within D1's 100 bound-parameter limit.
+  for (let offset = 0; offset < rows.length; offset += 19) {
+    const batch = rows.slice(offset, offset + 19);
     statements.push(
       env.MARKET.prepare(`INSERT INTO prices
-      (snapshot_id, item_id, pet_species_id, min_buyout, quantity, market_value, historical, num_auctions)
-      VALUES ${batch.map(() => '(?, ?, ?, ?, ?, ?, ?, ?)').join(',')}
-      ON CONFLICT(snapshot_id, item_id, pet_species_id) DO NOTHING`).bind(
+      (snapshot_id, item_id, min_buyout, market_value, historical)
+      VALUES ${batch.map(() => '(?, ?, ?, ?, ?)').join(',')}
+      ON CONFLICT(snapshot_id, item_id) DO NOTHING`).bind(
         ...batch.flatMap((row) => [
           storageId,
           row.itemId,
-          row.petSpeciesId ?? 0,
           row.minBuyout,
-          row.quantity,
           row.marketValue,
           row.historical,
-          row.numAuctions,
         ]),
       ),
     );

@@ -121,13 +121,6 @@ const Tooltip: React.FC<Props> = ({ amount = 1, ...props }) => {
                   amount={amount}
                   value={item.stats.current.minBuyout}
                 />
-                <SellPrice
-                  heading="Quantity"
-                  amount={amount}
-                  value={`${item.stats.current.quantity} auction${
-                    item.stats.current.quantity === 1 ? '' : 's'
-                  }`}
-                />
               </>
             )}
 

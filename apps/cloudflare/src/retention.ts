@@ -25,8 +25,8 @@ export async function prunePriceBatch(db: D1Database, now: string) {
     if (!candidate) return { rows, snapshots, done: true };
     const results = await db.batch([
       db
-        .prepare(`DELETE FROM prices WHERE snapshot_id = ? AND (item_id, pet_species_id) IN
-        (SELECT item_id, pet_species_id FROM prices WHERE snapshot_id = ? LIMIT 1000)
+        .prepare(`DELETE FROM prices WHERE snapshot_id = ? AND item_id IN
+        (SELECT item_id FROM prices WHERE snapshot_id = ? LIMIT 1000)
         AND NOT EXISTS (SELECT 1 FROM published_houses WHERE snapshot_id = ?)`)
         .bind(candidate.id, candidate.id, candidate.id),
       db

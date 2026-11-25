@@ -27,8 +27,6 @@ const item = (itemId: number, updatedAt = new Date().toISOString()) =>
         minBuyout: 100,
         marketValue: 120,
         historicalValue: 110,
-        quantity: 2,
-        numAuctions: 1,
       },
     },
   }) as CachedItemDataClassic;

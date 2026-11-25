@@ -1,51 +1,17 @@
 import { env } from 'cloudflare:workers';
-import { runInDurableObject } from 'cloudflare:test';
-import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+import { expect, it } from 'vitest';
 import worker from '../src/index';
-import { versions, providerVersions } from '../src/contracts';
-import { parseRealmCatalog, realmCatalogLifetime, selectRealmRegion } from '../src/realms';
+import { versions } from '../src/contracts';
+import {
+  auctionHouseCsvUrl,
+  getRealms,
+  realmCatalog,
+  validateRealmCatalog,
+  type RealmCatalog,
+} from '../src/realms';
 import { discoverHouseJobs } from '../src/discovery';
 import { PUBLIC_CACHE_CONTROL } from '../src/public-cache';
 
-const realm = (name: string, realmId: number) => ({
-  name,
-  localizedName: name,
-  realmId,
-  locale: 'en_US',
-  auctionHouses: [{ auctionHouseId: realmId + 500, type: 'Alliance', lastModified: 0 }],
-});
-const catalog = {
-  items: versions.flatMap((version) =>
-    ['eu', 'us'].map((regionPrefix) => ({
-      regionPrefix,
-      gameVersion: providerVersions[version],
-      realms: [realm(`${regionPrefix} Zulu`, 2), realm(`${regionPrefix} Alpha`, 1)],
-    })),
-  ),
-};
-
-beforeEach(async () => {
-  await env.SNAPSHOTS.delete('realm-cache/v1/catalog.json');
-  // The expiry test advances time; reset its persisted provider throttle as well.
-  await runInDurableObject(env.PROVIDER.getByName('tsm-seasonal'), (_instance, state) => {
-    state.storage.sql.exec('DELETE FROM throttle');
-    state.storage.sql.exec('DELETE FROM tokens');
-  });
-});
-afterEach(() => {
-  vi.unstubAllGlobals();
-  vi.restoreAllMocks();
-});
-
-function mockProvider(data: unknown = catalog, status = 200) {
-  const fetcher = vi.fn(async (url: string) =>
-    url.includes('/oauth2/token')
-      ? Response.json({ access_token: 'realm-test-token', expires_in: 3600 })
-      : Response.json(data, { status }),
-  );
-  vi.stubGlobal('fetch', fetcher);
-  return fetcher;
-}
 const request = (path: string) =>
   worker.fetch(
     new Request(`https://trial.example.com${path}`, {
@@ -54,162 +20,137 @@ const request = (path: string) =>
     env,
   );
 
-it('serves sorted realms and provider auction-house IDs for every region/version with CORS', async () => {
-  const fetcher = mockProvider();
-  const bindings = { ...env, TSM_API_KEY_B: '', TSM_API_KEY_C: '', TSM_API_KEY_D: '' };
+it('ships a valid catalog with realms for every supported region and version', () => {
+  expect(() => validateRealmCatalog(realmCatalog)).not.toThrow();
+  for (const version of versions) {
+    for (const region of ['eu', 'us'] as const) {
+      expect(realmCatalog[version][region].realms.length, `${version}/${region}`).toBeGreaterThan(
+        0,
+      );
+    }
+  }
+});
+
+it('serves sorted realms and auction-house IDs for every region/version with CORS', async () => {
   for (const version of versions) {
     for (const region of ['eu', 'us']) {
-      const response = await worker.fetch(
-        new Request(`https://trial.example.com/realms/${region}/${version}`, {
-          headers: { Origin: 'chrome-extension://test' },
-        }),
-        bindings,
-      );
+      const response = await request(`/realms/${region}/${version}`);
       expect(response.status).toBe(200);
       expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*');
       expect(response.headers.get('Cache-Control')).toBe(PUBLIC_CACHE_CONTROL);
       expect(response.headers.get('Cache-Tag')).toBe('realm-catalog');
-      expect(await response.json()).toEqual([
-        expect.objectContaining({
-          name: `${region} Alpha`,
-          auctionHouses: [{ auctionHouseId: 501, type: 'Alliance', lastModified: 0 }],
-        }),
-        expect.objectContaining({ name: `${region} Zulu` }),
-      ]);
+      const realms = (await response.json()) as ReturnType<typeof getRealms>;
+      const names = realms.map((realm) => realm.localizedName);
+      expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b)));
+      for (const realm of realms) {
+        expect(realm.auctionHouses.length).toBeGreaterThan(0);
+        expect(Object.keys(realm.auctionHouses[0]!).sort()).toEqual(['auctionHouseId', 'type']);
+      }
     }
   }
-  expect(fetcher.mock.calls.filter(([url]) => url.includes('realm-api'))).toHaveLength(1);
 });
 
-it('reuses a fresh catalog and fetches newly added realms after one hour without an import job', async () => {
-  const fetcher = mockProvider();
-  await request('/realms/eu/seasonal');
-  await request('/realms/us/seasonal');
-  expect(fetcher.mock.calls.filter(([url]) => url.includes('realm-api'))).toHaveLength(1);
-  const now = Date.now();
-  vi.spyOn(Date, 'now').mockReturnValue(now + realmCatalogLifetime + 1000);
-  mockProvider({
-    items: [
-      { regionPrefix: 'eu', gameVersion: 'Season of Discovery', realms: [realm('New realm', 3)] },
-    ],
-  });
-  const response = await request('/realms/eu/seasonal');
-  expect(await response.json()).toEqual([expect.objectContaining({ name: 'New realm' })]);
-});
-
-it('reports provider errors and malformed catalogs as retryable failures without caching them', async () => {
-  mockProvider({ error: 'upstream unavailable' }, 503);
-  let response = await request('/realms/eu/era');
-  expect(response.status).toBe(503);
-  expect(response.headers.get('Cache-Control')).toBe('no-store');
-  expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*');
-  expect(await env.SNAPSHOTS.head('realm-cache/v1/catalog.json')).toBeNull();
-  mockProvider({ items: [{ regionPrefix: 'eu', gameVersion: 'Classic Era', realms: [{}] }] });
-  response = await request('/realms/eu/era');
-  expect(response.status).toBe(503);
-  expect(await env.SNAPSHOTS.head('realm-cache/v1/catalog.json')).toBeNull();
-});
-
-it('distinguishes a valid empty list from missing version mappings and invalid requests', async () => {
-  mockProvider({ items: [{ regionPrefix: 'eu', gameVersion: 'Classic Era', realms: [] }] });
-  const empty = await request('/realms/eu/era');
-  expect(empty.status).toBe(200);
-  expect(await empty.json()).toEqual([]);
-  expect((await request('/realms/us/era')).status).toBe(503);
+it('rejects unknown regions and versions', async () => {
   expect((await request('/realms/eu/retail')).status).toBe(400);
   expect((await request('/realms/xx/era')).status).toBe(400);
 });
 
-it('keeps legacy progression labels and prefers a renamed expansion without guessing unknown modes', () => {
-  const items = parseRealmCatalog(catalog).items;
-  expect(selectRealmRegion(items, 'eu', 'classic').gameVersion).toBe('Wrath');
-  items.push({ regionPrefix: 'eu', gameVersion: 'Mists of Pandaria', realms: [] });
-  expect(selectRealmRegion(items, 'eu', 'classic').gameVersion).toBe('Mists of Pandaria');
-  expect(() =>
-    selectRealmRegion(
-      [{ regionPrefix: 'eu', gameVersion: 'Unknown', realms: [] }],
-      'eu',
-      'classic',
-    ),
-  ).toThrow('No provider realm catalog');
+it('lists every Forever realm in both regions', () => {
+  for (const region of ['eu', 'us'] as const) {
+    expect(getRealms(region, 'forever').map((realm) => realm.name)).toEqual([
+      'Normal',
+      'PvP',
+      'Roleplay',
+      'Roleplay PvP',
+    ]);
+  }
 });
 
-it('rejects auction houses that the extension cannot parse before caching them', async () => {
-  const broken = realm('Invalid timestamp', 1);
-  mockProvider({
-    items: [
-      {
-        regionPrefix: 'eu',
-        gameVersion: 'Classic Era',
+it('keeps Anniversary realms separate from Era and progression', () => {
+  expect(getRealms('eu', 'anniversary').map((realm) => realm.name)).toEqual([
+    'Spineshatter',
+    'Thunderstrike',
+  ]);
+  expect(getRealms('us', 'anniversary').map((realm) => realm.name)).toEqual([
+    'Dreamscythe',
+    'Maladath (AU)',
+    'Nightslayer',
+  ]);
+});
+
+it('maps auction houses to TSM public CSV files by version, region, realm and faction', () => {
+  expect(auctionHouseCsvUrl({ region: 'eu', version: 'seasonal', auctionHouseId: 509 })).toBe(
+    'https://public-data.tradeskillmaster.com/classic/eu-sod/realm/wild-growth-alliance/items.csv',
+  );
+  expect(auctionHouseCsvUrl({ region: 'us', version: 'forever', auctionHouseId: 598 })).toBe(
+    'https://public-data.tradeskillmaster.com/forever/us/realm/roleplay-pvp-horde/items.csv',
+  );
+  expect(auctionHouseCsvUrl({ region: 'us', version: 'anniversary', auctionHouseId: 551 })).toBe(
+    'https://public-data.tradeskillmaster.com/classic/us-fresh/realm/maladath-au-alliance/items.csv',
+  );
+  // The same house ID in another region or version is a different market.
+  expect(auctionHouseCsvUrl({ region: 'us', version: 'seasonal', auctionHouseId: 509 })).toBe(
+    undefined,
+  );
+  expect(auctionHouseCsvUrl({ region: 'eu', version: 'era', auctionHouseId: 509 })).toBe(undefined);
+});
+
+it('uses the first connected realm for a shared auction house', () => {
+  const catalog = {
+    era: {
+      eu: {
+        path: 'classic/eu',
         realms: [
           {
-            ...broken,
-            auctionHouses: [{ auctionHouseId: 501, type: 'Alliance', lastModified: 'yesterday' }],
+            name: 'First',
+            localizedName: 'First',
+            realmId: 1,
+            slug: 'first',
+            auctionHouses: [{ auctionHouseId: 7, type: 'Horde' }],
+          },
+          {
+            name: 'Second',
+            localizedName: 'Second',
+            realmId: 2,
+            slug: 'second',
+            auctionHouses: [{ auctionHouseId: 7, type: 'Horde' }],
           },
         ],
       },
-    ],
-  });
-  expect((await request('/realms/eu/era')).status).toBe(503);
-  expect(await env.SNAPSHOTS.head('realm-cache/v1/catalog.json')).toBeNull();
+    },
+  } as unknown as RealmCatalog;
+  expect(auctionHouseCsvUrl({ region: 'eu', version: 'era', auctionHouseId: 7 }, catalog)).toBe(
+    'https://public-data.tradeskillmaster.com/classic/eu/realm/first-horde/items.csv',
+  );
 });
 
-it('uses the same progression mapping for price imports and realm selection', () => {
-  const catalog = {
-    items: [
-      {
-        regionPrefix: 'eu' as const,
-        gameVersion: 'Mists of Pandaria',
-        realms: [realm('Progression', 1)],
-      },
-    ],
+it('validates catalog slugs, IDs, factions and shared houses', () => {
+  const entry = (realms: unknown[]) => ({ era: { eu: { path: 'classic/eu', realms } } });
+  const realm = {
+    name: 'One',
+    localizedName: 'One',
+    realmId: 1,
+    slug: 'one',
+    auctionHouses: [{ auctionHouseId: 1, type: 'Alliance' }],
   };
-  const jobs = discoverHouseJobs(catalog, [
-    { region: 'eu', version: 'classic', auctionHouseId: 501, day: '2026-09-14' },
-  ]);
-  expect(jobs).toHaveLength(1);
-  expect(jobs[0].auctionHouseId).toBe(501);
+  expect(() => validateRealmCatalog(entry([realm]))).not.toThrow();
+  expect(() => validateRealmCatalog(entry([{ ...realm, slug: 'Bad Slug' }]))).toThrow();
+  expect(() => validateRealmCatalog(entry([{ ...realm, realmId: 0 }]))).toThrow();
+  expect(() =>
+    validateRealmCatalog(
+      entry([{ ...realm, auctionHouses: [{ auctionHouseId: 1, type: 'All' }] }]),
+    ),
+  ).toThrow();
+  expect(() =>
+    validateRealmCatalog(
+      entry([realm, { ...realm, auctionHouses: [{ auctionHouseId: 1, type: 'Horde' }] }]),
+    ),
+  ).toThrow('Conflicting');
 });
 
-it('maps Anniversary realms independently from progression and Era', () => {
-  const items = parseRealmCatalog({
-    items: [
-      {
-        regionPrefix: 'eu',
-        gameVersion: 'Classic Anniversary',
-        realms: [realm('Spineshatter', 10), realm('Thunderstrike', 11)],
-      },
-      {
-        regionPrefix: 'us',
-        gameVersion: 'Classic Anniversary',
-        realms: [realm('Nightslayer', 12), realm('Dreamscythe', 13), realm('Maladath', 14)],
-      },
-      { regionPrefix: 'eu', gameVersion: 'Wrath', realms: [realm('Progression', 15)] },
-    ],
-  }).items;
-  expect(selectRealmRegion(items, 'eu', 'anniversary').realms.map((realm) => realm.name)).toEqual([
-    'Spineshatter',
-    'Thunderstrike',
-  ]);
-  expect(selectRealmRegion(items, 'us', 'anniversary').realms.map((realm) => realm.name)).toEqual([
-    'Nightslayer',
-    'Dreamscythe',
-    'Maladath',
-  ]);
-});
-
-it('finds Anniversary realms after a provider label change without including other realms', () => {
-  const items = parseRealmCatalog({
-    items: [
-      {
-        regionPrefix: 'eu',
-        gameVersion: 'Renamed TBC catalog',
-        realms: [realm('Spineshatter', 10), realm('Thunderstrike', 11), realm('Soulseeker', 12)],
-      },
-    ],
-  }).items;
-  expect(selectRealmRegion(items, 'eu', 'anniversary').realms.map((realm) => realm.name)).toEqual([
-    'Spineshatter',
-    'Thunderstrike',
-  ]);
+it('rejects configured houses that the catalog cannot map', () => {
+  const job = { region: 'eu', version: 'classic', day: '2026-09-14' } as const;
+  const progression = realmCatalog.classic.eu.realms[0]!.auctionHouses[0]!.auctionHouseId;
+  expect(discoverHouseJobs([{ ...job, auctionHouseId: progression }])).toHaveLength(1);
+  expect(() => discoverHouseJobs([{ ...job, auctionHouseId: 999_999 }])).toThrow('absent');
 });

@@ -4,7 +4,6 @@ import * as RemovalPolicy from 'alchemy/RemovalPolicy';
 import * as Config from 'effect/Config';
 import * as Effect from 'effect/Effect';
 import type { AuctionJob } from '../../apps/cloudflare/src/contracts';
-import type { ProviderCoordinator } from '../../apps/cloudflare/src/provider';
 import { MAINTENANCE_CRON } from '../../apps/cloudflare/src/retention';
 
 // The existing Node build remains available during the compatibility trial.
@@ -69,18 +68,12 @@ export const Backend = Cloudflare.Worker('Backend', {
     SNAPSHOTS: snapshots,
     AUCTION_JOBS: jobs,
     FAILED_JOBS: failures,
-    PROVIDER: Cloudflare.DurableObject<ProviderCoordinator>('ProviderCoordinator'),
     AUCTION_IMPORT: Cloudflare.Workflow<AuctionJob>('AuctionImport'),
     DAILY_DISCOVERY: Cloudflare.Workflow<{ day: string }>('DailyDiscovery'),
     MARKET_MAINTENANCE: Cloudflare.Workflow<{ now: string }>('MarketMaintenance'),
     BASE_URL: Cloudflare.Worker.URL,
     ADMIN_TOKEN: Config.redacted('CF_TRIAL_ADMIN_TOKEN'),
     BETTER_AUTH_SECRET: Config.redacted('CF_TRIAL_AUTH_SECRET'),
-    TSM_CLIENT_ID: Config.redacted('TSM_CLIENT_ID'),
-    TSM_API_KEY: Config.redacted('TSM_API_KEY'),
-    TSM_API_KEY_B: Config.redacted('TSM_API_KEY_B'),
-    TSM_API_KEY_C: Config.redacted('TSM_API_KEY_C'),
-    TSM_API_KEY_D: Config.redacted('TSM_API_KEY_D'),
     TRIAL_HOUSE_ID: Config.string('CF_TRIAL_HOUSE_ID'),
     TRIAL_REGION: 'eu',
     TRIAL_VERSION: 'seasonal',

@@ -33,10 +33,8 @@ export async function getItemHistory(
   const itemHistory = await db
     .select({
       minBuyout: items.minBuyout,
-      quantity: items.quantity,
       marketValue: items.marketValue,
       historical: items.historical,
-      numAuctions: items.numAuctions,
       timestamp: items.timestamp,
       icon: itemsMetadata.icon,
       name: itemsMetadata.name,

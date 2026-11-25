@@ -22,8 +22,6 @@ export type PriceSnapshotV2 = {
   marketValue: number;
   historicalValue: number;
   minBuyout: PriceObjectV2 | number;
-  numAuctions: number;
-  quantity: number;
 };
 
 export type ItemResponseV2 = Omit<NexusHub.ItemsResponse, 'stats'> & {

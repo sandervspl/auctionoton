@@ -14,12 +14,9 @@ type RecentSearchItem = {
   search: string;
   recent_search_timestamp: string;
   auction_house_id: number;
-  pet_species_id: number | null;
   min_buyout: number;
-  quantity: number;
   market_value: number;
   historical: number;
-  num_auctions: number;
   item_timestamp: string;
   name: string;
 };
@@ -89,12 +86,9 @@ SELECT
   rsc.timestamp as recent_search_timestamp,
   meta.name,
   i.auction_house_id,
-  i.pet_species_id,
   i.min_buyout,
-  i.quantity,
   i.market_value,
   i.historical,
-  i.num_auctions,
   i.timestamp as item_timestamp
 FROM recent_searches_cte rsc
 JOIN items_cte i ON rsc.item_id = i.item_id
