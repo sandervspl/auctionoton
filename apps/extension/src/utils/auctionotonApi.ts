@@ -4,5 +4,5 @@ import { apiOrigin } from '../../api.config';
 
 export const auctionotonAPI = rateLimit(axios.create(), { maxRequests: 3, perMilliseconds: 500 });
 
-// Both development and packaged extensions use the active staging backend.
+// Release builds use production; development builds use staging (see api.config.ts).
 export const auctionotonAPIUrl = apiOrigin;

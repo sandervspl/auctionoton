@@ -8,6 +8,13 @@ import { parseEnv } from 'node:util';
 const directory = fileURLToPath(new URL('..', import.meta.url));
 const root = resolve(directory, '../..');
 const env = { ...process.env };
+const command = process.argv[2];
+if (!['plan', 'deploy', 'dev'].includes(command)) throw new Error('Expected plan, deploy, or dev');
+const stage = command === 'dev' ? 'local' : (process.argv[3] ?? 'staging');
+if (!['staging', 'production'].includes(stage) && command !== 'dev')
+  throw new Error('Expected stage staging or production');
+// alchemy.run.ts reads this to select stage-specific configuration.
+env.AUCTIONOTON_STAGE = stage;
 const allowed = new Set([
   'CF_TRIAL_ADMIN_TOKEN',
   'CF_TRIAL_AUTH_SECRET',
@@ -19,7 +26,13 @@ const allowed = new Set([
   'CLOUDFLARE_ACCESS_GOOGLE_AUD',
   'CLOUDFLARE_ACCESS_USER_ID_MAP',
 ]);
-for (const path of ['packages/infrastructure/.env.local', 'apps/website/.env.local']) {
+// Production uses its own admin and auth secrets from .env.production.local.
+const envFiles = [
+  ...(stage === 'production' ? ['packages/infrastructure/.env.production.local'] : []),
+  'packages/infrastructure/.env.local',
+  'apps/website/.env.local',
+];
+for (const path of envFiles) {
   const filename = resolve(root, path);
   if (!existsSync(filename)) continue;
   for (const [key, value] of Object.entries(parseEnv(readFileSync(filename, 'utf8')))) {
@@ -37,8 +50,6 @@ if (!env.CLOUDFLARE_API_TOKEN && !env.CI) {
       env.CLOUDFLARE_API_TOKEN = token;
   }
 }
-const command = process.argv[2];
-if (!['plan', 'deploy', 'dev'].includes(command)) throw new Error('Expected plan, deploy, or dev');
 for (const key of allowed) {
   if (key === 'CLOUDFLARE_ACCESS_USER_ID_MAP') continue;
   if (!env[key]) throw new Error(`Missing ${key}; see packages/infrastructure/.env.example`);
@@ -46,14 +57,7 @@ for (const key of allowed) {
 const bin = fileURLToPath(new URL('../bin/cli.js', import.meta.resolve('alchemy')));
 const child = spawn(
   process.execPath,
-  [
-    bin,
-    command,
-    '--stage',
-    command === 'dev' ? 'local' : 'staging',
-    '--no-input',
-    ...(command === 'deploy' ? ['--yes'] : []),
-  ],
+  [bin, command, '--stage', stage, '--no-input', ...(command === 'deploy' ? ['--yes'] : [])],
   {
     cwd: directory,
     stdio: 'inherit',

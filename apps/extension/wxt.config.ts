@@ -1,7 +1,7 @@
 import { defineConfig } from 'wxt';
 import banner from 'vite-plugin-banner';
 import { fileURLToPath } from 'node:url';
-import { apiOrigin, apiProxy } from './api.config';
+import { apiOriginFor, apiProxy } from './api.config';
 
 const nodeEnv = process.env.NODE_ENV || 'development';
 const DEV = nodeEnv !== 'production';
@@ -53,10 +53,10 @@ export default defineConfig({
     types: 'src/types/index.ts',
     utils: 'src/utils/index.ts',
   },
-  manifest: {
+  manifest: ({ mode }) => ({
     permissions: ['storage'],
-    host_permissions: [`${apiOrigin}/*`],
-  },
+    host_permissions: [`${apiOriginFor(mode)}/*`],
+  }),
   vite: (env) => ({
     // Older loaded dev bundles call the WXT origin. Keep those API paths working
     // while the popup/content scripts reload; localhost only serves development assets.

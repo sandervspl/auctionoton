@@ -1,5 +1,15 @@
 # extension
 
+## 6.0.0
+
+### Major Changes
+
+- Use the new Auctionoton backend at auctionoton-api.sandervspl.dev, with prices from TSM's public data
+- Add TBC Anniversary and WoW Forever (Normal, PvP, Roleplay and Roleplay PvP realms)
+- Show prices on Wowhead's Forever pages
+- Remove quantity and auction counts, which TSM no longer publishes
+- Keep the rest of the page working when one price widget fails
+
 ## 5.3.0
 
 ### Minor Changes

@@ -23,6 +23,10 @@ The first `cf:deploy` bootstraps the remote state store. `cf:plan` requires that
 
 The verifier creates an invited test account in the staging users database, signs in and out, starts one daily discovery, checks the resulting import and item price, and sends a duplicate import. It never sends email. Use only staging URLs. Trial accounts are disposable and must not be exported as production users.
 
+**Production backend**
+
+`pnpm cf:deploy:production` deploys a backend-only `production` stage (no website) at `https://auctionoton-api.sandervspl.dev`, the origin that extension release builds use. It has its own D1 databases, R2 bucket, Queues and Workflows (`auctionoton-production-*`), with daily imports enabled at `0 4 * * *` UTC for the houses in `alchemy.run.ts` (currently Forever EU Normal Alliance, 573). It reads its admin and auth secrets from `packages/infrastructure/.env.production.local` (`CF_TRIAL_ADMIN_TOKEN`, `CF_TRIAL_AUTH_SECRET`, `CF_TRIAL_HOUSE_ID`), separate from staging's. Run `pnpm cf:plan:production` first. Don't change the domain: it is in the extension's host permissions, and changing it makes Chrome disable installed copies until users re-approve them.
+
 **Workers Builds configuration**
 
 Use one build owner for the entire stack: `auctionoton-staging-backend`. The website must not run a separate stack deployment. Connect repository `sandervspl/auctionoton` and the intended staging branch after the reviewed files are pushed.

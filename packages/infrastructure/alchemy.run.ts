@@ -9,8 +9,14 @@ import { MAINTENANCE_CRON } from '../../apps/cloudflare/src/retention';
 // The existing Node build remains available during the compatibility trial.
 process.env.AUCTIONOTON_CLOUDFLARE = '1';
 
-const resourceName = (suffix: string) =>
-  Effect.map(Alchemy.Stack, (stack) => `auctionoton-${stack.stage}-${suffix}`);
+// Set by scripts/cloudflare.mjs from its --stage argument; module-level config depends on it.
+const stage = process.env.AUCTIONOTON_STAGE ?? 'staging';
+const production = stage === 'production';
+export const PRODUCTION_DOMAIN = 'auctionoton-api.sandervspl.dev';
+
+// Plain strings: this Alchemy version sends unresolved Effect names to the Cloudflare API when it
+// creates R2 buckets, Queues and Workers, which only showed up on a fresh stage.
+const resourceName = (suffix: string) => `auctionoton-${stage}-${suffix}`;
 
 // Resolve names before registering D1 props: this Alchemy version skips its
 // migration-file diff when a prop still contains an Effect at plan time.
@@ -18,7 +24,7 @@ const market = Cloudflare.D1.Database(
   'Market',
   Effect.gen(function* () {
     return {
-      name: yield* resourceName('market'),
+      name: resourceName('market'),
       primaryLocationHint: 'weur' as const,
       migrations: { dir: '../../apps/cloudflare/migrations/market' },
     };
@@ -28,7 +34,7 @@ const users = Cloudflare.D1.Database(
   'Users',
   Effect.gen(function* () {
     return {
-      name: yield* resourceName('users'),
+      name: resourceName('users'),
       primaryLocationHint: 'weur' as const,
       migrations: { dir: '../../apps/cloudflare/migrations/auth' },
     };
@@ -54,14 +60,24 @@ const observability = {
 };
 export const DAILY_CRON = '0 4 * * *';
 
+// Production imports daily; staging keeps imports manual.
+const enabledHouses = production
+  ? [{ version: 'forever', region: 'eu', auctionHouseId: 573 }] // Forever Normal Alliance
+  : [
+      { version: 'seasonal', region: 'eu', auctionHouseId: 509 }, // Wild Growth Alliance (trial)
+      { version: 'forever', region: 'eu', auctionHouseId: 573 }, // Forever Normal Alliance
+    ];
+
 export const Backend = Cloudflare.Worker('Backend', {
   name: resourceName('backend'),
   cache: { enabled: true },
   main: '../../apps/cloudflare/src/index.ts',
   compatibility: { date: '2026-09-13', flags: ['nodejs_compat'] },
   observability,
-  // Enable only after the representative import and production sizing gates pass.
-  crons: [MAINTENANCE_CRON],
+  // The extension's host permission names this domain; changing it disables installed copies
+  // until users re-approve the extension.
+  ...(production ? { domain: PRODUCTION_DOMAIN } : {}),
+  crons: production ? [DAILY_CRON, MAINTENANCE_CRON] : [MAINTENANCE_CRON],
   env: {
     MARKET: market,
     USERS: users,
@@ -77,13 +93,9 @@ export const Backend = Cloudflare.Worker('Backend', {
     TRIAL_HOUSE_ID: Config.string('CF_TRIAL_HOUSE_ID'),
     TRIAL_REGION: 'eu',
     TRIAL_VERSION: 'seasonal',
-    DAILY_ENABLED: 'false' as string,
-    // Replaces the trial-house default, so the trial house is listed too. Expand the allowlist
-    // after representative sizing.
-    ENABLED_HOUSES: JSON.stringify([
-      { version: 'seasonal', region: 'eu', auctionHouseId: 509 }, // Wild Growth Alliance (trial)
-      { version: 'forever', region: 'eu', auctionHouseId: 573 }, // Forever Normal Alliance
-    ]) as string,
+    DAILY_ENABLED: (production ? 'true' : 'false') as string,
+    // Replaces the trial-house default. Expand the allowlist after representative sizing.
+    ENABLED_HOUSES: JSON.stringify(enabledHouses) as string,
   },
 });
 export type BackendEnv = Cloudflare.InferEnv<typeof Backend>;
@@ -96,8 +108,11 @@ export default Alchemy.Stack(
   },
   Effect.gen(function* () {
     const stack = yield* Alchemy.Stack;
-    if (!['staging', 'local'].includes(stack.stage)) {
-      throw new Error('This compatibility trial only supports staging or local.');
+    if (!['staging', 'local', 'production'].includes(stack.stage)) {
+      throw new Error('Supported stages are local, staging and production.');
+    }
+    if (stack.stage !== stage) {
+      throw new Error('Run production deploys through scripts/cloudflare.mjs so config matches.');
     }
     const backend = yield* Backend;
     const queue = yield* jobs;
@@ -108,6 +123,10 @@ export default Alchemy.Stack(
       deadLetterQueue: deadLetters.queueName,
       settings: { batchSize: 1, maxConcurrency: 1, maxRetries: 5, retryDelay: 30 },
     });
+    // Production serves only the extension API; the website stays on staging for now.
+    if (production) {
+      return { backend: backend.url, dailyCron: DAILY_CRON, cronEnabled: true };
+    }
     const website = yield* Cloudflare.Website.Vite('Website', {
       name: resourceName('website'),
       rootDir: '../../apps/website',

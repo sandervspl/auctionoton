@@ -5,6 +5,8 @@
   "scripts": {
     "cf:plan": "node scripts/cloudflare.mjs plan",
     "cf:deploy": "node scripts/cloudflare.mjs deploy",
+    "cf:plan:production": "node scripts/cloudflare.mjs plan production",
+    "cf:deploy:production": "node scripts/cloudflare.mjs deploy production",
     "cf:dev": "node scripts/cloudflare.mjs dev",
     "typecheck": "tsc --noEmit",
     "lint": "biome lint .",
