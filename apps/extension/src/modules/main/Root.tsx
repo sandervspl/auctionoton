@@ -1,15 +1,14 @@
 import React from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Key } from 'w3c-keys';
-
-import time from 'utils/time';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { ItemPage } from './routes/ItemPage';
 import { SpellPage } from './routes/SpellPage';
 import ItemsPage from './routes/ItemsPage';
 import HoverTooltip from './HoverTooltip';
 import { uiState } from './state';
+import { Providers } from './Providers';
+import { syncStorageChanges } from '@/utils/storageChanges';
 
 class AppContainer extends React.Component {
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
@@ -22,27 +21,40 @@ class AppContainer extends React.Component {
 }
 
 const App: React.FC = () => {
+  const queryClient = useQueryClient();
   const isItemPage = window.location.pathname.includes('item=');
   const isSpellPage = window.location.pathname.includes('spell=');
   const isItemsPage = window.location.pathname.includes('/items/');
 
-  function onKeyDown(e: KeyboardEvent) {
-    uiState.keys[e.key as Key] = true;
-  }
-
-  function onKeyUp(e: KeyboardEvent) {
-    uiState.keys[e.key as Key] = false;
-  }
+  const onStorageChange = React.useCallback(
+    (changes: Record<string, { newValue?: unknown }>, area: string) => {
+      syncStorageChanges(queryClient, changes, area);
+    },
+    [queryClient],
+  );
 
   React.useEffect(() => {
+    if (!browser.storage.onChanged.hasListener(onStorageChange)) {
+      browser.storage.onChanged.addListener(onStorageChange);
+    }
+
+    function onKeyDown(e: KeyboardEvent) {
+      uiState.keys[e.key as Key] = true;
+    }
+
+    function onKeyUp(e: KeyboardEvent) {
+      uiState.keys[e.key as Key] = false;
+    }
+
     document.addEventListener('keydown', onKeyDown);
     document.addEventListener('keyup', onKeyUp);
 
     return () => {
       document.removeEventListener('keydown', onKeyDown);
       document.removeEventListener('keyup', onKeyUp);
+      browser.storage.onChanged.removeListener(onStorageChange);
     };
-  }, []);
+  }, [onStorageChange]);
 
   return (
     <>
@@ -54,24 +66,10 @@ const App: React.FC = () => {
   );
 };
 
-// Create a client
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: time.minutes(30),
-      gcTime: time.hours(1),
-      retryOnMount: false,
-    },
-  },
-});
-
-const Root = (): JSX.Element => {
+export const Root = (): JSX.Element => {
   return (
-    <QueryClientProvider client={queryClient}>
+    <Providers>
       <AppContainer />
-      <ReactQueryDevtools />
-    </QueryClientProvider>
+    </Providers>
   );
 };
-
-export default Root;

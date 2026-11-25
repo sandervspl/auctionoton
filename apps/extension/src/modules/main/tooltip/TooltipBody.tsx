@@ -1,6 +1,7 @@
-import { useWowhead } from 'hooks/useWowhead';
-import useStorageQuery from 'hooks/useStorageQuery';
 import React from 'react';
+
+import { useWowhead } from '@/hooks/useWowhead';
+import useStorageQuery from '@/hooks/useStorageQuery';
 
 type Props = {
   id: string;
@@ -13,15 +14,14 @@ type Props = {
 
 export const TooltipBody: React.FC<Props> = (props) => {
   const { data: user } = useStorageQuery('user');
-  const { version } = useWowhead();
+  const { version, group } = useWowhead();
 
   function getServerName(): string {
     if (!user) {
       return 'Unknown';
     }
 
-    const _version = version === 'seasonal' ? 'era' : 'classic'; // Used to be 'era' so for backwards compatibility we change it from 'seasonal' to 'era'
-    const activeVersion = user.isActive?.[_version] || version;
+    const activeVersion = user.isActive?.[group] || version;
     const serverName = user.realms?.[activeVersion];
     const region = user.region?.toUpperCase();
 

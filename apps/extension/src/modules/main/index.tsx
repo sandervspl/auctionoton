@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
-import { ELEMENT_ID } from 'src/constants';
-import getBodyElement from 'utils/getBodyElement';
+import { ELEMENT_ID } from '@/constants';
+import { getBodyElement } from 'utils';
 
-import Root from './Root';
+import { Root } from './Root';
 
 async function main(): Promise<void> {
   // Generate a root element for React to render on

@@ -1,0 +1,65 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "formatter": {
+    "indentStyle": "space",
+    "lineWidth": 100
+  },
+  "javascript": {
+    "globals": [
+      "__DEV__",
+      "__PROD__",
+      "__VITE_ENV__"
+    ],
+    "formatter": {
+      "enabled": true,
+      "quoteStyle": "single",
+      "lineWidth": 100,
+      "indentStyle": "space",
+      "semicolons": "always",
+      "trailingCommas": "all"
+    }
+  },
+  "linter": {
+    "rules": {
+      "correctness": {
+        "noUnusedImports": "warn"
+      },
+      "style": {
+        "useImportType": "off",
+        "noNonNullAssertion": "off"
+      },
+      "a11y": {
+        "useKeyWithClickEvents": "off"
+      },
+      "suspicious": {
+        "noExplicitAny": "off",
+        "noConsoleLog": "warn"
+      },
+      "recommended": true
+    },
+    "enabled": true
+  },
+  "organizeImports": {
+    "enabled": true
+  },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignore": [
+      "**/node_modules/**",
+      "**/.wxt/**",
+      "**/.output/**",
+      "**/build/**",
+      "**/dist/**",
+      "**/src/styled-system/**",
+      "**/src/db/drizzle/**",
+      "**/*.tsbuildinfo",
+      "**/public/**",
+      "**/routeTree.gen.ts",
+      "**/.tanstack/**"
+    ]
+  }
+}

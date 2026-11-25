@@ -3,3 +3,10 @@ dist/
 
 .DS_Store
 *.zip
+
+# WXT
+.output
+stats.html
+stats-*.json
+.wxt
+web-ext.config.ts

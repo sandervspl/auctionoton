@@ -1,25 +1,12 @@
 {
+  "extends": ["@auctionoton/typescript-config/base.json", "./.wxt/tsconfig.json"],
   "compilerOptions": {
     "outDir": "./dist",
-    "module": "commonjs",
     "target": "es2020",
     "jsx": "react",
     "removeComments": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "baseUrl": ".",
-    "paths": {
-      "constants/*": ["src/constants/*"],
-      "state": ["src/state/index"],
-      "state/*": ["src/state/*"],
-      "hooks/*": ["src/hooks/*"],
-      "utils/*": ["src/utils/*"],
-      "static/*": ["src/static/*"],
-      "modules/*": ["src/modules/*"],
-      "types": ["src/types/index"],
-      "src/*": ["src/*"]
-    },
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
     "lib": ["esnext", "DOM"]
   },
   "exclude": ["node_modules"]

@@ -1,0 +1,16 @@
+{
+  "name": "@auctionoton/typescript-config",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./base.json": "./base.json"
+  },
+  "scripts": {
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "format:check": "biome format ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "catalog:"
+  }
+}

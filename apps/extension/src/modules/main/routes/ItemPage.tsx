@@ -3,9 +3,9 @@ import * as i from 'types';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import useItemFromPage from 'hooks/useItemFromPage';
+import useItemFromPage from '@/hooks/useItemFromPage';
+import { useAuctionHouse } from '@/hooks/useAuctionHouse';
 
-import { useCraftableItemPage } from 'hooks/useCraftableItemPage';
 import generateContainer from '../generateContainer';
 import { Tabs } from '../Tabs';
 import { ChangeRealmButton } from '../ChangeRealmButton';
@@ -16,13 +16,13 @@ const tabs = ['Item price', 'Crafting price'];
 
 export const ItemPage = (): React.ReactPortal | null => {
   const { item: pageItem, getIsAuctionableItem, isCraftableItem } = useItemFromPage();
+  const auctionHouseId = useAuctionHouse();
   const tooltipElementId = `tt${pageItem?.id}`;
   const tooltipElement = document.querySelector(`div#${tooltipElementId}`);
   const isAuctionableItem = getIsAuctionableItem(tooltipElement?.innerHTML);
   const showTabs = isCraftableItem && isAuctionableItem;
   const [activeTab, setActiveTab] = React.useState(isAuctionableItem ? 0 : 1);
   const { reagentItems } = useGetReagentItems();
-  const { items } = useCraftableItemPage(reagentItems.map((item) => item.id));
 
   if (!tooltipElement) {
     return null;
@@ -45,16 +45,12 @@ export const ItemPage = (): React.ReactPortal | null => {
         Auction House Prices for Wowhead
       </p>
 
-      {showTabs && <Tabs tabs={tabs} onTabChange={setActiveTab} />}
-      {activeTab === 0 && <ItemPriceTooltip itemId={pageItem.id} />}
-      {activeTab === 1 && (
-        <CraftingCostTooltip
-          reagentItems={reagentItems}
-          items={items.map((item) => ({
-            data: item.data,
-            isLoading: item.isLoading || item.isFetching,
-          }))}
-        />
+      {auctionHouseId && showTabs && <Tabs tabs={tabs} onTabChange={setActiveTab} />}
+      {auctionHouseId && activeTab === 0 && (
+        <ItemPriceTooltip itemId={pageItem.id} auctionHouseId={auctionHouseId} />
+      )}
+      {auctionHouseId && activeTab === 1 && (
+        <CraftingCostTooltip {...{ reagentItems, auctionHouseId }} />
       )}
 
       <div className="auc-h-1" />
@@ -68,6 +64,7 @@ function useGetReagentItems() {
   const reagentItems: i.ReagentItem[] = React.useMemo(() => {
     const createdByTabEl = document.querySelector('#tab-created-by-spell');
     if (!createdByTabEl) {
+      // @ts-ignore
       if (__DEV__) {
         console.error('Could not find "created by" tab');
       }
@@ -79,6 +76,7 @@ function useGetReagentItems() {
       'a[href="#created-by-spell"',
     ) as HTMLAnchorElement;
     if (!createdByTabAnchor) {
+      // @ts-ignore
       if (__DEV__) {
         console.error('Could not find "created by" tab anchor');
       }

@@ -1,14 +1,15 @@
 import * as i from 'types';
 import * as React from 'react';
-import useStorageQuery from 'hooks/useStorageQuery';
+import { ExternalLinkIcon, RotateCwIcon } from 'lucide-react';
 
-import ExternalLinkSvg from 'static/external-link.svg';
-import RedoSvg from 'static/redo-solid.svg';
-import { useWowhead } from 'hooks/useWowhead';
+import useStorageQuery from '@/hooks/useStorageQuery';
+import { useWowhead } from '@/hooks/useWowhead';
+
 import Tooltip from './tooltip';
 
 type Props = {
   itemId: number;
+  auctionHouseId: number;
 };
 
 export const ItemPriceTooltip = (props: Props) => {
@@ -25,18 +26,19 @@ export const ItemPriceTooltip = (props: Props) => {
   }
 
   return (
-    <Tooltip itemId={props.itemId}>
+    <Tooltip itemId={props.itemId} auctionHouseId={props.auctionHouseId}>
       {({ error, loading, item, getItem }) => {
         return (
           <div className="auc-mt-2">
             {!loading && error && !item && (
               <div className="auc-mb-2">
                 <button
-                  className="btn btn-small auc-btn"
+                  type="button"
+                  className="btn btn-small btn"
                   onClick={() => getItem()}
                   title="Try loading item data again for Auctionoton"
                 >
-                  <RedoSvg className="auc-h-2 auc-pr-1" />
+                  <RotateCwIcon className="auc-h-2 auc-pr-1" />
                   <span>Try again</span>
                 </button>
               </div>
@@ -46,9 +48,10 @@ export const ItemPriceTooltip = (props: Props) => {
                 href={createNexushubLink(item as i.CachedItemDataClassic)!}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="q auc-flex auc-place-items-center auc-gap-1"
+                className="auc-q auc-flex auc-place-items-center auc-gap-1"
               >
-                More information on Nexushub.co <ExternalLinkSvg />
+                More information on Nexushub.co
+                <ExternalLinkIcon />
               </a>
             )}
           </div>

@@ -1,0 +1,193 @@
+{
+  "id": "fc3ac108-d576-44a9-a1bb-95c61c4cb449",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "5",
+  "dialect": "pg",
+  "tables": {
+    "items": {
+      "name": "items",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "auction_house_id": {
+          "name": "auction_house_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "item_id": {
+          "name": "item_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pet_species_id": {
+          "name": "pet_species_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "min_buyout": {
+          "name": "min_buyout",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "quantity": {
+          "name": "quantity",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "market_value": {
+          "name": "market_value",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "historical": {
+          "name": "historical",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "num_auctions": {
+          "name": "num_auctions",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "timestamp": {
+          "name": "timestamp",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "items_item_id_auction_house_id_idx": {
+          "name": "items_item_id_auction_house_id_idx",
+          "columns": [
+            "item_id",
+            "auction_house_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "items_item_id_auction_house_id_unq": {
+          "name": "items_item_id_auction_house_id_unq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "item_id",
+            "auction_house_id"
+          ]
+        }
+      }
+    },
+    "items_metadata": {
+      "name": "items_metadata",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "locale": {
+          "name": "locale",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'en_US'"
+        },
+        "quality": {
+          "name": "quality",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 1
+        },
+        "tags": {
+          "name": "tags",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "item_level": {
+          "name": "item_level",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "required_level": {
+          "name": "required_level",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "items_metadata_id_idx": {
+          "name": "items_metadata_id_idx",
+          "columns": [
+            "id"
+          ],
+          "isUnique": false
+        },
+        "items_metadata_id_locale_idx": {
+          "name": "items_metadata_id_locale_idx",
+          "columns": [
+            "id",
+            "locale"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "items_metadata_id_unq": {
+          "name": "items_metadata_id_unq",
+          "nullsNotDistinct": false,
+          "columns": [
+            "id"
+          ]
+        }
+      }
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

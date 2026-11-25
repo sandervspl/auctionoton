@@ -2,53 +2,38 @@ name: Deploy to Chrome Web Store
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-chrome
+  cancel-in-progress: false
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v3
-      - uses: oven-sh/setup-bun@v1
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        name: Install pnpm
+      - uses: actions/setup-node@v4
         with:
-          version: 8
-          run_install: false
-
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - uses: actions/cache@v4
-        name: Setup pnpm cache
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Check and package extension
+        run: pnpm exec turbo run typecheck zip --filter=@auctionoton/extension
+      - name: Keep the packaged extension
+        uses: actions/upload-artifact@v4
         with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Build extension
-        run: |
-          pnpm run build
-          cd apps/extension
-          pnpm run ci:create-dist
-          cd ../..
-
+          name: auctionoton-chrome
+          path: apps/extension/.output/auctionoton-chrome.zip
+          if-no-files-found: error
       - name: Deploy to Chrome Web Store
         uses: mnao305/chrome-extension-upload@v4.0.1
         with:
-          file-path: apps/extension/auctionoton.zip
+          file-path: apps/extension/.output/auctionoton-chrome.zip
           extension-id: ${{ secrets.CHROME_WEBSTORE_EXTENSION_ID }}
           client-id: ${{ secrets.CHROME_WEBSTORE_CLIENT_ID }}
           client-secret: ${{ secrets.CHROME_WEBSTORE_CLIENT_SECRET }}

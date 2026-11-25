@@ -1,0 +1,1 @@
+ALTER TABLE "recent_searches" ADD CONSTRAINT "recent_searches_item_id_unique" UNIQUE("item_id");

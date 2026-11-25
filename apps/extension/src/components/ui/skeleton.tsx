@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn } from 'src/utils';
+import { cn } from 'utils';
 
 function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (

@@ -1,17 +1,17 @@
 import * as React from 'react';
-import * as LabelPrimitive from '@radix-ui/react-label';
+import type * as LabelPrimitive from '@radix-ui/react-label';
 import { Slot } from '@radix-ui/react-slot';
 import {
   Controller,
-  ControllerProps,
-  FieldPath,
-  FieldValues,
+  type ControllerProps,
+  type FieldPath,
+  type FieldValues,
   FormProvider,
   useFormContext,
 } from 'react-hook-form';
 
-import { cn } from 'src/utils';
-import { Label } from 'src/components/ui/label';
+import { cn } from 'utils';
+import { Label } from '@/components/ui/label';
 
 const Form = FormProvider;
 
@@ -72,7 +72,7 @@ const FormItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
 
     return (
       <FormItemContext.Provider value={{ id }}>
-        <div ref={ref} className={cn('space-y-2', className)} {...props} />
+        <div ref={ref} className={cn('auc-space-y-2', className)} {...props} />
       </FormItemContext.Provider>
     );
   },
