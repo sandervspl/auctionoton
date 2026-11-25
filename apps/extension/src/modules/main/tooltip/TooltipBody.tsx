@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { useWowhead } from '@/hooks/useWowhead';
+import { activeVersion as pageVersion } from '@/utils/gameVersions';
 import useStorageQuery from '@/hooks/useStorageQuery';
 
 type Props = {
@@ -14,14 +15,14 @@ type Props = {
 
 export const TooltipBody: React.FC<Props> = (props) => {
   const { data: user } = useStorageQuery('user');
-  const { version, group } = useWowhead();
+  const context = useWowhead();
 
   function getServerName(): string {
     if (!user) {
       return 'Unknown';
     }
 
-    const activeVersion = user.isActive?.[group] || version;
+    const activeVersion = pageVersion(user.isActive, context);
     const serverName = user.realms?.[activeVersion];
     const region = user.region?.toUpperCase();
 

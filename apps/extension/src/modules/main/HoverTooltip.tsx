@@ -17,6 +17,7 @@ import { ChangeRealmButton } from './ChangeRealmButton';
 import generateContainer from './generateContainer';
 import { uiState } from './state';
 import { produce } from 'immer';
+import { ErrorBoundary, PriceErrorMessage } from '@/components/ErrorBoundary';
 
 const HoverTooltip = () => {
   const [itemId, setItemId] = React.useState<number>();
@@ -175,17 +176,19 @@ const HoverTooltip = () => {
 
   return ReactDOM.createPortal(
     auctionHouseId ? (
-      <Tooltip
-        itemId={itemId}
-        auctionHouseId={auctionHouseId}
-        amount={shiftKeyPressed ? amount : 1}
-      >
-        {ui?.showTip.shiftKey && amount > 1 ? (
-          <div className="blizzard-blue auc-mt-2">
-            Tip: press shift to see the price for the stack!
-          </div>
-        ) : null}
-      </Tooltip>
+      <ErrorBoundary fallback={<PriceErrorMessage />} resetKey={`${itemId}:${auctionHouseId}`}>
+        <Tooltip
+          itemId={itemId}
+          auctionHouseId={auctionHouseId}
+          amount={shiftKeyPressed ? amount : 1}
+        >
+          {ui?.showTip.shiftKey && amount > 1 ? (
+            <div className="blizzard-blue auc-mt-2">
+              Tip: press shift to see the price for the stack!
+            </div>
+          ) : null}
+        </Tooltip>
+      </ErrorBoundary>
     ) : (
       <ChangeRealmButton />
     ),

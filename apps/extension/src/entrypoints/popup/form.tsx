@@ -76,11 +76,9 @@ export const RealmForm: React.FC = () => {
   const watchVersion = form.watch('version');
   const watchRealm = form.watch('realm');
   const realms = useRealmsList(watchRegion, watchVersion);
-  const foreverCatalog = useRealmsList(watchRegion ?? user?.region, 'forever');
   const available = React.useCallback(
-    (version: i.GameVersion) =>
-      isVersionAvailable(version, now, foreverCatalog.isSuccess ? foreverCatalog.data : undefined),
-    [now, foreverCatalog.isSuccess, foreverCatalog.data],
+    (version: i.GameVersion) => isVersionAvailable(version, now),
+    [now],
   );
   const watchFaction = form.watch('faction');
   const hydrated = React.useRef(false);
@@ -89,7 +87,6 @@ export const RealmForm: React.FC = () => {
 
   React.useEffect(() => {
     if (hydrated.current || user === undefined) return;
-    if ((requestedVersion ?? user?.version) === 'forever' && foreverCatalog.isFetching) return;
     hydrated.current = true;
     if (!user || form.formState.isDirty) return;
     const preferredVersion = requestedVersion ?? user.version;
@@ -101,7 +98,7 @@ export const RealmForm: React.FC = () => {
       faction: user.faction?.[realm],
       version,
     });
-  }, [user, foreverCatalog.isFetching, available, form.formState.isDirty, form.reset]);
+  }, [user, available, form.formState.isDirty, form.reset]);
 
   React.useEffect(() => {
     if (!realms.data) return;
@@ -210,7 +207,7 @@ export const RealmForm: React.FC = () => {
                       <option value="hardcore">Hardcore</option>
                       <option value="seasonal">Season of Discovery</option>
                       <option value="forever" disabled={!available('forever')}>
-                        {available('forever') ? 'Forever' : 'Forever (awaiting realms)'}
+                        {available('forever') ? 'Forever' : 'Forever (November 4, 2026)'}
                       </option>
                     </NativeSelect>
                   </FormControl>

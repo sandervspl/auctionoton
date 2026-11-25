@@ -36,6 +36,7 @@ export type UserData = {
   isActive?: {
     classic?: 'classic';
     anniversary?: 'anniversary';
+    forever?: 'forever';
     era?: i.GameVersion;
   };
   /** @deprecated use "realms" */

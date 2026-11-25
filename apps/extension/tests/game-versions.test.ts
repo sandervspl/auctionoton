@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
+  activeVersion,
   foreverReleaseDate,
   isVersionAvailable,
   versionGroup,
@@ -13,12 +14,30 @@ test('progression uses Mists Wowhead pages and links', () => {
   assert.equal(context.wowheadBaseUrl, 'https://wowhead.com/mop-classic');
 });
 
-test('Era, seasonal, hardcore and Forever share Classic pages', () => {
+test('Era, seasonal and hardcore share Classic pages', () => {
   assert.equal(wowheadContext('/classic/item=12360').group, 'era');
-  for (const version of ['era', 'seasonal', 'hardcore', 'forever'] as const) {
+  for (const version of ['era', 'seasonal', 'hardcore'] as const) {
     assert.equal(versionGroup(version), 'era');
   }
   assert.equal(wowheadContext('/classic/item=12360').wowheadBaseUrl, 'https://wowhead.com/classic');
+});
+
+test('Forever pages use the Forever realm and link to Forever Wowhead', () => {
+  const context = wowheadContext('/forever/item=12360/arcanite-bar');
+  assert.equal(context.version, 'forever');
+  assert.equal(context.group, 'forever');
+  assert.equal(context.isClassic, false);
+  assert.equal(context.wowheadBaseUrl, 'https://wowhead.com/forever');
+  assert.equal(activeVersion({ forever: 'forever', era: 'seasonal' }, context), 'forever');
+  assert.equal(activeVersion(undefined, context), 'forever');
+});
+
+test('a stored choice from another Wowhead site is ignored', () => {
+  const classic = wowheadContext('/classic/item=12360');
+  // Saved before Forever had its own group.
+  assert.equal(activeVersion({ era: 'forever' }, classic), 'seasonal');
+  assert.equal(activeVersion({ era: 'hardcore' }, classic), 'hardcore');
+  assert.equal(activeVersion({}, wowheadContext('/mop-classic/item=1')), 'classic');
 });
 
 test('TBC Anniversary has independent realm settings and links', () => {
@@ -28,28 +47,9 @@ test('TBC Anniversary has independent realm settings and links', () => {
   assert.equal(context.wowheadBaseUrl, 'https://wowhead.com/tbc');
 });
 
-test('Forever accepts any released realm with faction auction houses', () => {
-  const realms = ['Living Flame', 'Doomhowl', 'Soulseeker'].map((name, index) => ({
-    name,
-    localizedName: name,
-    realmId: index + 1,
-    auctionHouses: [{ auctionHouseId: index + 1, type: 'Alliance' }],
-  }));
-  assert.equal(isVersionAvailable('forever', foreverReleaseDate - 1, realms), false);
-  assert.equal(isVersionAvailable('forever', foreverReleaseDate, realms), true);
-  assert.equal(isVersionAvailable('forever', foreverReleaseDate + 86400000), false);
-  assert.equal(isVersionAvailable('forever', foreverReleaseDate, []), false);
-  assert.equal(
-    isVersionAvailable(
-      'forever',
-      foreverReleaseDate,
-      realms.map((realm) => ({ ...realm, auctionHouses: [] })),
-    ),
-    false,
-  );
-  assert.equal(
-    isVersionAvailable('forever', foreverReleaseDate, [{ ...realms[0], name: 'Any new realm' }]),
-    true,
-  );
+test('Forever is selectable from its release date, before any region is chosen', () => {
+  assert.equal(isVersionAvailable('forever', foreverReleaseDate - 1), false);
+  assert.equal(isVersionAvailable('forever', foreverReleaseDate), true);
+  assert.equal(isVersionAvailable('forever', foreverReleaseDate + 86400000), true);
   assert.equal(isVersionAvailable('anniversary', foreverReleaseDate - 1), true);
 });

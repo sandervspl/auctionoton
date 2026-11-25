@@ -9,16 +9,14 @@ import HoverTooltip from './HoverTooltip';
 import { uiState } from './state';
 import { Providers } from './Providers';
 import { syncStorageChanges } from '@/utils/storageChanges';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
-class AppContainer extends React.Component {
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error(error, errorInfo);
-  }
-
-  render() {
-    return <App />;
-  }
-}
+// Last resort: each page widget has its own boundary with a visible fallback.
+const AppContainer = () => (
+  <ErrorBoundary>
+    <App />
+  </ErrorBoundary>
+);
 
 const App: React.FC = () => {
   const queryClient = useQueryClient();
