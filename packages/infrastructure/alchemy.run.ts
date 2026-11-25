@@ -78,8 +78,12 @@ export const Backend = Cloudflare.Worker('Backend', {
     TRIAL_REGION: 'eu',
     TRIAL_VERSION: 'seasonal',
     DAILY_ENABLED: 'false' as string,
-    // Empty uses the trial house; expand the allowlist after representative sizing.
-    ENABLED_HOUSES: '' as string,
+    // Replaces the trial-house default, so the trial house is listed too. Expand the allowlist
+    // after representative sizing.
+    ENABLED_HOUSES: JSON.stringify([
+      { version: 'seasonal', region: 'eu', auctionHouseId: 509 }, // Wild Growth Alliance (trial)
+      { version: 'forever', region: 'eu', auctionHouseId: 573 }, // Forever Normal Alliance
+    ]) as string,
   },
 });
 export type BackendEnv = Cloudflare.InferEnv<typeof Backend>;

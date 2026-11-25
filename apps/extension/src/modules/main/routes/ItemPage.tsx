@@ -11,6 +11,7 @@ import { Tabs } from '../Tabs';
 import { ChangeRealmButton } from '../ChangeRealmButton';
 import { ItemPriceTooltip } from '../ItemPriceTooltip';
 import { CraftingCostTooltip } from '../CraftingCostTooltip';
+import { ErrorBoundary, PriceErrorMessage } from '@/components/ErrorBoundary';
 
 const tabs = ['Item price', 'Crafting price'];
 
@@ -45,13 +46,18 @@ export const ItemPage = (): React.ReactPortal | null => {
         Auction House Prices for Wowhead
       </p>
 
-      {auctionHouseId && showTabs && <Tabs tabs={tabs} onTabChange={setActiveTab} />}
-      {auctionHouseId && activeTab === 0 && (
-        <ItemPriceTooltip itemId={pageItem.id} auctionHouseId={auctionHouseId} />
-      )}
-      {auctionHouseId && activeTab === 1 && (
-        <CraftingCostTooltip {...{ reagentItems, auctionHouseId }} />
-      )}
+      <ErrorBoundary
+        fallback={<PriceErrorMessage />}
+        resetKey={`${pageItem.id}:${auctionHouseId}:${activeTab}`}
+      >
+        {auctionHouseId && showTabs && <Tabs tabs={tabs} onTabChange={setActiveTab} />}
+        {auctionHouseId && activeTab === 0 && (
+          <ItemPriceTooltip itemId={pageItem.id} auctionHouseId={auctionHouseId} />
+        )}
+        {auctionHouseId && activeTab === 1 && (
+          <CraftingCostTooltip {...{ reagentItems, auctionHouseId }} />
+        )}
+      </ErrorBoundary>
 
       <div className="auc-h-1" />
       <ChangeRealmButton />

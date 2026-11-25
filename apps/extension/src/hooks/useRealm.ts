@@ -1,10 +1,10 @@
+import { activeVersion as pageVersion } from '@/utils/gameVersions';
 import { useWowhead } from './useWowhead';
 import useStorageQuery from './useStorageQuery';
 
 export function useRealm() {
   const { data: user } = useStorageQuery('user');
-  const { group, version } = useWowhead();
-  const activeVersion = user?.isActive?.[group] ?? version;
+  const activeVersion = pageVersion(user?.isActive, useWowhead());
   const activeRealm = user?.realms?.[activeVersion];
 
   return {

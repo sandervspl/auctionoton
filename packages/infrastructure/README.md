@@ -2,7 +2,7 @@
 
 This stack deploys the existing TanStack website and a new native Worker backend to staging. It provisions two D1 databases, an R2 bucket, two Queues, and three Workflows. Alchemy keeps its own deployment state in a Cloudflare Worker and Durable Object, with credentials in Secrets Store.
 
-The trial imports **Wild Growth EU Alliance, auction house 509** from TSM's public CSV files. The agreed future import schedule is daily at `0 4 * * *` UTC; automatic imports remain disabled in both the stack and handler. Storage maintenance runs independently at `30 4 * * *` UTC.
+Staging imports **Wild Growth EU Alliance (Season of Discovery, auction house 509)** and **Normal EU Alliance (Forever, auction house 573)** from TSM's public CSV files, configured in `ENABLED_HOUSES`. The agreed future import schedule is daily at `0 4 * * *` UTC; automatic imports remain disabled in both the stack and handler. Storage maintenance runs independently at `30 4 * * *` UTC.
 
 From the repository root:
 

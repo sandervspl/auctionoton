@@ -8,6 +8,7 @@ import useSpellFromPage from '@/hooks/useSpellFromPage';
 import generateContainer from '../generateContainer';
 import { ChangeRealmButton } from '../ChangeRealmButton';
 import { CraftingCostTooltip } from '../CraftingCostTooltip';
+import { ErrorBoundary, PriceErrorMessage } from '@/components/ErrorBoundary';
 
 export const SpellPage: React.FC = () => {
   const { spell: pageSpell } = useSpellFromPage();
@@ -37,7 +38,11 @@ export const SpellPage: React.FC = () => {
         Auction House Prices for Wowhead
       </p>
 
-      {auctionHouseId && <CraftingCostTooltip {...{ reagentItems, auctionHouseId, craftAmount }} />}
+      <ErrorBoundary fallback={<PriceErrorMessage />} resetKey={auctionHouseId}>
+        {auctionHouseId && (
+          <CraftingCostTooltip {...{ reagentItems, auctionHouseId, craftAmount }} />
+        )}
+      </ErrorBoundary>
 
       <div className="auc-h-1" />
       <ChangeRealmButton />

@@ -11,6 +11,7 @@ import { useAuctionHouse } from '@/hooks/useAuctionHouse';
 import { ChangeRealmButton } from '../ChangeRealmButton';
 import { Value } from '../tooltip/Value';
 import { sortBuyoutRows } from '@/utils/sortBuyoutRows';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 type Sorting = null | 'asc' | 'desc';
 
@@ -95,7 +96,13 @@ const ItemsPage: React.FC = () => {
       )}
       {auctionHouseId &&
         rows.map(({ rowEl, itemId, key }) =>
-          ReactDOM.createPortal(<TableCell {...{ itemId, auctionHouseId, rowEl }} />, rowEl, key),
+          ReactDOM.createPortal(
+            <ErrorBoundary resetKey={`${itemId}:${auctionHouseId}`}>
+              <TableCell {...{ itemId, auctionHouseId, rowEl }} />
+            </ErrorBoundary>,
+            rowEl,
+            key,
+          ),
         )}
     </>
   );
