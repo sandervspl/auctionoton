@@ -6,18 +6,21 @@ import { parseEnv } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { blizzardCatalog } from './blizzard-catalog.mjs';
 
-// An explicit staging-only data import. Alchemy remains the schema migration owner.
-// --output prepares a reviewable SQL file without writing to Cloudflare.
+// An explicit data import into one stage's market database. Alchemy remains the schema
+// migration owner. --output prepares a reviewable SQL file without writing to Cloudflare.
 const root = fileURLToPath(new URL('../../..', import.meta.url));
-const local = parseEnv(
-  await readFile(resolve(root, 'packages/infrastructure/.env.local'), 'utf8').catch(() => ''),
-);
+const readEnv = async (name) =>
+  parseEnv(await readFile(resolve(root, 'packages/infrastructure', name), 'utf8').catch(() => ''));
+const local = { ...(await readEnv('.env')), ...(await readEnv('.env.local')) };
 const clientId = process.env.BNET_CLIENT_ID || local.BNET_CLIENT_ID;
 const clientSecret = process.env.BNET_CLIENT_SECRET || local.BNET_CLIENT_SECRET;
 if (!clientId || !clientSecret) throw new Error('Missing BNET_CLIENT_ID or BNET_CLIENT_SECRET');
+const usage =
+  'Usage: node import-item-catalog.mjs [staging|production] [--output /path/catalog.sql]';
 const args = process.argv.slice(2);
-if (args.length && (args.length !== 2 || args[0] !== '--output'))
-  throw new Error('Usage: node import-item-catalog.mjs [--output /path/catalog.sql]');
+const stage = args[0] && !args[0].startsWith('--') ? args.shift() : 'staging';
+if (!['staging', 'production'].includes(stage)) throw new Error(usage);
+if (args.length && (args.length !== 2 || args[0] !== '--output')) throw new Error(usage);
 const items = await blizzardCatalog(clientId, clientSecret, console.info);
 const quality = {
   POOR: 0,
@@ -68,14 +71,15 @@ if (args[0] === '--output') {
   try {
     const filename = resolve(directory, 'catalog.sql');
     await writeFile(filename, statements.join('\n'));
+    // Run Wrangler's script with Node directly; spawning `pnpm` fails on Windows.
+    const wrangler = fileURLToPath(new URL('../bin/wrangler.js', import.meta.resolve('wrangler')));
     const child = spawn(
-      'pnpm',
+      process.execPath,
       [
-        'exec',
-        'wrangler',
+        wrangler,
         'd1',
         'execute',
-        'auctionoton-staging-market',
+        `auctionoton-${stage}-market`,
         '--remote',
         '--file',
         filename,
@@ -92,7 +96,7 @@ if (args[0] === '--output') {
       child.on('exit', resolve);
     });
     if (code !== 0) throw new Error(`Catalog import exited with ${code}`);
-    console.info(`Imported ${items.length} Blizzard item names and icons into staging`);
+    console.info(`Imported ${items.length} Blizzard item names and icons into ${stage}`);
   } finally {
     await rm(directory, { recursive: true, force: true });
   }

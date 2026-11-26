@@ -77,12 +77,13 @@ See the [migration assessment](../../docs/cloudflare-migration.md) for the full 
 After deploying the market migrations, populate real item names and icons with:
 
 ```sh
-node packages/infrastructure/scripts/import-item-catalog.mjs
+pnpm --filter @auctionoton/infrastructure catalog:import             # staging
+pnpm --filter @auctionoton/infrastructure catalog:import:production  # production
 ```
 
-This staging-only command uses `BNET_CLIENT_ID` and `BNET_CLIENT_SECRET` from the environment or `packages/infrastructure/.env.local`, downloads Blizzard’s Classic Era/Season of Discovery item and media catalogs with ID pagination, and upserts item metadata through Wrangler. Icons are stored as short asset names and expanded to Blizzard image URLs by the shared adapter. Missing media are checked individually; items with no provider asset use the fallback. Unchanged rows are skipped on repeat runs. Wrangler must already be authenticated. No player records or price snapshots are deleted. Alchemy owns schema migrations; do not apply them separately with Wrangler.
+Every new stage's market database starts with an empty catalog, and the API then returns placeholder names such as `Item 2589`, so run this once after a stage's first deploy. Production was first filled on 26 November 2026. The command uses `BNET_CLIENT_ID` and `BNET_CLIENT_SECRET` from the environment, `packages/infrastructure/.env.local` or `packages/infrastructure/.env`, downloads Blizzard’s Classic Era/Season of Discovery item and media catalogs with ID pagination, and upserts item metadata through Wrangler. Icons are stored as short asset names and expanded to Blizzard image URLs by the shared adapter. Missing media are checked individually; items with no provider asset use the fallback. Unchanged rows are skipped on repeat runs. Wrangler must already be authenticated. No player records or price snapshots are deleted. Alchemy owns schema migrations; do not apply them separately with Wrangler.
 
-Use `--output /tmp/auctionoton-catalog.sql` to download and prepare the data import without changing staging. Keep generated SQL and provider exports outside the repository. On 14 September 2026, Blizzard supplied icons for 22,839 of 22,842 catalog items; the three exceptions were unused monster bottle items 2716, 2717, and 2718.
+Pass `--output /tmp/auctionoton-catalog.sql` after the stage to download and prepare the data import without changing Cloudflare. Keep generated SQL and provider exports outside the repository. On 14 September 2026, Blizzard supplied icons for 22,839 of 22,842 catalog items; the three exceptions were unused monster bottle items 2716, 2717, and 2718.
 
 Access session verification and owner-ID mappings apply before every private D1 operation. Recent searches are unique per owner/item and retain the latest ten. Dashboard items belong directly to their collection with cascading deletion and server-computed ordering. Item pages show complete seasonal snapshots for the selected region and auction house within seven days; absent prices display an empty state. Existing PostgreSQL collections and search history have not been imported because that database refuses connections. The trial still publishes only Wild Growth EU Alliance, and its daily cron remains disabled.
 

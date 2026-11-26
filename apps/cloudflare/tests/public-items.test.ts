@@ -31,6 +31,9 @@ beforeAll(async () => {
   await env.MARKET.prepare(
     "INSERT OR REPLACE INTO item_metadata(id, name, slug, icon) VALUES (1, 'Cloth', 'cloth', 'inv_fabric_linen_01')",
   ).run();
+  await env.MARKET.prepare(
+    "INSERT OR REPLACE INTO item_metadata(id, name, slug, quality) VALUES (2, 'Gem', 'gem', 3)",
+  ).run();
 });
 const request = (path: string) =>
   worker.fetch(new Request(`https://trial.example.com${path}`), env);
@@ -47,6 +50,7 @@ it('fetches a full 50-item batch with metadata using one D1 query', async () => 
   expect(result.missingItemIds).toEqual([]);
   expect(result.items[0]).toMatchObject({ name: 'Cloth', stats: { current: { minBuyout: 100 } } });
   expect(result.items[0].icon).toContain('inv_fabric_linen_01.jpg');
+  expect(result.items.slice(0, 3).map((item) => item.tags)).toEqual([['Common'], ['Rare'], []]);
 });
 it('isolates regions, deduplicates IDs and returns explicit partial misses', async () => {
   const response = await request('/items/ah/907/seasonal?region=us&ids=1,2,1,999');

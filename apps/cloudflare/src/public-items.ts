@@ -6,6 +6,17 @@ import { itemIconUrl } from './item-icons';
 import { PUBLIC_CACHE_CONTROL, marketCacheTag } from './public-cache';
 
 export const MAX_ITEM_BATCH = 50;
+// Blizzard's quality order, as stored in item_metadata.quality.
+const qualityNames = [
+  'Poor',
+  'Common',
+  'Uncommon',
+  'Rare',
+  'Epic',
+  'Legendary',
+  'Artifact',
+  'Heirloom',
+];
 type Market = { auctionHouseId: number; version: Version; region?: Region };
 type PriceRow = {
   item_id: number;
@@ -15,6 +26,7 @@ type PriceRow = {
   fetched_at: string;
   region: Region;
   name: string | null;
+  quality: number | null;
   slug: string | null;
   icon: string | null;
   item_level: number | null;
@@ -32,7 +44,7 @@ export async function readPublicItems(
   const rows = await db
     .prepare(`SELECT p.item_id, p.min_buyout, p.market_value,
     p.historical, s.fetched_at, s.region,
-    m.name, m.slug, m.icon, m.item_level, m.required_level
+    m.name, m.quality, m.slug, m.icon, m.item_level, m.required_level
     FROM published_houses h
     JOIN snapshots s ON s.id = h.snapshot_id AND s.status = 'complete'
     JOIN prices p ON p.snapshot_id = s.id
@@ -67,7 +79,8 @@ export async function readPublicItems(
             },
             previous: null,
           },
-          tags: [],
+          // The first tag is the item's quality; clients colour item names by it.
+          tags: price.quality === null ? [] : [qualityNames[price.quality] ?? 'Common'],
           icon: price.icon === null ? null : itemIconUrl(price.icon),
           itemLevel: price.item_level,
           requiredLevel: price.required_level,

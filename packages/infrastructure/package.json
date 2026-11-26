@@ -8,6 +8,8 @@
     "cf:plan:production": "node scripts/cloudflare.mjs plan production",
     "cf:deploy:production": "node scripts/cloudflare.mjs deploy production",
     "cf:dev": "node scripts/cloudflare.mjs dev",
+    "catalog:import": "node scripts/import-item-catalog.mjs staging",
+    "catalog:import:production": "node scripts/import-item-catalog.mjs production",
     "typecheck": "tsc --noEmit",
     "lint": "biome lint .",
     "format": "biome format --write .",

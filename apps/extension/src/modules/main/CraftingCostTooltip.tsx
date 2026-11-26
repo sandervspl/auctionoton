@@ -116,9 +116,9 @@ const ItemIcon = (props: { url: string; itemId: number }) => {
 };
 
 function getQualityClassFromTags(tags: string | string[]) {
-  const map = { common: 1, uncommon: 2, rare: 3, epic: 4, legendary: 5 };
+  const map = { poor: 0, common: 1, uncommon: 2, rare: 3, epic: 4, legendary: 5 };
   const tag = (Array.isArray(tags) ? tags : tags.split(','))[0]?.toLowerCase() as keyof typeof map;
   const q = map[tag];
 
-  return `q${q}`;
+  return `q${q ?? 1}`;
 }
