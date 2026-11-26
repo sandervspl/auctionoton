@@ -2,7 +2,7 @@ name: Deploy to Chrome Web Store
 
 on:
   push:
-    branches: [main]
+    tags: ['extension-v*']
 
 permissions:
   contents: read
@@ -16,6 +16,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Check the tag matches the extension version
+        run: |
+          version=$(node -p "require('./apps/extension/package.json').version")
+          if [ "$GITHUB_REF_NAME" != "extension-v$version" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match extension version $version"
+            exit 1
+          fi
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
