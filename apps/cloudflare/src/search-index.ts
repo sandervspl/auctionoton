@@ -3,6 +3,7 @@ import {
   type SearchableVersion,
   type Synonyms,
   encodeIndex,
+  isSearchableVersion,
   searchableVersions,
   words,
 } from '@auctionoton/search';
@@ -242,6 +243,94 @@ export async function deleteSynonym(db: Database, id: number) {
   await db.prepare('DELETE FROM search_synonyms WHERE id = ?').bind(id).run();
 }
 
+// --- Sale rates ---
+
+export type SaleRateUpload = {
+  version: string;
+  /** TSM region keys the rates came from, e.g. "Forever-EU". */
+  sources: string[];
+  /** When TSM produced the data. */
+  downloadedAt: string;
+  /** [item id, units sold per day]. */
+  rates: [number, number][];
+};
+
+/**
+ * Replaces a Game version's Sale rates with an upload from the operator's TSM region data,
+ * unless the stored rates are at least as recent.
+ */
+export async function recordSaleRates(
+  db: Database,
+  upload: SaleRateUpload,
+  now = new Date().toISOString(),
+) {
+  if (!isSearchableVersion(upload.version)) throw new Error(`Unknown version ${upload.version}`);
+  if (
+    !Array.isArray(upload.sources) ||
+    !upload.sources.length ||
+    !upload.sources.every(
+      (source) => typeof source === 'string' && /^[A-Za-z0-9-]{1,40}$/.test(source),
+    )
+  )
+    throw new Error('Invalid sale rate sources');
+  const downloadedAt = new Date(upload.downloadedAt);
+  if (!Number.isFinite(downloadedAt.getTime())) throw new Error('Invalid sale rate download time');
+  if (
+    !Array.isArray(upload.rates) ||
+    !upload.rates.length ||
+    upload.rates.length > 100_000 ||
+    !upload.rates.every(
+      (rate) =>
+        Array.isArray(rate) &&
+        Number.isSafeInteger(rate[0]) &&
+        rate[0] > 0 &&
+        Number.isFinite(rate[1]) &&
+        rate[1] >= 0,
+    )
+  )
+    throw new Error('Invalid sale rates');
+  const stored = await db
+    .prepare('SELECT downloaded_at AS downloadedAt FROM sale_rate_uploads WHERE version = ?')
+    .bind(upload.version)
+    .first<{ downloadedAt: string }>();
+  if (stored && stored.downloadedAt >= downloadedAt.toISOString())
+    return { version: upload.version, status: 'stale' as const, items: 0 };
+  const statements = [
+    db.prepare('DELETE FROM item_sale_rates WHERE version = ?').bind(upload.version),
+  ];
+  for (let offset = 0; offset < upload.rates.length; offset += 2000)
+    statements.push(
+      db
+        .prepare(`INSERT OR REPLACE INTO item_sale_rates (version, item_id, sold_per_day)
+        SELECT ?, json_extract(value, '$[0]'), json_extract(value, '$[1]') FROM json_each(?)`)
+        .bind(upload.version, JSON.stringify(upload.rates.slice(offset, offset + 2000))),
+    );
+  statements.push(
+    db
+      .prepare(`INSERT OR REPLACE INTO sale_rate_uploads
+        (version, sources, downloaded_at, uploaded_at, items) VALUES (?, ?, ?, ?, ?)`)
+      .bind(
+        upload.version,
+        upload.sources.join(','),
+        downloadedAt.toISOString(),
+        now,
+        upload.rates.length,
+      ),
+  );
+  await db.batch(statements);
+  return { version: upload.version, status: 'stored' as const, items: upload.rates.length };
+}
+
+/**
+ * Popularity: the log-scaled Sale rate (ten times the sales is one step up, so stackables like
+ * arrows do not drown everything else), with the realm count breaking ties. Versions without
+ * Sale rates rank by realm count alone.
+ */
+export function popularityScore(realms: number, soldPerDay: number | undefined) {
+  const sales = soldPerDay ? Math.round(Math.log10(1 + soldPerDay) * 100) : 0;
+  return sales * 1000 + Math.min(realms, 999);
+}
+
 // --- Index build ---
 
 type CatalogRow = {
@@ -297,10 +386,16 @@ export async function rebuildSearchIndexes(env: SearchIndexEnv, now = new Date()
     )
       .bind(version)
       .all<{ id: number; realms: number }>();
-    const popularity = new Map(observations.results.map((row) => [row.id, row.realms]));
+    const realms = new Map(observations.results.map((row) => [row.id, row.realms]));
+    const sales = await env.MARKET.prepare(
+      'SELECT item_id AS id, sold_per_day AS soldPerDay FROM item_sale_rates WHERE version = ?',
+    )
+      .bind(version)
+      .all<{ id: number; soldPerDay: number }>();
+    const saleRates = new Map(sales.results.map((row) => [row.id, row.soldPerDay]));
     // Until a version's first successful sweep, every unbound catalog item is searchable.
     const items: SearchItem[] = candidates
-      .filter((row) => !swept || popularity.has(row.id) || row.firstSeenAt >= graceStart)
+      .filter((row) => !swept || realms.has(row.id) || row.firstSeenAt >= graceStart)
       .map((row) => ({
         id: row.id,
         name: row.name,
@@ -308,7 +403,7 @@ export async function rebuildSearchIndexes(env: SearchIndexEnv, now = new Date()
         icon: /^[a-z0-9_]+$/.test(row.icon) ? row.icon : '',
         quality: row.quality,
         type: row.type || null,
-        popularity: popularity.get(row.id) ?? 0,
+        popularity: popularityScore(realms.get(row.id) ?? 0, saleRates.get(row.id)),
       }));
     const ids = new Set(items.map((item) => item.id));
     const file = encodeIndex(version, builtAt, items, {

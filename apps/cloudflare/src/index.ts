@@ -10,7 +10,12 @@ import { enabledHouseJobs } from './discovery';
 import { getRealms } from './realms';
 import type { Region, Version } from './contracts';
 import { PUBLIC_CACHE_CONTROL, purgeMarketCache } from './public-cache';
-import { SWEEP_CRON, rebuildSearchIndexes } from './search-index';
+import {
+  SWEEP_CRON,
+  type SaleRateUpload,
+  rebuildSearchIndexes,
+  recordSaleRates,
+} from './search-index';
 export { AuctionImport, DailyDiscovery, MarketMaintenance, RealmSweep } from './workflows';
 
 const app = new Hono<{ Bindings: Env }>();
@@ -69,6 +74,24 @@ app.post('/admin/sweep', async (c) => {
   return c.json({ id }, 202);
 });
 app.post('/admin/search/rebuild', async (c) => c.json(await rebuildSearchIndexes(c.env)));
+// The operator's TSM Sale rates (scripts/upload-tsm-sales.mjs); rebuilds when any are newer.
+app.post('/admin/search/sale-rates', async (c) => {
+  const body = await c.req
+    .json<{ uploads?: SaleRateUpload[] }>()
+    .catch(() => ({}) as { uploads?: SaleRateUpload[] });
+  if (!Array.isArray(body.uploads) || !body.uploads.length || body.uploads.length > 10)
+    return c.json({ error: 'Send 1 to 10 uploads' }, 400);
+  const results = [];
+  try {
+    for (const upload of body.uploads) results.push(await recordSaleRates(c.env.MARKET, upload));
+  } catch (error) {
+    return c.json({ error: error instanceof Error ? error.message : 'Invalid upload' }, 400);
+  }
+  const indexes = results.some((result) => result.status === 'stored')
+    ? await rebuildSearchIndexes(c.env)
+    : undefined;
+  return c.json({ results, indexes });
+});
 app.get('/admin/sweep/:id', async (c) => {
   const instance = await c.env.REALM_SWEEP.get(c.req.param('id'));
   return c.json(await instance.status());

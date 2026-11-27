@@ -13,6 +13,8 @@ import {
   searchManifest,
   sweepRealms,
   validateSynonym,
+  popularityScore,
+  recordSaleRates,
   listSynonyms,
   deleteSynonym,
 } from '../src/search-index';
@@ -27,6 +29,8 @@ beforeEach(async () => {
     env.MARKET.prepare('DELETE FROM realm_sweeps'),
     env.MARKET.prepare('DELETE FROM search_synonyms'),
     env.MARKET.prepare('DELETE FROM search_indexes'),
+    env.MARKET.prepare('DELETE FROM item_sale_rates'),
+    env.MARKET.prepare('DELETE FROM sale_rate_uploads'),
     env.MARKET.prepare(`INSERT INTO item_metadata
       (id, name, slug, quality, icon, binding, item_subclass, first_seen_at) VALUES
       (13468, 'Black Lotus', 'black-lotus', 2, 'inv_misc_herb_blacklotus', NULL, 'Herb', '${old}'),
@@ -203,4 +207,69 @@ it('starts the weekly sweep from its cron and on demand', async () => {
   expect(response.status).toBe(202);
   expect(await workflows.get()).toHaveLength(2);
   expect((await env.REALM_SWEEP.get('sweep-2026-11-27')).id).toBe('sweep-2026-11-27');
+});
+
+it('ranks by log-scaled Sale rate with the realm count breaking ties', () => {
+  expect(popularityScore(8, 15_000)).toBeGreaterThan(popularityScore(8, 270));
+  expect(popularityScore(8, 270)).toBeGreaterThan(popularityScore(8, 4.5));
+  expect(popularityScore(8, 4.5)).toBeGreaterThan(popularityScore(80, undefined));
+  expect(popularityScore(9, 270)).toBeGreaterThan(popularityScore(8, 270));
+  expect(popularityScore(5, undefined)).toBe(5);
+});
+
+it('stores the newest Sale rates and ranks the index by them', async () => {
+  await recordSweep(env.MARKET, 'forever', 'f1', old, [[13468, 12360]], now.toISOString());
+  const upload = {
+    version: 'forever',
+    sources: ['Forever-EU'],
+    downloadedAt: '2026-11-27T00:00:00.000Z',
+    rates: [
+      [13468, 2.5],
+      [12360, 140],
+    ] as [number, number][],
+  };
+  expect(await recordSaleRates(env.MARKET, upload)).toMatchObject({ status: 'stored', items: 2 });
+  expect(
+    await recordSaleRates(env.MARKET, { ...upload, downloadedAt: '2026-11-26T00:00:00.000Z' }),
+  ).toMatchObject({ status: 'stale' });
+  await rebuildSearchIndexes(env, now);
+  const forever = await loadIndex('forever');
+  const score = (id: number) => forever.items.find((item) => item.id === id)?.popularity ?? -1;
+  expect(score(12360)).toBeGreaterThan(score(13468));
+  expect(score(13468)).toBeGreaterThan(score(90001));
+  await expect(recordSaleRates(env.MARKET, { ...upload, version: 'classic' })).rejects.toThrow(
+    'Unknown version',
+  );
+  await expect(
+    recordSaleRates(env.MARKET, { ...upload, rates: [[0, 1]] as [number, number][] }),
+  ).rejects.toThrow('Invalid sale rates');
+});
+
+it('accepts Sale rate uploads only from the operator', async () => {
+  const send = (headers: Record<string, string>, body: unknown) =>
+    worker.fetch(
+      new Request('https://api.example.com/admin/search/sale-rates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...headers },
+        body: JSON.stringify(body),
+      }),
+      env,
+      {} as ExecutionContext,
+    );
+  const uploads = [
+    {
+      version: 'era',
+      sources: ['Classic-EU'],
+      downloadedAt: now.toISOString(),
+      rates: [[13468, 1]],
+    },
+  ];
+  expect((await send({}, { uploads })).status).toBe(401);
+  const auth = { Authorization: `Bearer ${env.ADMIN_TOKEN}` };
+  expect((await send(auth, { uploads: [] })).status).toBe(400);
+  const stored = await send(auth, { uploads });
+  expect(stored.status).toBe(200);
+  const body = await stored.json<{ results: { status: string }[]; indexes?: object }>();
+  expect(body.results[0]?.status).toBe('stored');
+  expect(body.indexes).toBeDefined();
 });
