@@ -1,4 +1,5 @@
 import type { D1Database } from '@cloudflare/workers-types';
+import type { Region } from './contracts';
 import {
   HOT_HISTORY_DAYS,
   archiveMonth,
@@ -9,6 +10,8 @@ import {
   readArchivedItem,
 } from './history-archive';
 import type { ArchivedPrice, HistoryBucket } from './history-archive';
+import { syncHouseQuietly } from './house-sync';
+import type { HouseSyncBindings } from './house-sync';
 import { itemIconUrl } from './item-icons';
 import { findAuctionHouse } from './realms';
 
@@ -21,6 +24,10 @@ export type WebsiteDatabases = {
   HISTORY?: HistoryBucket;
   /** Edge cache for archived month slices, e.g. `caches.default`. */
   cache?: HistoryCache;
+  /** Queues an import of houses without today's snapshot when their item page is opened. */
+  AUCTION_JOBS?: HouseSyncBindings['AUCTION_JOBS'];
+  DAILY_ENABLED?: string;
+  ENABLED_HOUSES?: string;
 };
 export type HistoryCache = {
   match(request: Request): Promise<Response | undefined>;
@@ -77,6 +84,9 @@ export function websiteData({
   USERS: users,
   HISTORY: archive,
   cache,
+  AUCTION_JOBS,
+  DAILY_ENABLED,
+  ENABLED_HOUSES,
 }: WebsiteDatabases) {
   /** Reads through the edge cache: sealed months never change, others until the next import. */
   async function cached<T>(path: string, ttlSeconds: number, load: () => Promise<T>): Promise<T> {
@@ -153,6 +163,11 @@ export function websiteData({
     const days = historyRanges[range];
     const from = days === null ? null : new Date(Date.now() - days * DAY).toISOString();
     const house = houseKeyFor(auctionHouseId, region);
+    if (AUCTION_JOBS)
+      await syncHouseQuietly(
+        { MARKET: market, AUCTION_JOBS, DAILY_ENABLED, ENABLED_HOUSES },
+        { auctionHouseId, region: region as Region },
+      );
     const hot = await market
       .prepare(`SELECT p.min_buyout AS minBuyout,
       p.market_value AS marketValue, p.historical, s.fetched_at AS timestamp, s.day

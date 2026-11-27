@@ -83,6 +83,7 @@ const enabledHouses = production
       { version: 'seasonal', region: 'eu', auctionHouseId: 509 }, // Wild Growth Alliance (trial)
       { version: 'forever', region: 'eu', auctionHouseId: 573 }, // Forever Normal Alliance
     ];
+const dailyEnabled: string = production ? 'true' : 'false';
 
 export const Backend = Cloudflare.Worker('Backend', {
   name: resourceName('backend'),
@@ -110,7 +111,7 @@ export const Backend = Cloudflare.Worker('Backend', {
     TRIAL_HOUSE_ID: Config.string('CF_TRIAL_HOUSE_ID'),
     TRIAL_REGION: 'eu',
     TRIAL_VERSION: 'seasonal',
-    DAILY_ENABLED: (production ? 'true' : 'false') as string,
+    DAILY_ENABLED: dailyEnabled,
     // Replaces the trial-house default. Expand the allowlist after representative sizing.
     ENABLED_HOUSES: JSON.stringify(enabledHouses) as string,
   },
@@ -153,6 +154,11 @@ export default Alchemy.Stack(
           '../../apps/cloudflare/src/website-data.ts',
           '../../apps/cloudflare/src/item-icons.ts',
           '../../apps/cloudflare/src/history-archive.ts',
+          '../../apps/cloudflare/src/house-sync.ts',
+          '../../apps/cloudflare/src/discovery.ts',
+          '../../apps/cloudflare/src/contracts.ts',
+          '../../apps/cloudflare/src/realms.ts',
+          '../../apps/cloudflare/src/realm-catalog.json',
         ],
         exclude: ['src/styled-system/**', 'src/routeTree.gen.ts', '**/node_modules/**'],
         lockfile: true,
@@ -165,6 +171,10 @@ export default Alchemy.Stack(
         MARKET: market,
         USERS: users,
         HISTORY: history,
+        // Opening an item page queues today's import of a house the daily cron skips.
+        AUCTION_JOBS: jobs,
+        DAILY_ENABLED: dailyEnabled,
+        ENABLED_HOUSES: JSON.stringify(enabledHouses) as string,
         DATA_BACKEND: 'd1',
         APP_ENV: 'production',
         PROD_SITE_URL: production
