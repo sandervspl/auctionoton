@@ -52,8 +52,12 @@ An item that appeared in at least one realm's public auction house price list fo
 **Realm sweep**:
 A periodic read of every catalog realm's public price list, kept only as per-item aggregates, never as prices.
 
+**Sale rate**:
+How many units of an item sell per day across a region's auction houses for one Game version, as reported by TSM's region data.
+_Avoid_: Sales, volume, sold per day
+
 **Popularity**:
-The number of realms of a Game version on which an item appeared in the latest Realm sweep; used to order equally good search matches.
+How much an item trades in a Game version: its Sale rate where known, otherwise the number of realms on which it appeared in the latest Realm sweep; used to order equally good search matches.
 _Avoid_: Score, rank
 
 **Synonym**:

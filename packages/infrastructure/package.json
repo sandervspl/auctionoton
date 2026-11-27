@@ -10,6 +10,8 @@
     "cf:dev": "node scripts/cloudflare.mjs dev",
     "catalog:import": "node scripts/import-item-catalog.mjs staging",
     "catalog:import:production": "node scripts/import-item-catalog.mjs production",
+    "search:sales": "node scripts/upload-tsm-sales.mjs staging",
+    "search:sales:production": "node scripts/upload-tsm-sales.mjs production",
     "typecheck": "tsc --noEmit",
     "lint": "biome lint .",
     "format": "biome format --write .",
