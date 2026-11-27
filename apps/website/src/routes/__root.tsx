@@ -10,10 +10,17 @@ import { RouteError } from 'common/route-error';
 import { Navbar } from 'modules/navbar';
 import type { ReactNode } from 'react';
 import { getSession } from 'services/auth';
+import { getSearchManifest } from 'actions/item-search';
 import { Toaster } from 'sonner';
 
 export const Route = createRootRoute({
   beforeLoad: async () => ({ session: await getSession() }),
+  // Item search index hashes, read once per page load; the client keeps them across navigations.
+  loader: async () => ({
+    searchIndexes: await getSearchManifest().catch(() => ({})),
+  }),
+  staleTime: Number.POSITIVE_INFINITY,
+  shouldReload: false,
   head: () => ({
     meta: [
       { charSet: 'utf-8' },

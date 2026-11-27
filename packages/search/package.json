@@ -1,0 +1,22 @@
+{
+  "name": "@auctionoton/search",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "format:check": "biome format ."
+  },
+  "devDependencies": {
+    "@auctionoton/typescript-config": "workspace:*",
+    "@biomejs/biome": "catalog:",
+    "@types/node": "^24.0.0",
+    "typescript": "catalog:",
+    "vitest": "4.1.11"
+  }
+}

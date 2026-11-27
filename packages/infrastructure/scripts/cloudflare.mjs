@@ -25,7 +25,10 @@ const allowed = new Set([
   'CLOUDFLARE_ACCESS_AUD',
   'CLOUDFLARE_ACCESS_GOOGLE_AUD',
   'CLOUDFLARE_ACCESS_USER_ID_MAP',
+  'SEARCH_ADMIN_EMAILS',
 ]);
+// Optional keys; every other allowed key is required.
+const optional = new Set(['CLOUDFLARE_ACCESS_USER_ID_MAP', 'SEARCH_ADMIN_EMAILS']);
 // Production uses its own admin and auth secrets from .env.production.local. Earlier files win,
 // so .env.local overrides .env.
 const envFiles = [
@@ -71,7 +74,7 @@ if (!env.CLOUDFLARE_API_TOKEN && !env.CI) {
   }
 }
 for (const key of allowed) {
-  if (key === 'CLOUDFLARE_ACCESS_USER_ID_MAP') continue;
+  if (optional.has(key)) continue;
   if (!env[key]) throw new Error(`Missing ${key}; see packages/infrastructure/.env.example`);
 }
 const bin = fileURLToPath(new URL('../bin/cli.js', import.meta.resolve('alchemy')));

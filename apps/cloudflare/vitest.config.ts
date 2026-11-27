@@ -9,12 +9,13 @@ export default defineConfig({
         compatibilityDate: '2026-09-13',
         compatibilityFlags: ['nodejs_compat'],
         d1Databases: ['MARKET', 'USERS', 'MIGRATION_TEST'],
-        r2Buckets: ['SNAPSHOTS'],
+        r2Buckets: ['SNAPSHOTS', 'SEARCH_INDEXES'],
         queueProducers: { AUCTION_JOBS: 'test-auctions', FAILED_JOBS: 'test-failures' },
         workflows: {
           AUCTION_IMPORT: { name: 'test-import', className: 'AuctionImport' },
           DAILY_DISCOVERY: { name: 'test-discovery', className: 'DailyDiscovery' },
           MARKET_MAINTENANCE: { name: 'test-maintenance', className: 'MarketMaintenance' },
+          REALM_SWEEP: { name: 'test-sweep', className: 'RealmSweep' },
         },
         bindings: {
           MARKET_MIGRATIONS: await readD1Migrations('./migrations/market'),

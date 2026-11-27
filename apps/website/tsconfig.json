@@ -4,6 +4,7 @@
     "sourceMap": true,
     "pretty": true,
     "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
     "noImplicitAny": false,
     "allowJs": false,
     "isolatedModules": true,

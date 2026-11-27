@@ -97,5 +97,23 @@ export async function blizzardCatalog(clientId, clientSecret, onProgress = () =>
         .map((item) => `${item.id} (${item.name?.en_US})`)
         .join(', ')}`,
     );
-  return items.map((item) => ({ ...item, icon: icons.get(item.id) }));
+  // Binding is only on per-item records. Bound and quest items are never Searchable items.
+  const bindings = new Map();
+  let next = 0;
+  await Promise.all(
+    Array.from({ length: 16 }, async () => {
+      while (next < items.length) {
+        const item = items[next++];
+        const detail = await request(`item/${item.id}`, {});
+        if (detail.id !== item.id) throw new Error('Blizzard item identity mismatch');
+        bindings.set(item.id, detail.preview_item?.binding?.type ?? null);
+        if (bindings.size % 1000 === 0) onProgress(`Read binding for ${bindings.size} items`);
+      }
+    }),
+  );
+  return items.map((item) => ({
+    ...item,
+    icon: icons.get(item.id),
+    binding: bindings.get(item.id),
+  }));
 }

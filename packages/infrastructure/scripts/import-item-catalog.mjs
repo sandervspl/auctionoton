@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import { parseEnv } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { blizzardCatalog } from './blizzard-catalog.mjs';
+import { slugify } from '../../search/src/normalize.ts';
 
 // An explicit data import into one stage's market database. Alchemy remains the schema
 // migration owner. --output prepares a reviewable SQL file without writing to Cloudflare.
@@ -33,32 +34,35 @@ const quality = {
   HEIRLOOM: 7,
 };
 const quote = (value) => `'${String(value).replaceAll("'", "''")}'`;
-const slug = (value) =>
-  value
-    .normalize('NFKD')
-    .replace(/\p{M}/gu, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
+const text = (value) => (typeof value === 'string' ? value : '');
+// New items start their search grace window now; first_seen_at never changes afterwards.
+const importedAt = new Date().toISOString();
 const statements = items.map((item) => {
   const name = item.name?.en_US;
   if (typeof name !== 'string' || !name) throw new Error(`Incomplete item ${item.id}`);
   const values = [
     item.id,
     quote(name),
-    quote(slug(name)),
+    quote(slugify(name)),
     quality[item.quality?.type] ?? 1,
     Number(item.level) || 0,
     Number(item.required_level) || 0,
     quote(item.icon ?? ''),
+    item.binding ? quote(item.binding) : 'NULL',
+    quote(text(item.item_class?.name?.en_US)),
+    quote(text(item.item_subclass?.name?.en_US)),
+    quote(importedAt),
   ];
-  return `INSERT INTO item_metadata (id,name,slug,quality,item_level,required_level,icon)
+  return `INSERT INTO item_metadata (id,name,slug,quality,item_level,required_level,icon,binding,
+item_class,item_subclass,first_seen_at)
 VALUES (${values.join(',')}) ON CONFLICT(id) DO UPDATE SET name=excluded.name,
 slug=excluded.slug,quality=excluded.quality,item_level=excluded.item_level,
-required_level=excluded.required_level,icon=excluded.icon
+required_level=excluded.required_level,icon=excluded.icon,binding=excluded.binding,
+item_class=excluded.item_class,item_subclass=excluded.item_subclass
 WHERE name IS NOT excluded.name OR slug IS NOT excluded.slug OR quality IS NOT excluded.quality
 OR item_level IS NOT excluded.item_level OR required_level IS NOT excluded.required_level
-OR icon IS NOT excluded.icon;`;
+OR icon IS NOT excluded.icon OR binding IS NOT excluded.binding
+OR item_class IS NOT excluded.item_class OR item_subclass IS NOT excluded.item_subclass;`;
 });
 console.info(
   `Resolved ${items.filter((item) => item.icon).length}/${items.length} item icons (${new Set(items.map((item) => item.icon).filter(Boolean)).size} distinct images)`,
@@ -100,4 +104,23 @@ if (args[0] === '--output') {
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
+  // New, renamed or newly bound items reach search only through a rebuilt index.
+  const secrets =
+    stage === 'production' ? await readEnv('.env.production.local') : await readEnv('.env.local');
+  const admin = process.env.CF_TRIAL_ADMIN_TOKEN || secrets.CF_TRIAL_ADMIN_TOKEN;
+  const backend =
+    stage === 'production'
+      ? 'https://auctionoton-api.sandervspl.dev'
+      : 'https://auctionoton-staging-backend.sandervispoel.workers.dev';
+  const rebuild = admin
+    ? await fetch(`${backend}/admin/search/rebuild`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${admin}` },
+      })
+    : undefined;
+  if (rebuild?.ok) console.info('Rebuilt search indexes', await rebuild.json());
+  else
+    console.warn(
+      `Search indexes were not rebuilt (${rebuild ? rebuild.status : 'no CF_TRIAL_ADMIN_TOKEN'}); POST ${backend}/admin/search/rebuild`,
+    );
 }

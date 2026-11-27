@@ -82,6 +82,7 @@ before(async () => {
         ACCESS_TEST_JWKS: JSON.stringify({ keys: [publicJwk] }),
         DB_URL: 'postgres://smoke:smoke@127.0.0.1:1/smoke',
         DATA_BACKEND: 'd1',
+        SEARCH_ADMIN_EMAILS: 'Smoke@example.com',
       },
       stdio: 'ignore',
     },
@@ -313,6 +314,45 @@ test('search and item pages use D1 through the built server functions', async ()
     assert.match(html, /Linen Cloth/);
     assert.doesNotMatch(html, /Unable to load this page/);
   }
+});
+
+test('search index files are immutable and pages embed the current hashes', async () => {
+  const response = await fetch(`${origin}/search-index/era/0123456789abcdef`);
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get('cache-control') ?? '', /immutable/);
+  assert.deepEqual((await response.json()).names, ['Linen Cloth', 'Wool Cloth']);
+  for (const path of [
+    '/search-index/era/ffffffffffffffff',
+    '/search-index/classic/0123456789abcdef',
+    '/search-index/era/nothex',
+  ]) {
+    const missing = await fetch(`${origin}${path}`);
+    assert.equal(missing.status, 404, path);
+    await missing.body?.cancel();
+  }
+  const home = await (await fetch(origin)).text();
+  assert.match(home, /0123456789abcdef/);
+});
+
+test('only allowlisted Access identities can open the synonym page', async () => {
+  for (const [cookie, status] of [
+    ['', 404],
+    [googleCookie, 404],
+    [accessCookie, 200],
+  ]) {
+    const response = await fetch(`${origin}/admin/synonyms`, { headers: { Cookie: cookie } });
+    assert.equal(response.status, status);
+    const html = await response.text();
+    if (status === 200) assert.match(html, /Search synonyms/);
+  }
+  // A signed-in identity outside the allowlist cannot write synonyms.
+  await assert.rejects(
+    rpc(
+      'saveSearchSynonym',
+      { kind: 'word', term: 'pot', expansion: 'potion' },
+      { method: 'POST', cookie: googleCookie },
+    ),
+  );
 });
 
 test('signed-in users can repeat searches and manage their own dashboard through server functions', async () => {

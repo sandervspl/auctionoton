@@ -14,6 +14,8 @@
         "@auctionoton/website#generate",
         "@auctionoton/cloudflare#test",
         "@auctionoton/cloudflare#typecheck",
+        "@auctionoton/search#test",
+        "@auctionoton/search#typecheck",
         "@auctionoton/website#typecheck",
         "@auctionoton/website#test:auth",
         "@auctionoton/website#test:smoke"
@@ -26,7 +28,12 @@
       "passThroughEnv": ["CF_TRIAL_*", "CLOUDFLARE_*"]
     },
     "cf:deploy:production": {
-      "dependsOn": ["@auctionoton/cloudflare#test", "@auctionoton/cloudflare#typecheck"],
+      "dependsOn": [
+        "@auctionoton/cloudflare#test",
+        "@auctionoton/cloudflare#typecheck",
+        "@auctionoton/search#test",
+        "@auctionoton/search#typecheck"
+      ],
       "cache": false,
       "passThroughEnv": ["CF_TRIAL_*", "CLOUDFLARE_*"]
     },
