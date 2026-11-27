@@ -4,7 +4,7 @@ import * as RemovalPolicy from 'alchemy/RemovalPolicy';
 import * as Config from 'effect/Config';
 import * as Effect from 'effect/Effect';
 import type { AuctionJob } from '../../apps/cloudflare/src/contracts';
-import { MAINTENANCE_CRON } from '../../apps/cloudflare/src/retention';
+import { MAINTENANCE_CRON, RAW_STANDARD_DAYS } from '../../apps/cloudflare/src/retention';
 import { SWEEP_CRON } from '../../apps/cloudflare/src/sweep-schedule';
 
 // The existing Node build remains available during the compatibility trial.
@@ -41,6 +41,30 @@ const snapshots = Cloudflare.R2.Bucket('Snapshots', {
       enabled: true,
       abortMultipartUploadsTransition: { condition: { type: 'Age', maxAge: 86400 } },
     },
+    {
+      // Raw provider CSVs are kept forever for reprocessing but almost never read.
+      id: 'raw-to-infrequent-access',
+      enabled: true,
+      prefix: 'raw/',
+      storageClassTransitions: [
+        {
+          condition: { type: 'Age', maxAge: RAW_STANDARD_DAYS * 86400 },
+          storageClass: 'InfrequentAccess',
+        },
+      ],
+    },
+  ],
+}).pipe(RemovalPolicy.retain());
+// Archived history: monthly Parquet files per auction house, kept forever in Standard storage
+// because charts read them (docs/adr/0001).
+const history = Cloudflare.R2.Bucket('History', {
+  name: resourceName('history'),
+  lifecycleRules: [
+    {
+      id: 'abort-incomplete-uploads',
+      enabled: true,
+      abortMultipartUploadsTransition: { condition: { type: 'Age', maxAge: 86400 } },
+    },
   ],
 }).pipe(RemovalPolicy.retain());
 // Item search index files, one per Game version; served by the website.
@@ -64,6 +88,7 @@ const enabledHouses = production
       { version: 'seasonal', region: 'eu', auctionHouseId: 509 }, // Wild Growth Alliance (trial)
       { version: 'forever', region: 'eu', auctionHouseId: 573 }, // Forever Normal Alliance
     ];
+const dailyEnabled: string = production ? 'true' : 'false';
 
 export const Backend = Cloudflare.Worker('Backend', {
   name: resourceName('backend'),
@@ -81,6 +106,7 @@ export const Backend = Cloudflare.Worker('Backend', {
     USERS: users,
     SNAPSHOTS: snapshots,
     SEARCH_INDEXES: searchIndexes,
+    HISTORY: history,
     AUCTION_JOBS: jobs,
     FAILED_JOBS: failures,
     AUCTION_IMPORT: Cloudflare.Workflow<AuctionJob>('AuctionImport'),
@@ -93,7 +119,7 @@ export const Backend = Cloudflare.Worker('Backend', {
     TRIAL_HOUSE_ID: Config.string('CF_TRIAL_HOUSE_ID'),
     TRIAL_REGION: 'eu',
     TRIAL_VERSION: 'seasonal',
-    DAILY_ENABLED: (production ? 'true' : 'false') as string,
+    DAILY_ENABLED: dailyEnabled,
     // Replaces the trial-house default. Expand the allowlist after representative sizing.
     ENABLED_HOUSES: JSON.stringify(enabledHouses) as string,
   },
@@ -142,6 +168,9 @@ export default Alchemy.Stack(
           '../../apps/cloudflare/src/realms.ts',
           '../../apps/cloudflare/src/realm-catalog.json',
           '../../packages/search/src/**',
+          '../../apps/cloudflare/src/history-archive.ts',
+          '../../apps/cloudflare/src/house-sync.ts',
+          '../../apps/cloudflare/src/discovery.ts',
         ],
         exclude: ['src/styled-system/**', 'src/routeTree.gen.ts', '**/node_modules/**'],
         lockfile: true,
@@ -154,6 +183,11 @@ export default Alchemy.Stack(
         MARKET: market,
         USERS: users,
         SEARCH_INDEXES: searchIndexes,
+        HISTORY: history,
+        // Opening an item page queues today's import of a house the daily cron skips.
+        AUCTION_JOBS: jobs,
+        DAILY_ENABLED: dailyEnabled,
+        ENABLED_HOUSES: JSON.stringify(enabledHouses) as string,
         DATA_BACKEND: 'd1',
         APP_ENV: 'production',
         PROD_SITE_URL: production

@@ -4,7 +4,8 @@ import { parseJob, snapshotId } from './contracts';
 import { discoverHouseJobs, enabledHouseJobs } from './discovery';
 import type { AuctionJob } from './contracts';
 import type { Env } from './env';
-import { cleanArchiveBatch, prunePriceBatch } from './retention';
+import { archivePendingSnapshot, archiveSnapshot } from './archive';
+import { cleanImportArtifactsBatch, prunePriceBatch } from './retention';
 import { searchableVersions } from '@auctionoton/search';
 import { observeRealm, rebuildSearchIndexes, recordSweep, sweepRealms } from './search-index';
 import {
@@ -12,6 +13,7 @@ import {
   beginSnapshot,
   normalizeArchive,
   publishSnapshot,
+  snapshotStorageId,
   writeChunk,
 } from './storage';
 
@@ -23,8 +25,17 @@ const retry = {
 export class MarketMaintenance extends WorkflowEntrypoint<Env, { now: string }> {
   async run(event: WorkflowEvent<{ now: string }>, step: WorkflowStep) {
     const now = new Date(event.payload.now).toISOString();
+    let archived = 0;
     let rows = 0;
     let objects = 0;
+    // Catches up snapshots whose post-publication archive step failed, and the rollout backlog.
+    for (let index = 0; ; index++) {
+      const result = await step.do(`archive-snapshots-${index}`, retry, () =>
+        archivePendingSnapshot(this.env, now),
+      );
+      archived += result.rows;
+      if (result.done) break;
+    }
     for (let index = 0; ; index++) {
       const result = await step.do(`prune-prices-${index}`, retry, () =>
         prunePriceBatch(this.env.MARKET, now),
@@ -34,12 +45,12 @@ export class MarketMaintenance extends WorkflowEntrypoint<Env, { now: string }> 
     }
     for (let index = 0; ; index++) {
       const result = await step.do(`clean-archives-${index}`, retry, () =>
-        cleanArchiveBatch(this.env, now),
+        cleanImportArtifactsBatch(this.env, now),
       );
       objects += result.objects;
       if (result.done) break;
     }
-    return { rows, objects, now };
+    return { archived, rows, objects, now };
   }
 }
 
@@ -83,6 +94,18 @@ export class AuctionImport extends WorkflowEntrypoint<Env, AuctionJob> {
         publishSnapshot(this.env.MARKET, job, manifest),
       );
       await invalidateCache();
+      try {
+        await step.do('archive-snapshot', retry, async () =>
+          archiveSnapshot(
+            this.env,
+            await snapshotStorageId(this.env.MARKET, job),
+            new Date().toISOString(),
+          ),
+        );
+      } catch (error) {
+        // Prices stay in D1 until archived, so the daily maintenance run retries this.
+        console.error('Archiving the published snapshot failed', { id, error: String(error) });
+      }
       return published;
     } catch (error) {
       await step.do('record-failure', retry, async () => {

@@ -1,6 +1,9 @@
 import { env, exports } from 'cloudflare:workers';
-import { beforeEach, expect, it, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { replaceArchivedDay } from '../src/history-archive';
+import type { HistoryBucket } from '../src/history-archive';
 import { websiteData } from '../src/website-data';
+import type { HistoryCache } from '../src/website-data';
 
 const data = websiteData(env);
 function countedData() {
@@ -175,8 +178,9 @@ it('only charts complete recent snapshots for the selected region and excludes p
       .run();
   }
   const history = await data.history(2589, 509, 'eu');
-  expect(history.map((row) => row.minBuyout)).toEqual([100, 125]);
-  expect(history[0]?.timestamp).toBeInstanceOf(Date);
+  expect(history.archiveUnavailable).toBe(false);
+  expect(history.points.map((row) => row.minBuyout)).toEqual([100, 125]);
+  expect(history.points[0]?.timestamp).toBeInstanceOf(Date);
   await data.addRecentSearch('alice', { itemId: 2589, search: 'linen' });
   expect((await data.recentSearches('alice', 509, 'eu'))[0]).toMatchObject({
     min_buyout: 125,
@@ -213,4 +217,96 @@ it('expands item-specific icon tokens across search, item reads, collections, an
     'https://trial.example.com/item/2589/ah/999/seasonal',
   );
   expect(await response.json()).toMatchObject({ name: 'Linen Cloth', icon: expected });
+});
+
+describe('long chart ranges', () => {
+  const DAY = 86_400_000;
+  const dayAgo = (days: number) => new Date(Date.now() - days * DAY);
+  const archived = (daysAgo: number, minBuyout: number) => {
+    const at = dayAgo(daysAgo);
+    return {
+      itemId: 2592,
+      day: at.toISOString().slice(0, 10),
+      fetchedAt: at.getTime(),
+      minBuyout,
+      marketValue: 1,
+      historical: 2,
+    };
+  };
+  beforeAll(async () => {
+    const rows = [archived(80, 80), archived(40, 40), archived(20, 20), archived(1, 999)];
+    for (const row of rows)
+      await replaceArchivedDay(env.HISTORY, 'seasonal-eu-509', row.day, [row]);
+    // Hot history in D1 wins over the archive's copy of the same day.
+    const hotAt = dayAgo(1);
+    const id = await env.MARKET.prepare(`INSERT INTO snapshots
+      (snapshot_key, house_key, region, version, auction_house_id, day, status, fetched_at)
+      VALUES ('long-range-hot', 'seasonal-eu-509', 'eu', 'seasonal', 509, ?, 'complete', ?) RETURNING id`)
+      .bind(hotAt.toISOString().slice(0, 10), hotAt.toISOString())
+      .first<number>('id');
+    await env.MARKET.prepare('INSERT INTO prices VALUES (?, 2592, 1, 1, 2)').bind(id).run();
+  });
+  const failingBucket = {
+    ...env.HISTORY,
+    get: async () => {
+      throw new Error('R2 unavailable');
+    },
+    list: async () => {
+      throw new Error('R2 unavailable');
+    },
+  } as unknown as HistoryBucket;
+
+  it('merges archived history with hot history for ranges longer than hot history', async () => {
+    const history = await data.history(2592, 509, 'eu', '90d');
+    expect(history).toMatchObject({ archiveUnavailable: false });
+    expect(history.points.map((point) => point.minBuyout)).toEqual([80, 40, 20, 1]);
+    expect((await data.history(2592, 509, 'eu', '30d')).points.map((p) => p.minBuyout)).toEqual([
+      20, 1,
+    ]);
+    expect((await data.history(2592, 509, 'eu', 'all')).points.map((p) => p.minBuyout)).toEqual([
+      80, 40, 20, 1,
+    ]);
+  });
+
+  it('serves short ranges from D1 alone and falls back to hot history when the archive fails', async () => {
+    const broken = websiteData({ ...env, HISTORY: failingBucket });
+    expect(await broken.history(2592, 509, 'eu', '7d')).toMatchObject({
+      archiveUnavailable: false,
+      points: [{ minBuyout: 1 }],
+    });
+    expect(await broken.history(2592, 509, 'eu', '1y')).toMatchObject({
+      archiveUnavailable: true,
+      points: [{ minBuyout: 1 }],
+    });
+    expect(
+      await websiteData({ MARKET: env.MARKET, USERS: env.USERS }).history(2592, 509, 'eu', '1y'),
+    ).toMatchObject({ archiveUnavailable: true });
+  });
+
+  it('caches archived month slices so repeat views skip R2', async () => {
+    const store = new Map<string, Response>();
+    const cache: HistoryCache = {
+      match: async (request) => store.get(request.url)?.clone(),
+      put: async (request, response) => void store.set(request.url, response),
+    };
+    let gets = 0;
+    const counting = {
+      ...env.HISTORY,
+      get: (key: string, options?: R2GetOptions) => {
+        gets++;
+        return env.HISTORY.get(key, options);
+      },
+    } as unknown as HistoryBucket;
+    const cached = websiteData({ ...env, HISTORY: counting, cache });
+    const first = await cached.history(2592, 509, 'eu', '90d');
+    const firstGets = gets;
+    expect(firstGets).toBeGreaterThan(0);
+    const second = await cached.history(2592, 509, 'eu', '90d');
+    expect(gets).toBe(firstGets);
+    expect(second.points.map((p) => p.minBuyout)).toEqual(first.points.map((p) => p.minBuyout));
+    const sealed = [...store.entries()].find(([url]) =>
+      url.includes(archived(80, 0).day.slice(0, 7)),
+    );
+    expect(sealed?.[1].headers.get('Cache-Control')).toBe('public, max-age=31536000');
+  });
 });

@@ -1,10 +1,10 @@
 import { houseKey, parseJob } from './contracts';
-import { auctionHouseCsvUrl, realmCatalog } from './realms';
 import type { AuctionJob } from './contracts';
 import type { Env } from './env';
+import { auctionHouseCsvUrl, realmCatalog } from './realms';
 
 export function enabledHouseJobs(
-  env: Pick<Env, 'ENABLED_HOUSES' | 'TRIAL_REGION' | 'TRIAL_VERSION' | 'TRIAL_HOUSE_ID'>,
+  env: Partial<Pick<Env, 'ENABLED_HOUSES' | 'TRIAL_REGION' | 'TRIAL_VERSION' | 'TRIAL_HOUSE_ID'>>,
   day: string,
 ): AuctionJob[] {
   const configured: unknown = env.ENABLED_HOUSES
@@ -20,7 +20,7 @@ export function enabledHouseJobs(
     throw new Error('Configure between 1 and 250 auction houses');
   const jobs = new Map<string, AuctionJob>();
   for (const target of configured) {
-    const job = parseJob({ ...target, day });
+    const job = parseJob({ ...(target as object), day });
     jobs.set(houseKey(job), job);
   }
   return [...jobs.values()];
