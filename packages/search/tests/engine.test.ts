@@ -95,6 +95,11 @@ describe('search', () => {
     expect(engine.search('mmp').map((hit) => [hit.id, hit.reason])).toEqual([[2, 'synonym']]);
   });
 
+  it('highlights the earliest word with the matched prefix', () => {
+    const bars = createSearchEngine([item(1, 'Bronze Bar')], { items: [], words: [] });
+    expect(bars.search('b')[0]?.highlights).toEqual([[0, 1]]);
+  });
+
   it('looks items up by id', () => {
     expect(engine.get(2)?.name).toBe('Major Mana Potion');
     expect(engine.search('1')[0]).toMatchObject({ id: 1, reason: 'id' });

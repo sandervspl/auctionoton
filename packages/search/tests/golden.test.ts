@@ -22,9 +22,4 @@ describe('golden queries', () => {
       if (golden.highlights) expect(hits[0]?.highlights).toEqual(golden.highlights);
     });
   }
-
-  it('highlights the earliest word with the matched prefix', () => {
-    const bronze = engine.search('b').find((hit) => hit.name === 'Bronze Bar');
-    expect(bronze?.highlights).toEqual([[0, 1]]);
-  });
 });

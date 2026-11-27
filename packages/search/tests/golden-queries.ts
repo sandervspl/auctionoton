@@ -56,7 +56,18 @@ export const goldenQueries: GoldenQuery[] = [
   { query: 'copper', why: 'whole word beats longer words', top: ['Copper Bar', 'Copper Ore'] },
   { query: 'linen', why: 'most listed whole-word match first', top: ['Linen Cloth'] },
   { query: 'iron', why: 'whole word "Iron" before "Ironweb"', includes: ['Iron Bar', 'Iron Ore'] },
-  { query: 'b', why: 'the earliest matching word is highlighted', includes: ['Bronze Bar'] },
+  {
+    query: 'pot',
+    why: 'an unfinished word ranks by Popularity, not by where it sits in the name',
+    top: ['Lesser Healing Potion', 'Minor Mana Potion'],
+    excludes: ['Potent Helmet', 'Potent Cape'],
+  },
+  {
+    query: 'th',
+    why: 'filler words like "the" only match when complete',
+    top: ['Thorium Ore'],
+    excludes: ['Blood of the Mountain'],
+  },
 
   // Exact names
   { query: 'Dark Iron Ore', why: 'exact name', top: ['Dark Iron Ore'] },

@@ -68,6 +68,20 @@ export function prefixDistance(query: string, word: string, max: number) {
   return best;
 }
 
+const fillerWords = new Set([
+  'a',
+  'an',
+  'and',
+  'for',
+  'from',
+  'in',
+  'of',
+  'on',
+  'the',
+  'to',
+  'with',
+]);
+
 const compareText = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 
 function lowerBound(sorted: string[], value: string) {
@@ -148,6 +162,8 @@ export function createSearchEngine(items: SearchItem[], synonyms: Synonyms): Sea
     for (let i = lowerBound(vocabulary, query); i < vocabulary.length; i++) {
       const word = vocabulary[i]!;
       if (!word.startsWith(query)) break;
+      // "th" means Thorium, not "Blood of the Mountain": filler words match only when complete.
+      if (word !== query && fillerWords.has(word)) continue;
       add(word, {
         kind: word === query ? EXACT : PREFIX,
         typos: 0,
@@ -259,7 +275,9 @@ export function createSearchEngine(items: SearchItem[], synonyms: Synonyms): Sea
         ),
       ),
     );
-    const perWord = queryWords.map(matchWord).sort((a, b) => a.size - b.size);
+    const inOrder = queryWords.map(matchWord);
+    const lastWord = inOrder[inOrder.length - 1]!;
+    const perWord = [...inOrder].sort((a, b) => a.size - b.size);
     const [smallest, ...rest] = perWord as [Map<number, WordMatch>, ...Map<number, WordMatch>[]];
     const scored: {
       index: number;
@@ -281,7 +299,13 @@ export function createSearchEngine(items: SearchItem[], synonyms: Synonyms): Sea
       const itemPhrase = phrases[index]!;
       let tier: number;
       if (itemPhrase === phrase) tier = 0;
-      else if (itemPhrase.startsWith(phrase)) tier = 1;
+      // A name that starts with the query leads only once a word is finished: "mana pot" or
+      // "iron", but not "pot", which should mean the popular potions, not Potent gear.
+      else if (
+        itemPhrase.startsWith(phrase) &&
+        (queryWords.length > 1 || lastWord.get(index)!.kind === EXACT)
+      )
+        tier = 1;
       else if (typos) tier = 5;
       else if (!synonym) tier = 2;
       // "mp" reads as "mana potion": the item named exactly that leads the synonym matches.
