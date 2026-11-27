@@ -39,7 +39,7 @@ _Avoid_: Flavor, game type
 ## Item search
 
 **Item catalog**:
-Every item Blizzard publishes for the game version, whether or not it can be traded.
+Every item Blizzard publishes for the covered Game versions, whether or not it can be traded. Blizzard publishes one catalog per family of Game versions (Classic Era, Anniversary, Forever); each item records which of them list it.
 _Avoid_: Item database, item list
 
 **Searchable item**:

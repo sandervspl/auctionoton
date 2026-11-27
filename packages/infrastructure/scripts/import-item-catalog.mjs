@@ -4,11 +4,12 @@ import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import { parseEnv } from 'node:util';
 import { fileURLToPath } from 'node:url';
-import { blizzardCatalog } from './blizzard-catalog.mjs';
+import { blizzardClient, catalogNamespaces } from './blizzard-catalog.mjs';
 import { slugify } from '../../search/src/normalize.ts';
 
 // An explicit data import into one stage's market database. Alchemy remains the schema
 // migration owner. --output prepares a reviewable SQL file without writing to Cloudflare.
+// It merges every Blizzard item catalog (see catalogNamespaces) into the shared item catalog.
 const root = fileURLToPath(new URL('../../..', import.meta.url));
 const readEnv = async (name) =>
   parseEnv(await readFile(resolve(root, 'packages/infrastructure', name), 'utf8').catch(() => ''));
@@ -22,7 +23,71 @@ const args = process.argv.slice(2);
 const stage = args[0] && !args[0].startsWith('--') ? args.shift() : 'staging';
 if (!['staging', 'production'].includes(stage)) throw new Error(usage);
 if (args.length && (args.length !== 2 || args[0] !== '--output')) throw new Error(usage);
-const items = await blizzardCatalog(clientId, clientSecret, console.info);
+const database = `auctionoton-${stage}-market`;
+
+// Run Wrangler's script with Node directly; spawning `pnpm` fails on Windows.
+const wrangler = fileURLToPath(new URL('../bin/wrangler.js', import.meta.resolve('wrangler')));
+async function d1(extra, { capture = false } = {}) {
+  const child = spawn(
+    process.execPath,
+    [wrangler, 'd1', 'execute', database, '--remote', ...extra],
+    {
+      cwd: resolve(root, 'packages/infrastructure'),
+      stdio: ['ignore', capture ? 'pipe' : 'inherit', 'inherit'],
+      env: process.env,
+    },
+  );
+  let output = '';
+  child.stdout?.on('data', (chunk) => {
+    output += chunk;
+  });
+  const code = await new Promise((resolve, reject) => {
+    child.on('error', reject);
+    child.on('exit', resolve);
+  });
+  if (code !== 0) throw new Error(`Wrangler d1 execute exited with ${code}`);
+  return output;
+}
+
+// What the stage already knows: which catalogs list each item and whether its binding was read.
+const known = new Map(
+  JSON.parse(
+    await d1(
+      [
+        '--json',
+        '--command',
+        'SELECT id, catalogs, binding_checked_at IS NOT NULL AS checked FROM item_metadata',
+      ],
+      { capture: true },
+    ),
+  )[0].results.map((row) => [
+    row.id,
+    { catalogs: row.catalogs.split(','), checked: !!row.checked },
+  ]),
+);
+const knownCatalogs = new Set([...known.values()].flatMap((row) => row.catalogs));
+
+const client = await blizzardClient(clientId, clientSecret, console.info);
+/** id → the first namespace's record, every catalog listing the id, and that namespace. */
+const merged = new Map();
+for (const { catalog, namespace } of catalogNamespaces) {
+  for (const item of await client.catalog(namespace)) {
+    const entry = merged.get(item.id);
+    if (entry) entry.catalogs.push(catalog);
+    else merged.set(item.id, { item, catalogs: [catalog], catalog, namespace, binding: undefined });
+  }
+}
+for (const { namespace } of catalogNamespaces) {
+  const unread = [...merged.values()].filter(
+    (entry) => entry.namespace === namespace && !known.get(entry.item.id)?.checked,
+  );
+  const bindings = await client.bindings(
+    namespace,
+    unread.map((entry) => entry.item.id),
+  );
+  for (const entry of unread) entry.binding = bindings.get(entry.item.id);
+}
+
 const quality = {
   POOR: 0,
   COMMON: 1,
@@ -35,9 +100,21 @@ const quality = {
 };
 const quote = (value) => `'${String(value).replaceAll("'", "''")}'`;
 const text = (value) => (typeof value === 'string' ? value : '');
-// New items start their search grace window now; first_seen_at never changes afterwards.
 const importedAt = new Date().toISOString();
-const statements = items.map((item) => {
+// New items start their search grace window now. Items from a catalog imported for the first
+// time are not new to the game, so they get a first-seen date outside the window.
+const established = '2026-01-01T00:00:00.000Z';
+const columns = `id,name,slug,quality,item_level,required_level,icon,item_class,item_subclass,
+catalogs,first_seen_at`;
+const updates = `name=excluded.name,slug=excluded.slug,quality=excluded.quality,
+item_level=excluded.item_level,required_level=excluded.required_level,icon=excluded.icon,
+item_class=excluded.item_class,item_subclass=excluded.item_subclass,catalogs=excluded.catalogs`;
+const changed = `name IS NOT excluded.name OR slug IS NOT excluded.slug
+OR quality IS NOT excluded.quality OR item_level IS NOT excluded.item_level
+OR required_level IS NOT excluded.required_level OR icon IS NOT excluded.icon
+OR item_class IS NOT excluded.item_class OR item_subclass IS NOT excluded.item_subclass
+OR catalogs IS NOT excluded.catalogs`;
+const statements = [...merged.values()].map(({ item, catalogs, catalog, binding }) => {
   const name = item.name?.en_US;
   if (typeof name !== 'string' || !name) throw new Error(`Incomplete item ${item.id}`);
   const values = [
@@ -48,59 +125,37 @@ const statements = items.map((item) => {
     Number(item.level) || 0,
     Number(item.required_level) || 0,
     quote(item.icon ?? ''),
-    item.binding ? quote(item.binding) : 'NULL',
     quote(text(item.item_class?.name?.en_US)),
     quote(text(item.item_subclass?.name?.en_US)),
-    quote(importedAt),
+    quote(catalogs.join(',')),
+    quote(knownCatalogs.has(catalog) ? importedAt : established),
   ];
-  return `INSERT INTO item_metadata (id,name,slug,quality,item_level,required_level,icon,binding,
-item_class,item_subclass,first_seen_at)
-VALUES (${values.join(',')}) ON CONFLICT(id) DO UPDATE SET name=excluded.name,
-slug=excluded.slug,quality=excluded.quality,item_level=excluded.item_level,
-required_level=excluded.required_level,icon=excluded.icon,binding=excluded.binding,
-item_class=excluded.item_class,item_subclass=excluded.item_subclass
-WHERE name IS NOT excluded.name OR slug IS NOT excluded.slug OR quality IS NOT excluded.quality
-OR item_level IS NOT excluded.item_level OR required_level IS NOT excluded.required_level
-OR icon IS NOT excluded.icon OR binding IS NOT excluded.binding
-OR item_class IS NOT excluded.item_class OR item_subclass IS NOT excluded.item_subclass;`;
+  // Binding columns change only when this run read the binding.
+  if (binding === undefined)
+    return `INSERT INTO item_metadata (${columns}) VALUES (${values.join(',')})
+ON CONFLICT(id) DO UPDATE SET ${updates} WHERE ${changed};`;
+  return `INSERT INTO item_metadata (${columns},binding,binding_checked_at)
+VALUES (${values.join(',')},${binding ? quote(binding) : 'NULL'},${quote(importedAt)})
+ON CONFLICT(id) DO UPDATE SET ${updates},binding=excluded.binding,
+binding_checked_at=excluded.binding_checked_at;`;
 });
-console.info(
-  `Resolved ${items.filter((item) => item.icon).length}/${items.length} item icons (${new Set(items.map((item) => item.icon).filter(Boolean)).size} distinct images)`,
-);
+const counts = catalogNamespaces
+  .map(({ catalog }) => {
+    const total = [...merged.values()].filter((entry) => entry.catalogs.includes(catalog)).length;
+    return `${catalog} ${total}${knownCatalogs.has(catalog) ? '' : ' (first import)'}`;
+  })
+  .join(', ');
+console.info(`Merged ${merged.size} items: ${counts}`);
 if (args[0] === '--output') {
   await writeFile(args[1], statements.join('\n'));
-  console.info(`Prepared ${items.length} items in ${args[1]}`);
+  console.info(`Prepared ${merged.size} items in ${args[1]}`);
 } else {
   const directory = await mkdtemp(resolve(tmpdir(), 'auctionoton-catalog-'));
   try {
     const filename = resolve(directory, 'catalog.sql');
     await writeFile(filename, statements.join('\n'));
-    // Run Wrangler's script with Node directly; spawning `pnpm` fails on Windows.
-    const wrangler = fileURLToPath(new URL('../bin/wrangler.js', import.meta.resolve('wrangler')));
-    const child = spawn(
-      process.execPath,
-      [
-        wrangler,
-        'd1',
-        'execute',
-        `auctionoton-${stage}-market`,
-        '--remote',
-        '--file',
-        filename,
-        '--yes',
-      ],
-      {
-        cwd: resolve(root, 'packages/infrastructure'),
-        stdio: 'inherit',
-        env: process.env,
-      },
-    );
-    const code = await new Promise((resolve, reject) => {
-      child.on('error', reject);
-      child.on('exit', resolve);
-    });
-    if (code !== 0) throw new Error(`Catalog import exited with ${code}`);
-    console.info(`Imported ${items.length} Blizzard item names and icons into ${stage}`);
+    await d1(['--file', filename, '--yes']);
+    console.info(`Imported ${merged.size} Blizzard items into ${stage}`);
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
