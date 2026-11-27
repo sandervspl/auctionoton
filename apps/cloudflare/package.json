@@ -10,6 +10,7 @@
     "format:check": "biome format ."
   },
   "dependencies": {
+    "@auctionoton/search": "workspace:*",
     "better-auth": "1.7.4",
     "hono": "4.13.7",
     "hyparquet": "1.32.0",

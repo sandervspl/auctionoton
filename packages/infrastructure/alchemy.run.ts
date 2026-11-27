@@ -5,6 +5,7 @@ import * as Config from 'effect/Config';
 import * as Effect from 'effect/Effect';
 import type { AuctionJob } from '../../apps/cloudflare/src/contracts';
 import { MAINTENANCE_CRON, RAW_STANDARD_DAYS } from '../../apps/cloudflare/src/retention';
+import { SWEEP_CRON } from '../../apps/cloudflare/src/sweep-schedule';
 
 // The existing Node build remains available during the compatibility trial.
 process.env.AUCTIONOTON_CLOUDFLARE = '1';
@@ -66,6 +67,10 @@ const history = Cloudflare.R2.Bucket('History', {
     },
   ],
 }).pipe(RemovalPolicy.retain());
+// Item search index files, one per Game version; served by the website.
+const searchIndexes = Cloudflare.R2.Bucket('SearchIndexes', {
+  name: resourceName('search'),
+}).pipe(RemovalPolicy.retain());
 const jobs = Cloudflare.Queues.Queue('AuctionJobs', { name: resourceName('auctions') });
 const failures = Cloudflare.Queues.Queue('FailedJobs', { name: resourceName('failures') });
 
@@ -94,17 +99,20 @@ export const Backend = Cloudflare.Worker('Backend', {
   // The extension's host permission names this domain; changing it disables installed copies
   // until users re-approve the extension.
   ...(production ? { domain: PRODUCTION_DOMAIN } : {}),
-  crons: production ? [DAILY_CRON, MAINTENANCE_CRON] : [MAINTENANCE_CRON],
+  // Staging sweeps only on demand (POST /admin/sweep).
+  crons: production ? [DAILY_CRON, MAINTENANCE_CRON, SWEEP_CRON] : [MAINTENANCE_CRON],
   env: {
     MARKET: market,
     USERS: users,
     SNAPSHOTS: snapshots,
+    SEARCH_INDEXES: searchIndexes,
     HISTORY: history,
     AUCTION_JOBS: jobs,
     FAILED_JOBS: failures,
     AUCTION_IMPORT: Cloudflare.Workflow<AuctionJob>('AuctionImport'),
     DAILY_DISCOVERY: Cloudflare.Workflow<{ day: string }>('DailyDiscovery'),
     MARKET_MAINTENANCE: Cloudflare.Workflow<{ now: string }>('MarketMaintenance'),
+    REALM_SWEEP: Cloudflare.Workflow<{ day: string }>('RealmSweep'),
     BASE_URL: Cloudflare.Worker.URL,
     ADMIN_TOKEN: Config.redacted('CF_TRIAL_ADMIN_TOKEN'),
     BETTER_AUTH_SECRET: Config.redacted('CF_TRIAL_AUTH_SECRET'),
@@ -153,12 +161,16 @@ export default Alchemy.Stack(
           '../../packages/typescript-config/**',
           '../../apps/cloudflare/src/website-data.ts',
           '../../apps/cloudflare/src/item-icons.ts',
+          '../../apps/cloudflare/src/search-index.ts',
+          '../../apps/cloudflare/src/sweep-schedule.ts',
+          '../../apps/cloudflare/src/contracts.ts',
+          '../../apps/cloudflare/src/csv.ts',
+          '../../apps/cloudflare/src/realms.ts',
+          '../../apps/cloudflare/src/realm-catalog.json',
+          '../../packages/search/src/**',
           '../../apps/cloudflare/src/history-archive.ts',
           '../../apps/cloudflare/src/house-sync.ts',
           '../../apps/cloudflare/src/discovery.ts',
-          '../../apps/cloudflare/src/contracts.ts',
-          '../../apps/cloudflare/src/realms.ts',
-          '../../apps/cloudflare/src/realm-catalog.json',
         ],
         exclude: ['src/styled-system/**', 'src/routeTree.gen.ts', '**/node_modules/**'],
         lockfile: true,
@@ -170,6 +182,7 @@ export default Alchemy.Stack(
         TRIAL_BACKEND: backend,
         MARKET: market,
         USERS: users,
+        SEARCH_INDEXES: searchIndexes,
         HISTORY: history,
         // Opening an item page queues today's import of a house the daily cron skips.
         AUCTION_JOBS: jobs,
@@ -183,6 +196,8 @@ export default Alchemy.Stack(
         CLOUDFLARE_ACCESS_ISSUER: Config.string('CLOUDFLARE_ACCESS_ISSUER'),
         CLOUDFLARE_ACCESS_AUD: Config.string('CLOUDFLARE_ACCESS_AUD'),
         CLOUDFLARE_ACCESS_GOOGLE_AUD: Config.string('CLOUDFLARE_ACCESS_GOOGLE_AUD'),
+        // Comma-separated Access emails allowed to edit search Synonyms.
+        SEARCH_ADMIN_EMAILS: Config.string('SEARCH_ADMIN_EMAILS').pipe(Config.withDefault('')),
         CLOUDFLARE_ACCESS_USER_ID_MAP: Config.string('CLOUDFLARE_ACCESS_USER_ID_MAP').pipe(
           Config.withDefault('{}'),
         ),

@@ -6,6 +6,8 @@ import type { AuctionJob } from './contracts';
 import type { Env } from './env';
 import { archivePendingSnapshot, archiveSnapshot } from './archive';
 import { cleanImportArtifactsBatch, prunePriceBatch } from './retention';
+import { searchableVersions } from '@auctionoton/search';
+import { observeRealm, rebuildSearchIndexes, recordSweep, sweepRealms } from './search-index';
 import {
   archiveHouse,
   beginSnapshot,
@@ -140,5 +142,48 @@ export class DailyDiscovery extends WorkflowEntrypoint<Env, { day: string }> {
       snapshotId: jobs.length === 1 ? snapshotId(jobs[0]!) : undefined,
       snapshotIds: jobs.map(snapshotId),
     };
+  }
+}
+
+/** The weekly Realm sweep: which items each Game version trades, then fresh search indexes. */
+export class RealmSweep extends WorkflowEntrypoint<Env, { day: string }> {
+  async run(event: WorkflowEvent<{ day: string }>, step: WorkflowStep) {
+    const { day } = event.payload;
+    const startedAt = await step.do('start', async () => new Date().toISOString());
+    const summary: Record<string, Awaited<ReturnType<typeof recordSweep>>> = {};
+    for (const version of searchableVersions) {
+      const results: (number[] | null)[] = [];
+      for (const realm of sweepRealms(version)) {
+        try {
+          results.push(
+            await step.do(
+              `observe-${version}-${realm.region}-${realm.slug}`,
+              {
+                retries: { limit: 2, delay: '10 seconds', backoff: 'exponential' },
+                timeout: '2 minutes',
+              },
+              () => observeRealm(realm),
+            ),
+          );
+        } catch {
+          // One unreachable realm must not fail the sweep; recordSweep weighs failures.
+          results.push(null);
+        }
+      }
+      summary[version] = await step.do(`record-${version}`, retry, () =>
+        recordSweep(
+          this.env.MARKET,
+          version,
+          `${day}-${version}`,
+          startedAt,
+          results,
+          new Date().toISOString(),
+        ),
+      );
+    }
+    const indexes = await step.do('rebuild-search-indexes', retry, () =>
+      rebuildSearchIndexes(this.env),
+    );
+    return { day, summary, indexes };
   }
 }

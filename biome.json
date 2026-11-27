@@ -59,7 +59,8 @@
       "**/*.tsbuildinfo",
       "**/public/**",
       "**/routeTree.gen.ts",
-      "**/.tanstack/**"
+      "**/.tanstack/**",
+      "**/tests/fixtures/**"
     ]
   }
 }

@@ -10,7 +10,8 @@ import { enabledHouseJobs } from './discovery';
 import { getRealms } from './realms';
 import type { Region, Version } from './contracts';
 import { PUBLIC_CACHE_CONTROL, purgeMarketCache } from './public-cache';
-export { AuctionImport, DailyDiscovery, MarketMaintenance } from './workflows';
+import { SWEEP_CRON, rebuildSearchIndexes } from './search-index';
+export { AuctionImport, DailyDiscovery, MarketMaintenance, RealmSweep } from './workflows';
 
 const app = new Hono<{ Bindings: Env }>();
 app.use('*', async (c, next) => {
@@ -59,6 +60,18 @@ app.post('/admin/maintenance', async (c) => {
   const id = `maintenance-${now.slice(0, 10)}`;
   await c.env.MARKET_MAINTENANCE.createBatch([{ id, params: { now } }]);
   return c.json({ id }, 202);
+});
+app.post('/admin/sweep', async (c) => {
+  const now = new Date().toISOString();
+  // Manual sweeps get a unique ID so they can rerun after the weekly one.
+  const id = `sweep-${now.replace(/[^0-9]/g, '').slice(0, 14)}`;
+  await c.env.REALM_SWEEP.createBatch([{ id, params: { day: now.slice(0, 10) } }]);
+  return c.json({ id }, 202);
+});
+app.post('/admin/search/rebuild', async (c) => c.json(await rebuildSearchIndexes(c.env)));
+app.get('/admin/sweep/:id', async (c) => {
+  const instance = await c.env.REALM_SWEEP.get(c.req.param('id'));
+  return c.json(await instance.status());
 });
 app.post('/admin/import', async (c) => {
   let job: AuctionJob;
@@ -136,6 +149,11 @@ export default {
       await env.MARKET_MAINTENANCE.createBatch([
         { id: `maintenance-${now.slice(0, 10)}`, params: { now } },
       ]);
+      return;
+    }
+    if (event.cron === SWEEP_CRON) {
+      const day = new Date(event.scheduledTime).toISOString().slice(0, 10);
+      await env.REALM_SWEEP.createBatch([{ id: `sweep-${day}`, params: { day } }]);
       return;
     }
     if (env.DAILY_ENABLED !== 'true') return;
