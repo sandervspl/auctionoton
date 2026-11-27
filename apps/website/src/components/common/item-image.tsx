@@ -11,14 +11,14 @@ type Props = React.ImgHTMLAttributes<HTMLImageElement> & {
   };
 };
 
-export const ItemImage = ({ item, className, ...props }: Props) => {
+export const ItemImage = ({ item, className, alt, ...props }: Props) => {
   return (
     <img
       loading="lazy"
       decoding="async"
       {...props}
       src={item.icon ?? '/images/questionmark.webp'}
-      alt={item.name ?? 'item'}
+      alt={alt ?? item.name ?? 'item'}
       className={cn('rounded-md ring-1', className)}
       style={{
         ...getRingQualityColor(item.quality),

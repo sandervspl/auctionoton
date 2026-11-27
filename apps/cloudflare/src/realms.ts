@@ -40,6 +40,19 @@ export function getRealms(region: Region, version: Version, catalog = realmCatal
     .sort((a, b) => a.localizedName.localeCompare(b.localizedName));
 }
 
+/** Auction house IDs are unique across versions and regions, so an ID identifies its realm. */
+export function findAuctionHouse(auctionHouseId: number, catalog = realmCatalog) {
+  for (const [version, regions] of Object.entries(catalog) as [Version, RealmCatalog[Version]][]) {
+    for (const [region, entry] of Object.entries(regions) as [Region, CatalogRegion][]) {
+      for (const realm of entry.realms) {
+        const house = realm.auctionHouses.find((h) => h.auctionHouseId === auctionHouseId);
+        if (house) return { version, region, realm, faction: house.type };
+      }
+    }
+  }
+  return undefined;
+}
+
 /**
  * Connected realms share one auction house, so any member realm's CSV holds its prices.
  * Returns undefined when the catalog does not list the house for that region and version.

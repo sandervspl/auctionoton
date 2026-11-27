@@ -1,5 +1,6 @@
 import type { D1Database } from '@cloudflare/workers-types';
 import { itemIconUrl } from './item-icons';
+import { findAuctionHouse } from './realms';
 
 // Shared by the website's authenticated server functions and workerd integration tests.
 // Callers must derive userId from a verified Access session, never from browser input.
@@ -23,6 +24,9 @@ const metadataColumns = `id, name, slug, locale, quality, tags,
 const joinedMetadataColumns = `m.id, m.name, m.slug, m.locale, m.quality, m.tags,
   m.item_level AS itemLevel, m.required_level AS requiredLevel, m.icon`;
 const placeholders = (ids: number[]) => ids.map(() => '?').join(',');
+/** Matches `houseKey` in contracts.ts; the version comes from the realm catalog. */
+const houseKeyFor = (auctionHouseId: number, region: string) =>
+  `${findAuctionHouse(auctionHouseId)?.version ?? 'seasonal'}-${region}-${auctionHouseId}`;
 
 type Price = {
   minBuyout: number;
@@ -65,7 +69,7 @@ export function websiteData({ MARKET: market, USERS: users }: WebsiteDatabases) 
       AND p.item_id = ?
       AND s.fetched_at > ? ORDER BY s.fetched_at ASC, s.id ASC`)
       .bind(
-        `seasonal-${region}-${auctionHouseId}`,
+        houseKeyFor(auctionHouseId, region),
         itemId,
         new Date(Date.now() - 7 * 86400000).toISOString(),
       )
@@ -165,7 +169,7 @@ export function websiteData({ MARKET: market, USERS: users }: WebsiteDatabases) 
         FROM item_metadata m LEFT JOIN ranked r ON r.item_id = m.id AND r.priceRank <= 2
         WHERE m.id IN (${placeholders(ids)}) ORDER BY m.id, r.priceRank`)
         .bind(
-          `seasonal-${region}-${auctionHouseId}`,
+          houseKeyFor(auctionHouseId, region),
           new Date(Date.now() - 7 * 86400000).toISOString(),
           ...ids,
           ...ids,

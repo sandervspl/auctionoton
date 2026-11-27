@@ -18,6 +18,19 @@ export async function getAccessSession(request = getRequest()) {
   }
 }
 
+/**
+ * For server functions: their results are serialized to the client, which cannot carry a
+ * Response, so an Access outage is rethrown as an Error the route error boundary can show.
+ */
+export async function getAccessSessionForServerFn() {
+  try {
+    return await getAccessSession();
+  } catch (error) {
+    if (error instanceof Response) throw new Error(await error.text());
+    throw error;
+  }
+}
+
 export async function completeAccessLogin(request: Request) {
   const session = await getAccessSession(request);
   if (!session)

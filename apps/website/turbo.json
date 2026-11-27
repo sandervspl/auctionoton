@@ -2,7 +2,7 @@
   "extends": ["//"],
   "tasks": {
     "build": {
-      "outputs": [".output/**", "dist/**", "src/styled-system/**", "src/routeTree.gen.ts"],
+      "outputs": [".output/**", "dist/**", "src/routeTree.gen.ts"],
       "env": [
         "$TURBO_EXTENDS$",
         "APP_ENV",
@@ -19,7 +19,9 @@
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/apps/cloudflare/src/website-data.ts",
         "$TURBO_ROOT$/apps/cloudflare/src/item-icons.ts",
-        "!src/styled-system/**",
+        "$TURBO_ROOT$/apps/cloudflare/src/realms.ts",
+        "$TURBO_ROOT$/apps/cloudflare/src/realm-catalog.json",
+        "$TURBO_ROOT$/apps/cloudflare/src/contracts.ts",
         "!src/routeTree.gen.ts",
         "!*.tsbuildinfo",
         ".env",
@@ -27,12 +29,14 @@
       ]
     },
     "generate": {
-      "outputs": ["src/styled-system/**", "src/routeTree.gen.ts"],
+      "outputs": ["src/routeTree.gen.ts"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/apps/cloudflare/src/website-data.ts",
         "$TURBO_ROOT$/apps/cloudflare/src/item-icons.ts",
-        "!src/styled-system/**",
+        "$TURBO_ROOT$/apps/cloudflare/src/realms.ts",
+        "$TURBO_ROOT$/apps/cloudflare/src/realm-catalog.json",
+        "$TURBO_ROOT$/apps/cloudflare/src/contracts.ts",
         "!src/routeTree.gen.ts",
         "!*.tsbuildinfo"
       ]
@@ -43,7 +47,9 @@
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/apps/cloudflare/src/website-data.ts",
         "$TURBO_ROOT$/apps/cloudflare/src/item-icons.ts",
-        "!src/styled-system/**",
+        "$TURBO_ROOT$/apps/cloudflare/src/realms.ts",
+        "$TURBO_ROOT$/apps/cloudflare/src/realm-catalog.json",
+        "$TURBO_ROOT$/apps/cloudflare/src/contracts.ts",
         "!src/routeTree.gen.ts",
         "!*.tsbuildinfo"
       ]

@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { Loader2Icon } from 'lucide-react';
+import { LoaderCircleIcon } from 'lucide-react';
 import { setAuctionHouseIdCookie } from 'actions/cookie';
 import { useServerMutation } from 'hooks/use-server-mutation';
 import { useSettings } from 'hooks/use-settings';
@@ -40,7 +40,7 @@ function FactionButton({
   const content = (
     <>
       {faction}
-      {cookie.isPending && <Loader2Icon className="animate-spin" size={16} />}
+      {cookie.isPending && <LoaderCircleIcon className="animate-spin" size={16} />}
     </>
   );
   return (

@@ -9,11 +9,11 @@ export type Props = {
 };
 
 export const CoinValue: React.FC<Props> = (props) => {
-  const getValueStrings = (): string | JSX.Element[] => {
+  const getValueStrings = (): string | React.JSX.Element[] => {
     const raw = Number(props.value);
     const amount = props.amount ?? 1;
     const coins = convertToCoins(raw * amount);
-    const coinComponents: JSX.Element[] = [];
+    const coinComponents: React.JSX.Element[] = [];
 
     if (typeof coins === 'string' || raw === 0) {
       return 'N/A';

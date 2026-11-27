@@ -41,7 +41,6 @@ db.json
 
 # Generated code and compiler state
 *.tsbuildinfo
-apps/website/src/styled-system/
 apps/website/src/routeTree.gen.ts
 apps/website/.output/
 apps/website/.tanstack/

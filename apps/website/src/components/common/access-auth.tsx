@@ -2,8 +2,8 @@ import { useLocation } from '@tanstack/react-router';
 import {
   type ReactNode,
   createContext,
+  use,
   useCallback,
-  useContext,
   useEffect,
   useRef,
   useState,
@@ -118,13 +118,11 @@ export function AccessProvider({
     window.location.assign('/');
   }
 
-  return (
-    <AuthContext.Provider value={{ session, error, signOut }}>{children}</AuthContext.Provider>
-  );
+  return <AuthContext value={{ session, error, signOut }}>{children}</AuthContext>;
 }
 
 export function useAccessAuth() {
-  const auth = useContext(AuthContext);
+  const auth = use(AuthContext);
   if (!auth) throw new Error('AccessProvider is missing.');
   return auth;
 }

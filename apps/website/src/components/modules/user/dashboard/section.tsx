@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Loader2Icon, PlusIcon, XIcon } from 'lucide-react';
+import { LoaderCircleIcon, PlusIcon, XIcon } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
 import { toast } from 'sonner';
 
@@ -8,14 +8,13 @@ import { getTextQualityColor } from 'services/colors';
 import { ItemImage } from 'common/item-image';
 import { Button } from 'shadcn-ui/button';
 import { useSettings } from 'hooks/use-settings';
-import { ItemSearch, type SearchItem } from 'common/item-search';
+import { ItemSearch } from 'common/item-search';
 import { cn } from 'services/cn';
 import {
   addDashboardSectionItem,
   deleteDashboardSection,
   deleteDashboardSectionItem,
 } from 'actions/dashboard';
-import { IconButton } from 'park-ui/icon-button';
 import { useServerMutation } from 'hooks/use-server-mutation';
 
 type Props = {
@@ -48,13 +47,28 @@ export const DashboardSection = ({ section }: Props) => {
   const [isSearching, setIsSearching] = React.useState(false);
   const ref = React.useRef<HTMLInputElement>(null);
   const deleteSection = useServerMutation(deleteDashboardSection);
+  const addItem = useServerMutation(addDashboardSectionItem);
+  const highestOrder = section.items.reduce(
+    (acc, { dashboardSectionItem: { order } }) => Math.max(acc, order),
+    0,
+  );
 
+  // Per-call mutate callbacks are skipped once the caller unmounts (as these rows do after the
+  // refetch), so success toasts chain on mutateAsync. Errors are toasted by useServerMutation.
   function onDeleteSectionClick() {
     if (window.confirm('Are you sure you want to delete this section?')) {
-      deleteSection.mutateAsync({ sectionId: section.id }).then(() => {
-        toast.success('Section deleted');
-      });
+      deleteSection
+        .mutateAsync({ sectionId: section.id })
+        .then(() => toast.success('Section deleted'))
+        .catch(() => {});
     }
+  }
+
+  function onAddItem(itemId: number) {
+    addItem
+      .mutateAsync({ section_id: section.id, item_id: itemId, highest_order: highestOrder })
+      .then(() => toast.success('Item added to section'))
+      .catch(() => {});
   }
 
   return (
@@ -62,11 +76,17 @@ export const DashboardSection = ({ section }: Props) => {
       <CardHeader className="flex-row justify-between">
         <CardTitle>{section.name}</CardTitle>
         {!deleteSection.isPending ? (
-          <IconButton onClick={onDeleteSectionClick} className="hidden group-hover/card:block">
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={`Delete ${section.name}`}
+            onClick={onDeleteSectionClick}
+            className="size-8 opacity-0 group-hover/card:opacity-100 focus-visible:opacity-100"
+          >
             <XIcon size={16} />
-          </IconButton>
+          </Button>
         ) : (
-          <Loader2Icon className="animate-spin" size={16} />
+          <LoaderCircleIcon className="animate-spin" size={16} />
         )}
       </CardHeader>
       <CardContent className="flex flex-col gap-6 justify-between">
@@ -90,7 +110,7 @@ export const DashboardSection = ({ section }: Props) => {
             onBlur={() => setIsSearching(false)}
             // Component needs to always be mounted or else the results don't render
             className={cn({ 'sr-only': !isSearching, 'w-full': isSearching })}
-            searchItem={(props) => <SearchItemComponent {...props} section={section} />}
+            onItemSelect={(item) => onAddItem(item.id)}
           />
           {!isSearching && (
             <Button
@@ -131,12 +151,8 @@ const ItemLink = ({ item, settings, sectionId, sectionItemid }: ItemLinkProps) =
     if (window.confirm('Are you sure you want to delete this item?')) {
       deleteItem
         .mutateAsync({ sectionId, sectionItemId })
-        .then(() => {
-          toast.success('Item removed from section');
-        })
-        .catch((err) => {
-          console.error(err.message);
-        });
+        .then(() => toast.success('Item removed from section'))
+        .catch(() => {});
     }
   }
 
@@ -159,65 +175,22 @@ const ItemLink = ({ item, settings, sectionId, sectionItemid }: ItemLinkProps) =
       <div className="flex items-center gap-4 justify-between w-full">
         {item.name}
         {deleteItem.isPending ? (
-          <Loader2Icon className="animate-spin text-white" size={16} />
+          <LoaderCircleIcon className="animate-spin text-white" size={16} />
         ) : (
-          <IconButton
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={`Remove ${item.name ?? 'item'}`}
             onClick={(e) => {
               e.preventDefault();
               onDeleteItemClick(sectionItemid);
             }}
-            className="opacity-0 group-hover/item:opacity-100"
+            className="size-8 opacity-0 group-hover/item:opacity-100 focus-visible:opacity-100"
           >
             <XIcon size={16} className="text-white" />
-          </IconButton>
+          </Button>
         )}
       </div>
     </Link>
-  );
-};
-
-type SearchItemProps = {
-  item: SearchItem;
-  section: Props['section'];
-};
-
-const SearchItemComponent = (props: SearchItemProps) => {
-  const highestOrder = props.section.items.reduce((acc, { dashboardSectionItem: { order } }) => {
-    return order > acc ? order : acc;
-  }, 0);
-  const addItem = useServerMutation(addDashboardSectionItem);
-
-  const onItemClick = () => {
-    addItem
-      .mutateAsync({
-        section_id: props.section.id,
-        item_id: props.item.id,
-        highest_order: highestOrder,
-      })
-      .then(() => {
-        toast.success('Item added to section');
-      })
-      .catch((err) => {
-        console.error(err.message);
-        toast.error(err.message);
-      });
-  };
-
-  return (
-    <button
-      type="button"
-      className="flex items-center justify-start w-full gap-2 h-full"
-      onClick={onItemClick}
-    >
-      <ItemImage item={props.item} width={24} height={24} />
-      <span
-        className="truncate"
-        style={{
-          ...getTextQualityColor(props.item.quality),
-        }}
-      >
-        {props.item.name}
-      </span>
-    </button>
   );
 };

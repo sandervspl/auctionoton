@@ -5,6 +5,7 @@ import { NotFound } from 'common/not-found';
 import { ItemCharts } from 'modules/item-detail/item-charts';
 import { getItemDetail } from 'queries/items';
 import { getTextQualityColor } from 'services/colors';
+import { realmLabel } from 'services/realms';
 
 export const Route = createFileRoute('/item/$realmSlug/$region/$faction/$itemSlug')({
   loader: ({ params }) => getItemDetail({ data: params }),
@@ -35,8 +36,7 @@ function ItemPage() {
               {itemMetadata.name}
             </h1>
             <p className="text-sm">
-              <span className="capitalize">{realmSlug.replaceAll('-', ' ')}</span> (
-              {region.toUpperCase()}) <span className="capitalize">- {faction}</span>
+              {realmLabel(realmSlug, region)} <span className="capitalize">- {faction}</span>
             </p>
           </div>
         </div>

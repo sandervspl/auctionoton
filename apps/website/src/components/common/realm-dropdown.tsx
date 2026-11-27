@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { useParams, useNavigate } from '@tanstack/react-router';
-import { Loader2Icon } from 'lucide-react';
+import { CheckIcon, LoaderCircleIcon } from 'lucide-react';
 
 import { setAuctionHouseIdCookie } from 'actions/cookie';
-import { useMediaQuery } from 'hooks/use-media-query';
 import { useSettings } from 'hooks/use-settings';
 import { useServerMutation } from 'hooks/use-server-mutation';
 import { Button } from 'shadcn-ui/button';
@@ -15,56 +14,34 @@ import {
   CommandItem,
   CommandList,
 } from 'shadcn-ui/command';
-import { Drawer, DrawerContent, DrawerTrigger } from 'shadcn-ui/drawer';
 import { Popover, PopoverContent, PopoverTrigger } from 'shadcn-ui/popover';
-import { realmDropdownValues } from 'services/realms';
+import { realmGroups, realmLabel, versionLabels } from 'services/realms';
 
-type Props = {
-  onOpen?: () => void;
-};
-
-export function RealmDropdown({ onOpen }: Props) {
+export function useRealmLabel() {
   const { settings } = useSettings();
+  return realmLabel(settings.realm, settings.region);
+}
+
+/** Desktop navbar realm picker; the mobile menu renders `RealmList` inline instead. */
+export function RealmDropdown() {
   const [open, setOpen] = React.useState(false);
-  const isDesktop = useMediaQuery('(min-width: 768px)');
-
-  function onOpenChange(isOpen: boolean) {
-    onOpen?.();
-    setOpen(isOpen);
-  }
-
-  if (isDesktop) {
-    return (
-      <Popover open={open} onOpenChange={onOpenChange}>
-        <PopoverTrigger asChild>
-          <Button variant="outline" className="w-[150px] justify-start capitalize">
-            {settings.realm.replaceAll('-', ' ')} ({settings.region.toUpperCase()})
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0" align="end">
-          <RealmList setOpen={setOpen} />
-        </PopoverContent>
-      </Popover>
-    );
-  }
+  const label = useRealmLabel();
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerTrigger asChild>
-        <Button variant="outline" className="justify-start">
-          Realm
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="outline" className="w-[220px] justify-start" title={label}>
+          <span className="truncate">{label}</span>
         </Button>
-      </DrawerTrigger>
-      <DrawerContent>
-        <div className="mt-4 border-t">
-          <RealmList setOpen={setOpen} />
-        </div>
-      </DrawerContent>
-    </Drawer>
+      </PopoverTrigger>
+      <PopoverContent className="w-[300px] p-0" align="end">
+        <RealmList onSelect={() => setOpen(false)} />
+      </PopoverContent>
+    </Popover>
   );
 }
 
-function RealmList(props: { setOpen: (open: boolean) => void }) {
+export function RealmList(props: { onSelect: () => void }) {
   const { setSettings, settings } = useSettings();
   const [selected, setSelected] = React.useState<string>();
   const [isNavigating, setNavigating] = React.useState(false);
@@ -73,51 +50,62 @@ function RealmList(props: { setOpen: (open: boolean) => void }) {
   const setAuctionHouseCookie = useServerMutation(setAuctionHouseIdCookie);
 
   const isPending = isNavigating || setAuctionHouseCookie.isPending;
+  const current = `${settings.realm}_${settings.region}`;
+
+  async function onRealmSelect(value: string) {
+    setSelected(value);
+    setNavigating(true);
+    try {
+      props.onSelect();
+      const [realm, region] = value.split('_');
+      if (realm && (region === 'eu' || region === 'us')) {
+        const activeFaction = params.faction ?? settings.faction;
+        const faction = activeFaction === 'horde' ? 'horde' : 'alliance';
+        setSettings({ realm, region, faction });
+        await setAuctionHouseCookie.mutateAsync({ region, realmSlug: realm, faction });
+        if (params.itemSlug) {
+          await navigate({
+            to: '/item/$realmSlug/$region/$faction/$itemSlug',
+            params: { realmSlug: realm, region, faction, itemSlug: params.itemSlug },
+          });
+        }
+      }
+    } catch {
+      // The mutation hook reports request failures to the user.
+    } finally {
+      setNavigating(false);
+      setSelected(undefined);
+    }
+  }
 
   return (
-    <Command>
-      <CommandInput placeholder="Search realm" />
-      <CommandList>
+    <Command defaultValue={current}>
+      <CommandInput placeholder="Search realm or version" />
+      <CommandList className="max-h-[360px]">
         <CommandEmpty>No realm found.</CommandEmpty>
-        <CommandGroup>
-          {realmDropdownValues.map((realm) => (
-            <CommandItem
-              key={realm.value}
-              value={realm.value}
-              className="flex items-center justify-between gap-2"
-              onSelect={async (value) => {
-                setSelected(value);
-                setNavigating(true);
-                try {
-                  props.setOpen(false);
-                  const [realm, region] = value.split('_');
-                  if (realm && (region === 'eu' || region === 'us')) {
-                    const activeFaction = params.faction ?? settings.faction;
-                    const faction = activeFaction === 'horde' ? 'horde' : 'alliance';
-                    setSettings({ realm, region, faction });
-                    await setAuctionHouseCookie.mutateAsync({ region, realmSlug: realm, faction });
-                    if (params.itemSlug) {
-                      await navigate({
-                        to: '/item/$realmSlug/$region/$faction/$itemSlug',
-                        params: { realmSlug: realm, region, faction, itemSlug: params.itemSlug },
-                      });
-                    }
-                  }
-                } catch {
-                  // The mutation hook reports request failures to the user.
-                } finally {
-                  setNavigating(false);
-                  setSelected(undefined);
-                }
-              }}
-            >
-              {realm.label}
-              {isPending && selected === realm.value && (
-                <Loader2Icon className="animate-spin" size={16} />
-              )}
-            </CommandItem>
-          ))}
-        </CommandGroup>
+        {realmGroups.map((group) => (
+          <CommandGroup key={group.heading} heading={group.heading}>
+            {group.realms.map((realm) => {
+              const value = `${realm.slug}_${realm.region}`;
+              return (
+                <CommandItem
+                  key={value}
+                  value={value}
+                  keywords={[realm.name, versionLabels[realm.version], realm.region]}
+                  className="flex items-center justify-between gap-2"
+                  onSelect={onRealmSelect}
+                >
+                  {realm.name}
+                  {isPending && selected === value ? (
+                    <LoaderCircleIcon className="animate-spin" size={16} />
+                  ) : (
+                    value === current && <CheckIcon size={16} aria-label="Current realm" />
+                  )}
+                </CommandItem>
+              );
+            })}
+          </CommandGroup>
+        ))}
       </CommandList>
     </Command>
   );

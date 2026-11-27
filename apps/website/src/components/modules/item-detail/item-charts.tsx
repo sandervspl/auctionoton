@@ -1,6 +1,3 @@
-'use client';
-
-import * as React from 'react';
 import dayjs from 'dayjs';
 
 import { CoinValue } from 'common/coin-value';

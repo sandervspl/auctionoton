@@ -1,9 +1,9 @@
-import { getAuctionHouseRegion } from 'services/auction-house';
+import { getAuctionHouseRegion, getDefaultAuctionHouseId } from 'services/auction-house';
 import { getCloudflareData } from 'db/cloudflare.server';
 import { createServerFn } from '@tanstack/react-start';
 import { getCookie } from '@tanstack/react-start/server';
 import { desc, eq, sql } from 'drizzle-orm';
-import { getAccessSession } from 'services/access.server';
+import { getAccessSessionForServerFn } from 'services/access.server';
 
 import { db } from 'db';
 import { itemsMetadata, recentSearches } from 'db/schema';
@@ -22,13 +22,14 @@ type RecentSearchItem = {
 };
 
 export const getRecentSearches = createServerFn({ method: 'GET' }).handler(async () => {
-  const session = await getAccessSession();
+  const session = await getAccessSessionForServerFn();
   if (!session) {
     return [];
   }
   const { userId } = session;
 
-  const auctionHouseId = getCookie('auctionhouse_id');
+  // Visitors who never changed realm have no cookie yet; use the same default as the client.
+  const auctionHouseId = getCookie('auctionhouse_id') ?? getDefaultAuctionHouseId();
 
   if (!auctionHouseId) {
     return [];

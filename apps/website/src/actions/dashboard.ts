@@ -18,9 +18,9 @@ export const createDashboardSection = createServerFn({ method: 'POST' })
 export const addDashboardSectionItem = createServerFn({ method: 'POST' })
   .validator(
     z.object({
-      section_id: z.number().int().positive(),
-      item_id: z.number().int().positive(),
-      highest_order: z.number().int().nonnegative(),
+      section_id: z.int().positive(),
+      item_id: z.int().positive(),
+      highest_order: z.int().nonnegative(),
     }),
   )
   .handler(async ({ data }) => {
@@ -45,7 +45,7 @@ export const addDashboardSectionItem = createServerFn({ method: 'POST' })
   });
 
 export const deleteDashboardSection = createServerFn({ method: 'POST' })
-  .validator(z.object({ sectionId: z.number().int().positive() }))
+  .validator(z.object({ sectionId: z.int().positive() }))
   .handler(async ({ data }) => {
     const { userId } = await requireUser();
     const cloudflare = await getCloudflareData();
@@ -87,8 +87,8 @@ export const deleteDashboardSection = createServerFn({ method: 'POST' })
 export const deleteDashboardSectionItem = createServerFn({ method: 'POST' })
   .validator(
     z.object({
-      sectionId: z.number().int().positive(),
-      sectionItemId: z.number().int().positive(),
+      sectionId: z.int().positive(),
+      sectionItemId: z.int().positive(),
     }),
   )
   .handler(async ({ data }) => {

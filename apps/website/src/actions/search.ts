@@ -1,7 +1,7 @@
 import { getCloudflareData } from 'db/cloudflare.server';
 import { createServerFn } from '@tanstack/react-start';
 import { and, isNotNull, like, or, sql } from 'drizzle-orm';
-import { getAccessSession } from 'services/access.server';
+import { getAccessSessionForServerFn } from 'services/access.server';
 import { z } from 'zod';
 
 import { db } from 'db';
@@ -34,9 +34,9 @@ export const searchItem = createServerFn({ method: 'GET' })
   });
 
 export const addRecentSearch = createServerFn({ method: 'POST' })
-  .validator(z.object({ search: z.string().max(200), itemId: z.number().int().positive() }))
+  .validator(z.object({ search: z.string().max(200), itemId: z.int().positive() }))
   .handler(async ({ data }) => {
-    const session = await getAccessSession();
+    const session = await getAccessSessionForServerFn();
     if (!session) return;
     const cloudflare = await getCloudflareData();
     if (cloudflare) return cloudflare.addRecentSearch(session.userId, data);

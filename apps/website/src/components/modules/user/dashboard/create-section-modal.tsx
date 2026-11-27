@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Loader2Icon, SquarePlusIcon } from 'lucide-react';
+import { useFormStatus } from 'react-dom';
+import { LoaderCircleIcon, SquarePlusIcon } from 'lucide-react';
 
 import {
   Dialog,
@@ -15,21 +16,18 @@ import { Input } from 'shadcn-ui/input';
 import { Label } from 'shadcn-ui/label';
 import { createDashboardSection } from 'actions/dashboard';
 import { useServerMutation } from 'hooks/use-server-mutation';
-import { toast } from 'sonner';
 
 export const CreateSectionModal = () => {
   const [isOpen, setOpen] = React.useState(false);
   const addSection = useServerMutation(createDashboardSection);
 
-  function onSubmit(formdata: FormData) {
-    addSection
-      .mutateAsync({ section_name: formdata.get('section_name') as string })
-      .then(() => {
-        setOpen(false);
-      })
-      .catch((err) => {
-        toast.error(err.message);
-      });
+  async function createSection(formData: FormData) {
+    try {
+      await addSection.mutateAsync({ section_name: String(formData.get('section_name') ?? '') });
+      setOpen(false);
+    } catch {
+      // useServerMutation reports the error; it is also shown inline below.
+    }
   }
 
   return (
@@ -45,12 +43,7 @@ export const CreateSectionModal = () => {
           <DialogTitle>Create item collection</DialogTitle>
           <DialogDescription>Add a new dashboard section to organize your items.</DialogDescription>
         </DialogHeader>
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            onSubmit(new FormData(event.currentTarget));
-          }}
-        >
+        <form action={createSection}>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-6 items-center gap-4">
               <Label htmlFor="section_name" className="text-right col-span-2">
@@ -69,7 +62,7 @@ export const CreateSectionModal = () => {
             )}
           </div>
           <DialogFooter>
-            <SubmitButton pending={addSection.isPending} />
+            <SubmitButton />
           </DialogFooter>
         </form>
       </DialogContent>
@@ -77,10 +70,11 @@ export const CreateSectionModal = () => {
   );
 };
 
-const SubmitButton = ({ pending }: { pending: boolean }) => {
+const SubmitButton = () => {
+  const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} className="gap-2">
-      {pending && <Loader2Icon className="animate-spin" size={16} />}
+      {pending && <LoaderCircleIcon className="animate-spin" size={16} />}
       Create section
     </Button>
   );

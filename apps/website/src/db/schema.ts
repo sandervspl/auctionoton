@@ -3,7 +3,6 @@ import {
   text,
   integer,
   pgTable,
-  unique,
   index,
   bigserial,
   timestamp,
@@ -25,17 +24,11 @@ export const items = pgTable(
     numAuctions: integer('num_auctions').notNull(),
     timestamp: timestamp('timestamp').defaultNow(),
   },
-  (table) => ({
-    item_id_idx: index('items_item_id_idx').on(table.itemId),
-    item_id_auction_house_id_idx: index('items_item_id_auction_house_id_idx').on(
-      table.itemId,
-      table.auctionHouseId,
-    ),
-    auction_house_id_ts_idx: index('items_auction_house_id_ts_idx').on(
-      table.auctionHouseId,
-      table.timestamp,
-    ),
-  }),
+  (table) => [
+    index('items_item_id_idx').on(table.itemId),
+    index('items_item_id_auction_house_id_idx').on(table.itemId, table.auctionHouseId),
+    index('items_auction_house_id_ts_idx').on(table.auctionHouseId, table.timestamp),
+  ],
 );
 
 export const itemsMetadata = pgTable(
@@ -53,11 +46,11 @@ export const itemsMetadata = pgTable(
       'https://wow.zamimg.com/images/wow/icons/large/inv_misc_questionmark.jpg',
     ),
   },
-  (table) => ({
-    id_idx: index('items_metadata_id_idx').on(table.id),
-    name_idx: index('items_metadata_name_idx').on(table.name),
-    slug_idx: index('items_metadata_slug_idx').on(table.slug),
-  }),
+  (table) => [
+    index('items_metadata_id_idx').on(table.id),
+    index('items_metadata_name_idx').on(table.name),
+    index('items_metadata_slug_idx').on(table.slug),
+  ],
 );
 
 export const recentSearches = pgTable('recent_searches', {
@@ -108,9 +101,7 @@ export const dashboardSectionsSectionItems = pgTable(
       .notNull()
       .references(() => dashboardSectionItems.id, { onDelete: 'cascade' }),
   },
-  (table) => ({
-    pk: primaryKey({ columns: [table.dashboardSectionId, table.dashboardSectionItemId] }),
-  }),
+  (table) => [primaryKey({ columns: [table.dashboardSectionId, table.dashboardSectionItemId] })],
 );
 
 export const dashboardSectionsToSectionItemsRelations = relations(

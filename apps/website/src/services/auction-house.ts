@@ -1,26 +1,20 @@
-import { getAuctionHouseIds, seasonalRealmsEU, seasonalRealmsUS } from 'services/realms';
+import { type Faction, findRealm, findRealmByAuctionHouse } from 'services/realms';
 
 export function getAuctionHouseId(region: string, realmSlug: string, faction: string) {
-  const houses = {
-    eu: getAuctionHouseIds(seasonalRealmsEU),
-    us: getAuctionHouseIds(seasonalRealmsUS),
-  };
+  return findRealm(realmSlug, region)?.auctionHouses[faction as Faction];
+}
 
-  return houses[region!]?.[realmSlug!]?.[faction!];
+/** Realm used until the visitor picks one: the realm production imports prices for. */
+export const DEFAULT_REALM = {
+  realm: 'forever-normal',
+  region: 'eu',
+  faction: 'alliance',
+} as const;
+
+export function getDefaultAuctionHouseId() {
+  return getAuctionHouseId(DEFAULT_REALM.region, DEFAULT_REALM.realm, DEFAULT_REALM.faction);
 }
 
 export function getAuctionHouseRegion(id: number) {
-  if (
-    seasonalRealmsEU.some((realm) =>
-      realm.auctionHouses.some((house) => house.auctionHouseId === id),
-    )
-  )
-    return 'eu';
-  if (
-    seasonalRealmsUS.some((realm) =>
-      realm.auctionHouses.some((house) => house.auctionHouseId === id),
-    )
-  )
-    return 'us';
-  return undefined;
+  return findRealmByAuctionHouse(id)?.region;
 }

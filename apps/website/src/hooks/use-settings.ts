@@ -1,3 +1,4 @@
+import { DEFAULT_REALM } from 'services/auction-house';
 import useLocalStorageState from 'use-local-storage-state';
 
 type Settings = {
@@ -9,9 +10,9 @@ type Settings = {
 export function useSettings(initialValues?: Partial<Settings>) {
   const [settings, setSettings] = useLocalStorageState<Settings>('settings', {
     defaultValue: {
-      realm: initialValues?.realm ?? 'chaos-bolt',
-      region: initialValues?.region ?? 'eu',
-      faction: initialValues?.faction ?? 'alliance',
+      realm: initialValues?.realm ?? DEFAULT_REALM.realm,
+      region: initialValues?.region ?? DEFAULT_REALM.region,
+      faction: initialValues?.faction ?? DEFAULT_REALM.faction,
     },
   });
 
