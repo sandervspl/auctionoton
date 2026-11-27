@@ -13,6 +13,8 @@ process.env.AUCTIONOTON_CLOUDFLARE = '1';
 const stage = process.env.AUCTIONOTON_STAGE ?? 'staging';
 const production = stage === 'production';
 export const PRODUCTION_DOMAIN = 'auctionoton-api.sandervspl.dev';
+// Production Access applications protect /auth/* on this host (see docs/cloudflare-access.md).
+export const PRODUCTION_WEBSITE_DOMAIN = 'auctionoton.sandervspl.dev';
 
 // Plain strings: this Alchemy version sends unresolved Effect names to the Cloudflare API when it
 // creates R2 buckets, Queues and Workers, which only showed up on a fresh stage.
@@ -113,10 +115,6 @@ export default Alchemy.Stack(
       deadLetterQueue: deadLetters.queueName,
       settings: { batchSize: 1, maxConcurrency: 1, maxRetries: 5, retryDelay: 30 },
     });
-    // Production serves only the extension API; the website stays on staging for now.
-    if (production) {
-      return { backend: backend.url, dailyCron: DAILY_CRON, cronEnabled: true };
-    }
     const website = yield* Cloudflare.Website.Vite('Website', {
       name: resourceName('website'),
       rootDir: '../../apps/website',
@@ -135,13 +133,16 @@ export default Alchemy.Stack(
       },
       compatibility: { date: '2026-09-13', flags: ['nodejs_compat'] },
       observability,
+      ...(production ? { domain: PRODUCTION_WEBSITE_DOMAIN } : {}),
       env: {
         TRIAL_BACKEND: backend,
         MARKET: market,
         USERS: users,
         DATA_BACKEND: 'd1',
         APP_ENV: 'production',
-        PROD_SITE_URL: Cloudflare.Worker.URL,
+        PROD_SITE_URL: production
+          ? (`https://${PRODUCTION_WEBSITE_DOMAIN}` as string)
+          : Cloudflare.Worker.URL,
         CLOUDFLARE_ACCESS_ISSUER: Config.string('CLOUDFLARE_ACCESS_ISSUER'),
         CLOUDFLARE_ACCESS_AUD: Config.string('CLOUDFLARE_ACCESS_AUD'),
         CLOUDFLARE_ACCESS_GOOGLE_AUD: Config.string('CLOUDFLARE_ACCESS_GOOGLE_AUD'),
@@ -154,7 +155,7 @@ export default Alchemy.Stack(
       backend: backend.url,
       website: website.url,
       dailyCron: DAILY_CRON,
-      cronEnabled: false,
+      cronEnabled: production,
     };
   }),
 );

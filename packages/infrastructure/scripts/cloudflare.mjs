@@ -26,28 +26,48 @@ const allowed = new Set([
   'CLOUDFLARE_ACCESS_GOOGLE_AUD',
   'CLOUDFLARE_ACCESS_USER_ID_MAP',
 ]);
-// Production uses its own admin and auth secrets from .env.production.local.
+// Production uses its own admin and auth secrets from .env.production.local. Earlier files win,
+// so .env.local overrides .env.
 const envFiles = [
   ...(stage === 'production' ? ['packages/infrastructure/.env.production.local'] : []),
   'packages/infrastructure/.env.local',
+  'packages/infrastructure/.env',
   'apps/website/.env.local',
 ];
+// Access audiences belong to one environment; production must never fall back to staging's.
+const productionOnly = new Set([
+  'CLOUDFLARE_ACCESS_AUD',
+  'CLOUDFLARE_ACCESS_GOOGLE_AUD',
+  'CLOUDFLARE_ACCESS_USER_ID_MAP',
+]);
 for (const path of envFiles) {
   const filename = resolve(root, path);
   if (!existsSync(filename)) continue;
+  const productionFile = path.endsWith('.env.production.local');
   for (const [key, value] of Object.entries(parseEnv(readFileSync(filename, 'utf8')))) {
+    if (stage === 'production' && productionOnly.has(key) && !productionFile) continue;
     if (allowed.has(key) && !env[key]) env[key] = value;
   }
 }
 // Local development may reuse Wrangler's OAuth grant without copying it into the repository.
+// Wrangler keeps it in ~/.wrangler or, on newer installs, its XDG config directory
+// (%APPDATA%\xdg.config on Windows).
 if (!env.CLOUDFLARE_API_TOKEN && !env.CI) {
-  const filename = resolve(homedir(), '.wrangler/config/default.toml');
-  if (existsSync(filename)) {
+  const configDirs = [
+    resolve(homedir(), '.wrangler'),
+    resolve(env.XDG_CONFIG_HOME ?? resolve(homedir(), '.config'), '.wrangler'),
+    ...(env.APPDATA ? [resolve(env.APPDATA, 'xdg.config/.wrangler')] : []),
+  ];
+  for (const directory of configDirs) {
+    const filename = resolve(directory, 'config/default.toml');
+    if (!existsSync(filename)) continue;
     const config = readFileSync(filename, 'utf8');
     const token = config.match(/^oauth_token\s*=\s*"([^"]+)"/m)?.[1];
     const expiration = config.match(/^expiration_time\s*=\s*"([^"]+)"/m)?.[1];
-    if (token && expiration && Date.parse(expiration) > Date.now())
+    if (token && expiration && Date.parse(expiration) > Date.now()) {
       env.CLOUDFLARE_API_TOKEN = token;
+      break;
+    }
   }
 }
 for (const key of allowed) {
