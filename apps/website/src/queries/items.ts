@@ -2,6 +2,7 @@ import { createServerFn } from '@tanstack/react-start';
 import { notFound } from '@tanstack/react-router';
 import { z } from 'zod';
 import { getAuctionHouseId } from 'services/auction-house';
+import { historyRangeSchema } from 'services/history-range';
 import { getItemHistory, getItemWithId } from './items.server';
 
 export const getItemDetail = createServerFn({ method: 'GET' })
@@ -11,6 +12,7 @@ export const getItemDetail = createServerFn({ method: 'GET' })
       region: z.string(),
       faction: z.string(),
       itemSlug: z.string(),
+      range: historyRangeSchema,
     }),
   )
   .handler(async ({ data }) => {
@@ -19,10 +21,10 @@ export const getItemDetail = createServerFn({ method: 'GET' })
     if (!Number.isSafeInteger(itemId) || itemId <= 0 || auctionHouseId == null) {
       throw notFound();
     }
-    const [itemMetadata, itemHistory] = await Promise.all([
+    const [itemMetadata, { points, archiveUnavailable }] = await Promise.all([
       getItemWithId(itemId),
-      getItemHistory(itemId, auctionHouseId, data.region),
+      getItemHistory(itemId, auctionHouseId, data.region, data.range),
     ]);
     if (!itemMetadata) throw notFound();
-    return { itemMetadata, itemHistory };
+    return { itemMetadata, itemHistory: points, archiveUnavailable };
   });

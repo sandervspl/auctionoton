@@ -9,9 +9,11 @@ import {
   beginSnapshot,
   normalizeArchive,
   publishSnapshot,
+  rawArchiveKey,
   snapshotStorageId,
   writeChunk,
 } from '../src/storage';
+import { archiveKey, readArchivedItem } from '../src/history-archive';
 
 beforeAll(() => {
   vi.useFakeTimers({ toFake: ['Date'] });
@@ -42,17 +44,16 @@ const csv = (rows: Price[]) =>
         `${row.itemId},"Item ""${row.itemId}"", test",${row.marketValue},${row.minBuyout},0,${row.historical},2026-09-14T04:00:00Z`,
     ),
   ].join('\n');
-async function seedArchive(job: AuctionJob, data: Price[] | string) {
-  const rawKey = `raw/${snapshotId(job)}.csv`;
+const gzip = (text: string) =>
+  new Response(new Blob([text]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer();
+/** Stores a raw CSV as production does (gzipped), or as plain legacy CSV. */
+async function seedArchive(job: AuctionJob, data: Price[] | string, legacy = false) {
+  const rawKey = legacy ? `raw/${snapshotId(job)}.csv` : rawArchiveKey(job);
   const fetchedAt = `${job.day}T04:00:00.000Z`;
-  const body = typeof data === 'string' ? data : csv(data);
+  const text = typeof data === 'string' ? data : csv(data);
+  const body = legacy ? new TextEncoder().encode(text) : new Uint8Array(await gzip(text));
   await env.SNAPSHOTS.put(rawKey, body, { customMetadata: { fetchedAt } });
-  return {
-    rawKey,
-    fetchedAt,
-    providerModifiedAt: null,
-    bytes: new TextEncoder().encode(body).length,
-  };
+  return { rawKey, fetchedAt, providerModifiedAt: null, bytes: body.byteLength };
 }
 async function importDirect(job: AuctionJob, rows: Price[] | string) {
   await beginSnapshot(env.MARKET, job);
@@ -156,13 +157,33 @@ describe('atomic daily snapshots', () => {
       'https://public-data.tradeskillmaster.com/classic/eu-sod/realm/wild-growth-alliance/items.csv',
     ]);
     expect(archive).toMatchObject({
-      rawKey: 'raw/seasonal-eu-509-2026-09-08.csv',
+      rawKey: 'raw/seasonal-eu-509-2026-09-08.csv.gz',
       providerModifiedAt: '2026-09-14T03:00:00.000Z',
     });
+    const stored = await env.SNAPSHOTS.get(archive.rawKey);
+    const text = await new Response(
+      stored!.body.pipeThrough(new DecompressionStream('gzip')),
+    ).text();
+    expect(text).toBe(csv([item(123, 5)]));
     expect(await archiveHouse(env, archiveJob)).toEqual(archive);
     expect(fetched).toHaveLength(1);
     const manifest = await normalizeArchive(env, archiveJob, archive);
     expect(manifest.rows).toBe(1);
+  });
+
+  it('still normalizes plain CSVs stored before compression', async () => {
+    const legacyJob = job('2026-09-11');
+    await beginSnapshot(env.MARKET, legacyJob);
+    const archive = await seedArchive(legacyJob, [item(123, 7), item(456, 8)], true);
+    expect((await normalizeArchive(env, legacyJob, archive)).rows).toBe(2);
+  });
+
+  it('rejects empty provider responses before compressing them', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response('')),
+    );
+    await expect(archiveHouse(env, job('2026-09-12'))).rejects.toThrow('Empty TSM response body');
   });
 
   it('fails visibly on provider errors and uncatalogued houses', async () => {
@@ -201,6 +222,11 @@ describe('atomic daily snapshots', () => {
       .first<{ n: number }>();
     expect(stored?.n).toBe(1);
     expect((await readPrice()).stats.lastUpdated).toBe('2026-09-10T04:00:00.000Z');
+    // Publication also copies the snapshot into archived history.
+    expect(await env.HISTORY.head(archiveKey('seasonal-eu-509', '2026-09'))).not.toBeNull();
+    expect(await readArchivedItem(env.HISTORY, 'seasonal-eu-509', '2026-09', 123)).toContainEqual(
+      expect.objectContaining({ day: '2026-09-10', minBuyout: 1000 }),
+    );
   });
 });
 

@@ -1,23 +1,24 @@
 import type { Env } from './env';
+import { oldestHotDay } from './history-archive';
 
 export const MAINTENANCE_CRON = '30 4 * * *';
-export const PRICE_RETENTION_DAYS = 30;
-export const RAW_RETENTION_DAYS = 35;
+/** Raw provider CSVs move to R2 Infrequent Access after this many days and are kept forever. */
+export const RAW_STANDARD_DAYS = 35;
 export const CHUNK_RETENTION_DAYS = 7;
 const DAY = 86_400_000;
 const cutoff = (now: string, days: number) => new Date(Date.parse(now) - days * DAY).toISOString();
 
-export const oldestPriceDay = (now: string) => cutoff(now, PRICE_RETENTION_DAYS).slice(0, 10);
-
 // Each Workflow step bounds its SQL work. Subsequent steps resume the backlog.
+// Prices leave D1 only once archived history holds them; the latest published snapshot stays.
 export async function prunePriceBatch(db: D1Database, now: string) {
-  const day = oldestPriceDay(now);
+  const day = oldestHotDay(now);
   let rows = 0;
   let snapshots = 0;
   for (let batch = 0; batch < 20; batch++) {
     const candidate = await db
       .prepare(`SELECT s.id FROM snapshots s
       WHERE s.status = 'complete' AND s.day < ? AND s.prices_pruned_at IS NULL
+      AND s.archived_at IS NOT NULL
       AND NOT EXISTS (SELECT 1 FROM published_houses h WHERE h.snapshot_id = s.id)
       ORDER BY s.day LIMIT 1`)
       .bind(day)
@@ -41,33 +42,28 @@ export async function prunePriceBatch(db: D1Database, now: string) {
   return { rows, snapshots, done: false };
 }
 
-export async function cleanArchiveBatch(env: Pick<Env, 'MARKET' | 'SNAPSHOTS'>, now: string) {
+/**
+ * Removes normalized chunks a week after publication, then the snapshot record once its prices
+ * have left D1. Raw provider CSVs are never deleted; a bucket lifecycle rule moves them to
+ * Infrequent Access.
+ */
+export async function cleanImportArtifactsBatch(
+  env: Pick<Env, 'MARKET' | 'SNAPSHOTS'>,
+  now: string,
+) {
   const chunkCutoff = cutoff(now, CHUNK_RETENTION_DAYS);
-  const rawDay = cutoff(now, RAW_RETENTION_DAYS).slice(0, 10);
-  const candidates = await env.MARKET.prepare(`SELECT s.id, s.snapshot_key, s.raw_key,
-      s.completed_at, s.chunks_cleaned_at,
-      (s.day < ? AND s.prices_pruned_at IS NOT NULL AND s.raw_cleaned_at IS NULL
-       AND NOT EXISTS (SELECT 1 FROM published_houses h WHERE h.snapshot_id = s.id)) AS remove_raw
+  const hotDay = oldestHotDay(now);
+  const candidates = await env.MARKET.prepare(`SELECT s.id, s.snapshot_key, s.chunks_cleaned_at
     FROM snapshots s WHERE s.status = 'complete' AND (
       (s.completed_at < ? AND s.chunks_cleaned_at IS NULL) OR
-      (s.day < ? AND s.prices_pruned_at IS NOT NULL AND s.raw_cleaned_at IS NULL
-       AND NOT EXISTS (SELECT 1 FROM published_houses h WHERE h.snapshot_id = s.id)) OR
-      (s.day < ? AND s.prices_pruned_at IS NOT NULL AND s.raw_cleaned_at IS NOT NULL
-       AND s.chunks_cleaned_at IS NOT NULL
+      (s.day < ? AND s.prices_pruned_at IS NOT NULL AND s.chunks_cleaned_at IS NOT NULL
        AND NOT EXISTS (SELECT 1 FROM published_houses h WHERE h.snapshot_id = s.id)))
     ORDER BY s.id LIMIT 20`)
-    .bind(rawDay, chunkCutoff, rawDay, rawDay)
-    .all<{
-      id: number;
-      snapshot_key: string;
-      raw_key: string | null;
-      completed_at: string;
-      chunks_cleaned_at: string | null;
-      remove_raw: number;
-    }>();
+    .bind(chunkCutoff, hotDay)
+    .all<{ id: number; snapshot_key: string; chunks_cleaned_at: string | null }>();
   let objects = 0;
   for (const row of candidates.results) {
-    if (!row.chunks_cleaned_at && row.completed_at < chunkCutoff) {
+    if (!row.chunks_cleaned_at) {
       // Only completed publications qualify. Active/failed Workflows keep their
       // normalized input, including cached normalization steps waiting to resume.
       const page = await env.SNAPSHOTS.list({
@@ -83,21 +79,11 @@ export async function cleanArchiveBatch(env: Pick<Env, 'MARKET' | 'SNAPSHOTS'>, 
           .bind(now, row.id, row.snapshot_key)
           .run();
     }
-    if (row.remove_raw) {
-      if (row.raw_key) {
-        await env.SNAPSHOTS.delete(row.raw_key);
-        objects++;
-      }
-      await env.MARKET.prepare(
-        "UPDATE snapshots SET raw_cleaned_at = ? WHERE id = ? AND snapshot_key = ? AND status = 'complete'",
-      )
-        .bind(now, row.id, row.snapshot_key)
-        .run();
-    }
+    // Archived history is now the record of which days exist for an auction house.
     await env.MARKET.prepare(`DELETE FROM snapshots WHERE id = ? AND snapshot_key = ? AND status = 'complete' AND day < ?
-      AND prices_pruned_at IS NOT NULL AND chunks_cleaned_at IS NOT NULL AND raw_cleaned_at IS NOT NULL
+      AND prices_pruned_at IS NOT NULL AND chunks_cleaned_at IS NOT NULL
       AND NOT EXISTS (SELECT 1 FROM published_houses WHERE snapshot_id = ?)`)
-      .bind(row.id, row.snapshot_key, rawDay, row.id)
+      .bind(row.id, row.snapshot_key, hotDay, row.id)
       .run();
   }
   return { objects, done: candidates.results.length === 0 };

@@ -1,5 +1,7 @@
 **Auctionoton market storage: findings and implementation plan**
 
+> **Superseded in part (27 November 2026):** [ADR 0001](adr/0001-archive-price-history-to-r2-parquet.md) replaces the 30-day price and 35-day raw-archive deletion described below. D1 now keeps 14 days of hot history, older prices are archived to monthly Parquet files in R2, and raw CSVs are kept forever.
+
 Research date: 14 September 2026. Source baseline: `1362579`. Recommendation: keep D1, compact the shared catalog and snapshot references, and implement retention before expanding scheduled ingestion.
 
 The initial measurement of `auctionoton-staging-market` was **4,931,584 bytes**, but almost all of that was the shared item catalog. It contained 22,842 catalog items, 4,299 price rows, and one completed daily snapshot: Wild Growth EU Alliance, auction house 509, on 13 September. Adding a market does not require another copy of the catalog.

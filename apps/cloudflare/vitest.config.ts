@@ -9,7 +9,7 @@ export default defineConfig({
         compatibilityDate: '2026-09-13',
         compatibilityFlags: ['nodejs_compat'],
         d1Databases: ['MARKET', 'USERS', 'MIGRATION_TEST'],
-        r2Buckets: ['SNAPSHOTS'],
+        r2Buckets: ['SNAPSHOTS', 'HISTORY'],
         queueProducers: { AUCTION_JOBS: 'test-auctions', FAILED_JOBS: 'test-failures' },
         workflows: {
           AUCTION_IMPORT: { name: 'test-import', className: 'AuctionImport' },

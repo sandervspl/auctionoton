@@ -30,7 +30,14 @@ type Props = {
   title: React.ReactNode;
 };
 
+/** Days covered by the series, used to pick tick labels and point density. */
+function spanDays(data: PricePoint[]) {
+  if (data.length < 2) return 0;
+  return dayjs(data.at(-1)!.x).diff(dayjs(data[0]!.x), 'day');
+}
+
 export const PriceChart = ({ data, dataId, title }: Props) => {
+  const longRange = spanDays(data) > 120;
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -49,7 +56,7 @@ export const PriceChart = ({ data, dataId, title }: Props) => {
               tickSize: 1,
               tickPadding: 16,
               tickValues: xTickValues(data),
-              format: (value) => dayjs(value).format('MMM D'),
+              format: (value) => dayjs(value).format(longRange ? 'MMM YYYY' : 'MMM D'),
             }}
             axisLeft={{
               tickSize: 0,
@@ -58,7 +65,7 @@ export const PriceChart = ({ data, dataId, title }: Props) => {
               format: (value) => formatCoinTick(Number(value)),
             }}
             colors={['#FFD700']}
-            pointSize={6}
+            pointSize={data.length > 60 ? 0 : 6}
             useMesh
             gridYValues={6}
             tooltip={({ point }) => (
