@@ -305,3 +305,16 @@ it('accepts Sale rate uploads only from the operator', async () => {
   expect(body.results[0]?.status).toBe('stored');
   expect(body.indexes).toBeDefined();
 });
+
+it('keeps Observed items whichever catalog lists them', async () => {
+  // Forever's auction houses list 20816, which only the Anniversary catalog contains.
+  await recordSweep(env.MARKET, 'forever', 'f1', old, [[13468, 20816]], now.toISOString());
+  await rebuildSearchIndexes(env, now);
+  const forever = (await loadIndex('forever')).items.map((item) => item.id);
+  // 90001 is a new item within the grace window that every catalog lists.
+  expect(forever).toEqual([13468, 20816, 90001]);
+  // Unobserved Anniversary items stay out of Forever even before Anniversary is swept.
+  const anniversary = (await loadIndex('anniversary')).items.map((item) => item.id);
+  expect(anniversary).toContain(20816);
+  expect(anniversary).not.toContain(252486);
+});
