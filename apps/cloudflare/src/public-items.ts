@@ -1,7 +1,8 @@
 import { Hono } from 'hono';
 import type { Context } from 'hono';
+import { type Region, type Version, versions } from './contracts';
 import type { Env } from './env';
-import { versions, type Region, type Version } from './contracts';
+import { syncHouseQuietly } from './house-sync';
 import { itemIconUrl } from './item-icons';
 import { PUBLIC_CACHE_CONTROL, marketCacheTag } from './public-cache';
 
@@ -108,6 +109,12 @@ async function respond(c: Context<{ Bindings: Env }>, single: boolean) {
     ids.some((id) => !Number.isSafeInteger(id) || id <= 0)
   ) {
     return c.json({ error: true, reason: 'Invalid item query' }, 400);
+  }
+  const sync = syncHouseQuietly(c.env, { auctionHouseId: ah, version, region });
+  try {
+    c.executionCtx.waitUntil(sync);
+  } catch {
+    // Callers without an ExecutionContext (some tests) let the sync finish on its own.
   }
   const result = await readPublicItems(c.env.MARKET, { auctionHouseId: ah, version, region }, ids);
   if (result.ambiguous)
