@@ -167,6 +167,14 @@ it('expands compact icons from every item catalog', () => {
   expect(
     compactItemIcon('https://render.worldofwarcraft.com/classicann-eu/icons/56/inv_boots_09.jpg'),
   ).toBe('classicann:inv_boots_09');
+  expect(
+    compactItemIcon(
+      'https://render.worldofwarcraft.com/classicann-eu/icons/56/inv-mount_raven_54.jpg',
+    ),
+  ).toBe('classicann:inv-mount_raven_54');
+  expect(itemIconUrl('classicann:inv-mount_raven_54')).toBe(
+    'https://render.worldofwarcraft.com/classicann-eu/icons/56/inv-mount_raven_54.jpg',
+  );
   expect(() =>
     compactItemIcon('https://render.worldofwarcraft.com/retail-eu/icons/56/x.jpg'),
   ).toThrow();
