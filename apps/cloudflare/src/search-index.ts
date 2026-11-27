@@ -406,8 +406,15 @@ export async function rebuildSearchIndexes(env: SearchIndexEnv, now = new Date()
     const saleRates = new Map(sales.results.map((row) => [row.id, row.soldPerDay]));
     // Until a version's first successful sweep, every unbound catalog item is searchable.
     const items: SearchItem[] = candidates
-      .filter((row) => row.catalogs.split(',').includes(versionCatalogs[version]))
-      .filter((row) => !swept || realms.has(row.id) || row.firstSeenAt >= graceStart)
+      // An Observed item trades in this version, whichever catalogs list it: Blizzard's Forever
+      // catalog misses many. Unobserved items (no sweep yet, or within the grace window) must
+      // come from the version's own catalog.
+      .filter(
+        (row) =>
+          realms.has(row.id) ||
+          (row.catalogs.split(',').includes(versionCatalogs[version]) &&
+            (!swept || row.firstSeenAt >= graceStart)),
+      )
       .map((row) => ({
         id: row.id,
         name: row.name,
