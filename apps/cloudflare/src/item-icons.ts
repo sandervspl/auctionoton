@@ -5,7 +5,8 @@ const RENDER_BASE = 'https://render.worldofwarcraft.com/';
 export const ITEM_ICON_BASE = `${RENDER_BASE}classic1x-eu/icons/56/`;
 export const FALLBACK_ITEM_ICON = `${ITEM_ICON_BASE}inv_misc_questionmark.jpg`;
 const iconCatalogs = ['classic1x', 'classicann', 'forever'] as const;
-const COMPACT_ICON = /^(?:(classicann|forever):)?([a-z0-9_]+)$/;
+// A few names contain hyphens, e.g. `inv-mount_raven_54`.
+const COMPACT_ICON = /^(?:(classicann|forever):)?([a-z0-9_-]+)$/;
 
 export const isCompactItemIcon = (icon: string) => COMPACT_ICON.test(icon);
 
@@ -19,7 +20,7 @@ export function itemIconUrl(icon: string): string {
 
 export function compactItemIcon(url: string): string {
   const match =
-    /^https:\/\/render\.worldofwarcraft\.com\/([a-z0-9]+)-eu\/icons\/56\/([a-z0-9_]+)\.jpg$/.exec(
+    /^https:\/\/render\.worldofwarcraft\.com\/([a-z0-9]+)-eu\/icons\/56\/([a-z0-9_-]+)\.jpg$/.exec(
       url,
     );
   const catalog = match?.[1] as (typeof iconCatalogs)[number] | undefined;
