@@ -4,7 +4,7 @@ import * as RemovalPolicy from 'alchemy/RemovalPolicy';
 import * as Config from 'effect/Config';
 import * as Effect from 'effect/Effect';
 import type { AuctionJob } from '../../apps/cloudflare/src/contracts';
-import { MAINTENANCE_CRON } from '../../apps/cloudflare/src/retention';
+import { MAINTENANCE_CRON, RAW_STANDARD_DAYS } from '../../apps/cloudflare/src/retention';
 
 // The existing Node build remains available during the compatibility trial.
 process.env.AUCTIONOTON_CLOUDFLARE = '1';
@@ -34,6 +34,30 @@ const users = Cloudflare.D1.Database('Users', {
 }).pipe(RemovalPolicy.retain());
 const snapshots = Cloudflare.R2.Bucket('Snapshots', {
   name: resourceName('snapshots'),
+  lifecycleRules: [
+    {
+      id: 'abort-incomplete-uploads',
+      enabled: true,
+      abortMultipartUploadsTransition: { condition: { type: 'Age', maxAge: 86400 } },
+    },
+    {
+      // Raw provider CSVs are kept forever for reprocessing but almost never read.
+      id: 'raw-to-infrequent-access',
+      enabled: true,
+      prefix: 'raw/',
+      storageClassTransitions: [
+        {
+          condition: { type: 'Age', maxAge: RAW_STANDARD_DAYS * 86400 },
+          storageClass: 'InfrequentAccess',
+        },
+      ],
+    },
+  ],
+}).pipe(RemovalPolicy.retain());
+// Archived history: monthly Parquet files per auction house, kept forever in Standard storage
+// because charts read them (docs/adr/0001).
+const history = Cloudflare.R2.Bucket('History', {
+  name: resourceName('history'),
   lifecycleRules: [
     {
       id: 'abort-incomplete-uploads',
@@ -74,6 +98,7 @@ export const Backend = Cloudflare.Worker('Backend', {
     MARKET: market,
     USERS: users,
     SNAPSHOTS: snapshots,
+    HISTORY: history,
     AUCTION_JOBS: jobs,
     FAILED_JOBS: failures,
     AUCTION_IMPORT: Cloudflare.Workflow<AuctionJob>('AuctionImport'),
@@ -127,6 +152,7 @@ export default Alchemy.Stack(
           '../../packages/typescript-config/**',
           '../../apps/cloudflare/src/website-data.ts',
           '../../apps/cloudflare/src/item-icons.ts',
+          '../../apps/cloudflare/src/history-archive.ts',
         ],
         exclude: ['src/styled-system/**', 'src/routeTree.gen.ts', '**/node_modules/**'],
         lockfile: true,
@@ -138,6 +164,7 @@ export default Alchemy.Stack(
         TRIAL_BACKEND: backend,
         MARKET: market,
         USERS: users,
+        HISTORY: history,
         DATA_BACKEND: 'd1',
         APP_ENV: 'production',
         PROD_SITE_URL: production

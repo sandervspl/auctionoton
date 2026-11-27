@@ -3,11 +3,28 @@ import type { Archive, AuctionJob, Manifest, Price } from './contracts';
 import { CsvParser } from './csv';
 import type { Env } from './env';
 import { auctionHouseCsvUrl } from './realms';
-import { oldestPriceDay } from './retention';
+import { HOT_HISTORY_DAYS, oldestHotDay } from './history-archive';
 
 export const CHUNK_ROWS = 500;
 export const MAX_RAW_BYTES = 64 * 1024 * 1024;
 export const chunkKey = (id: string, index: number) => `normalized/${id}/${index}.json`;
+/** Raw provider CSVs are stored gzipped and kept forever. Older objects are plain `.csv`. */
+export const rawArchiveKey = (job: AuctionJob) => `raw/${snapshotId(job)}.csv.gz`;
+
+/** Fails the stream once more than `limit` decoded bytes pass through, or when it is empty. */
+function byteLimit(limit: number, requireData = false) {
+  let total = 0;
+  return new TransformStream<Uint8Array, Uint8Array>({
+    transform(chunk, controller) {
+      total += chunk.byteLength;
+      if (total > limit) throw new Error('TSM snapshot exceeds the 64 MiB trial limit');
+      controller.enqueue(chunk);
+    },
+    flush() {
+      if (requireData && total === 0) throw new Error('Empty TSM response body');
+    },
+  });
+}
 
 export async function archiveStream(
   bucket: R2Bucket,
@@ -57,7 +74,7 @@ export async function archiveStream(
 }
 
 export async function archiveHouse(env: Env, job: AuctionJob): Promise<Archive> {
-  const rawKey = `raw/${snapshotId(job)}.csv`;
+  const rawKey = rawArchiveKey(job);
   const existing = await env.SNAPSHOTS.head(rawKey);
   if (existing?.customMetadata?.fetchedAt) {
     return {
@@ -87,9 +104,14 @@ export async function archiveHouse(env: Env, job: AuctionJob): Promise<Archive> 
   const providerModifiedAt = Number.isFinite(modified)
     ? new Date(modified).toISOString()
     : (job.providerModifiedAt ?? null);
-  const bytes = await archiveStream(env.SNAPSHOTS, rawKey, response.body, {
-    httpMetadata: { contentType: 'text/csv' },
+  // Compressing on the way in avoids rewriting each object later; it shrinks CSVs about 90%.
+  const compressed = response.body
+    .pipeThrough(byteLimit(MAX_RAW_BYTES, true))
+    .pipeThrough(new CompressionStream('gzip'));
+  const bytes = await archiveStream(env.SNAPSHOTS, rawKey, compressed, {
+    httpMetadata: { contentType: 'application/gzip' },
     customMetadata: {
+      encoding: 'gzip',
       fetchedAt,
       providerModifiedAt: providerModifiedAt ?? '',
       contentEncoding: response.headers.get('content-encoding') ?? '',
@@ -152,7 +174,11 @@ export async function normalizeArchive(
       httpMetadata: { contentType: 'application/json' },
     });
   };
-  for await (const bytes of raw.body) {
+  // Objects written before compression was introduced are plain CSV.
+  const body = archive.rawKey.endsWith('.gz')
+    ? raw.body.pipeThrough(new DecompressionStream('gzip')).pipeThrough(byteLimit(MAX_RAW_BYTES))
+    : raw.body;
+  for await (const bytes of body) {
     // Feed bounded slices even if the source delivers a single large buffer.
     for (let offset = 0; offset < bytes.length; offset += 16_384) {
       const text = decoder.decode(bytes.subarray(offset, offset + 16_384), { stream: true });
@@ -178,8 +204,9 @@ export async function beginSnapshot(db: D1Database, job: AuctionJob) {
     .first<{ status: string }>();
   if (existing?.status === 'complete') return false;
   // Collected daily keys must never be reused while an R2 cleanup may retry.
-  if (!existing && job.day < oldestPriceDay(new Date().toISOString()))
-    throw new Error('New snapshots must be within the 30-day retention window');
+  // Rejecting older days keeps sealed archive months unchanged.
+  if (!existing && job.day < oldestHotDay(Date.now()))
+    throw new Error(`New snapshots must be within the ${HOT_HISTORY_DAYS}-day retention window`);
   await db
     .prepare(`INSERT INTO snapshots(snapshot_key, house_key, region, version, auction_house_id, day, status)
     VALUES (?, ?, ?, ?, ?, ?, 'writing')

@@ -9,10 +9,7 @@ type Props = {
     minBuyout: number;
     marketValue: number;
     historical: number;
-    timestamp: Date | null;
-    icon: string | null;
-    name: string | null;
-    quality: number | null;
+    timestamp: Date;
   }[];
 };
 

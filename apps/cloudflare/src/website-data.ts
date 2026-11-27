@@ -1,4 +1,14 @@
 import type { D1Database } from '@cloudflare/workers-types';
+import {
+  HOT_HISTORY_DAYS,
+  archiveMonth,
+  isSealedMonth,
+  listArchivedMonths,
+  monthsBetween,
+  oldestHotDay,
+  readArchivedItem,
+} from './history-archive';
+import type { ArchivedPrice, HistoryBucket } from './history-archive';
 import { itemIconUrl } from './item-icons';
 import { findAuctionHouse } from './realms';
 
@@ -7,7 +17,34 @@ import { findAuctionHouse } from './realms';
 export type WebsiteDatabases = {
   MARKET: Pick<D1Database, 'prepare' | 'batch'>;
   USERS: Pick<D1Database, 'prepare' | 'batch'>;
+  /** Archived history; long chart ranges report it unavailable when absent. */
+  HISTORY?: HistoryBucket;
+  /** Edge cache for archived month slices, e.g. `caches.default`. */
+  cache?: HistoryCache;
 };
+export type HistoryCache = {
+  match(request: Request): Promise<Response | undefined>;
+  put(request: Request, response: Response): Promise<void>;
+};
+
+/** Chart ranges on the item page, in days. `all` reads every archived month. */
+export const historyRanges = { '7d': 7, '30d': 30, '90d': 90, '1y': 365, all: null } as const;
+export type HistoryRange = keyof typeof historyRanges;
+export type HistoryPoint = {
+  minBuyout: number;
+  marketValue: number;
+  historical: number;
+  timestamp: Date;
+};
+const DAY = 86_400_000;
+const YEAR_SECONDS = 365 * 86_400;
+/** Daily imports start at 04:00 UTC; unsealed archive months may change after each one. */
+function secondsUntilNextImport(now: number) {
+  const next = new Date(now);
+  next.setUTCHours(5, 0, 0, 0);
+  if (next.getTime() <= now) next.setTime(next.getTime() + DAY);
+  return Math.max(60, Math.ceil((next.getTime() - now) / 1000));
+}
 export type ItemMetadata = {
   id: number;
   name: string;
@@ -35,7 +72,52 @@ type Price = {
   timestamp: string;
 };
 
-export function websiteData({ MARKET: market, USERS: users }: WebsiteDatabases) {
+export function websiteData({
+  MARKET: market,
+  USERS: users,
+  HISTORY: archive,
+  cache,
+}: WebsiteDatabases) {
+  /** Reads through the edge cache: sealed months never change, others until the next import. */
+  async function cached<T>(path: string, ttlSeconds: number, load: () => Promise<T>): Promise<T> {
+    const request = new Request(`https://history-archive.internal/${path}`);
+    const hit = await cache?.match(request);
+    if (hit) return hit.json() as Promise<T>;
+    const value = await load();
+    await cache?.put(
+      request,
+      new Response(JSON.stringify(value), {
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': `public, max-age=${ttlSeconds}`,
+        },
+      }),
+    );
+    return value;
+  }
+  async function archivedItemHistory(house: string, itemId: number, fromDay: string | null) {
+    if (!archive) throw new Error('Archived history is not bound');
+    const now = Date.now();
+    const lastMonth = archiveMonth(oldestHotDay(now));
+    const months = fromDay
+      ? monthsBetween(fromDay, oldestHotDay(now))
+      : (
+          await cached(`v1/${house}/months`, secondsUntilNextImport(now), () =>
+            listArchivedMonths(archive, house),
+          )
+        ).filter((month) => month <= lastMonth);
+    const slices = await Promise.all(
+      months.map((month) =>
+        cached(
+          `v1/${house}/${month}/${itemId}`,
+          isSealedMonth(month, now) ? YEAR_SECONDS : secondsUntilNextImport(now),
+          () => readArchivedItem(archive, house, month, itemId),
+        ),
+      ),
+    );
+    return slices.flat() as ArchivedPrice[];
+  }
+
   async function item(id: number) {
     const row = await market
       .prepare(`SELECT ${metadataColumns} FROM item_metadata WHERE id = ?`)
@@ -58,27 +140,51 @@ export function websiteData({ MARKET: market, USERS: users }: WebsiteDatabases) 
     }
     return result;
   }
-  async function history(itemId: number, auctionHouseId: number, region: string) {
-    const rows = await market
+  /**
+   * Price history for one item. Hot history comes from D1; ranges longer than hot history add
+   * archived history, and fall back to hot history alone when the archive cannot be read.
+   */
+  async function history(
+    itemId: number,
+    auctionHouseId: number,
+    region: string,
+    range: HistoryRange = '7d',
+  ): Promise<{ points: HistoryPoint[]; archiveUnavailable: boolean }> {
+    const days = historyRanges[range];
+    const from = days === null ? null : new Date(Date.now() - days * DAY).toISOString();
+    const house = houseKeyFor(auctionHouseId, region);
+    const hot = await market
       .prepare(`SELECT p.min_buyout AS minBuyout,
-      p.market_value AS marketValue, p.historical,
-      s.fetched_at AS timestamp, m.icon, m.name, m.quality
+      p.market_value AS marketValue, p.historical, s.fetched_at AS timestamp, s.day
       FROM snapshots s JOIN prices p ON p.snapshot_id = s.id
-      LEFT JOIN item_metadata m ON m.id = p.item_id
       WHERE s.status = 'complete' AND s.house_key = ?
       AND p.item_id = ?
       AND s.fetched_at > ? ORDER BY s.fetched_at ASC, s.id ASC`)
-      .bind(
-        houseKeyFor(auctionHouseId, region),
-        itemId,
-        new Date(Date.now() - 7 * 86400000).toISOString(),
-      )
-      .all<Price & { icon: string | null; name: string | null; quality: number | null }>();
-    return rows.results.map((row) => ({
+      .bind(house, itemId, from ?? '')
+      .all<Omit<HistoryPoint, 'timestamp'> & { timestamp: string; day: string }>();
+    const points = hot.results.map(({ day: _day, ...row }) => ({
       ...row,
       timestamp: new Date(row.timestamp),
-      icon: row.icon === null ? null : itemIconUrl(row.icon),
     }));
+    if (days !== null && days <= HOT_HISTORY_DAYS) return { points, archiveUnavailable: false };
+    try {
+      const hotDays = new Set(hot.results.map((row) => row.day));
+      const archived = (await archivedItemHistory(house, itemId, from?.slice(0, 10) ?? null))
+        .filter((row) => !hotDays.has(row.day) && (!from || row.fetchedAt > Date.parse(from)))
+        .map((row) => ({
+          minBuyout: row.minBuyout,
+          marketValue: row.marketValue,
+          historical: row.historical,
+          timestamp: new Date(row.fetchedAt),
+        }));
+      const merged = [...archived, ...points].sort(
+        (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+      );
+      return { points: merged, archiveUnavailable: false };
+    } catch (error) {
+      console.error('Archived history read failed', { house, itemId, error: String(error) });
+      return { points, archiveUnavailable: true };
+    }
   }
   async function sectionOwned(userId: string, sectionId: number) {
     const section = await users

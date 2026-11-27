@@ -313,6 +313,12 @@ test('search and item pages use D1 through the built server functions', async ()
     assert.match(html, /Linen Cloth/);
     assert.doesNotMatch(html, /Unable to load this page/);
   }
+  // Long ranges read archived history; without that binding the page keeps hot history.
+  const longRange = await fetch(`${origin}/item/wild-growth/eu/alliance/linen-cloth-2589?range=1y`);
+  assert.equal(longRange.status, 200);
+  const longHtml = await longRange.text();
+  assert.match(longHtml, /aria-label="Chart range"/);
+  assert.match(longHtml, /Older price history is temporarily unavailable/);
 });
 
 test('signed-in users can repeat searches and manage their own dashboard through server functions', async () => {
