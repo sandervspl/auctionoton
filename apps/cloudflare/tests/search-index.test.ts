@@ -3,6 +3,7 @@ import { createScheduledController, introspectWorkflow } from 'cloudflare:test';
 import { env } from 'cloudflare:workers';
 import { beforeEach, expect, it } from 'vitest';
 import worker from '../src/index';
+import { compactItemIcon, itemIconUrl } from '../src/item-icons';
 import {
   SWEEP_CRON,
   observeRealm,
@@ -32,13 +33,15 @@ beforeEach(async () => {
     env.MARKET.prepare('DELETE FROM item_sale_rates'),
     env.MARKET.prepare('DELETE FROM sale_rate_uploads'),
     env.MARKET.prepare(`INSERT INTO item_metadata
-      (id, name, slug, quality, icon, binding, item_subclass, first_seen_at) VALUES
-      (13468, 'Black Lotus', 'black-lotus', 2, 'inv_misc_herb_blacklotus', NULL, 'Herb', '${old}'),
-      (12360, 'Arcanite Bar', 'arcanite-bar', 2, 'inv_misc_stonetablet_05', NULL, 'Metal & Stone', '${old}'),
-      (19019, 'Thunderfury, Blessed Blade of the Windseeker', 'thunderfury', 5, '', 'ON_ACQUIRE', 'Sword', '${old}'),
-      (5805, 'Heart of Zeal', 'heart-of-zeal', 1, '', 'QUEST', 'Quest', '${old}'),
-      (90001, 'Brand New Bar', 'brand-new-bar', 1, 'https://example.com/legacy.jpg', NULL, '', '2026-11-20T00:00:00.000Z'),
-      (90002, 'Never Listed', 'never-listed', 1, '', NULL, '', '${old}')`),
+      (id, name, slug, quality, icon, binding, item_subclass, first_seen_at, catalogs) VALUES
+      (13468, 'Black Lotus', 'black-lotus', 2, 'inv_misc_herb_blacklotus', NULL, 'Herb', '${old}', 'classic1x,classicann,forever'),
+      (12360, 'Arcanite Bar', 'arcanite-bar', 2, 'inv_misc_stonetablet_05', NULL, 'Metal & Stone', '${old}', 'classic1x,classicann,forever'),
+      (19019, 'Thunderfury, Blessed Blade of the Windseeker', 'thunderfury', 5, '', 'ON_ACQUIRE', 'Sword', '${old}', 'classic1x,classicann,forever'),
+      (5805, 'Heart of Zeal', 'heart-of-zeal', 1, '', 'QUEST', 'Quest', '${old}', 'classic1x,classicann,forever'),
+      (90001, 'Brand New Bar', 'brand-new-bar', 1, 'https://example.com/legacy.jpg', NULL, '', '2026-11-20T00:00:00.000Z', 'classic1x,classicann,forever'),
+      (90002, 'Never Listed', 'never-listed', 1, '', NULL, '', '${old}', 'classic1x,classicann,forever'),
+      (252486, 'Ironfeather Leggings', 'ironfeather-leggings', 4, 'forever:134651', 'ON_EQUIP', 'Leather', '${old}', 'forever'),
+      (20816, 'Delicate Copper Wire', 'delicate-copper-wire', 1, 'classicann:inv_misc_wire_01', NULL, 'Parts', '${old}', 'classicann')`),
   ]);
 });
 
@@ -145,7 +148,28 @@ it('builds per Game version indexes of Searchable items with Popularity', async 
   expect(createSearchEngine(era.items, era.synonyms).search('bl')[0]?.name).toBe('Black Lotus');
 
   const forever = await loadIndex('forever');
-  expect(forever.items.map((item) => item.id)).toEqual([12360, 13468, 90001, 90002]);
+  // Forever holds its own catalog's items, never Anniversary's.
+  expect(forever.items.map((item) => item.id)).toEqual([12360, 13468, 90001, 90002, 252486]);
+  expect(forever.items.at(-1)?.icon).toBe('forever:134651');
+  expect(era.items.map((item) => item.id)).not.toContain(252486);
+  const anniversary = await loadIndex('anniversary');
+  expect(anniversary.items.map((item) => item.id)).toContain(20816);
+  expect(anniversary.items.map((item) => item.id)).not.toContain(252486);
+});
+
+it('expands compact icons from every item catalog', () => {
+  expect(itemIconUrl('inv_misc_herb_blacklotus')).toBe(
+    'https://render.worldofwarcraft.com/classic1x-eu/icons/56/inv_misc_herb_blacklotus.jpg',
+  );
+  expect(itemIconUrl('forever:134651')).toBe(
+    'https://render.worldofwarcraft.com/forever-eu/icons/56/134651.jpg',
+  );
+  expect(
+    compactItemIcon('https://render.worldofwarcraft.com/classicann-eu/icons/56/inv_boots_09.jpg'),
+  ).toBe('classicann:inv_boots_09');
+  expect(() =>
+    compactItemIcon('https://render.worldofwarcraft.com/retail-eu/icons/56/x.jpg'),
+  ).toThrow();
 });
 
 it('keeps an unchanged index at the same URL and removes superseded files after a day', async () => {

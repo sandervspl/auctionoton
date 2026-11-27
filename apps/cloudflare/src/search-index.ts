@@ -9,6 +9,7 @@ import {
 } from '@auctionoton/search';
 import type { Region } from './contracts';
 import { CsvParser } from './csv';
+import { isCompactItemIcon } from './item-icons';
 import { publicDataOrigin, realmCatalog } from './realms';
 
 // Builds the per Game version item search indexes (docs/adr/0001-in-browser-item-search.md) and
@@ -333,8 +334,18 @@ export function popularityScore(realms: number, soldPerDay: number | undefined) 
 
 // --- Index build ---
 
+/** The Blizzard item catalog (see import-item-catalog.mjs) that lists each Game version's items. */
+export const versionCatalogs: Record<SearchableVersion, string> = {
+  era: 'classic1x',
+  hardcore: 'classic1x',
+  seasonal: 'classic1x',
+  anniversary: 'classicann',
+  forever: 'forever',
+};
+
 type CatalogRow = {
   id: number;
+  catalogs: string;
   name: string;
   slug: string;
   quality: number;
@@ -348,7 +359,7 @@ async function searchCandidates(db: Database) {
   // Unknown binding (before the next catalog import) counts as unbound.
   for (let after = 0; ; ) {
     const page = await db
-      .prepare(`SELECT id, name, slug, quality, icon, item_subclass AS type,
+      .prepare(`SELECT id, name, slug, quality, icon, item_subclass AS type, catalogs,
         first_seen_at AS firstSeenAt FROM item_metadata
         WHERE id > ? AND (binding IS NULL OR binding NOT IN ('ON_ACQUIRE', 'QUEST'))
         ORDER BY id LIMIT 5000`)
@@ -395,12 +406,13 @@ export async function rebuildSearchIndexes(env: SearchIndexEnv, now = new Date()
     const saleRates = new Map(sales.results.map((row) => [row.id, row.soldPerDay]));
     // Until a version's first successful sweep, every unbound catalog item is searchable.
     const items: SearchItem[] = candidates
+      .filter((row) => row.catalogs.split(',').includes(versionCatalogs[version]))
       .filter((row) => !swept || realms.has(row.id) || row.firstSeenAt >= graceStart)
       .map((row) => ({
         id: row.id,
         name: row.name,
         slug: row.slug,
-        icon: /^[a-z0-9_]+$/.test(row.icon) ? row.icon : '',
+        icon: isCompactItemIcon(row.icon) ? row.icon : '',
         quality: row.quality,
         type: row.type || null,
         popularity: popularityScore(realms.get(row.id) ?? 0, saleRates.get(row.id)),
