@@ -103,6 +103,9 @@ export function ItemSearch(props: Props) {
   const [inputValue, setValue] = React.useState('');
   const [pending, setPending] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  // When we close the list, Ark moves focus back to the input on the next frame; that
+  // focus must not reopen the search or bring a phone's keyboard back.
+  const closedAt = React.useRef(0);
   const ref = React.useMemo(() => mergeRefs(inputRef, props.ref), [props.ref]);
   const navigate = useNavigate();
   const recordSearch = useRecordSearch();
@@ -168,6 +171,7 @@ export function ItemSearch(props: Props) {
   const showViewAll = query.length > 0 && items.length > 0 && !props.onItemSelect;
 
   function close() {
+    closedAt.current = performance.now();
     setOpen(false);
     inputRef.current?.blur();
   }
@@ -271,7 +275,11 @@ export function ItemSearch(props: Props) {
             ref={ref}
             autoFocus={props.autoFocus}
             enterKeyHint="search"
-            onFocus={() => {
+            onFocus={(e) => {
+              if (performance.now() - closedAt.current < 500) {
+                e.currentTarget.blur();
+                return;
+              }
               if (engine.status === 'loading' || engine.status === 'error') engine.load();
               setOpen(true);
             }}
